@@ -1,0 +1,42 @@
+[workspace]
+members = ["crates/ef-testing"]
+resolver = "2"
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+authors = [
+  "Elias Tazartes <@eikix>",
+  "Clement Walter <@clementwalter>",
+  "Gregory Edison <@greged93>",
+  "Johann Bestowrous <@jobez>",
+  "Harsh Bajpai <@bajpai244>",
+  "Danilo Kim <@danilowhk>",
+]
+description = "EF standard testing for Kakarot"
+homepage = "https://github.com/kkrt-labs"
+repository = "https://github.com/kkrt-labs/ef-tests"
+readme = "./README.md"
+license = "MIT"
+
+[workspace.dependencies]
+# Eth deps
+ef-tests = { git = "https://github.com/paradigmxyz/reth.git", features = ["ef-tests"] }
+
+# Kakarot deps
+kakarot-rpc-core = { git = "https://github.com/kkrt-labs/kakarot-rpc.git" }
+
+# Starknet deps
+katana-core = { git = 'https://github.com/dojoengine/dojo', rev = "7893eed" }
+dojo-test-utils = { git = 'https://github.com/dojoengine/dojo', rev = "7893eed" }
+
+[patch."https://github.com/starkware-libs/blockifier"]
+blockifier = { git = "https://github.com/dojoengine/blockifier", rev = "c794d1b" }
+
+[patch.crates-io]
+cairo-felt = { git = "https://github.com/dojoengine/cairo-rs.git", rev = "262b7eb4b11ab165a2a936a5f914e78aa732d4a2" }
+cairo-vm = { git = "https://github.com/dojoengine/cairo-rs.git", rev = "262b7eb4b11ab165a2a936a5f914e78aa732d4a2" }
+revm = { git = "https://github.com/bluealloy/revm/", branch = "release/v25" }
+revm-primitives = { git = "https://github.com/bluealloy/revm/", branch = "release/v25" }
+
+
