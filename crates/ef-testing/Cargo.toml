@@ -6,4 +6,15 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+# Eth deps
+reth-rlp = { workspace = true }
 ef-tests = { workspace = true }
+
+# Kakarot deps
+kakarot-rpc-core = { workspace = true }
+conformance-test-utils = { workspace = true }
+
+# Starknet deps
+dojo-test-utils = { workspace = true }
+katana-core = { workspace = true }
+starknet_api = { workspace = true }
