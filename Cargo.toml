@@ -22,13 +22,22 @@ license = "MIT"
 [workspace.dependencies]
 # Eth deps
 ef-tests = { git = "https://github.com/paradigmxyz/reth.git", features = ["ef-tests"] }
+reth-rlp = { git = "https://github.com/paradigmxyz/reth.git", rev = "fb710e5" }
 
 # Kakarot deps
+conformance-test-utils = { git = "https://github.com/kkrt-labs/kakarot-rpc.git" }
 kakarot-rpc-core = { git = "https://github.com/kkrt-labs/kakarot-rpc.git" }
 
 # Starknet deps
-katana-core = { git = 'https://github.com/dojoengine/dojo', rev = "7893eed" }
 dojo-test-utils = { git = 'https://github.com/dojoengine/dojo', rev = "7893eed" }
+katana-core = { git = 'https://github.com/dojoengine/dojo', rev = "7893eed" }
+starknet_api = { git = "https://github.com/starkware-libs/starknet-api", rev = "ecc9b6946ef13003da202838e4124a9ad2efabb0" }
+
+# Other
+bytes = "1"
+
+[patch."https://github.com/ethereum/c-kzg-4844"]
+c-kzg = { git = "https://github.com/rjected/c-kzg-4844", branch = "dan/add-serde-feature" }
 
 [patch."https://github.com/starkware-libs/blockifier"]
 blockifier = { git = "https://github.com/dojoengine/blockifier", rev = "c794d1b" }
