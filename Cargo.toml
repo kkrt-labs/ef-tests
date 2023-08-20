@@ -30,8 +30,8 @@ hive-utils = { git = "https://github.com/kkrt-labs/kakarot-rpc.git" }
 kakarot-rpc-core = { git = "https://github.com/kkrt-labs/kakarot-rpc.git" }
 
 # Starknet deps
-dojo-test-utils = { path = "/Users/jmsb/exps/internet-computers/starknet/dojo/crates/dojo-test-utils" }
-katana-core = { path = "/Users/jmsb/exps/internet-computers/starknet/dojo/crates/katana/core" }
+katana-core = { git = 'https://github.com/dojoengine/dojo', rev = "7893eed" }
+dojo-test-utils = { git = 'https://github.com/dojoengine/dojo', rev = "7893eed" }    
 
 starknet = "0.4.0"
 starknet_api = { git = "https://github.com/starkware-libs/starknet-api", rev = "ecc9b6946ef13003da202838e4124a9ad2efabb0" }
@@ -48,19 +48,11 @@ serde_json = "1.0"
 [patch."https://github.com/ethereum/c-kzg-4844"]
 c-kzg = { git = "https://github.com/rjected/c-kzg-4844", branch = "dan/add-serde-feature" }
 
-[patch."https://github.com/dojoengine/dojo"]
-# Starknet deps
-dojo-test-utils = { path = "/Users/jmsb/exps/internet-computers/starknet/dojo/crates/dojo-test-utils" }
-katana-core = { path = "/Users/jmsb/exps/internet-computers/starknet/dojo/crates/katana/core" }
-
-
 [patch."https://github.com/starkware-libs/blockifier"]
-blockifier = { path = "/Users/jmsb/exps/internet-computers/starknet/blockifier_dojo/crates/blockifier" }
+blockifier = { git = "https://github.com/dojoengine/blockifier", rev = "c794d1b" }
 
 [patch.crates-io]
-cairo-felt = { path = "/Users/jmsb/exps/internet-computers/starknet/cairo-rs-dojo/felt" }
-cairo-vm = { path = "/Users/jmsb/exps/internet-computers/starknet/cairo-rs-dojo/vm"  }
+cairo-felt = { git = "https://github.com/dojoengine/cairo-rs.git", rev = "262b7eb4b11ab165a2a936a5f914e78aa732d4a2" }
+cairo-vm = { git = "https://github.com/dojoengine/cairo-rs.git", rev = "262b7eb4b11ab165a2a936a5f914e78aa732d4a2" }
 revm = { git = "https://github.com/bluealloy/revm/", branch = "release/v25" }
 revm-primitives = { git = "https://github.com/bluealloy/revm/", branch = "release/v25" }
-
-

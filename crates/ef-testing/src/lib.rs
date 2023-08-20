@@ -15,7 +15,6 @@ fn _madara_to_katana_storage(
     }
 }
 
-
 #[cfg(test)]
 mod tests {
     use std::collections::HashMap;
@@ -23,6 +22,10 @@ mod tests {
     use std::sync::Arc;
 
     use bytes::BytesMut;
+    use hive_utils::madara::utils::{
+        genesis_fund_starknet_address, genesis_set_bytecode,
+        genesis_set_storage_kakarot_contract_account, genesis_set_storage_starknet_contract,
+    };
     use kakarot_rpc_core::client::api::{KakarotEthApi, KakarotStarknetApi};
     use kakarot_rpc_core::client::constants::STARKNET_NATIVE_TOKEN;
     use kakarot_rpc_core::client::helpers::split_u256_into_field_elements;
@@ -32,6 +35,7 @@ mod tests {
     use kakarot_rpc_core::test_utils::deploy_helpers::{
         compute_kakarot_contracts_class_hash, KakarotTestEnvironmentContext,
     };
+    use kakarot_rpc_core::test_utils::execution_helpers::execute_tx;
     use kakarot_rpc_core::test_utils::fixtures::kakarot_test_env_ctx;
     use katana_core::backend::state::StorageRecord;
     use reth_primitives::{Bytes, SealedBlock, U256};
@@ -42,33 +46,31 @@ mod tests {
     use starknet_api::core::{ClassHash, ContractAddress as StarknetContractAddress, Nonce};
     use starknet_api::hash::StarkFelt;
     use starknet_api::state::StorageKey as StarknetStorageKey;
-    use hive_utils::madara::utils::{genesis_set_bytecode, genesis_fund_starknet_address, genesis_set_storage_kakarot_contract_account};
-    use kakarot_rpc_core::test_utils::execution_helpers::execute_tx;
 
-    use hive_utils::kakarot::compute_starknet_address;
     use crate::*;
+    use hive_utils::kakarot::compute_starknet_address;
 
     fn get_starknet_storage_key(var_name: &str, args: &[FieldElement]) -> StarknetStorageKey {
         StarknetStorageKey(
-            Into::<StarkFelt>::into(get_storage_var_address(var_name, args).unwrap()).try_into().unwrap(),
+            Into::<StarkFelt>::into(get_storage_var_address(var_name, args).unwrap())
+                .try_into()
+                .unwrap(),
         )
     }
 
     #[rstest]
     #[tokio::test(flavor = "multi_thread")]
-    async fn test_happy_patch(kakarot_test_env_ctx: KakarotTestEnvironmentContext) {
+    async fn test_happy_path(kakarot_test_env_ctx: KakarotTestEnvironmentContext) {
         // propped up to give myself logging view into the 'happy path' of how a kakarot transaction is ran
         // Given
-        let (client, _, _, counter_eth_address) = kakarot_test_env_ctx.resources_with_contract("Counter");
         // When
         execute_tx(&kakarot_test_env_ctx, "Counter", "inc", vec![]).await;
-
-
     }
 
     #[rstest]
     #[tokio::test(flavor = "multi_thread")]
     async fn test_generalstatetransition_mvp(kakarot_test_env_ctx: KakarotTestEnvironmentContext) {
+        // single case of a GenerateStateTest
         let data = r#"
 {"add_d0g0v0_Shanghai": {
     "_info": {
@@ -240,83 +242,97 @@ mod tests {
     
     "#;
 
+        // parse it as value, for now
         let v: serde_json::Value = serde_json::from_str(data).expect("Failed to parse JSON");
 
         // Get the first entry as a (key, value) tuple and clone the values to ensure no reference to `v`
         // remains
-        let (_test_name, test_structure) =
-            v.as_object().and_then(|obj| obj.iter().next()).map(|(k, v)| (k.clone(), v.clone())).unwrap();
-
-        // decode rlp of block
-        // look into constructing a TransactionSigned just from the transaction field
-        // let decoded = SealedBlock::decode()
-
+        let (_test_name, test_structure) = v
+            .as_object()
+            .and_then(|obj| obj.iter().next())
+            .map(|(k, v)| (k.clone(), v.clone()))
+            .unwrap();
         // Given
         let test_environment = Arc::new(kakarot_test_env_ctx);
         let starknet_client = test_environment.client().starknet_provider();
 
-        // REFACTOR: would be good to have this done in a single helper
-        let _class_hashes = compute_kakarot_contracts_class_hash();
-        let kakarot_class_hashes: HashMap<String, FieldElement> =
-            _class_hashes.into_iter().map(|(filename, class_hash)| (filename.to_string(), class_hash)).collect();
-
-        // TODO we want to preserve the evm -> starknet mapping for easier assertions of post-state
-
         // Create an atomic reference to the test environment to avoid dropping it
         let env = Arc::clone(&test_environment);
-        // It is not possible to block the async test task, so we need to spawn a blocking task
 
         // prop up seed state
         let binding = test_structure.clone();
 
-        // deployed eoa
+        // need to debug why the class hashes aren't lining up
+        let class_hashes = compute_kakarot_contracts_class_hash();
+        let kakarot_class_hashes: HashMap<String, FieldElement> = class_hashes
+            .into_iter()
+            .map(|(filename, class_hash)| (filename.to_string(), class_hash))
+            .collect();
 
-       
+        // It is not possible to block the async test task, so we need to spawn a blocking task
         tokio::task::spawn_blocking(move || {
+            // access the necessary account/contract state the test expects
             let pre = binding.get("pre").unwrap();
-            // let mut locked_address_mapping = address_map.lock().unwrap();
 
             // Get lock on the Starknet sequencer
             let mut starknet = env.sequencer().sequencer.backend.state.blocking_write();
-            // iterate through pre-state addresses
+
+            // let me double check if this is necessary
             let eoa = &env.kakarot().eoa_addresses;
+            let eoa_address = StarknetContractAddress(
+                Into::<StarkFelt>::into(eoa.starknet_address)
+                    .try_into()
+                    .unwrap(),
+            );
+            let eoa_class_hash: FieldElement = (*starknet
+                .storage
+                .get(&eoa_address)
+                .unwrap()
+                .storage
+                .get(&get_starknet_storage_key("_implementation", &[]))
+                .unwrap())
+            .into();
 
-            let eoa_address =
-                StarknetContractAddress(Into::<StarkFelt>::into(eoa.starknet_address).try_into().unwrap());            
-            // dbg!(&eoa.eth_address, &eoa.starknet_address, );
-            let contract_class =
-                ClassHash(Into::<StarkFelt>::into(env.kakarot().contract_account_class_hash).try_into().unwrap());                        
-
-            let ClassHash(eoa_class_hash) = starknet.storage.get(&eoa_address).unwrap().class_hash;
-
-            // dbg!(&starknet.classes.get(&contract_class));
-            
+            // iterate through pre-state addresses
             for (original_address, account_info) in pre.as_object().unwrap().iter() {
                 let mut storage = HashMap::new();
 
                 let address_ = FieldElement::from_str(original_address).unwrap();
-                let address_as_sn_address =
-                    compute_starknet_address(env.kakarot().kakarot_address, env.kakarot().proxy_class_hash, address_);
+                let address_as_sn_address = compute_starknet_address(
+                    env.kakarot().kakarot_address,
+                    env.kakarot().proxy_class_hash,
+                    address_,
+                );
 
                 // balance
-                let balance = U256::from_str(account_info.get("balance").unwrap().as_str().unwrap())
-                    .expect("balance should be convertable to u256");
-                let balance_storage_tuples_madara = genesis_fund_starknet_address(address_as_sn_address, balance);
+                let balance =
+                    U256::from_str(account_info.get("balance").unwrap().as_str().unwrap())
+                        .expect("balance should be convertable to u256");
+                // this is wrong, i think
+                let balance_storage_tuples_madara =
+                    genesis_fund_starknet_address(address_as_sn_address, balance);
                 _madara_to_katana_storage(balance_storage_tuples_madara, &mut storage);
 
                 // storage
-                if let Some(evm_contract_storage) = account_info.get("storage").unwrap().as_object() {
+                if let Some(evm_contract_storage) = account_info.get("storage").unwrap().as_object()
+                {
                     let mut evm_contract_storage: Vec<(U256, U256)> = evm_contract_storage
                         .iter()
                         .map(|(k, v)| {
-                            (U256::from_str(k.as_str()).unwrap(), U256::from_str(v.as_str().unwrap()).unwrap())
+                            (
+                                U256::from_str(k.as_str()).unwrap(),
+                                U256::from_str(v.as_str().unwrap()).unwrap(),
+                            )
                         })
                         .collect();
                     evm_contract_storage.sort_by_key(|(key, _)| *key);
                     evm_contract_storage.iter().for_each(|(key, value)| {
                         // Call genesis_set_storage_kakarot_contract_account util to get the storage tuples
-                        let storage_tuples =
-                            genesis_set_storage_kakarot_contract_account(address_as_sn_address, *key, *value);
+                        let storage_tuples = genesis_set_storage_kakarot_contract_account(
+                            address_as_sn_address,
+                            *key,
+                            *value,
+                        );
                         _madara_to_katana_storage(storage_tuples, &mut storage);
                     });
                 }
@@ -324,93 +340,147 @@ mod tests {
                 let code_value = account_info.get("code").unwrap().as_str().unwrap();
 
                 let proxy_implementation_class_hash = match code_value {
-
-                    "0x" => eoa_class_hash.into(),
-                    bytecode => {
-                    let code_as_bytes = Bytes::from_str(bytecode).unwrap();
-                    let kakarot_bytes_storage_madara = genesis_set_bytecode(&code_as_bytes, address_as_sn_address);
-                    _madara_to_katana_storage(kakarot_bytes_storage_madara, &mut storage);
-
-                    let key = get_starknet_storage_key("bytecode_len_", &[]);
-                    let value = Into::<StarkFelt>::into(StarkFelt::from(code_as_bytes.len() as u64));
-                    storage.insert(key, value);
-
-                    env.kakarot().contract_account_class_hash
+                    "0x" => {
+                        // this returns the wrong class hash,
+                        // *kakarot_class_hashes.get("externally_owned_account").unwrap()
+                        // so i am reflecting on deployed context
+                        eoa_class_hash
                     }
+                    bytecode => {
+                        let code_as_bytes = Bytes::from_str(bytecode).unwrap();
+                        let kakarot_bytes_storage_madara =
+                            genesis_set_bytecode(&code_as_bytes, address_as_sn_address);
+                        _madara_to_katana_storage(kakarot_bytes_storage_madara, &mut storage);
 
+                        let key = get_starknet_storage_key("bytecode_len_", &[]);
+                        let value =
+                            Into::<StarkFelt>::into(StarkFelt::from(code_as_bytes.len() as u64));
+                        storage.insert(key, value);
+
+                        env.kakarot().contract_account_class_hash
+                    }
                 };
 
-                dbg!(original_address, address_as_sn_address, account_info, proxy_implementation_class_hash);
+                // rudimentary way to get a mapping from eth -> starknet address
+                dbg!(
+                    original_address,
+                    address_as_sn_address,
+                    account_info,
+                    proxy_implementation_class_hash
+                );
 
+                let proxy_implementation_storage_tuples = genesis_set_storage_starknet_contract(
+                    address_as_sn_address,
+                    "_implementation",
+                    &[],
+                    proxy_implementation_class_hash,
+                    0, // 0 since it's storage value is felt
+                );
 
-                let address =
-                    StarknetContractAddress(Into::<StarkFelt>::into(address_as_sn_address).try_into().unwrap());
+                _madara_to_katana_storage(vec![proxy_implementation_storage_tuples], &mut storage);
+
+                // now, finally, we update the sequencer state with the eth->starknet address
+
+                let address = StarknetContractAddress(
+                    Into::<StarkFelt>::into(address_as_sn_address)
+                        .try_into()
+                        .unwrap(),
+                );
                 let account_nonce =
-                    FieldElement::from_str(account_info.get("nonce").unwrap().as_str().unwrap()).unwrap();
+                    FieldElement::from_str(account_info.get("nonce").unwrap().as_str().unwrap())
+                        .unwrap();
                 let storage_record = StorageRecord {
                     nonce: Nonce(StarkFelt::from(account_nonce)),
-                    class_hash: ClassHash(proxy_implementation_class_hash.into()),
+                    class_hash: ClassHash(env.kakarot().proxy_class_hash.into()),
                     storage: storage.clone(),
                 };
                 starknet.storage.insert(address, storage_record);
             }
-         })
-         .await
-         .unwrap();
+        })
+        .await
+        .unwrap();
 
-        test_environment.sequencer().sequencer.backend.generate_latest_block().await;
-        test_environment.sequencer().sequencer.backend.generate_pending_block().await;
+        // necessary to have our updated state actually applied to transaction
+        test_environment
+            .sequencer()
+            .sequencer
+            .backend
+            .generate_latest_block()
+            .await;
+        test_environment
+            .sequencer()
+            .sequencer
+            .backend
+            .generate_pending_block()
+            .await;
 
+        // each test is essentually one block that has one transaction
         let temp_value = test_structure.clone();
         let blocks = temp_value.get("blocks").unwrap();
 
-        let block_rlp_bytes =
-            Bytes::from_str(blocks.get(0).unwrap().as_object().unwrap().get("rlp").unwrap().as_str().unwrap()).unwrap();
+        // we get the rlp of the block
+        let block_rlp_bytes = Bytes::from_str(
+            blocks
+                .get(0)
+                .unwrap()
+                .as_object()
+                .unwrap()
+                .get("rlp")
+                .unwrap()
+                .as_str()
+                .unwrap(),
+        )
+        .unwrap();
+
+        // parse it as a sealed block
         let parsed_block = SealedBlock::decode(&mut block_rlp_bytes.as_ref());
-        // let signed_transaction = parsed_block.unwrap().body.get(0).unwrap();
+        // encode body as transaction
         let mut encoded_transaction = BytesMut::new();
-        parsed_block.unwrap().body.get(0).unwrap().encode(&mut encoded_transaction);
+        parsed_block
+            .unwrap()
+            .body
+            .get(0)
+            .unwrap()
+            .encode(&mut encoded_transaction);
 
         // execute transaction in block
         let client = test_environment.client();
-        let hash = client.send_transaction(encoded_transaction.to_vec().into()).await.unwrap();
-        dbg!(hash);
+        let hash = client
+            .send_transaction(encoded_transaction.to_vec().into())
+            .await
+            .unwrap();
+
         let transaction_hash: FieldElement = FieldElement::from_bytes_be(&hash).unwrap();
-        dbg!(&transaction_hash);
         let receipt = starknet_client
             .get_transaction_receipt::<FieldElement>(transaction_hash.into())
             .await
             .expect("transaction has receipt");
-        // let txns = &test_environment.sequencer().sequencer.backend.storage.read().await.transactions;
-
         dbg!(receipt);
 
-        // this section becomes relevant when the transaction is ran w/o error
 
         // assert on post state
         // prop up seed state
-        // let binding = test_structure.clone();
-        // let env = Arc::clone(&test_environment);
-        // tokio::task::spawn_blocking(move || {
-        //     let post_state = binding.get("postState").unwrap();
+        let binding = test_structure.clone();
+        let env = Arc::clone(&test_environment);
+        tokio::task::spawn_blocking(move || {
+            let post_state = binding.get("postState").unwrap();
 
-        //     // Get lock on the Starknet sequencer
-        //     let starknet = env.sequencer().sequencer.backend.state.blocking_read();
+            // Get lock on the Starknet sequencer
+            let starknet = env.sequencer().sequencer.backend.state.blocking_read();
 
-        //     // dbg!(&env.sequencer().sequencer.backend);
-        //     // iterate through post-state addresses
-        //     for (original_address, account_info) in post_state.as_object().unwrap().iter() {
+            for (original_address, account_info) in post_state.as_object().unwrap().iter() {
 
-        //         let address_ = FieldElement::from_str(original_address).unwrap();
-        //         let address_as_sn_address =
-        // compute_starknet_address(env.kakarot().kakarot_address, env.kakarot().proxy_class_hash,
-        // address_);          let address =
-        //         StarknetContractAddress(Into::<StarkFelt>::into(address_as_sn_address).
-        // try_into().unwrap());         dbg!(original_address,
-        // starknet.storage.get(&address));
+                let address_ = FieldElement::from_str(original_address).unwrap();
+                let address_as_sn_address =
+        compute_starknet_address(env.kakarot().kakarot_address, env.kakarot().proxy_class_hash,
+                                 address_);
+                let address =
+                StarknetContractAddress(Into::<StarkFelt>::into(address_as_sn_address).
+                                        try_into().unwrap());
+                dbg!(original_address,
+        starknet.storage.get(&address));
 
-        //     };
-        // }).await.unwrap();
+            };
+        }).await.unwrap();
     }
-
 }
