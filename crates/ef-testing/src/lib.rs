@@ -16,6 +16,14 @@ pub fn sign_tx_with_chain_id(
     Ok(signature)
 }
 
+fn write_madara_to_katana_storage(
+    source: Vec<((ContractAddress, StorageKey), StorageValue)>,
+    destination: &mut HashMap<StarknetStorageKey, StarkFelt>,
+) {
+    let reformatted_data = _madara_to_katana_storage(source);
+    write_katana_storage(reformatted_data, destination);
+}
+
 #[cfg(test)]
 mod tests {
 
