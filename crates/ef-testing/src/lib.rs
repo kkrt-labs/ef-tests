@@ -6,17 +6,37 @@ use starknet_api::{hash::StarkFelt, state::StorageKey as StarknetStorageKey};
 
 fn _madara_to_katana_storage(
     source: Vec<((ContractAddress, StorageKey), StorageValue)>,
+) -> Vec<(StarknetStorageKey, StarkFelt)> {
+    source
+        .into_iter()
+        .map(|((_, k), v)| {
+            let key = StarknetStorageKey(Into::<StarkFelt>::into(k.0).try_into().unwrap());
+            let value = Into::<StarkFelt>::into(v.0);
+            (key, value)
+        })
+        .collect()
+}
+
+fn write_katana_storage(
+    data: Vec<(StarknetStorageKey, StarkFelt)>,
     destination: &mut HashMap<StarknetStorageKey, StarkFelt>,
 ) {
-    for ((_, k), v) in source {
-        let key = StarknetStorageKey(Into::<StarkFelt>::into(k.0).try_into().unwrap());
-        let value = Into::<StarkFelt>::into(v.0);
+    for (key, value) in data {
         destination.insert(key, value);
     }
 }
 
+fn write_madara_to_katana_storage(
+    source: Vec<((ContractAddress, StorageKey), StorageValue)>,
+    destination: &mut HashMap<StarknetStorageKey, StarkFelt>,
+) {
+    let reformatted_data = _madara_to_katana_storage(source);
+    write_katana_storage(reformatted_data, destination);
+}
+
 #[cfg(test)]
 mod tests {
+
     use std::collections::HashMap;
     use std::str::FromStr;
     use std::sync::Arc;
@@ -277,13 +297,14 @@ mod tests {
             // Get lock on the Starknet sequencer
             let mut starknet = env.sequencer().sequencer.backend.state.blocking_write();
 
-            // let me double check if this is necessary
             let eoa = &env.kakarot().eoa_addresses;
             let eoa_address = StarknetContractAddress(
                 Into::<StarkFelt>::into(eoa.starknet_address)
                     .try_into()
                     .unwrap(),
             );
+
+            // deriving the eao class hash this way so things are always based off the katana dump file
             let eoa_class_hash: FieldElement = (*starknet
                 .storage
                 .get(&eoa_address)
@@ -296,22 +317,39 @@ mod tests {
             // iterate through pre-state addresses
             for (original_address, account_info) in pre.as_object().unwrap().iter() {
                 let mut storage = HashMap::new();
-
+                let kakarot_address = env.kakarot().kakarot_address;
                 let address_ = FieldElement::from_str(original_address).unwrap();
                 let address_as_sn_address = compute_starknet_address(
-                    env.kakarot().kakarot_address,
+                    kakarot_address,
                     env.kakarot().proxy_class_hash,
                     address_,
                 );
 
-                // balance
+                // funding balance
                 let balance =
                     U256::from_str(account_info.get("balance").unwrap().as_str().unwrap())
                         .expect("balance should be convertable to u256");
-                // this is wrong, i think
+
                 let balance_storage_tuples_madara =
                     genesis_fund_starknet_address(address_as_sn_address, balance);
-                _madara_to_katana_storage(balance_storage_tuples_madara, &mut storage);
+                let native_token_address = StarknetContractAddress(
+                    Into::<StarkFelt>::into(
+                        FieldElement::from_hex_be(STARKNET_NATIVE_TOKEN).unwrap(),
+                    )
+                    .try_into()
+                    .unwrap(),
+                );
+                let katana_storage_tuples =
+                    _madara_to_katana_storage(balance_storage_tuples_madara);
+
+                for (key, value) in katana_storage_tuples {
+                    starknet
+                        .storage
+                        .entry(native_token_address)
+                        .or_default()
+                        .storage
+                        .insert(key, value);
+                }
 
                 // storage
                 if let Some(evm_contract_storage) = account_info.get("storage").unwrap().as_object()
@@ -333,7 +371,7 @@ mod tests {
                             *key,
                             *value,
                         );
-                        _madara_to_katana_storage(storage_tuples, &mut storage);
+                        write_madara_to_katana_storage(storage_tuples, &mut storage);
                     });
                 }
 
@@ -341,21 +379,27 @@ mod tests {
 
                 let proxy_implementation_class_hash = match code_value {
                     "0x" => {
-                        // this returns the wrong class hash,
-                        // *kakarot_class_hashes.get("externally_owned_account").unwrap()
-                        // so i am reflecting on deployed context
+                        
+                        let kakarot_address_key = get_starknet_storage_key("kakarot_address", &[]);
+                        let kakarot_address_value =
+                            Into::<StarkFelt>::into(StarkFelt::from(kakarot_address));
+                        storage.insert(kakarot_address_key, kakarot_address_value);
+
+                        let evm_address_key = get_starknet_storage_key("evm_address", &[]);
+                        let evm_address_value = Into::<StarkFelt>::into(StarkFelt::from(address_));
+                        storage.insert(evm_address_key, evm_address_value);
                         eoa_class_hash
                     }
                     bytecode => {
                         let code_as_bytes = Bytes::from_str(bytecode).unwrap();
                         let kakarot_bytes_storage_madara =
                             genesis_set_bytecode(&code_as_bytes, address_as_sn_address);
-                        _madara_to_katana_storage(kakarot_bytes_storage_madara, &mut storage);
+                        write_madara_to_katana_storage(kakarot_bytes_storage_madara, &mut storage);
 
-                        let key = get_starknet_storage_key("bytecode_len_", &[]);
-                        let value =
+                        let bytecode_len_key = get_starknet_storage_key("bytecode_len_", &[]);
+                        let bytecode_len_value =
                             Into::<StarkFelt>::into(StarkFelt::from(code_as_bytes.len() as u64));
-                        storage.insert(key, value);
+                        storage.insert(bytecode_len_key, bytecode_len_value);
 
                         env.kakarot().contract_account_class_hash
                     }
@@ -369,6 +413,7 @@ mod tests {
                     proxy_implementation_class_hash
                 );
 
+                // write implementation state of proxy
                 let proxy_implementation_storage_tuples = genesis_set_storage_starknet_contract(
                     address_as_sn_address,
                     "_implementation",
@@ -377,7 +422,10 @@ mod tests {
                     0, // 0 since it's storage value is felt
                 );
 
-                _madara_to_katana_storage(vec![proxy_implementation_storage_tuples], &mut storage);
+                write_madara_to_katana_storage(
+                    vec![proxy_implementation_storage_tuples],
+                    &mut storage,
+                );
 
                 // now, finally, we update the sequencer state with the eth->starknet address
 
@@ -457,7 +505,6 @@ mod tests {
             .expect("transaction has receipt");
         dbg!(receipt);
 
-
         // assert on post state
         // prop up seed state
         let binding = test_structure.clone();
@@ -469,18 +516,21 @@ mod tests {
             let starknet = env.sequencer().sequencer.backend.state.blocking_read();
 
             for (original_address, account_info) in post_state.as_object().unwrap().iter() {
-
                 let address_ = FieldElement::from_str(original_address).unwrap();
-                let address_as_sn_address =
-        compute_starknet_address(env.kakarot().kakarot_address, env.kakarot().proxy_class_hash,
-                                 address_);
-                let address =
-                StarknetContractAddress(Into::<StarkFelt>::into(address_as_sn_address).
-                                        try_into().unwrap());
-                dbg!(original_address,
-        starknet.storage.get(&address));
-
-            };
-        }).await.unwrap();
+                let address_as_sn_address = compute_starknet_address(
+                    env.kakarot().kakarot_address,
+                    env.kakarot().proxy_class_hash,
+                    address_,
+                );
+                let address = StarknetContractAddress(
+                    Into::<StarkFelt>::into(address_as_sn_address)
+                        .try_into()
+                        .unwrap(),
+                );
+                dbg!(original_address, starknet.storage.get(&address));
+            }
+        })
+        .await
+        .unwrap();
     }
 }
