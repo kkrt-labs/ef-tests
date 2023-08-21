@@ -10,7 +10,7 @@ use crate::utils::get_starknet_storage_key;
 use super::write_madara_to_katana_storage;
 
 /// Initializes the contract account.
-/// Writes the
+/// Writes the bytecode and the owner to a hashmap.
 pub fn initialize_contract_account(
     kakarot_address: FieldElement,
     starknet_address: FieldElement,
@@ -21,7 +21,7 @@ pub fn initialize_contract_account(
     write_owner(kakarot_address, destination);
 }
 
-/// Writes the bytecode to the contract account.
+/// Writes the bytecode to a hashmap.
 pub fn write_bytecode(
     starknet_address: FieldElement,
     bytecode: &Bytes,
@@ -36,7 +36,7 @@ pub fn write_bytecode(
     destination.insert(bytecode_len_key, bytecode_len_value);
 }
 
-/// Writes the owner to the contract account.
+/// Writes the owner to a hashmap.
 pub fn write_owner(
     kakarot_address: FieldElement,
     destination: &mut HashMap<StarknetStorageKey, StarkFelt>,

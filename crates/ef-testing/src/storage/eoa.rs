@@ -40,7 +40,7 @@ pub fn get_eoa_class_hash(
 }
 
 /// Initializes the EOA contract.
-/// Writes the kakarot address and the evm address to storage.
+/// Writes the kakarot address and the evm address to a hashmap.
 pub fn initialize_eoa(
     kakarot_address: FieldElement,
     evm_address: FieldElement,
@@ -50,7 +50,7 @@ pub fn initialize_eoa(
     write_evm_address(evm_address, destination);
 }
 
-/// Writes the kakarot address to the EOA contract.
+/// Writes the kakarot address to a hashmap.
 pub fn write_kakarot_address(
     kakarot_address: FieldElement,
     destination: &mut HashMap<StarknetStorageKey, StarkFelt>,
@@ -60,7 +60,7 @@ pub fn write_kakarot_address(
     destination.insert(kakarot_address_key, kakarot_address_value);
 }
 
-/// Writes the evm address to the EOA contract.
+/// Writes the evm address to a hashmap.
 pub fn write_evm_address(
     evm_address: FieldElement,
     destination: &mut HashMap<StarknetStorageKey, StarkFelt>,
