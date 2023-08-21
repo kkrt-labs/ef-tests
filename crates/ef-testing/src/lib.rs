@@ -20,8 +20,18 @@ fn write_madara_to_katana_storage(
     source: Vec<((ContractAddress, StorageKey), StorageValue)>,
     destination: &mut HashMap<StarknetStorageKey, StarkFelt>,
 ) {
-    let reformatted_data = _madara_to_katana_storage(source);
+    let reformatted_data = madara_to_katana_storage(source);
     write_katana_storage(reformatted_data, destination);
+}
+
+fn sign_tx_with_chain_id(
+    tx: &mut Transaction,
+    private_key: &B256,
+    chain_id: u64,
+) -> Result<Signature, eyre::Error> {
+    tx.set_chain_id(chain_id);
+    let signature = sign_message(*private_key, tx.signature_hash())?;
+    Ok(signature)
 }
 
 #[cfg(test)]
