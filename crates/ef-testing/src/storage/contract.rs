@@ -36,7 +36,7 @@ pub fn write_bytecode(
     destination.insert(bytecode_len_key, bytecode_len_value);
 }
 
-/// Writes the owner to the contract account.
+/// Writes the owner to a hashmap.
 pub fn write_owner(
     kakarot_address: FieldElement,
     destination: &mut HashMap<StarknetStorageKey, StarkFelt>,
