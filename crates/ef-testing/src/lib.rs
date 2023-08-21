@@ -22,7 +22,7 @@ mod tests {
     use crate::models::GeneralStateTest;
     use crate::storage::contract::initialize_contract_account;
     use crate::storage::eoa::{get_eoa_class_hash, initialize_eoa};
-    use crate::storage::{madara_to_katana_storage, write_madara_to_katana_storage};
+    use crate::storage::{write_fee_token, write_madara_to_katana_storage};
 
     use super::*;
     use std::collections::HashMap;
@@ -32,25 +32,20 @@ mod tests {
     use ctor::ctor;
     use ef_tests::models::{BlockchainTest, RootOrState};
     use hive_utils::madara::utils::{
-        genesis_approve_kakarot, genesis_fund_starknet_address,
         genesis_set_storage_kakarot_contract_account, genesis_set_storage_starknet_contract,
     };
     use kakarot_rpc_core::client::api::{KakarotEthApi, KakarotStarknetApi};
-    use kakarot_rpc_core::client::constants::{CHAIN_ID, STARKNET_NATIVE_TOKEN};
+    use kakarot_rpc_core::client::constants::CHAIN_ID;
     use kakarot_rpc_core::models::felt::Felt252Wrapper;
     use kakarot_rpc_core::test_utils::deploy_helpers::KakarotTestEnvironmentContext;
     use kakarot_rpc_core::test_utils::fixtures::kakarot_test_env_ctx;
     use katana_core::backend::state::StorageRecord;
-    use katana_core::constants::FEE_TOKEN_ADDRESS;
     use reth_primitives::SealedBlock;
     use reth_rlp::Decodable;
-    use revm_primitives::U256;
     use rstest::rstest;
     use starknet::core::types::FieldElement;
     use starknet::providers::Provider;
-    use starknet_api::core::{
-        ClassHash, ContractAddress as StarknetContractAddress, Nonce, PatriciaKey,
-    };
+    use starknet_api::core::{ClassHash, ContractAddress as StarknetContractAddress, Nonce};
     use starknet_api::hash::StarkFelt;
     use tracing_subscriber::FmtSubscriber;
 
@@ -108,42 +103,27 @@ mod tests {
             // deriving the eao class hash this way so things are always based off the katana dump file
             let eoa_class_hash: FieldElement = get_eoa_class_hash(env.clone(), &starknet).unwrap();
 
-            let mut allowances = HashMap::new();
             // iterate through pre-state addresses
             for (address, account_info) in binding.pre.iter() {
                 let mut storage = HashMap::new();
                 let address = Felt252Wrapper::from(address.to_owned()).into();
-                let address_as_sn_address =
+                let starknet_address =
                     compute_starknet_address(kakarot_address, proxy_class_hash, address);
 
-                // funding balance
-                let balance = account_info.balance.0;
-
-                let balance_storage_tuples_madara =
-                    genesis_fund_starknet_address(address_as_sn_address, balance);
-                let native_token_address = StarknetContractAddress(
-                    Into::<StarkFelt>::into(
-                        FieldElement::from_hex_be(STARKNET_NATIVE_TOKEN).unwrap(),
-                    )
-                    .try_into()
-                    .unwrap(),
-                );
-                let katana_storage_tuples = madara_to_katana_storage(balance_storage_tuples_madara);
-
-                for (key, value) in katana_storage_tuples {
-                    starknet
-                        .storage
-                        .entry(native_token_address)
-                        .or_default()
-                        .storage
-                        .insert(key, value);
-                }
+                // balance
+                write_fee_token(
+                    kakarot_address,
+                    starknet_address,
+                    account_info.balance.0,
+                    &mut starknet,
+                )
+                .unwrap();
 
                 // storage
                 account_info.storage.iter().for_each(|(key, value)| {
                     // Call genesis_set_storage_kakarot_contract_account util to get the storage tuples
                     let storage_tuples = genesis_set_storage_kakarot_contract_account(
-                        address_as_sn_address,
+                        starknet_address,
                         key.0,
                         value.0,
                     );
@@ -165,7 +145,7 @@ mod tests {
 
                 // write implementation state of proxy
                 let proxy_implementation_storage_tuples = genesis_set_storage_starknet_contract(
-                    address_as_sn_address,
+                    starknet_address,
                     "_implementation",
                     &[],
                     proxy_implementation_class_hash,
@@ -178,9 +158,8 @@ mod tests {
                 );
 
                 // now, finally, we update the sequencer state with the eth->starknet address
-
                 let address = StarknetContractAddress(
-                    Into::<StarkFelt>::into(address_as_sn_address)
+                    Into::<StarkFelt>::into(starknet_address)
                         .try_into()
                         .unwrap(),
                 );
@@ -193,19 +172,7 @@ mod tests {
                     storage: storage.clone(),
                 };
                 starknet.storage.insert(address, storage_record);
-
-                // Update the native token storage with the allowance
-                let allowance =
-                    genesis_approve_kakarot(address_as_sn_address, kakarot_address, U256::MAX);
-                write_madara_to_katana_storage(allowance, &mut allowances);
             }
-
-            // Store the allowances
-            let eth_address = StarknetContractAddress(
-                TryInto::<PatriciaKey>::try_into(*FEE_TOKEN_ADDRESS).unwrap(),
-            );
-            let eth_storage = &mut starknet.storage.get_mut(&eth_address).unwrap().storage;
-            eth_storage.extend(allowances);
         })
         .await
         .unwrap();
