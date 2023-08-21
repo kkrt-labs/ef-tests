@@ -21,9 +21,10 @@ license = "MIT"
 
 [workspace.dependencies]
 # Eth deps
-ef-tests = { git = "https://github.com/paradigmxyz/reth.git", features = ["ef-tests"] }
-reth-rlp = { git = "https://github.com/paradigmxyz/reth.git", rev = "fb710e5" }
+ef-tests = { git = "https://github.com/paradigmxyz/reth.git", rev = "fb710e5", features = ["ef-tests"] }
 reth-primitives = { git = "https://github.com/paradigmxyz/reth.git", rev = "fb710e5" }
+revm-primitives = "1.1"
+reth-rlp = { git = "https://github.com/paradigmxyz/reth.git", rev = "fb710e5" }
 
 # Kakarot deps
 hive-utils = { git = "https://github.com/kkrt-labs/kakarot-rpc.git" }
@@ -38,8 +39,10 @@ starknet_api = { git = "https://github.com/starkware-libs/starknet-api", rev = "
 
 # Other
 bytes = "1"
-tokio = { version = "1.21.2", features = ["macros"] }
+ctor = "0.2.4"
+eyre = "0.6.8"
 rstest = "0.18.1"
+tokio = { version = "1.21.2", features = ["macros"] }
 
 # Serde
 serde = { version = "1.0.147", features = ["derive"] }
@@ -54,5 +57,7 @@ blockifier = { git = "https://github.com/dojoengine/blockifier", rev = "c794d1b"
 [patch.crates-io]
 cairo-felt = { git = "https://github.com/dojoengine/cairo-rs.git", rev = "262b7eb4b11ab165a2a936a5f914e78aa732d4a2" }
 cairo-vm = { git = "https://github.com/dojoengine/cairo-rs.git", rev = "262b7eb4b11ab165a2a936a5f914e78aa732d4a2" }
+
 revm = { git = "https://github.com/bluealloy/revm/", branch = "release/v25" }
 revm-primitives = { git = "https://github.com/bluealloy/revm/", branch = "release/v25" }
+ethers-core = { git = "https://github.com/gakonst/ethers-rs.git", rev = "7b7c623" }
