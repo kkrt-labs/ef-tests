@@ -60,16 +60,12 @@ mod tests {
     use kakarot_rpc_core::test_utils::deploy_helpers::KakarotTestEnvironmentContext;
     use kakarot_rpc_core::test_utils::fixtures::kakarot_test_env_ctx;
     use katana_core::backend::state::StorageRecord;
-    use katana_core::constants::FEE_TOKEN_ADDRESS;
     use reth_primitives::SealedBlock;
     use reth_rlp::Decodable;
-    use revm_primitives::U256;
     use rstest::rstest;
     use starknet::core::types::FieldElement;
     use starknet::providers::Provider;
-    use starknet_api::core::{
-        ClassHash, ContractAddress as StarknetContractAddress, Nonce, PatriciaKey,
-    };
+    use starknet_api::core::{ClassHash, ContractAddress as StarknetContractAddress, Nonce};
     use starknet_api::hash::StarkFelt;
     use tracing_subscriber::FmtSubscriber;
 
@@ -128,7 +124,6 @@ mod tests {
             // deriving the eao class hash this way so things are always based off the katana dump file
             let eoa_class_hash: FieldElement = get_eoa_class_hash(env.clone(), &starknet).unwrap();
 
-            let mut allowances = HashMap::new();
             // iterate through pre-state addresses
             for (address, account_info) in binding.pre.iter() {
                 let mut storage = HashMap::new();
@@ -198,19 +193,7 @@ mod tests {
                     storage: storage.clone(),
                 };
                 starknet.storage.insert(address, storage_record);
-
-                // Update the native token storage with the allowance
-                let allowance =
-                    genesis_approve_kakarot(address_as_sn_address, kakarot_address, U256::MAX);
-                write_madara_to_katana_storage(allowance, &mut allowances);
             }
-
-            // Store the allowances
-            let eth_address = StarknetContractAddress(
-                TryInto::<PatriciaKey>::try_into(*FEE_TOKEN_ADDRESS).unwrap(),
-            );
-            let eth_storage = &mut starknet.storage.get_mut(&eth_address).unwrap().storage;
-            eth_storage.extend(allowances);
         })
         .await
         .unwrap();
