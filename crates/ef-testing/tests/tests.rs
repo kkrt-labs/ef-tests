@@ -21,6 +21,7 @@ mod blockchain_tests {
 
     #[ctor]
     fn setup() {
+        // Change this to ERROR to see less output.
         let subscriber = FmtSubscriber::builder()
             .with_max_level(tracing::Level::INFO)
             .finish();

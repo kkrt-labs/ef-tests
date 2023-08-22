@@ -25,9 +25,6 @@ ef-tests = { git = "https://github.com/paradigmxyz/reth.git", rev = "fb710e5", f
 reth-primitives = { git = "https://github.com/paradigmxyz/reth.git", rev = "fb710e5" }
 revm-primitives = "1.1"
 reth-rlp = { git = "https://github.com/paradigmxyz/reth.git", rev = "fb710e5" }
-reth-primitives = { git = "https://github.com/paradigmxyz/reth.git", rev = "fb710e5" }
-revm-primitives = "1.1"
-reth-rlp = { git = "https://github.com/paradigmxyz/reth.git", rev = "fb710e5" }
 
 # Kakarot deps
 hive-utils = { git = "https://github.com/kkrt-labs/kakarot-rpc.git" }
