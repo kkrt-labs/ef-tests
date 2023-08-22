@@ -9,7 +9,7 @@ use starknet_api::{
 };
 use tokio::sync::RwLockWriteGuard;
 
-use crate::utils::get_starknet_storage_key;
+use crate::utils::starknet::get_starknet_storage_key;
 
 /// Returns the class hash used for the EOA contract.
 pub fn get_eoa_class_hash(

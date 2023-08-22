@@ -17,7 +17,7 @@ use starknet_api::{
 };
 use tokio::sync::{RwLockReadGuard, RwLockWriteGuard};
 
-use crate::utils::get_starknet_storage_key;
+use crate::utils::starknet::get_starknet_storage_key;
 
 /// Converts a madara storage tuple to a katana storage tuple.
 pub fn madara_to_katana_storage(

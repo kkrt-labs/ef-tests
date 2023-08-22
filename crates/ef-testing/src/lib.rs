@@ -71,7 +71,7 @@ mod tests {
     use starknet_api::hash::StarkFelt;
     use tracing_subscriber::FmtSubscriber;
 
-    use crate::utils::get_starknet_storage_key;
+    use crate::utils::starknet::get_starknet_storage_key;
     use hive_utils::kakarot::compute_starknet_address;
 
     #[ctor]

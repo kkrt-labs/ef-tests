@@ -1,12 +1,15 @@
 // Inspired by https://github.com/paradigmxyz/reth/tree/main/testing/ef-tests
 
 use super::{result::CaseResult, BlockchainTestTransaction};
-use crate::{constants::FORK_NAME, traits::Case};
+use crate::{
+    constants::FORK_NAME,
+    traits::Case,
+    utils::io::{deserialize_into, load_file},
+};
 use async_trait::async_trait;
 use ef_tests::models::BlockchainTest;
 use std::{
     collections::BTreeMap,
-    fs,
     path::{Path, PathBuf},
 };
 
@@ -37,16 +40,10 @@ impl Case for BlockchainTestCase {
         let general_state_tests_path = general_state_tests_path.as_path();
         Ok(Self {
             tests: {
-                let s = fs::read_to_string(path).map_err(|error| ef_tests::Error::Io {
-                    path: path.into(),
-                    error: error.to_string(),
-                })?;
-                let mut cases: BTreeMap<String, BlockchainTest> = serde_json::from_str(&s)
-                    .map_err(|error| ef_tests::Error::CouldNotDeserialize {
-                        path: path.into(),
-                        error: error.to_string(),
-                    })?;
+                let s = load_file(path)?;
+                let mut cases: BTreeMap<String, BlockchainTest> = deserialize_into(s, path)?;
                 let test_name = format!("{}{}", test_name, FORK_NAME);
+
                 cases
                     .remove(&test_name)
                     .ok_or_else(|| ef_tests::Error::CouldNotDeserialize {
@@ -55,19 +52,10 @@ impl Case for BlockchainTestCase {
                     })?
             },
             transaction: {
-                let s = fs::read_to_string(general_state_tests_path).map_err(|error| {
-                    ef_tests::Error::Io {
-                        path: general_state_tests_path.into(),
-                        error: error.to_string(),
-                    }
-                })?;
+                let s = load_file(general_state_tests_path)?;
                 let test: BTreeMap<String, serde_json::Value> =
-                    serde_json::from_str(&s).map_err(|error| {
-                        ef_tests::Error::CouldNotDeserialize {
-                            path: general_state_tests_path.into(),
-                            error: error.to_string(),
-                        }
-                    })?;
+                    deserialize_into(s, general_state_tests_path)?;
+
                 let case = test
                     .into_values()
                     .collect::<Vec<_>>()
@@ -77,12 +65,8 @@ impl Case for BlockchainTestCase {
                         error: "missing test entry for suite".into(),
                     })?
                     .clone();
-                serde_json::from_value(case).map_err(|err| {
-                    ef_tests::Error::CouldNotDeserialize {
-                        path: general_state_tests_path.into(),
-                        error: err.to_string(),
-                    }
-                })?
+
+                deserialize_into(case.to_string(), general_state_tests_path)?
             },
         })
     }
