@@ -38,7 +38,7 @@ pub fn sign_tx_with_chain_id(
 #[cfg(test)]
 mod tests {
 
-    use crate::models::GeneralStateTest;
+    use crate::models::BlockchainTestTransaction;
     use crate::storage::contract::initialize_contract_account;
     use crate::storage::eoa::{get_eoa_class_hash, initialize_eoa};
     use crate::storage::{read_balance, write_fee_token, write_madara_to_katana_storage};
@@ -85,8 +85,11 @@ mod tests {
     #[tokio::test(flavor = "multi_thread")]
     async fn test_generalstatetransition_mvp(kakarot_test_env_ctx: KakarotTestEnvironmentContext) {
         // single case of a GenerateStateTest (block chain state + normal)
-        let data_blockchain_test = include_str!("./test_data/blockchain_test.json");
-        let data_general_state_test = include_str!("./test_data/general_state_test.json");
+        let data_blockchain_test = include_str!(
+            "../test_data/BlockchainTests/GeneralStateTests/VmTests/vmArithmeticTest/add.json"
+        );
+        let data_general_state_test =
+            include_str!("../test_data/GeneralStateTests/VmTests/vmArithmeticTest/add.json");
         let test_case = String::from("add");
         let fork = String::from("_d0g0v0_Shanghai");
 
@@ -100,7 +103,7 @@ mod tests {
 
         let gt: HashMap<String, serde_json::Value> =
             serde_json::from_str(data_general_state_test).expect("Failed to parse JSON");
-        let gt: GeneralStateTest =
+        let gt: BlockchainTestTransaction =
             serde_json::from_value(gt.get(&test_case).unwrap().to_owned()).unwrap();
 
         // Given

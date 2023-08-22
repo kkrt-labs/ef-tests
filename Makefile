@@ -3,7 +3,7 @@
 # The release tag of https://github.com/ethereum/tests to use for EF tests
 EF_TESTS_TAG := v12.3
 EF_TESTS_URL := https://github.com/ethereum/tests/archive/refs/tags/$(EF_TESTS_TAG).tar.gz
-EF_TESTS_DIR := ./ethereum-tests
+EF_TESTS_DIR := ./crates/ef-testing/ethereum-tests
 
 # Downloads and unpacks Ethereum Foundation tests in the `$(EF_TESTS_DIR)` directory.
 # Requires `wget` and `tar`
@@ -16,7 +16,7 @@ $(EF_TESTS_DIR):
 ef-tests: ef-tests-run ef-tests-clean
 
 ef-tests-run: $(EF_TESTS_DIR)
-	cargo nextest run -p ef-testing --features ef_tests
+	cargo nextest run -p ef-testing --features ef-tests 
 
 ef-tests-clean: 
 	rm -fr $(EF_TESTS_DIR)

@@ -1,9 +1,12 @@
+pub mod case;
+pub mod result;
+
 use reth_primitives::{Bytes, U64};
 use revm_primitives::{B160, B256};
 use serde::{self, Deserialize};
 
 #[derive(Debug, PartialEq, Eq, Deserialize)]
-pub struct GeneralStateTest {
+pub struct BlockchainTestTransaction {
     pub transaction: Transaction,
 }
 
