@@ -4,20 +4,119 @@ pub mod eoa;
 use std::collections::HashMap;
 
 use hive_utils::{
-    madara::utils::{genesis_approve_kakarot, genesis_fund_starknet_address},
+    kakarot::compute_starknet_address,
+    madara::utils::{
+        genesis_approve_kakarot, genesis_fund_starknet_address,
+        genesis_set_storage_kakarot_contract_account, genesis_set_storage_starknet_contract,
+    },
     types::{ContractAddress, StorageKey, StorageValue},
 };
-use katana_core::{backend::state::MemDb, constants::FEE_TOKEN_ADDRESS};
+use kakarot_rpc_core::models::felt::Felt252Wrapper;
+use katana_core::{
+    backend::state::{MemDb, StorageRecord},
+    constants::FEE_TOKEN_ADDRESS,
+};
 use revm_primitives::U256;
 use starknet::core::types::FieldElement;
 use starknet_api::{
-    core::{ContractAddress as StarknetContractAddress, PatriciaKey},
+    core::{ClassHash, ContractAddress as StarknetContractAddress, Nonce, PatriciaKey},
     hash::StarkFelt,
     state::StorageKey as StarknetStorageKey,
 };
 use tokio::sync::{RwLockReadGuard, RwLockWriteGuard};
 
-use crate::utils::starknet::get_starknet_storage_key;
+use crate::{models::BlockchainTest, utils::starknet::get_starknet_storage_key};
+
+use self::{contract::initialize_contract_account, eoa::initialize_eoa};
+
+pub struct ClassHashes {
+    pub proxy_class_hash: FieldElement,
+    pub eoa_class_hash: FieldElement,
+    pub contract_account_class_hash: FieldElement,
+}
+
+impl ClassHashes {
+    pub fn new(
+        proxy_class_hash: FieldElement,
+        eoa_class_hash: FieldElement,
+        contract_account_class_hash: FieldElement,
+    ) -> Self {
+        Self {
+            proxy_class_hash,
+            eoa_class_hash,
+            contract_account_class_hash,
+        }
+    }
+}
+
+/// Writes the blockchain test state to the Starknet storage
+pub fn write_test_state(
+    test_state: &BlockchainTest,
+    kakarot_address: FieldElement,
+    class_hashes: ClassHashes,
+    starknet: &mut RwLockWriteGuard<'_, MemDb>,
+) -> Result<(), ef_tests::Error> {
+    // iterate through pre-state addresses
+    for (address, account_info) in test_state.pre.iter() {
+        let mut storage = HashMap::new();
+        let address = Felt252Wrapper::from(address.to_owned()).into();
+        let starknet_address =
+            compute_starknet_address(kakarot_address, class_hashes.proxy_class_hash, address);
+
+        // balance
+        write_fee_token(
+            kakarot_address,
+            starknet_address,
+            account_info.balance.0,
+            starknet,
+        )
+        .unwrap();
+
+        // storage
+        account_info.storage.iter().for_each(|(key, value)| {
+            // Call genesis_set_storage_kakarot_contract_account util to get the storage tuples
+            let storage_tuples =
+                genesis_set_storage_kakarot_contract_account(starknet_address, key.0, value.0);
+            write_madara_to_katana_storage(storage_tuples, &mut storage);
+        });
+
+        let proxy_implementation_class_hash = if account_info.code.is_empty() {
+            initialize_eoa(kakarot_address, address, &mut storage);
+            class_hashes.eoa_class_hash
+        } else {
+            initialize_contract_account(kakarot_address, address, &account_info.code, &mut storage);
+            class_hashes.contract_account_class_hash
+        };
+
+        // write implementation state of proxy
+        let proxy_implementation_storage_tuples = genesis_set_storage_starknet_contract(
+            starknet_address,
+            "_implementation",
+            &[],
+            proxy_implementation_class_hash,
+            0, // 0 since it's storage value is felt
+        );
+
+        write_madara_to_katana_storage(vec![proxy_implementation_storage_tuples], &mut storage);
+
+        // now, finally, we update the sequencer state with the eth->starknet address
+        let address = StarknetContractAddress(
+            Into::<StarkFelt>::into(starknet_address)
+                .try_into()
+                .unwrap(),
+        );
+        let account_nonce: FieldElement = Felt252Wrapper::try_from(account_info.nonce.0)
+            .unwrap()
+            .into();
+        let storage_record = StorageRecord {
+            nonce: Nonce(StarkFelt::from(account_nonce)),
+            class_hash: ClassHash(class_hashes.proxy_class_hash.into()),
+            storage: storage.clone(),
+        };
+        starknet.storage.insert(address, storage_record);
+    }
+    Ok(())
+}
 
 /// Converts a madara storage tuple to a katana storage tuple.
 pub fn madara_to_katana_storage(

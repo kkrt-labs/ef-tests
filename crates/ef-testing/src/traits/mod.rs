@@ -19,15 +19,12 @@ pub trait Case: Debug + Sync + Send + Sized {
         "no description".to_string()
     }
 
-    /// Load the test from the given file path.
+    /// Load the test from the given file path
     ///
     /// The file can be assumed to be a valid EF test case as described on <https://ethereum-tests.readthedocs.io/>.
     fn load(path: &Path) -> Result<Self, Error>;
 
-    /// Initializes the context for the test case
-    async fn init(self) -> Result<Self, Error>;
-
-    /// Run the test.
+    /// Run the test on the Katana test context.
     async fn run(&self) -> Result<(), Error>;
 }
 
@@ -56,11 +53,7 @@ pub trait Suite {
         let mut test_cases = Vec::new();
 
         for test_case_path in test_cases_paths.into_iter() {
-            let case = Self::Case::load(&test_case_path)
-                .expect("test case should load")
-                .init()
-                .await
-                .expect("test case should initialize");
+            let case = Self::Case::load(&test_case_path).expect("test case should load");
             test_cases.push((test_case_path, case))
         }
 

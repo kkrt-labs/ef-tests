@@ -1,6 +1,7 @@
 use starknet::core::{types::FieldElement, utils::get_storage_var_address};
 use starknet_api::{hash::StarkFelt, state::StorageKey};
 
+/// Returns the Starknet storage key as a starknet api type
 pub fn get_starknet_storage_key(
     var_name: &str,
     args: &[FieldElement],
