@@ -15,7 +15,9 @@ use starknet_api::{
     hash::StarkFelt,
     state::StorageKey as StarknetStorageKey,
 };
-use tokio::sync::RwLockWriteGuard;
+use tokio::sync::{RwLockReadGuard, RwLockWriteGuard};
+
+use crate::utils::get_starknet_storage_key;
 
 /// Converts a madara storage tuple to a katana storage tuple.
 pub fn madara_to_katana_storage(
@@ -107,4 +109,22 @@ pub fn write_allowance(
             .insert(storage_key, balance);
     }
     Ok(())
+}
+
+/// Reads the balance of an account of the katana storage.
+pub fn read_balance(
+    starknet_address: FieldElement,
+    starknet: &RwLockReadGuard<'_, MemDb>,
+) -> Result<StarkFelt, eyre::Error> {
+    let fee_token_address =
+        StarknetContractAddress(TryInto::<PatriciaKey>::try_into(*FEE_TOKEN_ADDRESS)?);
+
+    let storage_key = get_starknet_storage_key("ERC20_balances", &[starknet_address], 0);
+    Ok(*starknet
+        .storage
+        .get(&fee_token_address)
+        .unwrap()
+        .storage
+        .get(&storage_key)
+        .unwrap())
 }

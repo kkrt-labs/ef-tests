@@ -31,7 +31,7 @@ pub fn write_bytecode(
     let bytecode = genesis_set_bytecode(bytecode, starknet_address);
     write_madara_to_katana_storage(bytecode, destination);
 
-    let bytecode_len_key = get_starknet_storage_key("bytecode_len_", &[]);
+    let bytecode_len_key = get_starknet_storage_key("bytecode_len_", &[], 0);
     let bytecode_len_value = Into::<StarkFelt>::into(StarkFelt::from(bytecode_len as u64));
     destination.insert(bytecode_len_key, bytecode_len_value);
 }
@@ -41,6 +41,6 @@ pub fn write_owner(
     kakarot_address: FieldElement,
     destination: &mut HashMap<StarknetStorageKey, StarkFelt>,
 ) {
-    let owner = get_starknet_storage_key("Ownable_owner", &[]);
+    let owner = get_starknet_storage_key("Ownable_owner", &[], 0);
     destination.insert(owner, Into::<StarkFelt>::into(kakarot_address));
 }

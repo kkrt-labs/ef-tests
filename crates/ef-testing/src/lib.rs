@@ -22,7 +22,7 @@ mod tests {
     use crate::models::GeneralStateTest;
     use crate::storage::contract::initialize_contract_account;
     use crate::storage::eoa::{get_eoa_class_hash, initialize_eoa};
-    use crate::storage::{write_fee_token, write_madara_to_katana_storage};
+    use crate::storage::{read_balance, write_fee_token, write_madara_to_katana_storage};
 
     use super::*;
     use std::collections::HashMap;
@@ -36,6 +36,7 @@ mod tests {
     };
     use kakarot_rpc_core::client::api::{KakarotEthApi, KakarotStarknetApi};
     use kakarot_rpc_core::client::constants::CHAIN_ID;
+    use kakarot_rpc_core::client::helpers::split_u256_into_field_elements;
     use kakarot_rpc_core::models::felt::Felt252Wrapper;
     use kakarot_rpc_core::test_utils::deploy_helpers::KakarotTestEnvironmentContext;
     use kakarot_rpc_core::test_utils::fixtures::kakarot_test_env_ctx;
@@ -49,6 +50,7 @@ mod tests {
     use starknet_api::hash::StarkFelt;
     use tracing_subscriber::FmtSubscriber;
 
+    use crate::utils::get_starknet_storage_key;
     use hive_utils::kakarot::compute_starknet_address;
 
     #[ctor]
@@ -219,10 +221,9 @@ mod tests {
             .await
             .expect("transaction has receipt");
 
-        // assert on post state
-        // prop up seed state
         let binding = bt.clone();
         let env = Arc::clone(&test_environment);
+        // assert on post state
         tokio::task::spawn_blocking(move || {
             let post_state = match binding.post_state.as_ref().unwrap() {
                 RootOrState::Root(_) => panic!("RootOrState::Root(_) not supported"),
@@ -230,17 +231,52 @@ mod tests {
             };
 
             // Get lock on the Starknet sequencer
-            let _ = env.sequencer().sequencer.backend.state.blocking_read();
+            let starknet = env.sequencer().sequencer.backend.state.blocking_read();
 
-            for (address, _) in post_state.iter() {
-                let address: FieldElement = Felt252Wrapper::from(*address).into();
-                let address_as_sn_address =
-                    compute_starknet_address(kakarot_address, proxy_class_hash, address);
-                let _ = StarknetContractAddress(
-                    Into::<StarkFelt>::into(address_as_sn_address)
+            for (address, expected_state) in post_state.iter() {
+                let address_: FieldElement = Felt252Wrapper::from(*address).into();
+                let starknet_address =
+                    compute_starknet_address(kakarot_address, proxy_class_hash, address_);
+                let address = StarknetContractAddress(
+                    Into::<StarkFelt>::into(starknet_address)
                         .try_into()
                         .unwrap(),
                 );
+
+                let actual_state = starknet.storage.get(&address).unwrap();
+                // is there a more efficient route to do this... lol
+                let Nonce(actual_nonce) = actual_state.nonce;
+                let account_nonce: FieldElement = Felt252Wrapper::try_from(expected_state.nonce.0)
+                    .unwrap()
+                    .into();
+
+                let _expected_account_balance: FieldElement =
+                    Felt252Wrapper::try_from(expected_state.balance.0)
+                        .unwrap()
+                        .into();
+
+                let _actual_account_balance = read_balance(starknet_address, &starknet).unwrap();
+
+                // we don't presume gas equivalence
+                // assert_eq!(actual_account_balance, StarkFelt::from(expected_account_balance));
+
+                assert_eq!(actual_nonce, StarkFelt::from(account_nonce));
+
+                expected_state.storage.iter().for_each(|(key, value)| {
+                    let keys = split_u256_into_field_elements(key.0);
+
+                    let expected_state_values = split_u256_into_field_elements(value.0);
+                    expected_state_values
+                        .iter()
+                        .enumerate()
+                        .for_each(|(offset, value)| {
+                            let stark_key =
+                                get_starknet_storage_key("storage_", &keys, offset as u64);
+
+                            let actual_state_value = *actual_state.storage.get(&stark_key).unwrap();
+                            assert_eq!(actual_state_value, StarkFelt::from(*value));
+                        });
+                })
             }
         })
         .await
