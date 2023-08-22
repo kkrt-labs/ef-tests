@@ -28,6 +28,7 @@ starknet_api = { workspace = true }
 starknet = { workspace = true }
 
 # Other
+async-trait = { workspace = true }
 ctor = { workspace = true }
 eyre = { workspace = true }
 serde = { workspace = true }

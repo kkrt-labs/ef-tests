@@ -2412,6 +2412,7 @@ dependencies = [
 name = "ef-testing"
 version = "0.1.0"
 dependencies = [
+ "async-trait",
  "bytes",
  "ctor",
  "dojo-test-utils",

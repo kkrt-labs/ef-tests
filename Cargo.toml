@@ -41,6 +41,7 @@ starknet = "0.4.0"
 starknet_api = { git = "https://github.com/starkware-libs/starknet-api", rev = "ecc9b6946ef13003da202838e4124a9ad2efabb0" }
 
 # Other
+async-trait = "0.1.58"
 bytes = "1"
 ctor = "0.2.4"
 eyre = "0.6.8"
