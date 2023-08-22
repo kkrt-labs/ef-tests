@@ -27,7 +27,7 @@ pub fn get_eoa_class_hash(
         .get(&eoa_address)
         .ok_or_else(|| eyre::eyre!("Failed to get storage for eoa at {:?}", eoa_address))?
         .storage
-        .get(&get_starknet_storage_key("_implementation", &[]))
+        .get(&get_starknet_storage_key("_implementation", &[], 0))
         .ok_or_else(|| {
             eyre::eyre!(
                 "Failed to get value at key _implementation for eoa at {:?}",
@@ -55,7 +55,7 @@ pub fn write_kakarot_address(
     kakarot_address: FieldElement,
     destination: &mut HashMap<StarknetStorageKey, StarkFelt>,
 ) {
-    let kakarot_address_key = get_starknet_storage_key("kakarot_address", &[]);
+    let kakarot_address_key = get_starknet_storage_key("kakarot_address", &[], 0);
     let kakarot_address_value = Into::<StarkFelt>::into(StarkFelt::from(kakarot_address));
     destination.insert(kakarot_address_key, kakarot_address_value);
 }
@@ -65,7 +65,7 @@ pub fn write_evm_address(
     evm_address: FieldElement,
     destination: &mut HashMap<StarknetStorageKey, StarkFelt>,
 ) {
-    let evm_address_key = get_starknet_storage_key("evm_address", &[]);
+    let evm_address_key = get_starknet_storage_key("evm_address", &[], 0);
     let evm_address_value = Into::<StarkFelt>::into(StarkFelt::from(evm_address));
     destination.insert(evm_address_key, evm_address_value);
 }

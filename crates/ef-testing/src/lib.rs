@@ -250,7 +250,7 @@ mod tests {
             };
 
             // Get lock on the Starknet sequencer
-            let _ = env.sequencer().sequencer.backend.state.blocking_read();
+            let starknet = env.sequencer().sequencer.backend.state.blocking_read();
 
             for (address, expected_state) in post_state.iter() {
                 let address_: FieldElement = Felt252Wrapper::from(*address).into();
