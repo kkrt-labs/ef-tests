@@ -16,7 +16,7 @@ $(EF_TESTS_DIR):
 ef-tests: ef-tests-run ef-tests-clean
 
 ef-tests-run: $(EF_TESTS_DIR)
-	cargo nextest run -p ef-testing 
+	cargo nextest run -p ef-testing --features ef_tests
 
 ef-tests-clean: 
 	rm -fr $(EF_TESTS_DIR)

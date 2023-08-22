@@ -12,3 +12,4 @@
 .env
 vscode
 broadcast
+.DS_Store
