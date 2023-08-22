@@ -1,8 +1,32 @@
-// Taken from https://github.com/paradigmxyz/reth/tree/main/testing/ef-tests
+// Inspired by https://github.com/paradigmxyz/reth/tree/main/testing/ef-tests
 
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
-use ef_tests::{CaseResult, Error};
+use ef_tests::Error;
+
+use crate::traits::Case;
+
+/// The result of running a test.
+#[derive(Debug)]
+pub struct CaseResult {
+    /// A description of the test.
+    pub desc: String,
+    /// The full path to the test.
+    pub path: PathBuf,
+    /// The result of the test.
+    pub result: Result<(), Error>,
+}
+
+impl CaseResult {
+    /// Create a new test result.
+    pub fn new(path: &Path, case: &impl Case, result: Result<(), Error>) -> Self {
+        CaseResult {
+            desc: case.description(),
+            path: path.into(),
+            result,
+        }
+    }
+}
 
 /// Assert that all the given tests passed and print the results to stdout.
 pub(crate) fn assert_tests_pass(suite_name: &str, path: &Path, results: &[CaseResult]) {
