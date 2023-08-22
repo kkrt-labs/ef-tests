@@ -1,5 +1,6 @@
 pub mod case;
 pub mod result;
+pub mod suite;
 
 use reth_primitives::{Bytes, U64};
 use revm_primitives::{B160, B256};

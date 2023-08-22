@@ -1,5 +1,7 @@
+pub mod constants;
 pub mod models;
 pub mod storage;
+pub mod traits;
 pub mod utils;
 
 use reth_primitives::{sign_message, Signature, Transaction};
