@@ -5,7 +5,7 @@ use reth_primitives::Bytes;
 use starknet::core::types::FieldElement;
 use starknet_api::{hash::StarkFelt, state::StorageKey as StarknetStorageKey};
 
-use crate::utils::get_starknet_storage_key;
+use crate::utils::starknet::get_starknet_storage_key;
 
 use super::write_madara_to_katana_storage;
 
