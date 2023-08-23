@@ -262,9 +262,20 @@ impl<T: Case> Cases<T> {
 
 #[cfg(test)]
 mod tests {
-    use revm_primitives::B256;
-
     use super::*;
+    use ctor::ctor;
+    use revm_primitives::B256;
+    use tracing_subscriber::FmtSubscriber;
+
+    #[ctor]
+    fn setup() {
+        // Change this to ERROR to see less output.
+        let subscriber = FmtSubscriber::builder()
+            .with_max_level(tracing::Level::INFO)
+            .finish();
+        tracing::subscriber::set_global_default(subscriber)
+            .expect("setting tracing default failed");
+    }
 
     #[tokio::test]
     async fn test_load_case() {

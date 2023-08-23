@@ -1,17 +1,16 @@
-use crate::utils::starknet::get_starknet_storage_key;
 use ef_tests::models::Account;
-use std::collections::HashMap;
-
-use katana_core::backend::state::StorageRecord;
-use starknet::core::types::FieldElement;
-use starknet_api::{core::Nonce, hash::StarkFelt, state::StorageKey};
-
 use kakarot_rpc_core::{
     client::helpers::split_u256_into_field_elements, models::felt::Felt252Wrapper,
 };
-
+use katana_core::backend::state::StorageRecord;
 use reth_primitives::JsonU256;
+use starknet::core::types::FieldElement;
+use starknet_api::{core::Nonce, hash::StarkFelt, state::StorageKey};
 use std::collections::BTreeMap;
+use std::collections::HashMap;
+
+use super::helpers::split_u256_maybe_low_high;
+use crate::utils::starknet::get_starknet_storage_key;
 
 pub fn assert_contract_post_state(
     test_name: &str,
@@ -48,8 +47,8 @@ pub fn assert_contract_post_storage(
 ) -> Result<(), ef_tests::Error> {
     for (key, value) in expected_storage.iter() {
         let keys = split_u256_into_field_elements(key.0);
+        let expected_state_values = split_u256_maybe_low_high(value.0);
 
-        let expected_state_values = split_u256_into_field_elements(value.0);
         for (offset, value) in expected_state_values.into_iter().enumerate() {
             let stark_key = get_starknet_storage_key("storage_", &keys, offset as u64);
 
