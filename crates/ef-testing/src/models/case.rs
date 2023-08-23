@@ -22,7 +22,7 @@ use kakarot_rpc_core::{
 use starknet::{core::types::FieldElement, providers::Provider};
 use starknet_api::{core::ContractAddress as StarknetContractAddress, hash::StarkFelt};
 use std::{
-    collections::BTreeMap,
+    collections::{BTreeMap, HashSet},
     path::{Path, PathBuf},
 };
 
@@ -213,8 +213,17 @@ impl Case for BlockchainTestCase {
     }
 
     async fn run(&self) -> Result<(), ef_tests::Error> {
+        let specific_tests_to_run: Option<HashSet<String>> = std::env::var("RUN_SPECIFIC_TESTS")
+            .ok()
+            .map(|test_names| test_names.split(',').map(String::from).collect());
+
         for (test_name, case) in self.tests.iter() {
             if matches!(case.network, ForkSpec::Shanghai) {
+                if let Some(ref specific_tests) = specific_tests_to_run {
+                    if !specific_tests.contains(test_name) {
+                        continue;
+                    }
+                }
                 let env = KakarotTestEnvironmentContext::from_dump_state().await;
                 // handle pretest
                 self.handle_pre_state(&env, test_name).await?;
