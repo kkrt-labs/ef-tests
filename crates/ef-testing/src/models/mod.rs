@@ -2,7 +2,7 @@ pub mod case;
 pub mod result;
 pub mod suite;
 
-use ef_tests::models::{Header, RootOrState, State};
+use ef_tests::models::{ForkSpec, Header, RootOrState, State};
 use reth_primitives::{Bytes, U64};
 use revm_primitives::{B160, B256};
 use serde::{self, Deserialize};
@@ -35,6 +35,8 @@ pub struct BlockchainTest {
     pub post_state: Option<RootOrState>,
     /// The test pre-state.
     pub pre: State,
+    /// Network spec.
+    pub network: ForkSpec,
 }
 
 /// A block in an Ethereum blockchain test.

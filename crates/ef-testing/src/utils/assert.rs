@@ -14,7 +14,7 @@ use reth_primitives::JsonU256;
 use std::collections::BTreeMap;
 
 pub fn assert_contract_post_state(
-    test_name: &String,
+    test_name: &str,
     expected_state: &Account,
     actual_state: &StorageRecord,
 ) -> Result<(), ef_tests::Error> {
@@ -42,7 +42,7 @@ pub fn assert_contract_post_state(
 }
 
 pub fn assert_contract_post_storage(
-    test_name: &String,
+    test_name: &str,
     expected_storage: &BTreeMap<JsonU256, JsonU256>,
     actual_state_storage: &HashMap<StorageKey, StarkFelt>,
 ) -> Result<(), ef_tests::Error> {
