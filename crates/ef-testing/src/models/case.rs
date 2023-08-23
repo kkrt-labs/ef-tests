@@ -42,8 +42,7 @@ async fn handle_pre_state(
 
     let mut starknet = env.sequencer().sequencer.backend.state.write().await;
 
-    let eoa_class_hash =
-        get_eoa_class_hash(env.clone(), &starknet).expect("failed to get eoa class hash");
+    let eoa_class_hash = get_eoa_class_hash(env, &starknet).expect("failed to get eoa class hash");
     let class_hashes = ClassHashes::new(
         kakarot.proxy_class_hash,
         eoa_class_hash,
