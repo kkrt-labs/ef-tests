@@ -1,4 +1,4 @@
-use std::{collections::HashMap, sync::Arc};
+use std::collections::HashMap;
 
 use kakarot_rpc_core::test_utils::deploy_helpers::KakarotTestEnvironmentContext;
 use katana_core::backend::state::MemDb;
@@ -13,7 +13,7 @@ use crate::utils::starknet::get_starknet_storage_key;
 
 /// Returns the class hash used for the EOA contract.
 pub fn get_eoa_class_hash(
-    ctx: Arc<KakarotTestEnvironmentContext>,
+    ctx: &KakarotTestEnvironmentContext,
     starknet: &RwLockWriteGuard<'_, MemDb>,
 ) -> Result<FieldElement, eyre::Error> {
     let eoa = &ctx.kakarot().eoa_addresses;
