@@ -59,7 +59,7 @@ async fn handle_pre_state(
 impl BlockchainTestCase {
     fn test(&self, test_name: &str) -> Result<BlockchainTest, ef_tests::Error> {
         let test = self.tests.get(test_name).ok_or_else(|| {
-            ef_tests::Error::Assertion(format!("failed test {}: missing pre state", test_name))
+            ef_tests::Error::Assertion(format!("case {} doesn't exist in test file", test_name))
         })?;
         Ok(test.clone())
     }
