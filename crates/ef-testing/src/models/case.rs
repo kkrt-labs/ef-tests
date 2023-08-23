@@ -4,7 +4,7 @@ use super::{result::CaseResult, BlockchainTest, BlockchainTestTransaction};
 use crate::{
     constants::FORK_NAME,
     get_signed_rlp_encoded_transaction,
-    storage::{eoa::get_eoa_class_hash, read_balance, write_test_state, ClassHashes},
+    storage::{eoa::get_eoa_class_hash, write_test_state, ClassHashes},
     traits::Case,
     utils::{
         assert::assert_contract_post_state,
@@ -50,7 +50,7 @@ async fn handle_pre_state(
         eoa_class_hash,
         kakarot.contract_account_class_hash,
     );
-    write_test_state(&pre_state, kakarot_address, class_hashes, &mut starknet)?;
+    write_test_state(pre_state, kakarot_address, class_hashes, &mut starknet)?;
     Ok(())
 }
 
@@ -65,7 +65,7 @@ impl BlockchainTestCase {
         let test = &self.tests;
 
         let kakarot = env.kakarot();
-        handle_pre_state(kakarot, &env, &test.pre).await?;
+        handle_pre_state(kakarot, env, &test.pre).await?;
 
         Ok(())
     }
@@ -95,7 +95,7 @@ impl BlockchainTestCase {
         // we make sure that the transaction has a receipt and fail fast if it doesn't
         let starknet_provider = env.client().starknet_provider();
         let transaction_hash: FieldElement = FieldElement::from_bytes_be(&hash).unwrap();
-        let _ = starknet_provider
+        starknet_provider
             .get_transaction_receipt::<FieldElement>(transaction_hash)
             .await
             .map_err(|err| ef_tests::Error::Assertion(err.to_string()))?;
@@ -132,15 +132,8 @@ impl BlockchainTestCase {
             );
 
             let actual_state = starknet.storage.get(&address).unwrap();
-            let actual_account_balance = read_balance(starknet_address, &starknet)
-                .map_err(|err| ef_tests::Error::Assertion(err.to_string()))?;
 
-            assert_contract_post_state(
-                &self.name,
-                &expected_state,
-                &actual_state,
-                actual_account_balance,
-            )?;
+            assert_contract_post_state(&self.name, expected_state, actual_state)?;
         }
 
         Ok(())
@@ -208,7 +201,7 @@ impl Case for BlockchainTestCase {
     async fn run(&self) -> Result<(), ef_tests::Error> {
         let env = Arc::new(KakarotTestEnvironmentContext::from_dump_state().await);
         // handle pretest
-        let _handled_pre_state = self.handle_pre_state(&env).await?;
+        self.handle_pre_state(&env).await?;
 
         // necessary to have our updated state actually applied to transaction
         // think of it as 'burping' the sequencer
@@ -224,10 +217,10 @@ impl Case for BlockchainTestCase {
             .await;
 
         // handle transaction
-        let _handled_txn = self.handle_transaction(&env).await?;
+        self.handle_transaction(&env).await?;
 
         // handle post state
-        let _handled_post_state = self.handle_post_state(&env).await?;
+        self.handle_post_state(&env).await?;
 
         Ok(())
     }
@@ -271,6 +264,6 @@ mod tests {
         assert!(!case.tests.pre.is_empty());
         assert!(case.transaction.transaction.secret_key != B256::zero());
 
-        let _ = case.run().await;
+        case.run().await.unwrap();
     }
 }

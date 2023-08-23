@@ -17,19 +17,14 @@ pub fn assert_contract_post_state(
     test_name: &String,
     expected_state: &Account,
     actual_state: &StorageRecord,
-    _actual_balance: StarkFelt,
 ) -> Result<(), ef_tests::Error> {
     let Nonce(actual_nonce) = actual_state.nonce;
     let account_nonce: FieldElement = Felt252Wrapper::try_from(expected_state.nonce.0)
         .unwrap()
         .into();
 
-    let _expected_account_balance: FieldElement =
-        Felt252Wrapper::try_from(expected_state.balance.0)
-            .unwrap()
-            .into();
-
     // we don't presume gas equivalence
+    // TODO: find way to assert on balance
     // assert_eq!(actual_account_balance, StarkFelt::from(expected_account_balance));
 
     if actual_nonce != StarkFelt::from(account_nonce) {
@@ -41,7 +36,7 @@ pub fn assert_contract_post_state(
         )));
     }
 
-    assert_contract_post_storage(&test_name, &expected_state.storage, &actual_state.storage)?;
+    assert_contract_post_storage(test_name, &expected_state.storage, &actual_state.storage)?;
 
     Ok(())
 }
