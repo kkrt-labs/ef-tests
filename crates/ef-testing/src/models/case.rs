@@ -7,26 +7,20 @@ use crate::{
     storage::{eoa::get_eoa_class_hash, read_balance, write_test_state, ClassHashes},
     traits::Case,
     utils::{
+        assert::assert_contract_post_state,
         io::{deserialize_into, load_file},
-        starknet::get_starknet_storage_key,
     },
 };
 use async_trait::async_trait;
-use ef_tests::models::RootOrState;
+use ef_tests::models::{RootOrState, State};
 use hive_utils::kakarot::compute_starknet_address;
 use kakarot_rpc_core::{
-    client::{
-        api::{KakarotEthApi, KakarotStarknetApi},
-        helpers::split_u256_into_field_elements,
-    },
+    client::api::{KakarotEthApi, KakarotStarknetApi},
     models::felt::Felt252Wrapper,
-    test_utils::deploy_helpers::KakarotTestEnvironmentContext,
+    test_utils::deploy_helpers::{DeployedKakarot, KakarotTestEnvironmentContext},
 };
 use starknet::{core::types::FieldElement, providers::Provider};
-use starknet_api::{
-    core::{ContractAddress as StarknetContractAddress, Nonce},
-    hash::StarkFelt,
-};
+use starknet_api::{core::ContractAddress as StarknetContractAddress, hash::StarkFelt};
 use std::{
     collections::BTreeMap,
     path::{Path, PathBuf},
@@ -38,6 +32,119 @@ pub struct BlockchainTestCase {
     pub name: String,
     pub tests: BlockchainTest,
     pub transaction: BlockchainTestTransaction,
+}
+
+async fn handle_pre_state(
+    kakarot: &DeployedKakarot,
+    env: &Arc<KakarotTestEnvironmentContext>,
+    pre_state: &State,
+) -> Result<(), ef_tests::Error> {
+    let kakarot_address = kakarot.kakarot_address;
+
+    let mut starknet = env.sequencer().sequencer.backend.state.write().await;
+
+    let eoa_class_hash =
+        get_eoa_class_hash(env.clone(), &starknet).expect("failed to get eoa class hash");
+    let class_hashes = ClassHashes::new(
+        kakarot.proxy_class_hash,
+        eoa_class_hash,
+        kakarot.contract_account_class_hash,
+    );
+    write_test_state(&pre_state, kakarot_address, class_hashes, &mut starknet)?;
+    Ok(())
+}
+
+// division of logic:
+//// 'handle' methods attempt to abstract the data coming from BlockChainTestCase
+//// from more general logic that can be used across tests
+impl BlockchainTestCase {
+    async fn handle_pre_state(
+        &self,
+        env: &Arc<KakarotTestEnvironmentContext>,
+    ) -> Result<(), ef_tests::Error> {
+        let test = &self.tests;
+
+        let kakarot = env.kakarot();
+        handle_pre_state(kakarot, &env, &test.pre).await?;
+
+        Ok(())
+    }
+
+    async fn handle_transaction(
+        &self,
+        env: &Arc<KakarotTestEnvironmentContext>,
+    ) -> Result<(), ef_tests::Error> {
+        let test = &self.tests;
+
+        // we extract the transaction from the block
+        let block = test
+            .blocks
+            .first()
+            .ok_or(ef_tests::Error::Assertion("test has no blocks".to_string()))?
+            .clone();
+        // we adjust the rlp to correspond with our currently hardcoded CHAIN_ID
+        let tx_encoded =
+            get_signed_rlp_encoded_transaction(block.rlp, self.transaction.transaction.secret_key)?;
+
+        let client = env.client();
+        let hash = client
+            .send_transaction(tx_encoded.to_vec().into())
+            .await
+            .map_err(|err| ef_tests::Error::Assertion(err.to_string()))?;
+
+        // we make sure that the transaction has a receipt and fail fast if it doesn't
+        let starknet_provider = env.client().starknet_provider();
+        let transaction_hash: FieldElement = FieldElement::from_bytes_be(&hash).unwrap();
+        let _ = starknet_provider
+            .get_transaction_receipt::<FieldElement>(transaction_hash)
+            .await
+            .map_err(|err| ef_tests::Error::Assertion(err.to_string()))?;
+
+        Ok(())
+    }
+
+    async fn handle_post_state(
+        &self,
+        env: &Arc<KakarotTestEnvironmentContext>,
+    ) -> Result<(), ef_tests::Error> {
+        let test = &self.tests;
+        let post_state = match test.post_state.as_ref().ok_or_else(|| {
+            ef_tests::Error::Assertion(format!("failed test {}: missing post state", self.name))
+        })? {
+            RootOrState::Root(_) => panic!("RootOrState::Root(_) not supported"),
+            RootOrState::State(state) => state,
+        };
+
+        let kakarot = env.kakarot();
+        let kakarot_address = kakarot.kakarot_address;
+
+        // Get lock on the Starknet sequencer
+        let starknet = env.sequencer().sequencer.backend.state.read().await;
+
+        for (address, expected_state) in post_state.iter() {
+            let addr: FieldElement = Felt252Wrapper::from(*address).into();
+            let starknet_address =
+                compute_starknet_address(kakarot_address, kakarot.proxy_class_hash, addr);
+            let address = StarknetContractAddress(
+                Into::<StarkFelt>::into(starknet_address)
+                    .try_into()
+                    .unwrap(),
+            );
+
+            let actual_state = starknet.storage.get(&address).unwrap();
+            let actual_account_balance = read_balance(starknet_address, &starknet)
+                .map_err(|err| ef_tests::Error::Assertion(err.to_string()))?;
+
+            assert_contract_post_state(
+                &self.name,
+                &expected_state,
+                &actual_state,
+                actual_account_balance,
+            )?;
+        }
+
+        Ok(())
+    }
 }
 
 #[async_trait]
@@ -100,35 +207,11 @@ impl Case for BlockchainTestCase {
 
     async fn run(&self) -> Result<(), ef_tests::Error> {
         let env = Arc::new(KakarotTestEnvironmentContext::from_dump_state().await);
-        let test = self.tests.clone();
-
-        // Prepare the pre test state
-        let env_binding = env.clone();
-        let _ = tokio::task::spawn_blocking(move || {
-            let kakarot = env_binding.kakarot();
-            let kakarot_address = kakarot.kakarot_address;
-
-            // Get lock on the Starknet sequencer
-            let mut starknet = env_binding
-                .sequencer()
-                .sequencer
-                .backend
-                .state
-                .blocking_write();
-
-            let eoa_class_hash = get_eoa_class_hash(env_binding.clone(), &starknet)
-                .expect("failed to get eoa class hash");
-            let class_hashes = ClassHashes::new(
-                kakarot.proxy_class_hash,
-                eoa_class_hash,
-                kakarot.contract_account_class_hash,
-            );
-            write_test_state(&test, kakarot_address, class_hashes, &mut starknet)
-        })
-        .await
-        .map_err(|err| ef_tests::Error::Assertion(err.to_string()))?;
+        // handle pretest
+        let _handled_pre_state = self.handle_pre_state(&env).await?;
 
         // necessary to have our updated state actually applied to transaction
+        // think of it as 'burping' the sequencer
         env.sequencer()
             .sequencer
             .backend
@@ -140,107 +223,11 @@ impl Case for BlockchainTestCase {
             .generate_pending_block()
             .await;
 
-        // Get the encoded transaction
-        let test = self.tests.clone();
-        let block = test
-            .blocks
-            .first()
-            .ok_or(ef_tests::Error::Assertion("test has no blocks".to_string()))?
-            .clone();
-        let tx_encoded =
-            get_signed_rlp_encoded_transaction(block.rlp, self.transaction.transaction.secret_key)?;
-        let client = env.client();
-        let hash = client
-            .send_transaction(tx_encoded.to_vec().into())
-            .await
-            .map_err(|err| ef_tests::Error::Assertion(err.to_string()))?;
+        // handle transaction
+        let _handled_txn = self.handle_transaction(&env).await?;
 
-        // Get the receipt to verify the transaction was executed
-        let starknet_provider = env.client().starknet_provider();
-        let transaction_hash: FieldElement = FieldElement::from_bytes_be(&hash).unwrap();
-        let _ = starknet_provider
-            .get_transaction_receipt::<FieldElement>(transaction_hash)
-            .await
-            .map_err(|err| ef_tests::Error::Assertion(err.to_string()))?;
-
-        // assert on post state
-        let env_binding = env.clone();
-        let post_state = match test.post_state.as_ref().ok_or_else(|| {
-            ef_tests::Error::Assertion(format!("failed test {}: missing post state", self.name))
-        })? {
-            RootOrState::Root(_) => panic!("RootOrState::Root(_) not supported"),
-            RootOrState::State(state) => state,
-        };
-
-        let kakarot = env_binding.kakarot();
-        let kakarot_address = kakarot.kakarot_address;
-
-        // Get lock on the Starknet sequencer
-        let starknet = env.sequencer().sequencer.backend.state.read().await;
-
-        for (address, expected_state) in post_state.iter() {
-            let addr: FieldElement = Felt252Wrapper::from(*address).into();
-            let starknet_address =
-                compute_starknet_address(kakarot_address, kakarot.proxy_class_hash, addr);
-            let address = StarknetContractAddress(
-                Into::<StarkFelt>::into(starknet_address)
-                    .try_into()
-                    .unwrap(),
-            );
-
-            let actual_state = starknet.storage.get(&address).unwrap();
-            // is there a more efficient route to do this... lol
-            let Nonce(actual_nonce) = actual_state.nonce;
-            let account_nonce: FieldElement = Felt252Wrapper::try_from(expected_state.nonce.0)
-                .unwrap()
-                .into();
-
-            let _expected_account_balance: FieldElement =
-                Felt252Wrapper::try_from(expected_state.balance.0)
-                    .unwrap()
-                    .into();
-
-            let _actual_account_balance = read_balance(starknet_address, &starknet)
-                .map_err(|err| ef_tests::Error::Assertion(err.to_string()))?;
-
-            // we don't presume gas equivalence
-            // assert_eq!(actual_account_balance, StarkFelt::from(expected_account_balance));
-
-            if actual_nonce != StarkFelt::from(account_nonce) {
-                return Err(ef_tests::Error::Assertion(format!(
-                    "failed test {}: expected nonce {}, got {}",
-                    self.name,
-                    account_nonce.to_string(),
-                    actual_nonce.to_string()
-                )));
-            }
-
-            for (key, value) in expected_state.storage.iter() {
-                let keys = split_u256_into_field_elements(key.0);
-
-                let expected_state_values = split_u256_into_field_elements(value.0);
-                for (offset, value) in expected_state_values.into_iter().enumerate() {
-                    let stark_key = get_starknet_storage_key("storage_", &keys, offset as u64);
-
-                    let actual_state_value =
-                        *actual_state.storage.get(&stark_key).ok_or_else(|| {
-                            ef_tests::Error::Assertion(format!(
-                                "failed test {}: missing storage for key {:?}",
-                                self.name, stark_key
-                            ))
-                        })?;
-
-                    if actual_state_value != StarkFelt::from(value) {
-                        return Err(ef_tests::Error::Assertion(format!(
-                            "failed test {}: expected storage value {}, got {}",
-                            self.name,
-                            value.to_string(),
-                            actual_state_value.to_string()
-                        )));
-                    }
-                }
-            }
-        }
+        // handle post state
+        let _handled_post_state = self.handle_post_state(&env).await?;
 
         Ok(())
     }
@@ -270,8 +257,8 @@ mod tests {
 
     use super::*;
 
-    #[test]
-    fn test_load_case() {
+    #[tokio::test]
+    async fn test_load_case() {
         // Given
         let path = Path::new(
             "test_data/BlockchainTests/GeneralStateTests/VMTests/vmArithmeticTest/add.json",
@@ -283,5 +270,7 @@ mod tests {
         // Then
         assert!(!case.tests.pre.is_empty());
         assert!(case.transaction.transaction.secret_key != B256::zero());
+
+        let _ = case.run().await;
     }
 }
