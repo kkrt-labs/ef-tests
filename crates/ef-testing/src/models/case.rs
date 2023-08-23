@@ -2,7 +2,6 @@
 
 use super::{result::CaseResult, BlockchainTest, BlockchainTestTransaction};
 use crate::{
-    constants::FORK_NAME,
     get_signed_rlp_encoded_transaction,
     storage::{eoa::get_eoa_class_hash, write_test_state, ClassHashes},
     traits::Case,
@@ -12,7 +11,7 @@ use crate::{
     },
 };
 use async_trait::async_trait;
-use ef_tests::models::{RootOrState, State};
+use ef_tests::models::{ForkSpec, RootOrState, State};
 use hive_utils::kakarot::compute_starknet_address;
 use kakarot_rpc_core::{
     client::api::{KakarotEthApi, KakarotStarknetApi},
@@ -30,7 +29,7 @@ use std::{
 #[derive(Debug)]
 pub struct BlockchainTestCase {
     pub name: String,
-    pub tests: BlockchainTest,
+    pub tests: BTreeMap<String, BlockchainTest>,
     pub transaction: BlockchainTestTransaction,
 }
 
@@ -58,11 +57,19 @@ async fn handle_pre_state(
 //// 'handle' methods attempt to abstract the data coming from BlockChainTestCase
 //// from more general logic that can be used across tests
 impl BlockchainTestCase {
+    fn test(&self, test_name: &str) -> Result<BlockchainTest, ef_tests::Error> {
+        let test = self.tests.get(test_name).ok_or_else(|| {
+            ef_tests::Error::Assertion(format!("case {} doesn't exist in test file", test_name))
+        })?;
+        Ok(test.clone())
+    }
+
     async fn handle_pre_state(
         &self,
         env: &Arc<KakarotTestEnvironmentContext>,
+        test_case_name: &str,
     ) -> Result<(), ef_tests::Error> {
-        let test = &self.tests;
+        let test = self.test(test_case_name)?;
 
         let kakarot = env.kakarot();
         handle_pre_state(kakarot, env, &test.pre).await?;
@@ -73,8 +80,9 @@ impl BlockchainTestCase {
     async fn handle_transaction(
         &self,
         env: &Arc<KakarotTestEnvironmentContext>,
+        test_case_name: &str,
     ) -> Result<(), ef_tests::Error> {
-        let test = &self.tests;
+        let test = self.test(test_case_name)?;
 
         // we extract the transaction from the block
         let block = test
@@ -106,10 +114,15 @@ impl BlockchainTestCase {
     async fn handle_post_state(
         &self,
         env: &Arc<KakarotTestEnvironmentContext>,
+        test_case_name: &str,
     ) -> Result<(), ef_tests::Error> {
-        let test = &self.tests;
+        let test = self.test(test_case_name)?;
+
         let post_state = match test.post_state.as_ref().ok_or_else(|| {
-            ef_tests::Error::Assertion(format!("failed test {}: missing post state", self.name))
+            ef_tests::Error::Assertion(format!(
+                "failed test {}: missing post state",
+                test_case_name
+            ))
         })? {
             RootOrState::Root(_) => panic!("RootOrState::Root(_) not supported"),
             RootOrState::State(state) => state,
@@ -121,8 +134,8 @@ impl BlockchainTestCase {
         // Get lock on the Starknet sequencer
         let starknet = env.sequencer().sequencer.backend.state.read().await;
 
-        for (address, expected_state) in post_state.iter() {
-            let addr: FieldElement = Felt252Wrapper::from(*address).into();
+        for (evm_address, expected_state) in post_state.iter() {
+            let addr: FieldElement = Felt252Wrapper::from(*evm_address).into();
             let starknet_address =
                 compute_starknet_address(kakarot_address, kakarot.proxy_class_hash, addr);
             let address = StarknetContractAddress(
@@ -131,9 +144,14 @@ impl BlockchainTestCase {
                     .unwrap(),
             );
 
-            let actual_state = starknet.storage.get(&address).unwrap();
+            let actual_state = starknet.storage.get(&address).ok_or_else(|| {
+                ef_tests::Error::Assertion(format!(
+                    "failed test {}: missing evm address {:?} in post state storage",
+                    test_case_name, evm_address
+                ))
+            })?;
 
-            assert_contract_post_state(&self.name, expected_state, actual_state)?;
+            assert_contract_post_state(test_case_name, expected_state, actual_state)?;
         }
 
         Ok(())
@@ -161,21 +179,16 @@ impl Case for BlockchainTestCase {
                 error: "expected file".into(),
             })?
             .to_str()
-            .expect("filename contains no unicode charaters");
+            .ok_or_else(|| ef_tests::Error::Io {
+                path: path.into(),
+                error: format!("expected valid utf8 path, got {:?}", path),
+            })?;
 
         let general_state_tests_path = general_state_tests_path.as_path();
         Ok(Self {
             tests: {
                 let s = load_file(path)?;
-                let mut cases: BTreeMap<String, BlockchainTest> = deserialize_into(s, path)?;
-                let test_name = format!("{}{}", test_name, FORK_NAME);
-
-                cases
-                    .remove(&test_name)
-                    .ok_or_else(|| ef_tests::Error::CouldNotDeserialize {
-                        path: path.into(),
-                        error: format!("could not find test {}", test_name),
-                    })?
+                deserialize_into(s, path)?
             },
             transaction: {
                 let s = load_file(general_state_tests_path)?;
@@ -199,29 +212,32 @@ impl Case for BlockchainTestCase {
     }
 
     async fn run(&self) -> Result<(), ef_tests::Error> {
-        let env = Arc::new(KakarotTestEnvironmentContext::from_dump_state().await);
-        // handle pretest
-        self.handle_pre_state(&env).await?;
+        for (test_name, case) in self.tests.iter() {
+            if matches!(case.network, ForkSpec::Shanghai) {
+                let env = Arc::new(KakarotTestEnvironmentContext::from_dump_state().await);
+                // handle pretest
+                self.handle_pre_state(&env, test_name).await?;
 
-        // necessary to have our updated state actually applied to transaction
-        // think of it as 'burping' the sequencer
-        env.sequencer()
-            .sequencer
-            .backend
-            .generate_latest_block()
-            .await;
-        env.sequencer()
-            .sequencer
-            .backend
-            .generate_pending_block()
-            .await;
+                // necessary to have our updated state actually applied to transaction
+                // think of it as 'burping' the sequencer
+                env.sequencer()
+                    .sequencer
+                    .backend
+                    .generate_latest_block()
+                    .await;
+                env.sequencer()
+                    .sequencer
+                    .backend
+                    .generate_pending_block()
+                    .await;
 
-        // handle transaction
-        self.handle_transaction(&env).await?;
+                // handle transaction
+                self.handle_transaction(&env, test_name).await?;
 
-        // handle post state
-        self.handle_post_state(&env).await?;
-
+                // handle post state
+                self.handle_post_state(&env, test_name).await?;
+            }
+        }
         Ok(())
     }
 }
@@ -261,7 +277,7 @@ mod tests {
         let case = BlockchainTestCase::load(path).unwrap();
 
         // Then
-        assert!(!case.tests.pre.is_empty());
+        assert!(!case.tests.is_empty());
         assert!(case.transaction.transaction.secret_key != B256::zero());
 
         case.run().await.unwrap();
