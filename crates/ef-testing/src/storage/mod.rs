@@ -3,6 +3,7 @@ pub mod eoa;
 
 use std::collections::HashMap;
 
+use ef_tests::models::State;
 use hive_utils::{
     kakarot::compute_starknet_address,
     madara::utils::{
@@ -25,7 +26,7 @@ use starknet_api::{
 };
 use tokio::sync::{RwLockReadGuard, RwLockWriteGuard};
 
-use crate::{models::BlockchainTest, utils::starknet::get_starknet_storage_key};
+use crate::utils::starknet::get_starknet_storage_key;
 
 use self::{contract::initialize_contract_account, eoa::initialize_eoa};
 
@@ -51,13 +52,13 @@ impl ClassHashes {
 
 /// Writes the blockchain test state to the Starknet storage
 pub fn write_test_state(
-    test_state: &BlockchainTest,
+    state: &State,
     kakarot_address: FieldElement,
     class_hashes: ClassHashes,
     starknet: &mut RwLockWriteGuard<'_, MemDb>,
 ) -> Result<(), ef_tests::Error> {
     // iterate through pre-state addresses
-    for (address, account_info) in test_state.pre.iter() {
+    for (address, account_info) in state.iter() {
         let mut storage = HashMap::new();
         let address = Felt252Wrapper::from(address.to_owned()).into();
         let starknet_address =
