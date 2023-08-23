@@ -21,7 +21,7 @@ pub fn sign_tx_with_chain_id(
 }
 
 pub fn get_signed_rlp_encoded_transaction(
-    block: Bytes,
+    block: &Bytes,
     pk: B256,
 ) -> Result<Bytes, ef_tests::Error> {
     // parse it as a sealed block

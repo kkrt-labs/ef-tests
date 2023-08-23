@@ -1,6 +1,6 @@
 // Inspired by https://github.com/paradigmxyz/reth/tree/main/testing/ef-tests
 
-use super::{result::CaseResult, BlockchainTest, BlockchainTestTransaction};
+use super::{result::CaseResult, BlockchainTestTransaction};
 use crate::{
     get_signed_rlp_encoded_transaction,
     storage::{eoa::get_eoa_class_hash, write_test_state, ClassHashes},
@@ -11,6 +11,7 @@ use crate::{
     },
 };
 use async_trait::async_trait;
+use ef_tests::models::BlockchainTest;
 use ef_tests::models::{ForkSpec, RootOrState, State};
 use hive_utils::kakarot::compute_starknet_address;
 use kakarot_rpc_core::{
@@ -23,7 +24,6 @@ use starknet_api::{core::ContractAddress as StarknetContractAddress, hash::Stark
 use std::{
     collections::BTreeMap,
     path::{Path, PathBuf},
-    sync::Arc,
 };
 
 #[derive(Debug)]
@@ -35,15 +35,14 @@ pub struct BlockchainTestCase {
 
 async fn handle_pre_state(
     kakarot: &DeployedKakarot,
-    env: &Arc<KakarotTestEnvironmentContext>,
+    env: &KakarotTestEnvironmentContext,
     pre_state: &State,
 ) -> Result<(), ef_tests::Error> {
     let kakarot_address = kakarot.kakarot_address;
 
     let mut starknet = env.sequencer().sequencer.backend.state.write().await;
 
-    let eoa_class_hash =
-        get_eoa_class_hash(env.clone(), &starknet).expect("failed to get eoa class hash");
+    let eoa_class_hash = get_eoa_class_hash(env, &starknet).expect("failed to get eoa class hash");
     let class_hashes = ClassHashes::new(
         kakarot.proxy_class_hash,
         eoa_class_hash,
@@ -57,16 +56,16 @@ async fn handle_pre_state(
 //// 'handle' methods attempt to abstract the data coming from BlockChainTestCase
 //// from more general logic that can be used across tests
 impl BlockchainTestCase {
-    fn test(&self, test_name: &str) -> Result<BlockchainTest, ef_tests::Error> {
+    fn test(&self, test_name: &str) -> Result<&BlockchainTest, ef_tests::Error> {
         let test = self.tests.get(test_name).ok_or_else(|| {
             ef_tests::Error::Assertion(format!("case {} doesn't exist in test file", test_name))
         })?;
-        Ok(test.clone())
+        Ok(test)
     }
 
     async fn handle_pre_state(
         &self,
-        env: &Arc<KakarotTestEnvironmentContext>,
+        env: &KakarotTestEnvironmentContext,
         test_case_name: &str,
     ) -> Result<(), ef_tests::Error> {
         let test = self.test(test_case_name)?;
@@ -79,7 +78,7 @@ impl BlockchainTestCase {
 
     async fn handle_transaction(
         &self,
-        env: &Arc<KakarotTestEnvironmentContext>,
+        env: &KakarotTestEnvironmentContext,
         test_case_name: &str,
     ) -> Result<(), ef_tests::Error> {
         let test = self.test(test_case_name)?;
@@ -91,8 +90,10 @@ impl BlockchainTestCase {
             .ok_or(ef_tests::Error::Assertion("test has no blocks".to_string()))?
             .clone();
         // we adjust the rlp to correspond with our currently hardcoded CHAIN_ID
-        let tx_encoded =
-            get_signed_rlp_encoded_transaction(block.rlp, self.transaction.transaction.secret_key)?;
+        let tx_encoded = get_signed_rlp_encoded_transaction(
+            &block.rlp,
+            self.transaction.transaction.secret_key,
+        )?;
 
         let client = env.client();
         let hash = client
@@ -113,7 +114,7 @@ impl BlockchainTestCase {
 
     async fn handle_post_state(
         &self,
-        env: &Arc<KakarotTestEnvironmentContext>,
+        env: &KakarotTestEnvironmentContext,
         test_case_name: &str,
     ) -> Result<(), ef_tests::Error> {
         let test = self.test(test_case_name)?;
@@ -214,7 +215,7 @@ impl Case for BlockchainTestCase {
     async fn run(&self) -> Result<(), ef_tests::Error> {
         for (test_name, case) in self.tests.iter() {
             if matches!(case.network, ForkSpec::Shanghai) {
-                let env = Arc::new(KakarotTestEnvironmentContext::from_dump_state().await);
+                let env = KakarotTestEnvironmentContext::from_dump_state().await;
                 // handle pretest
                 self.handle_pre_state(&env, test_name).await?;
 
@@ -262,15 +263,58 @@ impl<T: Case> Cases<T> {
 
 #[cfg(test)]
 mod tests {
-    use revm_primitives::B256;
-
     use super::*;
+    use ctor::ctor;
+    use revm_primitives::B256;
+    use tracing_subscriber::FmtSubscriber;
+
+    #[ctor]
+    fn setup() {
+        // Change this to ERROR to see less output.
+        let subscriber = FmtSubscriber::builder()
+            .with_max_level(tracing::Level::INFO)
+            .finish();
+        tracing::subscriber::set_global_default(subscriber)
+            .expect("setting tracing default failed");
+    }
 
     #[tokio::test]
     async fn test_load_case() {
         // Given
         let path = Path::new(
-            "test_data/BlockchainTests/GeneralStateTests/VMTests/vmArithmeticTest/add.json",
+            "ethereum-tests/BlockchainTests/GeneralStateTests/VMTests/vmArithmeticTest/add.json",
+        );
+
+        // When
+        let case = BlockchainTestCase::load(path).unwrap();
+
+        // Then
+        assert!(!case.tests.is_empty());
+        assert!(case.transaction.transaction.secret_key != B256::zero());
+    }
+
+    #[tokio::test]
+    async fn test_run_add() {
+        // Given
+        let path = Path::new(
+            "ethereum-tests/BlockchainTests/GeneralStateTests/VMTests/vmArithmeticTest/add.json",
+        );
+
+        // When
+        let case = BlockchainTestCase::load(path).unwrap();
+
+        // Then
+        assert!(!case.tests.is_empty());
+        assert!(case.transaction.transaction.secret_key != B256::zero());
+
+        case.run().await.unwrap();
+    }
+
+    #[tokio::test]
+    async fn test_run_mul() {
+        // Given
+        let path = Path::new(
+            "ethereum-tests/BlockchainTests/GeneralStateTests/VMTests/vmArithmeticTest/mul.json",
         );
 
         // When
