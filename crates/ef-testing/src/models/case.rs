@@ -216,6 +216,9 @@ impl Case for BlockchainTestCase {
         let specific_tests_to_run: Option<HashSet<String>> = std::env::var("RUN_SPECIFIC_TESTS")
             .ok()
             .map(|test_names| test_names.split(',').map(String::from).collect());
+        let specific_file_to_run: Option<HashSet<String>> = std::env::var("RUN_SPECIFIC_FILES")
+            .ok()
+            .map(|file_names| file_names.split(',').map(String::from).collect());
 
         for (test_name, case) in self.tests.iter() {
             if matches!(case.network, ForkSpec::Shanghai) {
@@ -224,6 +227,14 @@ impl Case for BlockchainTestCase {
                         continue;
                     }
                 }
+                if let Some(ref specific_files) = specific_file_to_run {
+                    if !specific_files.contains(&self.name) {
+                        continue;
+                    }
+                }
+
+                tracing::info!("Running test {}", test_name);
+
                 let env = KakarotTestEnvironmentContext::from_dump_state().await;
                 // handle pretest
                 self.handle_pre_state(&env, test_name).await?;
@@ -275,14 +286,13 @@ mod tests {
     use super::*;
     use ctor::ctor;
     use revm_primitives::B256;
-    use tracing_subscriber::FmtSubscriber;
+    use tracing_subscriber::{filter, FmtSubscriber};
 
     #[ctor]
     fn setup() {
-        // Change this to ERROR to see less output.
-        let subscriber = FmtSubscriber::builder()
-            .with_max_level(tracing::Level::INFO)
-            .finish();
+        // Change this to "error" to see less output.
+        let filter = filter::EnvFilter::new("ef_testing=info");
+        let subscriber = FmtSubscriber::builder().with_env_filter(filter).finish();
         tracing::subscriber::set_global_default(subscriber)
             .expect("setting tracing default failed");
     }
