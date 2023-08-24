@@ -13,3 +13,6 @@
 vscode
 broadcast
 .DS_Store
+
+# Ignore the ef-tests
+/crates/ef-testing/ethereum-tests

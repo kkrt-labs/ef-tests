@@ -25,7 +25,8 @@ pub fn assert_contract_post_state(
     // TODO: find way to assert on balance
     // assert_eq!(actual_account_balance, StarkFelt::from(expected_account_balance));
 
-    if actual_nonce != StarkFelt::from(account_nonce) {
+    let account_nonce = StarkFelt::from(account_nonce);
+    if actual_nonce != account_nonce {
         return Err(ef_tests::Error::Assertion(format!(
             "failed test {}: expected nonce {}, got {}",
             test_name,
@@ -56,7 +57,8 @@ pub fn assert_contract_post_storage(
                 .copied()
                 .unwrap_or_default();
 
-            if actual_state_value != StarkFelt::from(value) {
+            let value = StarkFelt::from(value);
+            if actual_state_value != value {
                 return Err(ef_tests::Error::Assertion(format!(
                     "failed test {}: expected storage value {}, got {}",
                     test_name,

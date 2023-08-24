@@ -17,14 +17,13 @@ macro_rules! blockchain_tests {
 mod blockchain_tests {
     use super::*;
     use ctor::ctor;
-    use tracing_subscriber::FmtSubscriber;
+    use tracing_subscriber::{filter, FmtSubscriber};
 
     #[ctor]
     fn setup() {
-        // Change this to ERROR to see less output.
-        let subscriber = FmtSubscriber::builder()
-            .with_max_level(tracing::Level::INFO)
-            .finish();
+        // You can change the filter to "info" to see the logs
+        let filter = filter::EnvFilter::new("ef_testing=info,katana_core=info");
+        let subscriber = FmtSubscriber::builder().with_env_filter(filter).finish();
         tracing::subscriber::set_global_default(subscriber)
             .expect("setting tracing default failed");
     }

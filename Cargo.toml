@@ -42,6 +42,7 @@ async-trait = "0.1.58"
 bytes = "1"
 ctor = "0.2.4"
 eyre = "0.6.8"
+regex = "1.9.3"
 rstest = "0.18.1"
 tokio = { version = "1.21.2", features = ["macros"] }
 walkdir = "2.3.3"

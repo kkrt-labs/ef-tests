@@ -19,10 +19,11 @@ use kakarot_rpc_core::{
     models::felt::Felt252Wrapper,
     test_utils::deploy_helpers::{DeployedKakarot, KakarotTestEnvironmentContext},
 };
+use regex::Regex;
 use starknet::{core::types::FieldElement, providers::Provider};
 use starknet_api::{core::ContractAddress as StarknetContractAddress, hash::StarkFelt};
 use std::{
-    collections::{BTreeMap, HashSet},
+    collections::BTreeMap,
     path::{Path, PathBuf},
 };
 
@@ -213,17 +214,25 @@ impl Case for BlockchainTestCase {
     }
 
     async fn run(&self) -> Result<(), ef_tests::Error> {
-        let specific_tests_to_run: Option<HashSet<String>> = std::env::var("RUN_SPECIFIC_TESTS")
-            .ok()
-            .map(|test_names| test_names.split(',').map(String::from).collect());
+        let test_regexp: Option<String> = std::env::var("TARGET").ok();
+        let test_regexp = match test_regexp {
+            Some(x) => Some(
+                Regex::new(x.as_str())
+                    .map_err(|err| ef_tests::Error::Assertion(format!("invalid regex: {}", err)))?,
+            ),
+            None => None,
+        };
 
         for (test_name, case) in self.tests.iter() {
             if matches!(case.network, ForkSpec::Shanghai) {
-                if let Some(ref specific_tests) = specific_tests_to_run {
-                    if !specific_tests.contains(test_name) {
+                if let Some(ref test_regexp) = test_regexp {
+                    if !test_regexp.is_match(test_name) {
                         continue;
                     }
                 }
+
+                tracing::info!("Running test {}", test_name);
+
                 let env = KakarotTestEnvironmentContext::from_dump_state().await;
                 // handle pretest
                 self.handle_pre_state(&env, test_name).await?;
@@ -275,14 +284,13 @@ mod tests {
     use super::*;
     use ctor::ctor;
     use revm_primitives::B256;
-    use tracing_subscriber::FmtSubscriber;
+    use tracing_subscriber::{filter, FmtSubscriber};
 
     #[ctor]
     fn setup() {
-        // Change this to ERROR to see less output.
-        let subscriber = FmtSubscriber::builder()
-            .with_max_level(tracing::Level::INFO)
-            .finish();
+        // Change this to "error" to see less output.
+        let filter = filter::EnvFilter::new("ef_testing=info");
+        let subscriber = FmtSubscriber::builder().with_env_filter(filter).finish();
         tracing::subscriber::set_global_default(subscriber)
             .expect("setting tracing default failed");
     }

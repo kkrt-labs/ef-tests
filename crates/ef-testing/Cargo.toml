@@ -33,13 +33,14 @@ ctor = { workspace = true }
 eyre = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
+regex = { workspace= true } 
 rstest = { workspace= true } 
 tokio = { workspace = true }
+tracing = "0.1.37"
 walkdir = { workspace = true }
 
 [dev-dependencies]
 tracing-subscriber = "0.3.17"
-tracing = "0.1.37"
 
 [features]
 ef-tests = []
