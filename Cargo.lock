@@ -2421,6 +2421,7 @@ dependencies = [
  "hive-utils",
  "kakarot-rpc-core",
  "katana-core",
+ "regex",
  "reth-primitives",
  "reth-rlp",
  "revm-primitives",

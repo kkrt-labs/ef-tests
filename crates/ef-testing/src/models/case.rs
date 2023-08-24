@@ -19,10 +19,11 @@ use kakarot_rpc_core::{
     models::felt::Felt252Wrapper,
     test_utils::deploy_helpers::{DeployedKakarot, KakarotTestEnvironmentContext},
 };
+use regex::Regex;
 use starknet::{core::types::FieldElement, providers::Provider};
 use starknet_api::{core::ContractAddress as StarknetContractAddress, hash::StarkFelt};
 use std::{
-    collections::{BTreeMap, HashSet},
+    collections::BTreeMap,
     path::{Path, PathBuf},
 };
 
@@ -213,22 +214,19 @@ impl Case for BlockchainTestCase {
     }
 
     async fn run(&self) -> Result<(), ef_tests::Error> {
-        let specific_tests_to_run: Option<HashSet<String>> = std::env::var("RUN_SPECIFIC_TESTS")
-            .ok()
-            .map(|test_names| test_names.split(',').map(String::from).collect());
-        let specific_file_to_run: Option<HashSet<String>> = std::env::var("RUN_SPECIFIC_FILES")
-            .ok()
-            .map(|file_names| file_names.split(',').map(String::from).collect());
+        let test_regexp: Option<String> = std::env::var("TARGET").ok();
+        let test_regexp = match test_regexp {
+            Some(x) => Some(
+                Regex::new(x.as_str())
+                    .map_err(|err| ef_tests::Error::Assertion(format!("invalid regex: {}", err)))?,
+            ),
+            None => None,
+        };
 
         for (test_name, case) in self.tests.iter() {
             if matches!(case.network, ForkSpec::Shanghai) {
-                if let Some(ref specific_tests) = specific_tests_to_run {
-                    if !specific_tests.contains(test_name) {
-                        continue;
-                    }
-                }
-                if let Some(ref specific_files) = specific_file_to_run {
-                    if !specific_files.contains(&self.name) {
+                if let Some(ref test_regexp) = test_regexp {
+                    if !test_regexp.is_match(test_name) {
                         continue;
                     }
                 }

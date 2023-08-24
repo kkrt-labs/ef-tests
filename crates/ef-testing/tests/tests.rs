@@ -22,7 +22,7 @@ mod blockchain_tests {
     #[ctor]
     fn setup() {
         // You can change the filter to "info" to see the logs
-        let filter = filter::EnvFilter::new("ef_testing=info,katana_core=error");
+        let filter = filter::EnvFilter::new("ef_testing=info,katana_core=info");
         let subscriber = FmtSubscriber::builder().with_env_filter(filter).finish();
         tracing::subscriber::set_global_default(subscriber)
             .expect("setting tracing default failed");

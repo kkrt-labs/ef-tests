@@ -7,7 +7,6 @@ EF_TESTS_DIR := ./crates/ef-testing/ethereum-tests
 
 # Downloads and unpacks Ethereum Foundation tests in the `$(EF_TESTS_DIR)` directory.
 # Requires `wget` and `tar`
-.PHONY:$(EF_TESTS_DIR)
 $(EF_TESTS_DIR):
 	mkdir -p $(EF_TESTS_DIR)
 	wget $(EF_TESTS_URL) -O ethereum-tests.tar.gz
@@ -21,8 +20,5 @@ ef-tests:
 	cargo nextest run -p ef-testing --features ef-tests 
 
 # Runs specific test
-ef-test-single:
-	RUN_SPECIFIC_TESTS=$(test) cargo test -p ef-testing --features ef-tests -- --nocapture
-
-ef-test-file:
-	RUN_SPECIFIC_FILES=$(file) cargo test -p ef-testing --features ef-tests -- --nocapture
+ef-test:
+	TARGET=$(target) cargo test -p ef-testing --features ef-tests -- --nocapture
