@@ -37,3 +37,30 @@ pub struct Transaction {
     pub sender: B160,
     pub value: Vec<U64>,
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_transaction_deserialization() {
+        let data = r#"
+        {
+            "data": ["0x1234"],
+            "gasLimit": ["0x1"],
+            "gasPrice": "0x1",
+            "nonce": "0x00",
+            "secretKey": "0x0000000000000000000000000000000000000000000000000000000000000123",
+            "sender": "0x00000000000000000000000000000000deadbeef",
+            "to": "",
+            "value": ["0x01"]
+        }
+        "#;
+
+        // Attempt to deserialize the JSON data
+        let result: Result<Transaction, _> = serde_json::from_str(data);
+
+        // Check if deserialization was successful
+        assert!(result.is_ok(), "Failed to deserialize: {:?}", result.err());
+    }
+}
