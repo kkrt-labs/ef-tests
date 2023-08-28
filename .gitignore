@@ -16,3 +16,6 @@ broadcast
 
 # Ignore the ef-tests
 /crates/ef-testing/ethereum-tests
+
+# Ignore Katana
+.katana
