@@ -13,6 +13,8 @@ $(EF_TESTS_DIR):
 	tar -xzf ethereum-tests.tar.gz --strip-components=1 -C $(EF_TESTS_DIR)
 	rm ethereum-tests.tar.gz
 
+# Ensures the commands for $(EF_TESTS_DIR) always run on `make setup`, regardless if the directory exists
+.PHONY: $(EF_TESTS_DIR)
 setup: $(EF_TESTS_DIR)
 
 # Runs the Ethereum Foundation tests
