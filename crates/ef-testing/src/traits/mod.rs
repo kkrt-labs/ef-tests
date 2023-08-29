@@ -2,7 +2,7 @@
 //! Inspired by https://github.com/paradigmxyz/reth/tree/main/testing/ef-tests
 
 use async_trait::async_trait;
-use ef_tests::{cases::blockchain_test::should_skip, result::Error};
+use ef_tests::result::Error;
 use std::{
     fmt::Debug,
     path::{Path, PathBuf},
@@ -50,11 +50,6 @@ pub trait Suite {
 
         // todo: assert that the path exists
         let test_cases_paths = find_all_files_with_extension(&suite_path, ".json");
-        let test_cases_paths: Vec<PathBuf> = test_cases_paths
-            .iter()
-            .filter(|test_case_path| !should_skip(test_case_path))
-            .cloned()
-            .collect();
 
         let mut test_cases = Vec::new();
 

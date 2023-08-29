@@ -32,6 +32,7 @@ pub struct BlockchainTestCase {
     pub name: String,
     pub tests: BTreeMap<String, BlockchainTest>,
     pub transaction: BlockchainTestTransaction,
+    skip: bool,
 }
 
 async fn handle_pre_state(
@@ -53,10 +54,20 @@ async fn handle_pre_state(
     Ok(())
 }
 
-// division of logic:
+// Division of logic:
 //// 'handle' methods attempt to abstract the data coming from BlockChainTestCase
 //// from more general logic that can be used across tests
 impl BlockchainTestCase {
+    /// Returns whether a given test should be skipped
+    pub fn should_skip(path: &Path) -> bool {
+        let name = path.file_name().unwrap().to_str().unwrap();
+
+        matches!(
+            name,
+            | "placeHolder.json"
+        )
+    }
+
     fn test(&self, test_name: &str) -> Result<&BlockchainTest, ef_tests::Error> {
         let test = self.tests.get(test_name).ok_or_else(|| {
             ef_tests::Error::Assertion(format!("case {} doesn't exist in test file", test_name))
@@ -210,10 +221,15 @@ impl Case for BlockchainTestCase {
                 deserialize_into(case.to_string(), general_state_tests_path)?
             },
             name: test_name.to_string(),
+            skip: Self::should_skip(path),
         })
     }
 
     async fn run(&self) -> Result<(), ef_tests::Error> {
+        if self.skip {
+            return Err(ef_tests::Error::Skipped);
+        }
+
         let test_regexp: Option<String> = std::env::var("TARGET").ok();
         let test_regexp = match test_regexp {
             Some(x) => Some(
@@ -342,5 +358,19 @@ mod tests {
         assert!(case.transaction.transaction.secret_key != B256::zero());
 
         case.run().await.unwrap();
+    }
+
+    #[test]
+    fn test_should_skip() {
+        // Given
+        let path = Path::new(
+            "ethereum-tests/BlockchainTests/GeneralStateTests/VMTests/vmArithmeticTest/placeHolder.json",
+        );
+
+        // When
+        let should_skip = BlockchainTestCase::should_skip(path);
+
+        // Then
+        assert!(should_skip);
     }
 }
