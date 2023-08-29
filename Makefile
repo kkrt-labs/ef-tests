@@ -17,6 +17,9 @@ $(EF_TESTS_DIR):
 .PHONY: $(EF_TESTS_DIR)
 setup: $(EF_TESTS_DIR)
 
+fetch-dump:
+	cargo run --features dump --bin fetch-dump-katana	
+
 # Runs the Ethereum Foundation tests
 ef-tests:
 	cargo nextest run -p ef-testing --features ef-tests 
