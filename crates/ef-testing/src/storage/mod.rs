@@ -256,6 +256,10 @@ pub fn implementation_class_hash(
     account_info: &Account,
     class_hashes: &ClassHashes,
 ) -> FieldElement {
+    // an account contract might have both no code nor storage
+    // however, an empty CA cannot make any update to its storage and nonce
+    // so pre-state and post-state will be the same
+    // therefore, we can set it as an EOA
     if account_info.code.is_empty() && account_info.storage.is_empty() {
         class_hashes.eoa_class_hash
     } else {
