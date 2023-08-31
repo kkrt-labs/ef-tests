@@ -3,6 +3,7 @@ use kakarot_rpc_core::{
     client::helpers::split_u256_into_field_elements, models::felt::Felt252Wrapper,
 };
 use katana_core::backend::state::StorageRecord;
+use reth_primitives::Address;
 use reth_primitives::JsonU256;
 use starknet::core::types::FieldElement;
 use starknet_api::{core::Nonce, hash::StarkFelt, state::StorageKey};
@@ -13,6 +14,7 @@ use crate::utils::starknet::get_starknet_storage_key;
 
 pub fn assert_contract_post_state(
     test_name: &str,
+    evm_address: &Address,
     expected_state: &Account,
     actual_state: &StorageRecord,
 ) -> Result<(), ef_tests::Error> {
@@ -28,20 +30,27 @@ pub fn assert_contract_post_state(
     let account_nonce = StarkFelt::from(account_nonce);
     if actual_nonce != account_nonce {
         return Err(ef_tests::Error::Assertion(format!(
-            "failed test {}: expected nonce {}, got {}",
+            "{} expected nonce {} for {:#20x}, got {}",
             test_name,
             account_nonce.to_string(),
+            evm_address,
             actual_nonce.to_string()
         )));
     }
 
-    assert_contract_post_storage(test_name, &expected_state.storage, &actual_state.storage)?;
+    assert_contract_post_storage(
+        test_name,
+        evm_address,
+        &expected_state.storage,
+        &actual_state.storage,
+    )?;
 
     Ok(())
 }
 
 pub fn assert_contract_post_storage(
     test_name: &str,
+    evm_address: &Address,
     expected_storage: &BTreeMap<JsonU256, JsonU256>,
     actual_state_storage: &HashMap<StorageKey, StarkFelt>,
 ) -> Result<(), ef_tests::Error> {
@@ -60,9 +69,10 @@ pub fn assert_contract_post_storage(
             let value = StarkFelt::from(value);
             if actual_state_value != value {
                 return Err(ef_tests::Error::Assertion(format!(
-                    "failed test {}: expected storage value {}, got {}",
+                    "{} expected storage value {} for {:#20x}, got {}",
                     test_name,
                     value.to_string(),
+                    evm_address,
                     actual_state_value.to_string()
                 )));
             }

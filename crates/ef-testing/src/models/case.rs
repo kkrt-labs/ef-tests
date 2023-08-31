@@ -109,7 +109,7 @@ impl BlockchainTestCase {
 
         let client = env.client();
         let hash = client
-            .send_transaction(tx_encoded.to_vec().into())
+            .send_transaction(tx_encoded)
             .await
             .map_err(|err| ef_tests::Error::Assertion(err.to_string()))?;
 
@@ -131,12 +131,11 @@ impl BlockchainTestCase {
     ) -> Result<(), ef_tests::Error> {
         let test = self.test(test_case_name)?;
 
-        let post_state = match test.post_state.as_ref().ok_or_else(|| {
-            ef_tests::Error::Assertion(format!(
-                "failed test {}: missing post state",
-                test_case_name
-            ))
-        })? {
+        let post_state = match test
+            .post_state
+            .as_ref()
+            .ok_or_else(|| ef_tests::Error::Assertion(format!("missing post state",)))?
+        {
             RootOrState::Root(_) => panic!("RootOrState::Root(_) not supported"),
             RootOrState::State(state) => state,
         };
@@ -151,20 +150,20 @@ impl BlockchainTestCase {
             let addr: FieldElement = Felt252Wrapper::from(*evm_address).into();
             let starknet_address =
                 compute_starknet_address(kakarot_address, kakarot.proxy_class_hash, addr);
-            let address = StarknetContractAddress(
+            let starknet_address = StarknetContractAddress(
                 Into::<StarkFelt>::into(starknet_address)
                     .try_into()
                     .unwrap(),
             );
 
-            let actual_state = starknet.storage.get(&address).ok_or_else(|| {
+            let actual_state = starknet.storage.get(&starknet_address).ok_or_else(|| {
                 ef_tests::Error::Assertion(format!(
-                    "failed test {}: missing evm address {:?} in post state storage",
-                    test_case_name, evm_address
+                    "missing evm address {:#20x} in post state storage",
+                    evm_address
                 ))
             })?;
 
-            assert_contract_post_state(test_case_name, expected_state, actual_state)?;
+            assert_contract_post_state(test_case_name, evm_address, expected_state, actual_state)?;
         }
 
         Ok(())

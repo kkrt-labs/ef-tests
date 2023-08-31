@@ -66,9 +66,9 @@ pub(crate) fn print_results(
     failed: &[&CaseResult],
     skipped: &[&CaseResult],
 ) {
-    println!("Suite: {suite_name} (at {})", path.display());
+    println!("\n Suite: {suite_name} (at {})", path.display());
     println!(
-        "Ran {} tests ({} passed, {} failed, {} skipped)",
+        "Ran {} tests ({} passed, {} failed, {} skipped) \n",
         passed.len() + failed.len() + skipped.len(),
         passed.len(),
         failed.len(),
@@ -82,11 +82,6 @@ pub(crate) fn print_results(
     for case in failed {
         let error = case.result.clone().unwrap_err();
 
-        println!(
-            "[!] Case {} failed (description: {}): {}",
-            case.path.display(),
-            case.desc,
-            error
-        );
+        println!("[!] Case {} failed:\n{}", case.path.display(), error);
     }
 }
