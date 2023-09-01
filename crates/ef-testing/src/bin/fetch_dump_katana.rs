@@ -23,7 +23,8 @@ struct WorkflowRun {
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     dotenv().ok();
-    let token = std::env::var("GITHUB_TOKEN")?;
+    let token =
+        std::env::var("GITHUB_TOKEN").map_err(|_| eyre::eyre!("Missing GITHUB_TOKEN in .env"))?;
     let url = "https://api.github.com/repos/sayajin-labs/kakarot-rpc/actions/artifacts";
 
     let client = reqwest::blocking::Client::builder();

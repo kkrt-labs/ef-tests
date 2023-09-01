@@ -17,13 +17,14 @@ $(EF_TESTS_DIR):
 .PHONY: $(EF_TESTS_DIR)
 setup: $(EF_TESTS_DIR)
 
-fetch-dump:
-	cargo run --features dump --bin fetch-dump-katana	
+.katana:
+	cargo run --features dump --bin fetch-dump-katana
+	cargo run --features fetch-commit --bin fetch-commit-kakarot
 
 # Runs the Ethereum Foundation tests
-ef-tests:
+ef-tests: .katana
 	cargo nextest run -p ef-testing --features ef-tests 
 
 # Runs specific test
-ef-test:
+ef-test: .katana
 	TARGET=$(target) cargo test -p ef-testing --features ef-tests -- --nocapture
