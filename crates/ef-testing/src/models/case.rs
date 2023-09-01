@@ -151,9 +151,9 @@ impl BlockchainTestCase {
             match actual_state {
                 None => {
                     // if no state, check post state is empty
-                    let actual_balance = read_balance(evm_address, starknet_address, &starknet)
-                        .map_err(|err| {
-                            RunnerError::Assertion(format!("{} {}", test_case_name, err))
+                    let actual_balance =
+                        read_balance(starknet_address, &starknet).map_err(|err| {
+                            ef_tests::Error::Assertion(format!("{} {}", test_case_name, err))
                         })?;
                     assert_empty_post_state(test_case_name, expected_state, actual_balance)?;
                     continue;
