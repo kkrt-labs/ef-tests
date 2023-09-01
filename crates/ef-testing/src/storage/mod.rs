@@ -1,8 +1,6 @@
 pub mod contract;
 pub mod eoa;
 
-use std::collections::HashMap;
-
 use ef_tests::models::State;
 use hive_utils::{
     kakarot::compute_starknet_address,
@@ -25,6 +23,7 @@ use starknet_api::{
     hash::StarkFelt,
     state::StorageKey as StarknetStorageKey,
 };
+use std::collections::HashMap;
 use tokio::sync::{RwLockReadGuard, RwLockWriteGuard};
 
 use crate::{models::error::RunnerError, utils::starknet::get_starknet_storage_key};
