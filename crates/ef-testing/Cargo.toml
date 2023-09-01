@@ -49,9 +49,14 @@ tracing-subscriber = "0.3.17"
 [features]
 ef-tests = []
 dump = ["reqwest", "dotenv", "chrono", "zip"]
+fetch-commit = ["reqwest"]
 
 [[bin]]
 name = "fetch-dump-katana"
 path = "src/bin/fetch_dump_katana.rs"
 required-features = ["dump"]
 
+[[bin]]
+name = "fetch-commit-kakarot"
+path = "src/bin/fetch_commit_kakarot.rs"
+required-features = ["fetch-commit"]
