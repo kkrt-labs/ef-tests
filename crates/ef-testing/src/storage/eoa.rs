@@ -11,6 +11,8 @@ use tokio::sync::RwLockWriteGuard;
 
 use crate::{models::error::RunnerError, utils::starknet::get_starknet_storage_key};
 
+use super::write_is_initialized;
+
 /// Returns the class hash used for the EOA contract.
 pub fn get_eoa_class_hash(
     ctx: &KakarotTestEnvironmentContext,
@@ -51,13 +53,14 @@ pub fn initialize_eoa(
     evm_address: FieldElement,
     destination: &mut HashMap<StarknetStorageKey, StarkFelt>,
 ) -> Result<(), RunnerError> {
+    write_is_initialized(destination);
     write_kakarot_address(kakarot_address, destination)?;
     write_evm_address(evm_address, destination)?;
     Ok(())
 }
 
 /// Writes the kakarot address to a hashmap.
-pub fn write_kakarot_address(
+fn write_kakarot_address(
     kakarot_address: FieldElement,
     destination: &mut HashMap<StarknetStorageKey, StarkFelt>,
 ) -> Result<(), RunnerError> {
@@ -68,7 +71,7 @@ pub fn write_kakarot_address(
 }
 
 /// Writes the evm address to a hashmap.
-pub fn write_evm_address(
+fn write_evm_address(
     evm_address: FieldElement,
     destination: &mut HashMap<StarknetStorageKey, StarkFelt>,
 ) -> Result<(), RunnerError> {

@@ -90,10 +90,11 @@ pub fn write_test_state(
         } else {
             initialize_contract_account(
                 kakarot_address,
+                starknet_address,
                 address,
                 &account_info.code,
                 &mut storage,
-            )?;
+            );
             class_hashes.contract_account_class_hash
         };
 
@@ -168,8 +169,14 @@ pub fn write_fee_token(
     Ok(())
 }
 
+/// Writes the is_initialized flag to the katana storage.
+pub(crate) fn write_is_initialized(destination: &mut HashMap<StarknetStorageKey, StarkFelt>) {
+    let k = get_starknet_storage_key("is_initialized_", &[], 0);
+    destination.insert(k, Into::<StarkFelt>::into(FieldElement::ONE));
+}
+
 /// Writes the balance of an account to the katana storage.
-pub fn write_balance(
+pub(crate) fn write_balance(
     starknet_address: FieldElement,
     balance: U256,
     starknet: &mut RwLockWriteGuard<'_, MemDb>,
@@ -192,7 +199,7 @@ pub fn write_balance(
 }
 
 /// Writes the allowance of an account to the katana storage.
-pub fn write_allowance(
+pub(crate) fn write_allowance(
     kakarot_address: FieldElement,
     starknet_address: FieldElement,
     starknet: &mut RwLockWriteGuard<'_, MemDb>,
