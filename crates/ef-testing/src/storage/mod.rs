@@ -17,6 +17,7 @@ use katana_core::{
     backend::state::{MemDb, StorageRecord},
     constants::FEE_TOKEN_ADDRESS,
 };
+use reth_primitives::Address;
 use revm_primitives::U256;
 use starknet::core::types::FieldElement;
 use starknet_api::{
@@ -227,14 +228,15 @@ pub(crate) fn write_allowance(
 
 /// Reads the balance of an account of the katana storage.
 pub fn read_balance(
+    evm_address: &Address,
     starknet_address: FieldElement,
     starknet: &RwLockReadGuard<'_, MemDb>,
-) -> Result<StarkFelt, RunnerError> {
+) -> Result<FieldElement, RunnerError> {
     let fee_token_address =
         StarknetContractAddress(TryInto::<PatriciaKey>::try_into(*FEE_TOKEN_ADDRESS)?);
 
     let storage_key = get_starknet_storage_key("ERC20_balances", &[starknet_address], 0)?;
-    Ok(*starknet
+    let balance = *starknet
         .storage
         .get(&fee_token_address)
         .ok_or_else(|| {
@@ -242,5 +244,6 @@ pub fn read_balance(
         })?
         .storage
         .get(&storage_key)
-        .ok_or_else(|| RunnerError::Other(format!("missing balance for {:?}", starknet_address)))?)
+        .ok_or_else(|| RunnerError::Other(format!("missing balance for {:#20x}", evm_address)))?;
+    Ok(balance.into())
 }

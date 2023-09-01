@@ -3,10 +3,10 @@
 use super::{error::RunnerError, result::CaseResult, BlockchainTestTransaction};
 use crate::{
     get_signed_rlp_encoded_transaction,
-    storage::{eoa::get_eoa_class_hash, write_test_state, ClassHashes},
+    storage::{eoa::get_eoa_class_hash, read_balance, write_test_state, ClassHashes},
     traits::Case,
     utils::{
-        assert::assert_contract_post_state,
+        assert::{assert_contract_post_state, assert_empty_post_state},
         io::{deserialize_into, load_file},
     },
 };
@@ -144,17 +144,24 @@ impl BlockchainTestCase {
             let addr: FieldElement = Felt252Wrapper::from(*evm_address).into();
             let starknet_address =
                 compute_starknet_address(kakarot_address, kakarot.proxy_class_hash, addr);
-            let starknet_address =
+            let starknet_contract_address =
                 StarknetContractAddress(Into::<StarkFelt>::into(starknet_address).try_into()?);
 
-            let actual_state = starknet.storage.get(&starknet_address).ok_or_else(|| {
-                RunnerError::Other(format!(
-                    "missing evm address {:#20x} in post state storage",
-                    evm_address
-                ))
-            })?;
-
-            assert_contract_post_state(test_case_name, evm_address, expected_state, actual_state)?;
+            let actual_state = starknet.storage.get(&starknet_contract_address);
+            match actual_state {
+                None => {
+                    // if no state, check post state is empty
+                    let actual_balance = read_balance(evm_address, starknet_address, &starknet)
+                        .map_err(|err| {
+                            RunnerError::Assertion(format!("{} {}", test_case_name, err))
+                        })?;
+                    assert_empty_post_state(test_case_name, expected_state, actual_balance)?;
+                    continue;
+                }
+                Some(state) => {
+                    assert_contract_post_state(test_case_name, evm_address, expected_state, state)?
+                }
+            };
         }
 
         Ok(())
