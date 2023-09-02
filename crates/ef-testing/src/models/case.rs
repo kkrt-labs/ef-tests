@@ -127,11 +127,9 @@ impl BlockchainTestCase {
     ) -> Result<(), RunnerError> {
         let test = self.test(test_case_name)?;
 
-        let post_state = match test
-            .post_state
-            .as_ref()
-            .ok_or_else(|| RunnerError::Other(format!("missing post state",)))?
-        {
+        let post_state = match test.post_state.as_ref().ok_or_else(|| {
+            RunnerError::Other(format!("missing post state for {}", test_case_name))
+        })? {
             RootOrState::Root(_) => panic!("RootOrState::Root(_) not supported"),
             RootOrState::State(state) => state,
         };
