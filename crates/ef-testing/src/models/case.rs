@@ -92,14 +92,14 @@ impl BlockchainTestCase {
         &self,
         env: &KakarotTestEnvironmentContext,
         test_case_name: &str,
-    ) -> Result<(), ef_tests::Error> {
+    ) -> Result<(), RunnerError> {
         let test = self.test(test_case_name)?;
 
         // we extract the transaction from the block
         let block = test
             .blocks
             .first()
-            .ok_or(ef_tests::Error::Assertion("test has no blocks".to_string()))?
+            .ok_or(RunnerError::Other("test has no blocks".to_string()))?
             .clone();
         // we adjust the rlp to correspond with our currently hardcoded CHAIN_ID
         let tx_encoded = get_signed_rlp_encoded_transaction(
@@ -108,18 +108,14 @@ impl BlockchainTestCase {
         )?;
 
         let client = env.client();
-        let hash = client
-            .send_transaction(tx_encoded)
-            .await
-            .map_err(|err| ef_tests::Error::Assertion(err.to_string()))?;
+        let hash = client.send_transaction(tx_encoded).await?;
 
         // we make sure that the transaction has a receipt and fail fast if it doesn't
         let starknet_provider = env.client().starknet_provider();
-        let transaction_hash: FieldElement = FieldElement::from_bytes_be(&hash).unwrap();
+        let transaction_hash: FieldElement = FieldElement::from_bytes_be(&hash)?;
         starknet_provider
             .get_transaction_receipt::<FieldElement>(transaction_hash)
-            .await
-            .map_err(|err| ef_tests::Error::Assertion(err.to_string()))?;
+            .await?;
 
         Ok(())
     }
@@ -224,17 +220,14 @@ impl Case for BlockchainTestCase {
         })
     }
 
-    async fn run(&self) -> Result<(), ef_tests::Error> {
+    async fn run(&self) -> Result<(), RunnerError> {
         if self.skip {
-            return Err(ef_tests::Error::Skipped);
+            return Err(RunnerError::Skipped);
         }
 
         let test_regexp: Option<String> = std::env::var("TARGET").ok();
         let test_regexp = match test_regexp {
-            Some(x) => Some(
-                Regex::new(x.as_str())
-                    .map_err(|err| ef_tests::Error::Assertion(format!("invalid regex: {}", err)))?,
-            ),
+            Some(x) => Some(Regex::new(x.as_str())?),
             None => None,
         };
 

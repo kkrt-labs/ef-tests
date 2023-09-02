@@ -2,9 +2,9 @@
 
 use std::path::{Path, PathBuf};
 
-use ef_tests::Error;
-
 use crate::traits::Case;
+
+use super::error::RunnerError;
 
 /// The result of running a test.
 #[derive(Debug)]
@@ -14,12 +14,12 @@ pub struct CaseResult {
     /// The full path to the test.
     pub path: PathBuf,
     /// The result of the test.
-    pub result: Result<(), Error>,
+    pub result: Result<(), RunnerError>,
 }
 
 impl CaseResult {
     /// Create a new test result.
-    pub fn new(path: &Path, case: &impl Case, result: Result<(), Error>) -> Self {
+    pub fn new(path: &Path, case: &impl Case, result: Result<(), RunnerError>) -> Self {
         CaseResult {
             desc: case.description(),
             path: path.into(),
@@ -49,7 +49,7 @@ pub(crate) fn categorize_results(
 
     for case in results {
         match case.result.as_ref().err() {
-            Some(Error::Skipped) => skipped.push(case),
+            Some(RunnerError::Skipped) => skipped.push(case),
             Some(_) => failed.push(case),
             None => passed.push(case),
         }
