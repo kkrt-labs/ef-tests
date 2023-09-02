@@ -5,7 +5,7 @@ use reth_primitives::Bytes;
 use starknet::core::types::FieldElement;
 use starknet_api::{hash::StarkFelt, state::StorageKey as StarknetStorageKey};
 
-use crate::utils::starknet::get_starknet_storage_key;
+use crate::{models::error::RunnerError, utils::starknet::get_starknet_storage_key};
 
 use super::write_madara_to_katana_storage;
 
@@ -16,9 +16,9 @@ pub fn initialize_contract_account(
     starknet_address: FieldElement,
     bytecode: &Bytes,
     destination: &mut HashMap<StarknetStorageKey, StarkFelt>,
-) {
-    write_bytecode(starknet_address, bytecode, destination);
-    write_owner(kakarot_address, destination);
+) -> Result<(), RunnerError> {
+    write_bytecode(starknet_address, bytecode, destination)?;
+    write_owner(kakarot_address, destination)
 }
 
 /// Writes the bytecode to a hashmap.
@@ -26,21 +26,23 @@ pub fn write_bytecode(
     starknet_address: FieldElement,
     bytecode: &Bytes,
     destination: &mut HashMap<StarknetStorageKey, StarkFelt>,
-) {
+) -> Result<(), RunnerError> {
     let bytecode_len = bytecode.len();
     let bytecode = genesis_set_bytecode(bytecode, starknet_address);
-    write_madara_to_katana_storage(bytecode, destination);
+    write_madara_to_katana_storage(bytecode, destination)?;
 
-    let bytecode_len_key = get_starknet_storage_key("bytecode_len_", &[], 0);
+    let bytecode_len_key = get_starknet_storage_key("bytecode_len_", &[], 0)?;
     let bytecode_len_value = Into::<StarkFelt>::into(StarkFelt::from(bytecode_len as u64));
     destination.insert(bytecode_len_key, bytecode_len_value);
+    Ok(())
 }
 
 /// Writes the owner to a hashmap.
 pub fn write_owner(
     kakarot_address: FieldElement,
     destination: &mut HashMap<StarknetStorageKey, StarkFelt>,
-) {
-    let owner = get_starknet_storage_key("Ownable_owner", &[], 0);
+) -> Result<(), RunnerError> {
+    let owner = get_starknet_storage_key("Ownable_owner", &[], 0)?;
     destination.insert(owner, Into::<StarkFelt>::into(kakarot_address));
+    Ok(())
 }

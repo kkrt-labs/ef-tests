@@ -10,6 +10,7 @@ use starknet_api::{core::Nonce, hash::StarkFelt, state::StorageKey};
 use std::collections::BTreeMap;
 use std::collections::HashMap;
 
+use crate::models::error::RunnerError;
 use crate::utils::starknet::get_starknet_storage_key;
 
 pub fn assert_contract_post_state(
@@ -17,11 +18,9 @@ pub fn assert_contract_post_state(
     evm_address: &Address,
     expected_state: &Account,
     actual_state: &StorageRecord,
-) -> Result<(), ef_tests::Error> {
+) -> Result<(), RunnerError> {
     let Nonce(actual_nonce) = actual_state.nonce;
-    let account_nonce: FieldElement = Felt252Wrapper::try_from(expected_state.nonce.0)
-        .unwrap()
-        .into();
+    let account_nonce: FieldElement = Felt252Wrapper::try_from(expected_state.nonce.0)?.into();
 
     // we don't presume gas equivalence
     // TODO: find way to assert on balance
@@ -29,7 +28,7 @@ pub fn assert_contract_post_state(
 
     let account_nonce = StarkFelt::from(account_nonce);
     if actual_nonce != account_nonce {
-        return Err(ef_tests::Error::Assertion(format!(
+        return Err(RunnerError::Other(format!(
             "{} expected nonce {} for {:#20x}, got {}",
             test_name,
             account_nonce.to_string(),
@@ -53,13 +52,13 @@ pub fn assert_contract_post_storage(
     evm_address: &Address,
     expected_storage: &BTreeMap<JsonU256, JsonU256>,
     actual_state_storage: &HashMap<StorageKey, StarkFelt>,
-) -> Result<(), ef_tests::Error> {
+) -> Result<(), RunnerError> {
     for (key, value) in expected_storage.iter() {
         let keys = split_u256_into_field_elements(key.0);
         let expected_state_values = split_u256_into_field_elements(value.0);
 
         for (offset, value) in expected_state_values.into_iter().enumerate() {
-            let stark_key = get_starknet_storage_key("storage_", &keys, offset as u64);
+            let stark_key = get_starknet_storage_key("storage_", &keys, offset as u64)?;
 
             let actual_state_value = actual_state_storage
                 .get(&stark_key)
@@ -68,7 +67,7 @@ pub fn assert_contract_post_storage(
 
             let value = StarkFelt::from(value);
             if actual_state_value != value {
-                return Err(ef_tests::Error::Assertion(format!(
+                return Err(RunnerError::Other(format!(
                     "{} expected storage value {} for {:#20x}, got {}",
                     test_name,
                     value.to_string(),
