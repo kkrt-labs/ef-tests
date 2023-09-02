@@ -33,6 +33,7 @@ ctor = { workspace = true }
 chrono = { workspace = true, optional = true }
 dotenv = { workspace = true, optional = true }
 eyre = { workspace = true }
+thiserror = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
 regex = { workspace= true } 
