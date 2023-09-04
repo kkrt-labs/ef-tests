@@ -18,8 +18,8 @@ pub fn initialize_contract_account(
     bytecode: &Bytes,
     destination: &mut HashMap<StarknetStorageKey, StarkFelt>,
 ) -> Result<(), RunnerError> {
-    write_evm_address(evm_address, destination);
-    write_is_initialized(destination);
+    write_evm_address(evm_address, destination)?;
+    write_is_initialized(destination)?;
     write_bytecode(starknet_address, bytecode, destination)?;
     write_owner(kakarot_address, destination)
 }
@@ -28,9 +28,10 @@ pub fn initialize_contract_account(
 fn write_evm_address(
     evm_address: FieldElement,
     destination: &mut HashMap<StarknetStorageKey, StarkFelt>,
-) {
-    let evm_address_key = get_starknet_storage_key("evm_address", &[], 0);
+) -> Result<(), RunnerError> {
+    let evm_address_key = get_starknet_storage_key("evm_address", &[], 0)?;
     destination.insert(evm_address_key, Into::<StarkFelt>::into(evm_address));
+    Ok(())
 }
 
 /// Writes the bytecode to a hashmap.

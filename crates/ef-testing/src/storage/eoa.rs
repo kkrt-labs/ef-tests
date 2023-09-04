@@ -53,7 +53,7 @@ pub fn initialize_eoa(
     evm_address: FieldElement,
     destination: &mut HashMap<StarknetStorageKey, StarkFelt>,
 ) -> Result<(), RunnerError> {
-    write_is_initialized(destination);
+    write_is_initialized(destination)?;
     write_kakarot_address(kakarot_address, destination)?;
     write_evm_address(evm_address, destination)?;
     Ok(())

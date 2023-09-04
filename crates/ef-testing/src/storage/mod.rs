@@ -94,7 +94,7 @@ pub fn write_test_state(
                 address,
                 &account_info.code,
                 &mut storage,
-            );
+            )?;
             class_hashes.contract_account_class_hash
         };
 
@@ -170,9 +170,12 @@ pub fn write_fee_token(
 }
 
 /// Writes the is_initialized flag to the katana storage.
-pub(crate) fn write_is_initialized(destination: &mut HashMap<StarknetStorageKey, StarkFelt>) {
-    let k = get_starknet_storage_key("is_initialized_", &[], 0);
+pub(crate) fn write_is_initialized(
+    destination: &mut HashMap<StarknetStorageKey, StarkFelt>,
+) -> Result<(), RunnerError> {
+    let k = get_starknet_storage_key("is_initialized_", &[], 0)?;
     destination.insert(k, Into::<StarkFelt>::into(FieldElement::ONE));
+    Ok(())
 }
 
 /// Writes the balance of an account to the katana storage.
