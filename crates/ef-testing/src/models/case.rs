@@ -1,6 +1,6 @@
 // Inspired by https://github.com/paradigmxyz/reth/tree/main/testing/ef-tests
 
-use super::{result::CaseResult, BlockchainTestTransaction};
+use super::{error::RunnerError, result::CaseResult, BlockchainTestTransaction};
 use crate::{
     get_signed_rlp_encoded_transaction,
     storage::{eoa::get_eoa_class_hash, write_test_state, ClassHashes},
@@ -39,7 +39,7 @@ async fn handle_pre_state(
     kakarot: &DeployedKakarot,
     env: &KakarotTestEnvironmentContext,
     pre_state: &State,
-) -> Result<(), ef_tests::Error> {
+) -> Result<(), RunnerError> {
     let kakarot_address = kakarot.kakarot_address;
 
     let mut starknet = env.sequencer().sequencer.backend.state.write().await;
@@ -68,9 +68,9 @@ impl BlockchainTestCase {
         )
     }
 
-    fn test(&self, test_name: &str) -> Result<&BlockchainTest, ef_tests::Error> {
+    fn test(&self, test_name: &str) -> Result<&BlockchainTest, RunnerError> {
         let test = self.tests.get(test_name).ok_or_else(|| {
-            ef_tests::Error::Assertion(format!("case {} doesn't exist in test file", test_name))
+            RunnerError::Other(format!("case {} doesn't exist in test file", test_name))
         })?;
         Ok(test)
     }
@@ -79,7 +79,7 @@ impl BlockchainTestCase {
         &self,
         env: &KakarotTestEnvironmentContext,
         test_case_name: &str,
-    ) -> Result<(), ef_tests::Error> {
+    ) -> Result<(), RunnerError> {
         let test = self.test(test_case_name)?;
 
         let kakarot = env.kakarot();
@@ -92,14 +92,14 @@ impl BlockchainTestCase {
         &self,
         env: &KakarotTestEnvironmentContext,
         test_case_name: &str,
-    ) -> Result<(), ef_tests::Error> {
+    ) -> Result<(), RunnerError> {
         let test = self.test(test_case_name)?;
 
         // we extract the transaction from the block
         let block = test
             .blocks
             .first()
-            .ok_or(ef_tests::Error::Assertion("test has no blocks".to_string()))?
+            .ok_or(RunnerError::Other("test has no blocks".to_string()))?
             .clone();
         // we adjust the rlp to correspond with our currently hardcoded CHAIN_ID
         let tx_encoded = get_signed_rlp_encoded_transaction(
@@ -108,18 +108,14 @@ impl BlockchainTestCase {
         )?;
 
         let client = env.client();
-        let hash = client
-            .send_transaction(tx_encoded)
-            .await
-            .map_err(|err| ef_tests::Error::Assertion(err.to_string()))?;
+        let hash = client.send_transaction(tx_encoded).await?;
 
         // we make sure that the transaction has a receipt and fail fast if it doesn't
         let starknet_provider = env.client().starknet_provider();
-        let transaction_hash: FieldElement = FieldElement::from_bytes_be(&hash).unwrap();
+        let transaction_hash: FieldElement = FieldElement::from_bytes_be(&hash)?;
         starknet_provider
             .get_transaction_receipt::<FieldElement>(transaction_hash)
-            .await
-            .map_err(|err| ef_tests::Error::Assertion(err.to_string()))?;
+            .await?;
 
         Ok(())
     }
@@ -128,14 +124,12 @@ impl BlockchainTestCase {
         &self,
         env: &KakarotTestEnvironmentContext,
         test_case_name: &str,
-    ) -> Result<(), ef_tests::Error> {
+    ) -> Result<(), RunnerError> {
         let test = self.test(test_case_name)?;
 
-        let post_state = match test
-            .post_state
-            .as_ref()
-            .ok_or_else(|| ef_tests::Error::Assertion(format!("missing post state",)))?
-        {
+        let post_state = match test.post_state.as_ref().ok_or_else(|| {
+            RunnerError::Other(format!("missing post state for {}", test_case_name))
+        })? {
             RootOrState::Root(_) => panic!("RootOrState::Root(_) not supported"),
             RootOrState::State(state) => state,
         };
@@ -150,14 +144,11 @@ impl BlockchainTestCase {
             let addr: FieldElement = Felt252Wrapper::from(*evm_address).into();
             let starknet_address =
                 compute_starknet_address(kakarot_address, kakarot.proxy_class_hash, addr);
-            let starknet_address = StarknetContractAddress(
-                Into::<StarkFelt>::into(starknet_address)
-                    .try_into()
-                    .unwrap(),
-            );
+            let starknet_address =
+                StarknetContractAddress(Into::<StarkFelt>::into(starknet_address).try_into()?);
 
             let actual_state = starknet.storage.get(&starknet_address).ok_or_else(|| {
-                ef_tests::Error::Assertion(format!(
+                RunnerError::Other(format!(
                     "missing evm address {:#20x} in post state storage",
                     evm_address
                 ))
@@ -179,19 +170,19 @@ impl Case for BlockchainTestCase {
 
     /// Load a test case from a path. This is a path to a directory containing
     /// the BlockChainTest
-    fn load(path: &Path) -> Result<Self, ef_tests::Error> {
+    fn load(path: &Path) -> Result<Self, RunnerError> {
         let general_state_tests_path = path
             .components()
             .filter(|x| !x.as_os_str().eq_ignore_ascii_case("BlockchainTests"))
             .collect::<PathBuf>();
         let test_name = general_state_tests_path
             .file_stem()
-            .ok_or_else(|| ef_tests::Error::Io {
+            .ok_or(RunnerError::Io {
                 path: path.into(),
                 error: "expected file".into(),
             })?
             .to_str()
-            .ok_or_else(|| ef_tests::Error::Io {
+            .ok_or_else(|| RunnerError::Io {
                 path: path.into(),
                 error: format!("expected valid utf8 path, got {:?}", path),
             })?;
@@ -211,9 +202,8 @@ impl Case for BlockchainTestCase {
                     .into_values()
                     .collect::<Vec<_>>()
                     .first()
-                    .ok_or_else(|| ef_tests::Error::CouldNotDeserialize {
-                        path: general_state_tests_path.into(),
-                        error: "missing test entry for suite".into(),
+                    .ok_or_else(|| {
+                        RunnerError::Other(format!("Missing transaction for {}", test_name))
                     })?
                     .clone();
 
@@ -224,17 +214,14 @@ impl Case for BlockchainTestCase {
         })
     }
 
-    async fn run(&self) -> Result<(), ef_tests::Error> {
+    async fn run(&self) -> Result<(), RunnerError> {
         if self.skip {
-            return Err(ef_tests::Error::Skipped);
+            return Err(RunnerError::Skipped);
         }
 
         let test_regexp: Option<String> = std::env::var("TARGET").ok();
         let test_regexp = match test_regexp {
-            Some(x) => Some(
-                Regex::new(x.as_str())
-                    .map_err(|err| ef_tests::Error::Assertion(format!("invalid regex: {}", err)))?,
-            ),
+            Some(x) => Some(Regex::new(x.as_str())?),
             None => None,
         };
 

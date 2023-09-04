@@ -26,7 +26,7 @@ use starknet_api::{
 };
 use tokio::sync::{RwLockReadGuard, RwLockWriteGuard};
 
-use crate::utils::starknet::get_starknet_storage_key;
+use crate::{models::error::RunnerError, utils::starknet::get_starknet_storage_key};
 
 use self::{contract::initialize_contract_account, eoa::initialize_eoa};
 
@@ -56,7 +56,7 @@ pub fn write_test_state(
     kakarot_address: FieldElement,
     class_hashes: ClassHashes,
     starknet: &mut RwLockWriteGuard<'_, MemDb>,
-) -> Result<(), ef_tests::Error> {
+) -> Result<(), RunnerError> {
     // iterate through pre-state addresses
     for (address, account_info) in state.iter() {
         let mut storage = HashMap::new();
@@ -70,22 +70,30 @@ pub fn write_test_state(
             starknet_address,
             account_info.balance.0,
             starknet,
-        )
-        .unwrap();
+        )?;
 
         // storage
-        account_info.storage.iter().for_each(|(key, value)| {
-            // Call genesis_set_storage_kakarot_contract_account util to get the storage tuples
-            let storage_tuples =
-                genesis_set_storage_kakarot_contract_account(starknet_address, key.0, value.0);
-            write_madara_to_katana_storage(storage_tuples, &mut storage);
-        });
+        account_info
+            .storage
+            .iter()
+            .map(|(key, value)| {
+                // Call genesis_set_storage_kakarot_contract_account util to get the storage tuples
+                let storage_tuples =
+                    genesis_set_storage_kakarot_contract_account(starknet_address, key.0, value.0);
+                write_madara_to_katana_storage(storage_tuples, &mut storage)
+            })
+            .collect::<Result<Vec<()>, RunnerError>>()?;
 
         let proxy_implementation_class_hash = if account_info.code.is_empty() {
-            initialize_eoa(kakarot_address, address, &mut storage);
+            initialize_eoa(kakarot_address, address, &mut storage)?;
             class_hashes.eoa_class_hash
         } else {
-            initialize_contract_account(kakarot_address, address, &account_info.code, &mut storage);
+            initialize_contract_account(
+                kakarot_address,
+                address,
+                &account_info.code,
+                &mut storage,
+            )?;
             class_hashes.contract_account_class_hash
         };
 
@@ -98,17 +106,12 @@ pub fn write_test_state(
             0, // 0 since it's storage value is felt
         );
 
-        write_madara_to_katana_storage(vec![proxy_implementation_storage_tuples], &mut storage);
+        write_madara_to_katana_storage(vec![proxy_implementation_storage_tuples], &mut storage)?;
 
         // now, finally, we update the sequencer state with the eth->starknet address
-        let address = StarknetContractAddress(
-            Into::<StarkFelt>::into(starknet_address)
-                .try_into()
-                .unwrap(),
-        );
-        let account_nonce: FieldElement = Felt252Wrapper::try_from(account_info.nonce.0)
-            .unwrap()
-            .into();
+        let address =
+            StarknetContractAddress(Into::<StarkFelt>::into(starknet_address).try_into()?);
+        let account_nonce: FieldElement = Felt252Wrapper::try_from(account_info.nonce.0)?.into();
         let storage_record = StorageRecord {
             nonce: Nonce(StarkFelt::from(account_nonce)),
             class_hash: ClassHash(class_hashes.proxy_class_hash.into()),
@@ -122,13 +125,13 @@ pub fn write_test_state(
 /// Converts a madara storage tuple to a katana storage tuple.
 pub fn madara_to_katana_storage(
     source: Vec<((ContractAddress, StorageKey), StorageValue)>,
-) -> Vec<(StarknetStorageKey, StarkFelt)> {
+) -> Result<Vec<(StarknetStorageKey, StarkFelt)>, RunnerError> {
     source
         .into_iter()
         .map(|((_, k), v)| {
-            let key = StarknetStorageKey(Into::<StarkFelt>::into(k.0).try_into().unwrap());
+            let key = StarknetStorageKey(Into::<StarkFelt>::into(k.0).try_into()?);
             let value = Into::<StarkFelt>::into(v.0);
-            (key, value)
+            Ok((key, value))
         })
         .collect()
 }
@@ -147,9 +150,10 @@ pub fn write_katana_storage(
 pub fn write_madara_to_katana_storage(
     source: Vec<((ContractAddress, StorageKey), StorageValue)>,
     destination: &mut HashMap<StarknetStorageKey, StarkFelt>,
-) {
-    let reformatted_data = madara_to_katana_storage(source);
+) -> Result<(), RunnerError> {
+    let reformatted_data = madara_to_katana_storage(source)?;
     write_katana_storage(reformatted_data, destination);
+    Ok(())
 }
 
 /// Writes the fee token balance and allowance to the katana storage.
@@ -169,11 +173,11 @@ pub fn write_balance(
     starknet_address: FieldElement,
     balance: U256,
     starknet: &mut RwLockWriteGuard<'_, MemDb>,
-) -> Result<(), eyre::Error> {
+) -> Result<(), RunnerError> {
     let balance_storage_tuples_madara = genesis_fund_starknet_address(starknet_address, balance);
     let fee_token_address =
         StarknetContractAddress(TryInto::<PatriciaKey>::try_into(*FEE_TOKEN_ADDRESS)?);
-    let balance_storage = madara_to_katana_storage(balance_storage_tuples_madara);
+    let balance_storage = madara_to_katana_storage(balance_storage_tuples_madara)?;
 
     // funding balance
     for (storage_key, balance) in balance_storage {
@@ -192,9 +196,9 @@ pub fn write_allowance(
     kakarot_address: FieldElement,
     starknet_address: FieldElement,
     starknet: &mut RwLockWriteGuard<'_, MemDb>,
-) -> Result<(), eyre::Error> {
+) -> Result<(), RunnerError> {
     let allowance = genesis_approve_kakarot(starknet_address, kakarot_address, U256::MAX);
-    let balance_storage = madara_to_katana_storage(allowance);
+    let balance_storage = madara_to_katana_storage(allowance)?;
 
     let fee_token_address =
         StarknetContractAddress(TryInto::<PatriciaKey>::try_into(*FEE_TOKEN_ADDRESS)?);
@@ -215,16 +219,18 @@ pub fn write_allowance(
 pub fn read_balance(
     starknet_address: FieldElement,
     starknet: &RwLockReadGuard<'_, MemDb>,
-) -> Result<StarkFelt, eyre::Error> {
+) -> Result<StarkFelt, RunnerError> {
     let fee_token_address =
         StarknetContractAddress(TryInto::<PatriciaKey>::try_into(*FEE_TOKEN_ADDRESS)?);
 
-    let storage_key = get_starknet_storage_key("ERC20_balances", &[starknet_address], 0);
+    let storage_key = get_starknet_storage_key("ERC20_balances", &[starknet_address], 0)?;
     Ok(*starknet
         .storage
         .get(&fee_token_address)
-        .unwrap()
+        .ok_or_else(|| {
+            RunnerError::Other(format!("missing fee token address {:?}", fee_token_address))
+        })?
         .storage
         .get(&storage_key)
-        .unwrap())
+        .ok_or_else(|| RunnerError::Other(format!("missing balance for {:?}", starknet_address)))?)
 }

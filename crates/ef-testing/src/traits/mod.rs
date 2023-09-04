@@ -2,14 +2,13 @@
 //! Inspired by https://github.com/paradigmxyz/reth/tree/main/testing/ef-tests
 
 use async_trait::async_trait;
-use ef_tests::result::Error;
 use std::{
     fmt::Debug,
     path::{Path, PathBuf},
 };
 use walkdir::{DirEntry, WalkDir};
 
-use crate::models::{case::Cases, result::assert_tests_pass};
+use crate::models::{case::Cases, error::RunnerError, result::assert_tests_pass};
 
 /// A single test case, capable of loading a JSON description of itself and running it.
 #[async_trait]
@@ -22,10 +21,10 @@ pub trait Case: Debug + Sync + Send + Sized {
     /// Load the test from the given file path
     ///
     /// The file can be assumed to be a valid EF test case as described on <https://ethereum-tests.readthedocs.io/>.
-    fn load(path: &Path) -> Result<Self, Error>;
+    fn load(path: &Path) -> Result<Self, RunnerError>;
 
     /// Run the test on the Katana test context.
-    async fn run(&self) -> Result<(), Error>;
+    async fn run(&self) -> Result<(), RunnerError>;
 }
 
 #[async_trait]
