@@ -86,13 +86,13 @@ pub fn assert_empty_post_state(
     test_name: &str,
     state: &Account,
     actual_balance: FieldElement,
-) -> Result<(), ef_tests::Error> {
+) -> Result<(), RunnerError> {
     let is_code_empty = state.code.is_empty();
     let is_storage_empty = state.storage.is_empty();
     let is_nonce_zero = state.nonce.0 == U256::ZERO;
 
     if !is_code_empty || !is_storage_empty || !is_nonce_zero {
-        return Err(ef_tests::Error::Assertion(format!(
+        return Err(RunnerError::Assertion(format!(
             "{} expected empty post state, got {:#?}",
             test_name, state
         )));
@@ -102,7 +102,7 @@ pub fn assert_empty_post_state(
     let actual_balance = U256::from_be_bytes(actual_balance.to_bytes_be());
 
     if expected_balance != actual_balance {
-        return Err(ef_tests::Error::Assertion(format!(
+        return Err(RunnerError::Assertion(format!(
             "{} expected balance {:#32x}, got {:#32x}",
             test_name, expected_balance, actual_balance
         )));
