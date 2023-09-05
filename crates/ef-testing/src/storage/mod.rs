@@ -3,6 +3,7 @@ pub mod eoa;
 pub mod fee_token;
 pub mod models;
 
+use ef_tests::models::Account;
 use ef_tests::models::State;
 use hive_utils::{
     kakarot::compute_starknet_address,
@@ -47,8 +48,8 @@ pub fn write_test_state(
         // Write evm storage
         starknet_contract_storage.append(&mut generate_evm_contract_storage(account_info)?);
 
-        // Write implementation state
-        let proxy_implementation_class_hash = if account_info.code.is_empty() {
+        // get the implementation class hash and initialize the account
+        let proxy_implementation_class_hash = if is_account_eoa(account_info) {
             starknet_contract_storage.append(&mut initialize_eoa(kakarot_address, address)?);
             class_hashes.eoa_class_hash
         } else {
@@ -135,4 +136,61 @@ fn generate_evm_address_storage(
     evm_address: FieldElement,
 ) -> Result<(StarknetStorageKey, StarkFelt), RunnerError> {
     starknet_storage_key_value("evm_address", &[], evm_address)
+}
+
+/// Checks if an account is an EOA or a contract account.
+pub fn is_account_eoa(account_info: &Account) -> bool {
+    // an account contract might have both no code nor storage
+    // however, an empty CA cannot make any update to its storage and nonce
+    // so pre-state and post-state will be the same
+    // therefore, we can set it as an EOA
+    account_info.code.is_empty() && account_info.storage.is_empty()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use rstest::*;
+
+    #[rstest]
+    #[case(
+        r#"{
+        "balance" : "0x00",
+        "code" : "0x",
+        "nonce" : "0x00",
+        "storage" : {
+            "0x01" : "0x01"
+        }
+    }"#,
+        false
+    )]
+    #[case(
+        r#"{
+        "balance" : "0x00",
+        "code" : "0x12",
+        "nonce" : "0x00",
+        "storage" : {
+        }
+    }"#,
+        false
+    )]
+    #[case(
+        r#"{
+        "balance" : "0x00",
+        "code" : "0x",
+        "nonce" : "0x00",
+        "storage" : {}
+    }"#,
+        true
+    )]
+    fn test_implementation_class_hash(#[case] input: &str, #[case] expected: bool) {
+        // Given
+        let account_info: Account = serde_json::from_str(input).unwrap();
+
+        // When
+        let result = is_account_eoa(&account_info);
+
+        // Then
+        assert_eq!(result, expected);
+    }
 }
