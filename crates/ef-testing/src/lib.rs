@@ -11,31 +11,25 @@ use reth_rlp::Decodable;
 use revm_primitives::B256;
 
 /// Sign a transaction given a private key and a chain id.
-pub fn sign_tx_with_chain_id(
-    tx: &mut Transaction,
-    private_key: &B256,
-    chain_id: u64,
-) -> Result<Signature, eyre::Error> {
-    tx.set_chain_id(chain_id);
+pub fn sign_tx(tx: &Transaction, private_key: &B256) -> Result<Signature, eyre::Error> {
     let signature = sign_message(*private_key, tx.signature_hash())?;
     Ok(signature)
 }
 
 pub fn get_signed_rlp_encoded_transaction(block: &Bytes, pk: B256) -> Result<Bytes, RunnerError> {
     // parse it as a sealed block
-    let mut block =
-        SealedBlock::decode(&mut block.as_ref()).map_err(RunnerError::RlpDecodeError)?;
+    let block = SealedBlock::decode(&mut block.as_ref()).map_err(RunnerError::RlpDecodeError)?;
 
     // encode body as transaction
     let mut out = BytesMut::new();
-    let tx_signed = block
+    let mut tx_signed = block
         .body
-        .get_mut(0)
+        .first()
+        .cloned()
         .ok_or_else(|| RunnerError::Other("No transaction in pre state block".to_string()))?;
 
-    let tx = &mut tx_signed.transaction;
-    tx.set_chain_id(CHAIN_ID);
-    let signature = sign_tx_with_chain_id(tx, &pk, CHAIN_ID)?;
+    tx_signed.transaction.set_chain_id(CHAIN_ID);
+    let signature = sign_tx(&tx_signed.transaction, &pk)?;
     tx_signed.encode_with_signature(&signature, &mut out, true);
 
     Ok(out.to_vec().into())
