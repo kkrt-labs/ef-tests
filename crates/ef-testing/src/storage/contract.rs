@@ -1,11 +1,35 @@
-use hive_utils::madara::utils::genesis_set_bytecode;
+use ef_tests::models::Account;
+use hive_utils::madara::utils::{
+    genesis_set_bytecode, genesis_set_storage_kakarot_contract_account,
+};
 use reth_primitives::Bytes;
 use starknet::core::types::FieldElement;
 use starknet_api::{hash::StarkFelt, state::StorageKey as StarknetStorageKey};
 
 use crate::models::error::RunnerError;
 
-use super::{get_evm_address, get_is_initialized, get_starknet_storage, madara_to_katana_storage};
+use super::{
+    generate_evm_address_storage, generate_is_initialized_storage, madara_to_katana_storage,
+    starknet_storage_key_value,
+};
+
+pub(crate) fn generate_evm_contract_storage(
+    account: &Account,
+) -> Result<Vec<(StarknetStorageKey, StarkFelt)>, RunnerError> {
+    account
+        .storage
+        .iter()
+        .flat_map(|(key, value)| {
+            // Call genesis_set_storage_kakarot_contract_account util to get the storage tuples
+            let storage =
+                genesis_set_storage_kakarot_contract_account(FieldElement::ZERO, key.0, value.0);
+            match madara_to_katana_storage(storage) {
+                Ok(storage) => storage.into_iter().map(Ok).collect::<Vec<_>>(),
+                Err(err) => vec![Err(err)],
+            }
+        })
+        .collect::<Result<Vec<(StarknetStorageKey, StarkFelt)>, RunnerError>>()
+}
 
 /// Initializes the contract account.
 /// Writes the bytecode and the owner to a hashmap.
@@ -15,22 +39,22 @@ pub fn initialize_contract_account(
     bytecode: &Bytes,
 ) -> Result<Vec<(StarknetStorageKey, StarkFelt)>, RunnerError> {
     let mut contract_storage = vec![
-        get_evm_address(evm_address)?,
-        get_is_initialized()?,
-        get_owner(kakarot_address)?,
+        generate_evm_address_storage(evm_address)?,
+        generate_is_initialized_storage()?,
+        owner_storage(kakarot_address)?,
     ];
-    contract_storage.append(&mut get_bytecode(bytecode)?);
+    contract_storage.append(&mut bytecode_storage(bytecode)?);
     Ok(contract_storage)
 }
 
 /// Returns the bytecode storage tuples.
-fn get_bytecode(bytecode: &Bytes) -> Result<Vec<(StarknetStorageKey, StarkFelt)>, RunnerError> {
+fn bytecode_storage(bytecode: &Bytes) -> Result<Vec<(StarknetStorageKey, StarkFelt)>, RunnerError> {
     let bytecode_len = bytecode.len();
 
     let bytecode = genesis_set_bytecode(bytecode, FieldElement::ZERO);
     let mut bytecode_storage = madara_to_katana_storage(bytecode)?;
 
-    bytecode_storage.push(get_starknet_storage(
+    bytecode_storage.push(starknet_storage_key_value(
         "bytecode_len_",
         &[],
         FieldElement::from(bytecode_len),
@@ -40,8 +64,8 @@ fn get_bytecode(bytecode: &Bytes) -> Result<Vec<(StarknetStorageKey, StarkFelt)>
 }
 
 /// Returns the owner storage tuple.
-fn get_owner(
+fn owner_storage(
     kakarot_address: FieldElement,
 ) -> Result<(StarknetStorageKey, StarkFelt), RunnerError> {
-    get_starknet_storage("Ownable_owner", &[], kakarot_address)
+    starknet_storage_key_value("Ownable_owner", &[], kakarot_address)
 }

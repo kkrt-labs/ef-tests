@@ -3,10 +3,9 @@ pub mod eoa;
 pub mod fee_token;
 pub mod models;
 
-use ef_tests::models::{Account, State};
+use ef_tests::models::State;
 use hive_utils::{
     kakarot::compute_starknet_address,
-    madara::utils::genesis_set_storage_kakarot_contract_account,
     types::{ContractAddress, StorageKey, StorageValue},
 };
 use kakarot_rpc_core::models::felt::Felt252Wrapper;
@@ -25,7 +24,9 @@ use tokio::sync::RwLockWriteGuard;
 use crate::{models::error::RunnerError, utils::starknet::get_starknet_storage_key};
 
 use self::{
-    contract::initialize_contract_account, eoa::initialize_eoa, fee_token::get_fee_token_storage,
+    contract::{generate_evm_contract_storage, initialize_contract_account},
+    eoa::initialize_eoa,
+    fee_token::initialize_fee_token_storage,
     models::ClassHashes,
 };
 
@@ -44,7 +45,7 @@ pub fn write_test_state(
             compute_starknet_address(kakarot_address, class_hashes.proxy_class_hash, address);
 
         // Write evm storage
-        starknet_contract_storage.append(&mut get_evm_contract_storage(account_info)?);
+        starknet_contract_storage.append(&mut generate_evm_contract_storage(account_info)?);
 
         // Write implementation state
         let proxy_implementation_class_hash = if account_info.code.is_empty() {
@@ -60,7 +61,7 @@ pub fn write_test_state(
         };
 
         // Write implementation state of proxy
-        starknet_contract_storage.push(get_starknet_storage(
+        starknet_contract_storage.push(starknet_storage_key_value(
             "_implementation",
             &[],
             proxy_implementation_class_hash,
@@ -78,8 +79,11 @@ pub fn write_test_state(
         starknet.storage.insert(address, storage_record);
 
         // Update the sequencer state with the fee token balance and allowance
-        let fee_token_storage =
-            get_fee_token_storage(kakarot_address, starknet_address, account_info.balance.0)?;
+        let fee_token_storage = initialize_fee_token_storage(
+            kakarot_address,
+            starknet_address,
+            account_info.balance.0,
+        )?;
         let address =
             StarknetContractAddress(Into::<StarkFelt>::into(*FEE_TOKEN_ADDRESS).try_into()?);
         for (k, v) in fee_token_storage.iter() {
@@ -110,25 +114,7 @@ pub fn madara_to_katana_storage(
         .collect()
 }
 
-fn get_evm_contract_storage(
-    account: &Account,
-) -> Result<Vec<(StarknetStorageKey, StarkFelt)>, RunnerError> {
-    account
-        .storage
-        .iter()
-        .flat_map(|(key, value)| {
-            // Call genesis_set_storage_kakarot_contract_account util to get the storage tuples
-            let storage =
-                genesis_set_storage_kakarot_contract_account(FieldElement::ZERO, key.0, value.0);
-            match madara_to_katana_storage(storage) {
-                Ok(storage) => storage.into_iter().map(Ok).collect::<Vec<_>>(),
-                Err(err) => vec![Err(err)],
-            }
-        })
-        .collect::<Result<Vec<(StarknetStorageKey, StarkFelt)>, RunnerError>>()
-}
-
-pub(crate) fn get_starknet_storage(
+pub(crate) fn starknet_storage_key_value(
     storage_var: &str,
     keys: &[FieldElement],
     value: FieldElement,
@@ -139,13 +125,14 @@ pub(crate) fn get_starknet_storage(
 }
 
 /// Returns the is_initialized storage tuple.
-pub(crate) fn get_is_initialized() -> Result<(StarknetStorageKey, StarkFelt), RunnerError> {
-    get_starknet_storage("is_initialized_", &[], FieldElement::ONE)
+pub(crate) fn generate_is_initialized_storage(
+) -> Result<(StarknetStorageKey, StarkFelt), RunnerError> {
+    starknet_storage_key_value("is_initialized_", &[], FieldElement::ONE)
 }
 
 /// Returns the evm address storage tuple.
-fn get_evm_address(
+fn generate_evm_address_storage(
     evm_address: FieldElement,
 ) -> Result<(StarknetStorageKey, StarkFelt), RunnerError> {
-    get_starknet_storage("evm_address", &[], evm_address)
+    starknet_storage_key_value("evm_address", &[], evm_address)
 }

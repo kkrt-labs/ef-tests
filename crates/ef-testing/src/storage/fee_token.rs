@@ -15,19 +15,22 @@ use crate::{models::error::RunnerError, utils::starknet::get_starknet_storage_ke
 use super::madara_to_katana_storage;
 
 /// Returns the fee token storage tuple for balance and allowance.
-pub(crate) fn get_fee_token_storage(
+pub(crate) fn initialize_fee_token_storage(
     kakarot_address: FieldElement,
     starknet_address: FieldElement,
     balance: U256,
 ) -> Result<Vec<(StorageKey, StarkFelt)>, RunnerError> {
     let mut storage = Vec::new();
-    storage.append(&mut get_balance(starknet_address, balance)?);
-    storage.append(&mut get_allowance(kakarot_address, starknet_address)?);
+    storage.append(&mut generate_balance_storage(starknet_address, balance)?);
+    storage.append(&mut generate_allowance_storage(
+        kakarot_address,
+        starknet_address,
+    )?);
     Ok(storage)
 }
 
 /// Returns the balance storage tuple.
-pub(crate) fn get_balance(
+pub(crate) fn generate_balance_storage(
     starknet_address: FieldElement,
     balance: U256,
 ) -> Result<Vec<(StorageKey, StarkFelt)>, RunnerError> {
@@ -38,7 +41,7 @@ pub(crate) fn get_balance(
 }
 
 /// Returns the allowance storage tuple.
-pub(crate) fn get_allowance(
+pub(crate) fn generate_allowance_storage(
     kakarot_address: FieldElement,
     starknet_address: FieldElement,
 ) -> Result<Vec<(StorageKey, StarkFelt)>, RunnerError> {

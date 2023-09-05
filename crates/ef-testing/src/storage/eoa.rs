@@ -9,7 +9,9 @@ use tokio::sync::RwLockWriteGuard;
 
 use crate::{models::error::RunnerError, utils::starknet::get_starknet_storage_key};
 
-use super::{get_evm_address, get_is_initialized, get_starknet_storage};
+use super::{
+    generate_evm_address_storage, generate_is_initialized_storage, starknet_storage_key_value,
+};
 
 /// Returns the class hash used for the EOA contract.
 pub fn get_eoa_class_hash(
@@ -51,16 +53,16 @@ pub fn initialize_eoa(
     evm_address: FieldElement,
 ) -> Result<Vec<(StarknetStorageKey, StarkFelt)>, RunnerError> {
     let eoa_storage = vec![
-        get_is_initialized()?,
-        get_kakarot_address(kakarot_address)?,
-        get_evm_address(evm_address)?,
+        generate_is_initialized_storage()?,
+        generate_kakarot_address_storage(kakarot_address)?,
+        generate_evm_address_storage(evm_address)?,
     ];
     Ok(eoa_storage)
 }
 
 /// Returns the kakarot address storage tuple.
-fn get_kakarot_address(
+fn generate_kakarot_address_storage(
     kakarot_address: FieldElement,
 ) -> Result<(StarknetStorageKey, StarkFelt), RunnerError> {
-    get_starknet_storage("kakarot_address", &[], kakarot_address)
+    starknet_storage_key_value("kakarot_address", &[], kakarot_address)
 }
