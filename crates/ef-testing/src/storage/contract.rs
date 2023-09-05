@@ -1,61 +1,47 @@
-use std::collections::HashMap;
-
 use hive_utils::madara::utils::genesis_set_bytecode;
 use reth_primitives::Bytes;
 use starknet::core::types::FieldElement;
 use starknet_api::{hash::StarkFelt, state::StorageKey as StarknetStorageKey};
 
-use crate::{models::error::RunnerError, utils::starknet::get_starknet_storage_key};
+use crate::models::error::RunnerError;
 
-use super::{write_is_initialized, write_madara_to_katana_storage};
+use super::{get_evm_address, get_is_initialized, get_starknet_storage, madara_to_katana_storage};
 
 /// Initializes the contract account.
 /// Writes the bytecode and the owner to a hashmap.
 pub fn initialize_contract_account(
     kakarot_address: FieldElement,
-    starknet_address: FieldElement,
     evm_address: FieldElement,
     bytecode: &Bytes,
-    destination: &mut HashMap<StarknetStorageKey, StarkFelt>,
-) -> Result<(), RunnerError> {
-    write_evm_address(evm_address, destination)?;
-    write_is_initialized(destination)?;
-    write_bytecode(starknet_address, bytecode, destination)?;
-    write_owner(kakarot_address, destination)
+) -> Result<Vec<(StarknetStorageKey, StarkFelt)>, RunnerError> {
+    let mut contract_storage = vec![
+        get_evm_address(evm_address)?,
+        get_is_initialized()?,
+        get_owner(kakarot_address)?,
+    ];
+    contract_storage.append(&mut get_bytecode(bytecode)?);
+    Ok(contract_storage)
 }
 
-/// Writes the EVM address to a hashmap.
-fn write_evm_address(
-    evm_address: FieldElement,
-    destination: &mut HashMap<StarknetStorageKey, StarkFelt>,
-) -> Result<(), RunnerError> {
-    let evm_address_key = get_starknet_storage_key("evm_address", &[], 0)?;
-    destination.insert(evm_address_key, Into::<StarkFelt>::into(evm_address));
-    Ok(())
-}
-
-/// Writes the bytecode to a hashmap.
-fn write_bytecode(
-    starknet_address: FieldElement,
-    bytecode: &Bytes,
-    destination: &mut HashMap<StarknetStorageKey, StarkFelt>,
-) -> Result<(), RunnerError> {
+/// Returns the bytecode storage tuples.
+fn get_bytecode(bytecode: &Bytes) -> Result<Vec<(StarknetStorageKey, StarkFelt)>, RunnerError> {
     let bytecode_len = bytecode.len();
-    let bytecode = genesis_set_bytecode(bytecode, starknet_address);
-    write_madara_to_katana_storage(bytecode, destination)?;
 
-    let bytecode_len_key = get_starknet_storage_key("bytecode_len_", &[], 0)?;
-    let bytecode_len_value = Into::<StarkFelt>::into(StarkFelt::from(bytecode_len as u64));
-    destination.insert(bytecode_len_key, bytecode_len_value);
-    Ok(())
+    let bytecode = genesis_set_bytecode(bytecode, FieldElement::ZERO);
+    let mut bytecode_storage = madara_to_katana_storage(bytecode)?;
+
+    bytecode_storage.push(get_starknet_storage(
+        "bytecode_len_",
+        &[],
+        FieldElement::from(bytecode_len),
+    )?);
+
+    Ok(bytecode_storage)
 }
 
-/// Writes the owner to a hashmap.
-fn write_owner(
+/// Returns the owner storage tuple.
+fn get_owner(
     kakarot_address: FieldElement,
-    destination: &mut HashMap<StarknetStorageKey, StarkFelt>,
-) -> Result<(), RunnerError> {
-    let owner = get_starknet_storage_key("Ownable_owner", &[], 0)?;
-    destination.insert(owner, Into::<StarkFelt>::into(kakarot_address));
-    Ok(())
+) -> Result<(StarknetStorageKey, StarkFelt), RunnerError> {
+    get_starknet_storage("Ownable_owner", &[], kakarot_address)
 }
