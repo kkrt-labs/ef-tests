@@ -1,6 +1,7 @@
 pub mod contract;
 pub mod eoa;
 
+use ef_tests::models::Account;
 use ef_tests::models::State;
 use hive_utils::{
     kakarot::compute_starknet_address,
@@ -84,9 +85,9 @@ pub fn write_test_state(
             })
             .collect::<Result<Vec<()>, RunnerError>>()?;
 
-        let proxy_implementation_class_hash = if account_info.code.is_empty() {
+        // Initialize the EOA or contract account
+        if account_info.code.is_empty() && account_info.storage.is_empty() {
             initialize_eoa(kakarot_address, address, &mut storage)?;
-            class_hashes.eoa_class_hash
         } else {
             initialize_contract_account(
                 kakarot_address,
@@ -95,8 +96,11 @@ pub fn write_test_state(
                 &account_info.code,
                 &mut storage,
             )?;
-            class_hashes.contract_account_class_hash
         };
+
+        // get the implementation class hash
+        let proxy_implementation_class_hash =
+            implementation_class_hash(account_info, &class_hashes);
 
         // write implementation state of proxy
         let proxy_implementation_storage_tuples = genesis_set_storage_starknet_contract(
@@ -245,4 +249,68 @@ pub fn read_balance(
         .get(&storage_key)
         .ok_or_else(|| RunnerError::Other(format!("missing balance for {:#20x}", evm_address)))?;
     Ok(balance.into())
+}
+
+/// Check what the implementation class hash should be.
+pub fn implementation_class_hash(
+    account_info: &Account,
+    class_hashes: &ClassHashes,
+) -> FieldElement {
+    if account_info.code.is_empty() && account_info.storage.is_empty() {
+        class_hashes.eoa_class_hash
+    } else {
+        class_hashes.contract_account_class_hash
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use rstest::*;
+
+    #[fixture]
+    fn class_hashes() -> ClassHashes {
+        ClassHashes::new(
+            FieldElement::from_hex_be("0x00").unwrap(), // proxy
+            FieldElement::from_hex_be("0x01").unwrap(), // eoa
+            FieldElement::from_hex_be("0x02").unwrap(), // contract account
+        )
+    }
+
+    #[rstest]
+    #[case(r#"{
+        "balance" : "0x00",
+        "code" : "0x",
+        "nonce" : "0x00",
+        "storage" : {
+            "0x01" : "0x01"
+        }
+    }"#, class_hashes().contract_account_class_hash)]
+    #[case(r#"{
+        "balance" : "0x00",
+        "code" : "0x12",
+        "nonce" : "0x00",
+        "storage" : {
+        }
+    }"#, class_hashes().contract_account_class_hash)]
+    #[case(r#"{
+        "balance" : "0x00",
+        "code" : "0x",
+        "nonce" : "0x00",
+        "storage" : {}
+    }"#, class_hashes().eoa_class_hash)]
+    fn test_implementation_class_hash(
+        #[case] input: &str,
+        #[case] expected: FieldElement,
+        class_hashes: ClassHashes,
+    ) {
+        // Given
+        let account_info: Account = serde_json::from_str(input).unwrap();
+
+        // When
+        let result = implementation_class_hash(&account_info, &class_hashes);
+
+        // Then
+        assert_eq!(result, expected);
+    }
 }
