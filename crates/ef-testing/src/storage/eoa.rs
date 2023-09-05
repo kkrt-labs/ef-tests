@@ -1,5 +1,3 @@
-use std::collections::HashMap;
-
 use kakarot_rpc_core::test_utils::deploy_helpers::KakarotTestEnvironmentContext;
 use katana_core::backend::state::MemDb;
 use starknet::core::types::FieldElement;
@@ -11,7 +9,7 @@ use tokio::sync::RwLockWriteGuard;
 
 use crate::{models::error::RunnerError, utils::starknet::get_starknet_storage_key};
 
-use super::write_is_initialized;
+use super::{get_evm_address, get_is_initialized, get_starknet_storage};
 
 /// Returns the class hash used for the EOA contract.
 pub fn get_eoa_class_hash(
@@ -47,36 +45,22 @@ pub fn get_eoa_class_hash(
 }
 
 /// Initializes the EOA contract.
-/// Writes the kakarot address and the evm address to a hashmap.
+/// Returns the storage tuples for eoa contract.
 pub fn initialize_eoa(
     kakarot_address: FieldElement,
     evm_address: FieldElement,
-    destination: &mut HashMap<StarknetStorageKey, StarkFelt>,
-) -> Result<(), RunnerError> {
-    write_is_initialized(destination)?;
-    write_kakarot_address(kakarot_address, destination)?;
-    write_evm_address(evm_address, destination)?;
-    Ok(())
+) -> Result<Vec<(StarknetStorageKey, StarkFelt)>, RunnerError> {
+    let eoa_storage = vec![
+        get_is_initialized()?,
+        get_kakarot_address(kakarot_address)?,
+        get_evm_address(evm_address)?,
+    ];
+    Ok(eoa_storage)
 }
 
-/// Writes the kakarot address to a hashmap.
-fn write_kakarot_address(
+/// Returns the kakarot address storage tuple.
+fn get_kakarot_address(
     kakarot_address: FieldElement,
-    destination: &mut HashMap<StarknetStorageKey, StarkFelt>,
-) -> Result<(), RunnerError> {
-    let kakarot_address_key = get_starknet_storage_key("kakarot_address", &[], 0)?;
-    let kakarot_address_value = Into::<StarkFelt>::into(StarkFelt::from(kakarot_address));
-    destination.insert(kakarot_address_key, kakarot_address_value);
-    Ok(())
-}
-
-/// Writes the evm address to a hashmap.
-fn write_evm_address(
-    evm_address: FieldElement,
-    destination: &mut HashMap<StarknetStorageKey, StarkFelt>,
-) -> Result<(), RunnerError> {
-    let evm_address_key = get_starknet_storage_key("evm_address", &[], 0)?;
-    let evm_address_value = Into::<StarkFelt>::into(StarkFelt::from(evm_address));
-    destination.insert(evm_address_key, evm_address_value);
-    Ok(())
+) -> Result<(StarknetStorageKey, StarkFelt), RunnerError> {
+    get_starknet_storage("kakarot_address", &[], kakarot_address)
 }
