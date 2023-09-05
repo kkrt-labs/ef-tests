@@ -10,17 +10,17 @@ use reth_primitives::{sign_message, Bytes, SealedBlock, Signature, Transaction};
 use reth_rlp::Decodable;
 use revm_primitives::B256;
 
-/// Sign a transaction given a private key and a chain id.
+/// Sign a transaction given a private key.
 pub fn sign_tx(tx: &Transaction, private_key: &B256) -> Result<Signature, eyre::Error> {
     let signature = sign_message(*private_key, tx.signature_hash())?;
     Ok(signature)
 }
 
 pub fn get_signed_rlp_encoded_transaction(block: &Bytes, pk: B256) -> Result<Bytes, RunnerError> {
-    // parse it as a sealed block
+    // Parse it as a sealed block
     let block = SealedBlock::decode(&mut block.as_ref()).map_err(RunnerError::RlpDecodeError)?;
 
-    // encode body as transaction
+    // Encode body as transaction
     let mut out = BytesMut::new();
     let mut tx_signed = block
         .body
