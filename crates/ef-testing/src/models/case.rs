@@ -3,7 +3,9 @@
 use super::{error::RunnerError, result::CaseResult, BlockchainTestTransaction};
 use crate::{
     get_signed_rlp_encoded_transaction,
-    storage::{eoa::get_eoa_class_hash, read_balance, write_test_state, ClassHashes},
+    storage::{
+        eoa::get_eoa_class_hash, fee_token::read_balance, models::ClassHashes, write_test_state,
+    },
     traits::Case,
     utils::{
         assert::{assert_contract_post_state, assert_empty_post_state},
@@ -130,7 +132,9 @@ impl BlockchainTestCase {
         let post_state = match test.post_state.as_ref().ok_or_else(|| {
             RunnerError::Other(format!("missing post state for {}", test_case_name))
         })? {
-            RootOrState::Root(_) => panic!("RootOrState::Root(_) not supported, for {}", test_case_name),
+            RootOrState::Root(_) => {
+                panic!("RootOrState::Root(_) not supported, for {}", test_case_name)
+            }
             RootOrState::State(state) => state,
         };
 
