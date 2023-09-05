@@ -85,8 +85,12 @@ pub fn write_test_state(
             })
             .collect::<Result<Vec<()>, RunnerError>>()?;
 
+        // get the implementation class hash
+        let (proxy_implementation_class_hash, is_eoa) =
+            implementation_class_hash(account_info, &class_hashes);
+
         // Initialize the EOA or contract account
-        if account_info.code.is_empty() && account_info.storage.is_empty() {
+        if is_eoa {
             initialize_eoa(kakarot_address, address, &mut storage)?;
         } else {
             initialize_contract_account(
@@ -97,10 +101,6 @@ pub fn write_test_state(
                 &mut storage,
             )?;
         };
-
-        // get the implementation class hash
-        let proxy_implementation_class_hash =
-            implementation_class_hash(account_info, &class_hashes);
 
         // write implementation state of proxy
         let proxy_implementation_storage_tuples = genesis_set_storage_starknet_contract(
@@ -255,15 +255,15 @@ pub fn read_balance(
 pub fn implementation_class_hash(
     account_info: &Account,
     class_hashes: &ClassHashes,
-) -> FieldElement {
+) -> (FieldElement, bool) {
     // an account contract might have both no code nor storage
     // however, an empty CA cannot make any update to its storage and nonce
     // so pre-state and post-state will be the same
     // therefore, we can set it as an EOA
     if account_info.code.is_empty() && account_info.storage.is_empty() {
-        class_hashes.eoa_class_hash
+        (class_hashes.eoa_class_hash, true)
     } else {
-        class_hashes.contract_account_class_hash
+        (class_hashes.contract_account_class_hash, false)
     }
 }
 
@@ -289,23 +289,23 @@ mod tests {
         "storage" : {
             "0x01" : "0x01"
         }
-    }"#, class_hashes().contract_account_class_hash)]
+    }"#, (class_hashes().contract_account_class_hash, false))]
     #[case(r#"{
         "balance" : "0x00",
         "code" : "0x12",
         "nonce" : "0x00",
         "storage" : {
         }
-    }"#, class_hashes().contract_account_class_hash)]
+    }"#, (class_hashes().contract_account_class_hash, false))]
     #[case(r#"{
         "balance" : "0x00",
         "code" : "0x",
         "nonce" : "0x00",
         "storage" : {}
-    }"#, class_hashes().eoa_class_hash)]
+    }"#, (class_hashes().eoa_class_hash, true))]
     fn test_implementation_class_hash(
         #[case] input: &str,
-        #[case] expected: FieldElement,
+        #[case] expected: (FieldElement, bool),
         class_hashes: ClassHashes,
     ) {
         // Given
