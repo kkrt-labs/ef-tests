@@ -8,7 +8,7 @@ use tracing_subscriber::{filter, FmtSubscriber};
 
 static INIT: Once = Once::new();
 
-fn set_up() {
+fn setup() {
     INIT.call_once(|| {
         // Set-up tracing filter
         let filter = filter::EnvFilter::new("tests=info,ef_testing=info,katana_core=info");
@@ -48,7 +48,7 @@ macro_rules! blockchain_tests {
     ($test_name:ident, $dir:ident) => {
         #[tokio::test]
         async fn $test_name() {
-            set_up();
+            setup();
             BlockchainTestSuite::new(format!("GeneralStateTests/{}", stringify!($dir)))
                 .run()
                 .await;
