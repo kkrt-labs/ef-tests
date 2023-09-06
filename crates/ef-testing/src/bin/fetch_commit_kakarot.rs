@@ -1,5 +1,3 @@
-use eyre;
-use reqwest;
 use serde::Deserialize;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
