@@ -22,7 +22,8 @@ jobs:
       # fetch dump
       - name: fetch dump
         run: GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }} make fetch-dump
+      - uses: taiki-e/install-action@nextest
       # run tests
       - name: run tests
-        run: cargo test
+        run: make ef-tests
 
