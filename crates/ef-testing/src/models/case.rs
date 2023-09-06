@@ -66,7 +66,28 @@ impl BlockchainTestCase {
 
         matches!(
             name,
-            | "placeHolder.json"
+            "calldatacopy.json" // ef-tests #20
+                | "sha3.json" // ef-tests #19
+                | "exp.json" // kakarot #700
+                | "expPower2.json" // kakarot #700
+                | "expPower256.json" // kakarot #700
+                | "expPower256Of256.json" // kakarot #700
+                | "twoOps.json" // kakarot #700
+                | "addmod.json" // kakarot #695
+                | "mulmod.json" // kakarot #695
+                | "divByZero.json" // kakarot #695
+                | "jumpi.json" // kakarot #693
+                | "jump.json" // ef-tests #38 
+                | "jumpToPush.json" // ef-tests #61
+                | "signextend.json" // kakarot #677
+                | "mload.json" // ef-tests #31
+                | "gas.json" // ef-tests #36
+                | "loopExp.json" // ef-tests #39
+                | "loopMul.json" // ef-tests #39
+                | "performanceTester.json" // ef-tests #39
+                | "suicide.json" // ef-tests #57
+                | "blockInfo.json" // ef-tests #67
+                | "envInfo.json" // ef-tests #63
         )
     }
 
@@ -361,7 +382,7 @@ mod tests {
     fn test_should_skip() {
         // Given
         let path = Path::new(
-            "ethereum-tests/BlockchainTests/GeneralStateTests/VMTests/vmArithmeticTest/placeHolder.json",
+            "ethereum-tests/BlockchainTests/GeneralStateTests/VMTests/vmArithmeticTest/calldatacopy.json",
         );
 
         // When
