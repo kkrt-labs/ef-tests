@@ -1,9 +1,7 @@
 use chrono::{DateTime, Utc};
 use dotenv::dotenv;
-use eyre;
 use reqwest::{self, header};
 use serde::Deserialize;
-use serde_json;
 use std::path::Path;
 use std::{fs, io};
 use zip::ZipArchive;
@@ -97,7 +95,7 @@ fn unzip_file(source: &str, destination: &str) -> io::Result<()> {
             // It's a file, extract it
             if let Some(parent) = outpath.parent() {
                 if !parent.exists() {
-                    fs::create_dir_all(&parent)?;
+                    fs::create_dir_all(parent)?;
                 }
             }
             let mut outfile = fs::File::create(&outpath)?;
