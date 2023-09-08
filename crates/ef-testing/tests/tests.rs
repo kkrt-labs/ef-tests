@@ -59,5 +59,6 @@ macro_rules! blockchain_tests {
 mod blockchain_tests {
     use super::*;
 
+    blockchain_tests!(vm_tests, VMTests);
     blockchain_tests!(memory_tests, stMemoryTest);
 }
