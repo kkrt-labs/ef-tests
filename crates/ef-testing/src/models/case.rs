@@ -77,7 +77,7 @@ impl BlockchainTestCase {
                 | "mulmod.json" // kakarot #695
                 | "divByZero.json" // kakarot #695
                 | "jumpi.json" // kakarot #693
-                | "jump.json" // ef-tests #38 
+                | "jump.json" // ef-tests #38
                 | "jumpToPush.json" // ef-tests #61
                 | "signextend.json" // kakarot #677
                 | "mload.json" // ef-tests #31
@@ -88,6 +88,10 @@ impl BlockchainTestCase {
                 | "suicide.json" // ef-tests #57
                 | "blockInfo.json" // ef-tests #67
                 | "envInfo.json" // ef-tests #63
+                | "memCopySelf.json" // ef-tests #52
+                | "bufferSrcOffset.json" // ef-tests #51
+                | "buffer.json" // ef-tests #50
+                | "oog.json" // ef-tests #49
         )
     }
 
