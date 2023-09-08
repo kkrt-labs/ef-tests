@@ -31,10 +31,7 @@ pub fn assert_contract_post_state(
     if actual_nonce != account_nonce {
         return Err(RunnerError::Other(format!(
             "{} expected nonce {} for {:#20x}, got {}",
-            test_name,
-            account_nonce.to_string(),
-            evm_address,
-            actual_nonce.to_string()
+            test_name, account_nonce, evm_address, actual_nonce
         )));
     }
 
@@ -70,10 +67,7 @@ pub fn assert_contract_post_storage(
             if actual_state_value != value {
                 return Err(RunnerError::Other(format!(
                     "{} expected storage value {} for {:#20x}, got {}",
-                    test_name,
-                    value.to_string(),
-                    evm_address,
-                    actual_state_value.to_string()
+                    test_name, value, evm_address, actual_state_value
                 )));
             }
         }
