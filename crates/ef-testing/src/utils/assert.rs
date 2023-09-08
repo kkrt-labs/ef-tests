@@ -93,8 +93,7 @@ pub fn assert_empty_post_state(
 
     if !is_code_empty || !is_storage_empty || !is_nonce_zero {
         return Err(RunnerError::Assertion(format!(
-            "{} expected empty post state, got {:#?}",
-            test_name, state
+            "{test_name} expected empty post state, got {state:#?}"
         )));
     }
 
@@ -103,8 +102,7 @@ pub fn assert_empty_post_state(
 
     if expected_balance != actual_balance {
         return Err(RunnerError::Assertion(format!(
-            "{} expected balance {:#32x}, got {:#32x}",
-            test_name, expected_balance, actual_balance
+            "{test_name} expected balance {expected_balance:#32x}, got {actual_balance:#32x}"
         )));
     }
 

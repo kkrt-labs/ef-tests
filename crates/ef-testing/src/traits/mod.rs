@@ -1,5 +1,5 @@
 //! Traits definition
-//! Inspired by https://github.com/paradigmxyz/reth/tree/main/testing/ef-tests
+//! Inspired by <https://github.com/paradigmxyz/reth/tree/main/testing/ef-tests>
 
 use async_trait::async_trait;
 use std::{
@@ -52,9 +52,9 @@ pub trait Suite {
 
         let mut test_cases = Vec::new();
 
-        for test_case_path in test_cases_paths.into_iter() {
+        for test_case_path in test_cases_paths {
             let case = Self::Case::load(&test_case_path).expect("test case should load");
-            test_cases.push((test_case_path, case))
+            test_cases.push((test_case_path, case));
         }
 
         let results = Cases { test_cases }.run().await;

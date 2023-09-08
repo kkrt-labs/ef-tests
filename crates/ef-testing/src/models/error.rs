@@ -7,7 +7,7 @@ use starknet::{
 };
 use starknet_api::StarknetApiError;
 
-/// Error type based off https://github.com/paradigmxyz/reth/blob/main/testing/ef-tests/src/result.rs
+/// Error type based off <https://github.com/paradigmxyz/reth/blob/main/testing/ef-tests/src/result.rs>
 #[derive(Clone, Debug, thiserror::Error)]
 pub enum RunnerError {
     /// Assertion error
