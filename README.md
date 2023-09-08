@@ -2,6 +2,13 @@
 
 This repository contains the execution of the EF standard execution layer tests.
 
+## Requirements
+
+- nextest: to install [nextest](https://nexte.st/index.html), run `cargo install cargo-nextest --locked`
+- A GitHub token in your `.env` file:
+  - Copy the `.env.example` file to a `.env` file
+  - Create a [GitHub token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens) and add it inside the `.env` file.
+
 ## Setup
 
 In order to set up the repo and start the testing, please follow the below
