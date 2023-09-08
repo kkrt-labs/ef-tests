@@ -24,7 +24,7 @@ fetch-dump:
 	cargo run --features dump --bin fetch-dump-katana
 
 $(KAKAROT_COMMIT):
-	cargo run --features fetch-commit --bin fetch-commit-kakarot
+	cargo run --features fetch-commit --bin fetch-kakarot-submodule-commit
 
 # Runs the Ethereum Foundation tests
 ef-tests: $(KAKAROT_COMMIT)
