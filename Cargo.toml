@@ -12,6 +12,7 @@ authors = [
   "Johann Bestowrous <@jobez>",
   "Harsh Bajpai <@bajpai244>",
   "Danilo Kim <@danilowhk>",
+  "Fred Tupas <@ftupas>",
 ]
 description = "EF standard testing for Kakarot"
 homepage = "https://github.com/kkrt-labs"
@@ -21,7 +22,9 @@ license = "MIT"
 
 [workspace.dependencies]
 # Eth deps
-ef-tests = { git = "https://github.com/paradigmxyz/reth.git", tag = "v0.1.0-alpha.7", features = ["ef-tests"] }
+ef-tests = { git = "https://github.com/paradigmxyz/reth.git", tag = "v0.1.0-alpha.7", features = [
+  "ef-tests",
+] }
 reth-primitives = { git = "https://github.com/paradigmxyz/reth.git", tag = "v0.1.0-alpha.7" }
 revm-primitives = "1.1"
 reth-rlp = { git = "https://github.com/paradigmxyz/reth.git", tag = "v0.1.0-alpha.7" }
@@ -40,12 +43,12 @@ starknet_api = { git = "https://github.com/starkware-libs/starknet-api", rev = "
 # Other
 async-trait = "0.1.58"
 bytes = "1"
-chrono = { version = "0.4.26", features = ["serde"]}
+chrono = { version = "0.4.26", features = ["serde"] }
 ctor = "0.2.4"
 dotenv = "0.15.0"
 eyre = "0.6.8"
 regex = "1.9.3"
-reqwest = { version = "0.11.20", features = ["gzip"]}
+reqwest = { version = "0.11.20", features = ["gzip"] }
 rstest = "0.18.1"
 thiserror = "1.0.47"
 tokio = { version = "1.21.2", features = ["macros"] }
