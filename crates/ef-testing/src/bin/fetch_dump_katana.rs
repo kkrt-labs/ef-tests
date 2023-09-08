@@ -61,7 +61,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         .default_headers(headers)
         .build()?;
     let mut response = client_gzip
-        .get(&latest_artifact.archive_download_url)
+        .get(latest_artifact.archive_download_url)
         .send()?;
 
     let mut out = fs::File::create("temp.zip")?;
