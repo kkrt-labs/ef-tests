@@ -10,7 +10,8 @@ pub struct BlockchainTestSuite {
 }
 
 impl BlockchainTestSuite {
-    pub fn new(name: String) -> Self {
+    #[must_use]
+    pub const fn new(name: String) -> Self {
         Self { name }
     }
 }

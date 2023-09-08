@@ -20,7 +20,7 @@ pub struct CaseResult {
 impl CaseResult {
     /// Create a new test result.
     pub fn new(path: &Path, case: &impl Case, result: Result<(), RunnerError>) -> Self {
-        CaseResult {
+        Self {
             desc: case.description(),
             path: path.into(),
             result,
@@ -34,9 +34,7 @@ pub(crate) fn assert_tests_pass(suite_name: &str, path: &Path, results: &[CaseRe
 
     print_results(suite_name, path, &passed, &failed, &skipped);
 
-    if !failed.is_empty() {
-        panic!("Some tests failed (see above)");
-    }
+    assert!(failed.is_empty(), "Some tests failed (see above)");
 }
 
 /// Categorize test results into `(passed, failed, skipped)`.

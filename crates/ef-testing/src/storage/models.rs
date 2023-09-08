@@ -7,7 +7,8 @@ pub struct ClassHashes {
 }
 
 impl ClassHashes {
-    pub fn new(
+    #[must_use]
+    pub const fn new(
         proxy_class_hash: FieldElement,
         eoa_class_hash: FieldElement,
         contract_account_class_hash: FieldElement,

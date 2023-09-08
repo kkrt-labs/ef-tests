@@ -42,7 +42,7 @@ pub fn write_test_state(
     let mut kakarot_storage = Vec::new();
     for (address, account_info) in state.iter() {
         let mut starknet_contract_storage = Vec::new();
-        let address = Felt252Wrapper::from(address.to_owned()).into();
+        let address = Felt252Wrapper::from(*address).into();
         let starknet_address =
             compute_starknet_address(kakarot_address, class_hashes.proxy_class_hash, address);
 
@@ -140,7 +140,7 @@ pub(crate) fn starknet_storage_key_value(
     Ok((storage_key, storage_value))
 }
 
-/// Returns the is_initialized storage tuple.
+/// Returns the `is_initialized` storage tuple.
 pub(crate) fn generate_is_initialized_storage(
 ) -> Result<(StarknetStorageKey, StarkFelt), RunnerError> {
     starknet_storage_key_value("is_initialized_", &[], FieldElement::ONE)
