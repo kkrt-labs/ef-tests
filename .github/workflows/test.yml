@@ -1,6 +1,9 @@
 name: test
 
-on: [pull_request]
+on:
+  push:
+    branches: [main]
+  pull_request:
 
 jobs:
   test:
@@ -26,4 +29,3 @@ jobs:
       # run tests
       - name: run tests
         run: make ef-tests
-
