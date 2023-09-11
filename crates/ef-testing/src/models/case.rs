@@ -92,6 +92,7 @@ impl BlockchainTestCase {
                 | "bufferSrcOffset.json" // ef-tests #51
                 | "buffer.json" // ef-tests #50
                 | "oog.json" // ef-tests #49
+                | "sloadGasCost.json" // ef-tests #78
         )
     }
 
