@@ -20,7 +20,7 @@ In order to match the current EVM implementation from Reth, we want to run the s
 Check for an unassigned `epic` issue for a test. Add it to  `crates/ef-testing/tests.rs` by using the `blockchain_tests` macro. The first argument should be the name of your test, the second is the folder to find the test. Please use the snake case name of the folder for the name of the test (e.g. `blockchain_tests!(st_bad_opcode, stBadOpcode)` for adding stBadOpcode).
 
 Now comment all the other lines except for the test you added and run `make ef-tests`.
-After a while (count 10-15 minutes) the test will end and you should have in your terminal's output a list of all the failing tests. You can now start making issues. When raising issues, please follow the general outline that has been used up to now. Don't forget to add the `Integrator` label to your issue.
+After a while (count 10-15 minutes) the test will end and you should have in your terminal's output a list of all the failing tests. You can now start making issues. When raising issues, please try to match other `Integrator` issued on the style, and don't forget to add any raised issue to the `epic` issue's tasklist.
 
 ### Debuggor
 
@@ -38,7 +38,7 @@ The following section describes how to log the opcodes when running an ethereum/
 - Update the `Cargo.toml` file at the root of the repository, by replacing the blockifier import by `blockifier = { git = "https://github.com/jobez/blockifier.git", rev = "7f00407" }`.
 - In the file `./kakarot-rpc/lib/kakarot/src/kakarot/instructions.cairo`, add the following hint `%{print(ids.opcode, ids.ctx) %}` right after line 65. See the following [gist](https://gist.github.com/jobez/42941db9361d81778abd36309dfb60dc#file-instructions-cairo-L68-L70) for more details.
 - From the root of the `kakarot-rpc` repository, run the following: `cd lib/kakarot && STARKNET_NETWORK=starknet-devnet make build && cd ../.. && make RUST_BACKTRACE=1 dump-katana`
-- Now copy the `.katana` folder and copy it inside the ef-tests repository.
+- Now copy the `.katana` folder and paste it inside the ef-tests repository.
 - Finally, update the `Cargo.toml` file at the root of the ef-tests repository, by replacing the blockifier import by `blockifier = { git = "https://github.com/jobez/blockifier.git", rev = "7f00407" }`.
 - Run `make target=your_test_name ef-test`. You should see the executed opcodes being printed out.
 
