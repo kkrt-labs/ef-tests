@@ -1,6 +1,6 @@
 # Contributing
 
-When contributing to this repository, please first discuss the change you wish to make via issue, email, or any other method with the owners of this repository before making a change.
+Before contributing to this repository, always submit and discuss your proposed changes through an issue. Should you need further clarification, you can reach out to us on Telegram, or Discord. Please wait to be assigned to an issue before opening a pull request.
 
 ## Roles
 
@@ -15,20 +15,21 @@ Cairo 0 implementation in order to pin point the exact issue. Ones the issue is 
 
 ### Integrator
 
-In order to match the current EVM implementation from Reth, we want to run the same ethereum/tests as them. A list of all applicable tests can be found [here](https://github.com/paradigmxyz/reth/blob/main/testing/ef-tests/tests/tests.rs#L17).
+In order to match the current EVM implementation from Reth, we want to run the same ethereum/tests as them. A list of all applicable tests can be found [here](https://github.com/paradigmxyz/reth/blob/main/testing/ef-tests/tests/tests.rs#L17). To start:
 
-Check for an unassigned `epic` issue for a test. Add it to  `crates/ef-testing/tests.rs` by using the `blockchain_tests` macro. The first argument should be the name of your test, the second is the folder to find the test. Please use the snake case name of the folder for the name of the test (e.g. `blockchain_tests!(st_bad_opcode, stBadOpcode)` for adding stBadOpcode).
-
-Now comment all the other lines except for the test you added and run `make ef-tests`.
-After a while (count 10-15 minutes) the test will end and you should have in your terminal's output a list of all the failing tests. You can now start making issues. When raising issues, please try to match other `Integrator` issued on the style, and don't forget to add any raised issue to the `epic` issue's tasklist.
+- Check for an unassigned `epic` issue for a test.
+- Add it to  `crates/ef-testing/tests.rs` by using the `blockchain_tests` macro. The first argument should be the name of your test, the second is the folder to find the test. Please use the snake case name of the folder for the name of the test (e.g. `blockchain_tests!(st_bad_opcode, stBadOpcode)` for adding stBadOpcode).
+- Comment all the other lines except for the test you added and run `make ef-tests`.
+After a while (count 10-15 minutes) the test will end and you should have in your terminal's output a list of all the failing tests.
+- Start making issues. When raising issues, please try to match other `Integrator` issued on the style, and don't forget to add any raised issue to the `epic` issue's tasklist.
 
 ### Debuggor
 
 Pick an issue from the available `Integrator` issues. Verify that the test fails (you can run a specific test by using `make target=your_test_name ef-test`). If it does, you can start debbugging it. The following documentation can be used:
 
-- [Test fillers](https://github.com/ethereum/tests/tree/develop/src/GeneralStateTestsFiller) used to generated the actual test.
-- [Yellow paper](https://ethereum.github.io/yellowpaper/paper.pdf)
-- [Execution specs](https://github.com/ethereum/execution-specs/tree/master)
+- [Test fillers](https://github.com/ethereum/tests/tree/develop/src/GeneralStateTestsFiller): used to generated the actual test. This can be used to understand what code the transaction executes.
+- [Execution specs](https://github.com/ethereum/execution-specs/tree/master): Ethereum execution spectifications written in Python. This can be used to compare the expected behaviour to the [Cairo 0 implementation](https://github.com/kkrt-labs/kakarot/tree/main/src).
+- [Yellow paper](https://ethereum.github.io/yellowpaper/paper.pdf): Ethereum format specification. This can be used to compare the expected behaviour to the [Cairo 0 implementation](https://github.com/kkrt-labs/kakarot/tree/main/src).
 
 #### Log opcodes
 
