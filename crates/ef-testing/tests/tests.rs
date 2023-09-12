@@ -33,7 +33,7 @@ fn setup() {
 pub fn verify_kakarot_sha() -> Result<String, eyre::Error> {
     // This is the SHA hash of the latest Kakarot submodule commit, inside Kakarot-RPC
     let remote_sha = fs::read_to_string("../../.katana/remote_kakarot_sha")?;
-    // This is your local SHA hash of the Kakarot commit you last pulled, using `make fetch-dump`
+    // This is your local SHA hash of the Kakarot commit currently used in the dump.
     let local_sha = fs::read_to_string("../../.katana/kakarot_sha")?;
 
     // Helper check to remind you to locally run `make fetch-dump` often
