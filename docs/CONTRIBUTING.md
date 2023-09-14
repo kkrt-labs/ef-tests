@@ -8,7 +8,7 @@ Three roles are available for contributors and will lead to different tasks in t
 
 - Integrator: adds a test suite, runs the suite, makes an issue for each failing test, marks failing tests as skipped.
 - Debuggor: picks an issue raised by a Integrator, and dives in the EVM spec and the current
-Cairo 0 implementation in order to pin point the exact issue. Ones the issue is correctly understood, checks if a similar issue hasn't been raised yet by another Debuggor yet. If it has, link the Integrator issue to the Debuggor issue for tracking and pick up another Integrator issue. If it hasn't, raises a detailed issue about the Cairo 0 implementation bug and links it to the Integrator issue.
+Cairo 0 implementation in order to pin point the exact issue. Ones the issue is correctly understood, checks if a similar issue hasn't been raised by another Debuggor yet. If it has, link the Integrator issue to the Debuggor issue for tracking and pick up another Integrator issue. If it hasn't, raises a detailed issue about the Cairo 0 implementation bug and links it to the Integrator issue.
 - Implementor: picks up an detailed issue raised by a Debuggor and reimplements the test logic in Cairo 0 python tests. Once the error is replicated, fixes the test in Cairo 0.
 
 ## How to
@@ -21,15 +21,19 @@ In order to match the current EVM implementation from Reth, we want to run the s
 - Add it to  `crates/ef-testing/tests.rs` by using the `blockchain_tests` macro. The first argument should be the name of your test, the second is the folder to find the test. Please use the snake case name of the folder for the name of the test (e.g. `blockchain_tests!(st_bad_opcode, stBadOpcode)` for adding stBadOpcode).
 - Comment all the other lines except for the test you added and run `make ef-tests`.
 After a while (count 10-15 minutes) the test will end and you should have in your terminal's output a list of all the failing tests.
-- Start making issues. When raising issues, please try to match other `Integrator` issued on the style, and don't forget to add any raised issue to the `epic` issue's tasklist.
+- Start making issues. When raising issues, please try to match other `Integrator` issued on the style, and don't forget to add any raised issue to the `epic` issue's task list.
+
+Please find [here](https://github.com/kkrt-labs/ef-tests/issues/52) an example of an issue raised by an Integrator.
 
 ### Debuggor
 
-Pick an issue from the available `Integrator` issues. Verify that the test fails (you can run a specific test by using `make target=your_test_name ef-test`). If it does, you can start debbugging it. The following documentation can be used:
+Pick an issue from the available `Integrator` issues. Verify that the test fails (you can run a specific test by using `make target=your_test_name ef-test`). If it does, you can start debugging it. The following documentation can be used:
 
 - [Test fillers](https://github.com/ethereum/tests/tree/develop/src/GeneralStateTestsFiller): used to generated the actual test. This can be used to understand what code the transaction executes.
-- [Execution specs](https://github.com/ethereum/execution-specs/tree/master): Ethereum execution spectifications written in Python. This can be used to compare the expected behaviour to the [Cairo 0 implementation](https://github.com/kkrt-labs/kakarot/tree/main/src).
-- [Yellow paper](https://ethereum.github.io/yellowpaper/paper.pdf): Ethereum format specification. This can be used to compare the expected behaviour to the [Cairo 0 implementation](https://github.com/kkrt-labs/kakarot/tree/main/src).
+- [Execution specs](https://github.com/ethereum/execution-specs/tree/master): Ethereum execution specifications written in Python. This can be used to compare the expected behavior to the [Cairo 0 implementation](https://github.com/kkrt-labs/kakarot/tree/main/src).
+- [Yellow paper](https://ethereum.github.io/yellowpaper/paper.pdf): Ethereum formal specification. This can be used to compare the expected behavior to the [Cairo 0 implementation](https://github.com/kkrt-labs/kakarot/tree/main/src).
+
+Please find [here](https://github.com/kkrt-labs/ef-tests/issues/57) an example of an issue raised by a Debuggor.
 
 #### Log opcodes
 
@@ -52,7 +56,7 @@ In case the above doesn't help you with debugging, you can always reproduce the 
 - Create a new file in `tests/integration/solidity_contracts/EFTests` if there is no file corresponding to the scope you want to test. Otherwise you can add your test to an existing file.
 - The following fixtures can be used in order to set the test environment to the exact replica of the ethereum/test: `create_account_with_bytecode_and_storage`, `set_storage_at_evm_address`, `deploy_eoa`,... You can have a look at the current tests in the `EfTests` folder for help.
 - Call `eth_send_transaction` with the exact same arguments as the transaction from your test. If the error you get is the same as the error on the ef-tests repository, you can now start debugging using hints in the Cairo 0 code.
-- In order to run only your test, you can add `@pytest.mark.MY_TEST` and run it with `make mark=MY_TEST run-test-log`.
+- In order to run only your test, use `pytest -k your_test_name`.
 - Debug the Cairo 0 code by adding `%{print(ids.x)%}` to print variables (where x is the variable you want to print). Be sure to recompile your Cairo 0 code EVERY TIME you make changes, by running `make build`.
 
 ### Implementor
