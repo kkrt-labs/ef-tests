@@ -56,7 +56,7 @@ In case the above doesn't help you with debugging, you can always reproduce the 
 - Create a new file in `tests/integration/solidity_contracts/EFTests` if there is no file corresponding to the scope you want to test. Otherwise you can add your test to an existing file.
 - The following fixtures can be used in order to set the test environment to the exact replica of the ethereum/test: `create_account_with_bytecode_and_storage`, `set_storage_at_evm_address`, `deploy_eoa`,... You can have a look at the current tests in the `EfTests` folder for help.
 - Call `eth_send_transaction` with the exact same arguments as the transaction from your test. If the error you get is the same as the error on the ef-tests repository, you can now start debugging using hints in the Cairo 0 code.
-- In order to run only your test, use `pytest -k your_test_name`.
+- In order to run only your test, use `poetry run pytest -k your_test_name`.
 - Debug the Cairo 0 code by adding `%{print(ids.x)%}` to print variables (where x is the variable you want to print). Be sure to recompile your Cairo 0 code EVERY TIME you make changes, by running `make build`.
 
 ### Implementor
