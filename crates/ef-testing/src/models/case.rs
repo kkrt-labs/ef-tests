@@ -15,14 +15,16 @@ use crate::{
 use async_trait::async_trait;
 use ef_tests::models::BlockchainTest;
 use ef_tests::models::{ForkSpec, RootOrState, State};
-use hive_utils::kakarot::compute_starknet_address;
 use kakarot_rpc_core::{
     client::api::{KakarotEthApi, KakarotStarknetApi},
     models::felt::Felt252Wrapper,
-    test_utils::deploy_helpers::{DeployedKakarot, KakarotTestEnvironmentContext},
 };
+use kakarot_test_utils::deploy_helpers::{DeployedKakarot, KakarotTestEnvironmentContext};
+use kakarot_test_utils::hive_utils::kakarot::compute_starknet_address;
+use starknet::providers::Provider;
+
 use regex::Regex;
-use starknet::{core::types::FieldElement, providers::Provider};
+use starknet::core::types::FieldElement;
 use starknet_api::{core::ContractAddress as StarknetContractAddress, hash::StarkFelt};
 use std::{
     collections::BTreeMap,
@@ -44,15 +46,23 @@ async fn handle_pre_state(
 ) -> Result<(), RunnerError> {
     let kakarot_address = kakarot.kakarot_address;
 
-    let mut starknet = env.sequencer().sequencer.backend.state.write().await;
+    let mut starknet_state = env.sequencer().sequencer.backend.state.write().await;
+    let db = starknet_state
+        .maybe_as_cached_db()
+        .ok_or_else(|| RunnerError::Other("failed to get Katana database".to_string()))?;
 
-    let eoa_class_hash = get_eoa_class_hash(env, &starknet).expect("failed to get eoa class hash");
+    let eoa_class_hash = get_eoa_class_hash(env, &db)?;
     let class_hashes = ClassHashes::new(
         kakarot.proxy_class_hash,
         eoa_class_hash,
         kakarot.contract_account_class_hash,
     );
-    write_test_state(pre_state, kakarot_address, class_hashes, &mut starknet)?;
+    write_test_state(
+        pre_state,
+        kakarot_address,
+        class_hashes,
+        &mut starknet_state,
+    )?;
     Ok(())
 }
 
@@ -168,7 +178,7 @@ impl BlockchainTestCase {
         let kakarot_address = kakarot.kakarot_address;
 
         // Get lock on the Starknet sequencer
-        let starknet = env.sequencer().sequencer.backend.state.read().await;
+        let mut starknet = env.sequencer().sequencer.backend.state.write().await;
 
         for (evm_address, expected_state) in post_state.iter() {
             let addr: FieldElement = Felt252Wrapper::from(*evm_address).into();
@@ -177,11 +187,14 @@ impl BlockchainTestCase {
             let starknet_contract_address =
                 StarknetContractAddress(Into::<StarkFelt>::into(starknet_address).try_into()?);
 
-            let actual_state = starknet.storage.get(&starknet_contract_address);
+            let db = starknet
+                .maybe_as_cached_db()
+                .ok_or_else(|| RunnerError::Other("failed to get Katana database".to_string()))?;
+            let actual_state = db.storage.get(&starknet_contract_address);
             match actual_state {
                 None => {
                     // if no state, check post state is empty
-                    let actual_balance = read_balance(evm_address, starknet_address, &starknet)
+                    let actual_balance = read_balance(evm_address, starknet_address, &mut starknet)
                         .map_err(|err| {
                             RunnerError::Assertion(format!("{} {}", test_case_name, err))
                         })?;
@@ -278,16 +291,7 @@ impl Case for BlockchainTestCase {
 
                 // necessary to have our updated state actually applied to transaction
                 // think of it as 'burping' the sequencer
-                env.sequencer()
-                    .sequencer
-                    .backend
-                    .generate_latest_block()
-                    .await;
-                env.sequencer()
-                    .sequencer
-                    .backend
-                    .generate_pending_block()
-                    .await;
+                env.sequencer().sequencer.backend.mine_empty_block().await;
 
                 // handle transaction
                 self.handle_transaction(&env, test_name).await?;

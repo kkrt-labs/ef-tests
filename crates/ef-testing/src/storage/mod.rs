@@ -6,15 +6,13 @@ pub mod models;
 
 use ef_tests::models::Account;
 use ef_tests::models::State;
-use hive_utils::{
+use kakarot_rpc_core::models::felt::Felt252Wrapper;
+use kakarot_test_utils::hive_utils::{
     kakarot::compute_starknet_address,
     types::{ContractAddress, StorageKey, StorageValue},
 };
-use kakarot_rpc_core::models::felt::Felt252Wrapper;
-use katana_core::{
-    backend::state::{MemDb, StorageRecord},
-    constants::FEE_TOKEN_ADDRESS,
-};
+use katana_core::constants::FEE_TOKEN_ADDRESS;
+use katana_core::db::Database;
 use starknet::core::types::FieldElement;
 use starknet_api::{
     core::{ClassHash, ContractAddress as StarknetContractAddress, Nonce},
@@ -38,7 +36,7 @@ pub fn write_test_state(
     state: &State,
     kakarot_address: FieldElement,
     class_hashes: ClassHashes,
-    starknet: &mut RwLockWriteGuard<'_, MemDb>,
+    starknet: &mut RwLockWriteGuard<'_, dyn Database>,
 ) -> Result<(), RunnerError> {
     // iterate through pre-state addresses
     let mut kakarot_storage = Vec::new();
@@ -78,12 +76,15 @@ pub fn write_test_state(
         let address =
             StarknetContractAddress(Into::<StarkFelt>::into(starknet_address).try_into()?);
         let account_nonce: FieldElement = Felt252Wrapper::try_from(account_info.nonce.0)?.into();
-        let storage_record = StorageRecord {
-            nonce: Nonce(StarkFelt::from(account_nonce)),
-            class_hash: ClassHash(class_hashes.proxy_class_hash.into()),
-            storage: starknet_contract_storage.into_iter().collect(),
-        };
-        starknet.storage.insert(address, storage_record);
+        starknet
+            .set_class_hash_at(address, ClassHash(class_hashes.proxy_class_hash.into()))
+            .map_err(|err| {
+                RunnerError::Other(format!("error setting class hash at {address:#?}: {err}"))
+            })?;
+        starknet.set_nonce(address, Nonce(StarkFelt::from(account_nonce)));
+        for (k, v) in starknet_contract_storage.into_iter() {
+            starknet.set_storage_at(address, k, v);
+        }
 
         // Update the sequencer state with the fee token balance and allowance
         let fee_token_storage = initialize_fee_token_storage(
@@ -118,15 +119,12 @@ pub fn madara_to_katana_storage(
 pub(crate) fn extend_starknet_state_with_storage(
     address: FieldElement,
     storage: Vec<(StarknetStorageKey, StarkFelt)>,
-    starknet: &mut RwLockWriteGuard<'_, MemDb>,
+    starknet: &mut RwLockWriteGuard<'_, dyn Database>,
 ) -> Result<(), RunnerError> {
     let address = StarknetContractAddress(Into::<StarkFelt>::into(address).try_into()?);
-    starknet
-        .storage
-        .get_mut(&address)
-        .ok_or_else(|| RunnerError::Other(format!("missing address {:?} in storage", address)))?
-        .storage
-        .extend(storage);
+    for (k, v) in storage.into_iter() {
+        starknet.set_storage_at(address, k, v);
+    }
     Ok(())
 }
 

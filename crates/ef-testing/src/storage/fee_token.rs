@@ -1,5 +1,7 @@
-use hive_utils::madara::utils::{genesis_approve_kakarot, genesis_fund_starknet_address};
-use katana_core::{backend::state::MemDb, constants::FEE_TOKEN_ADDRESS};
+use kakarot_test_utils::hive_utils::madara::utils::{
+    genesis_approve_kakarot, genesis_fund_starknet_address,
+};
+use katana_core::{constants::FEE_TOKEN_ADDRESS, db::Database};
 use reth_primitives::Address;
 use revm_primitives::U256;
 use starknet::core::types::FieldElement;
@@ -8,7 +10,7 @@ use starknet_api::{
     hash::StarkFelt,
     state::StorageKey,
 };
-use tokio::sync::RwLockReadGuard;
+use tokio::sync::RwLockWriteGuard;
 
 use crate::{models::error::RunnerError, utils::starknet::get_starknet_storage_key};
 
@@ -55,19 +57,13 @@ pub(crate) fn generate_allowance_storage(
 pub(crate) fn read_balance(
     evm_address: &Address,
     starknet_address: FieldElement,
-    starknet: &RwLockReadGuard<'_, MemDb>,
+    starknet: &mut RwLockWriteGuard<'_, dyn Database>,
 ) -> Result<FieldElement, RunnerError> {
     let fee_token_address = ContractAddress(TryInto::<PatriciaKey>::try_into(*FEE_TOKEN_ADDRESS)?);
 
     let storage_key = get_starknet_storage_key("ERC20_balances", &[starknet_address], 0)?;
-    let balance = *starknet
-        .storage
-        .get(&fee_token_address)
-        .ok_or_else(|| {
-            RunnerError::Other(format!("missing fee token address {:?}", fee_token_address))
-        })?
-        .storage
-        .get(&storage_key)
-        .ok_or_else(|| RunnerError::Other(format!("missing balance for {:#20x}", evm_address)))?;
+    let balance = starknet
+        .get_storage_at(fee_token_address, storage_key)
+        .map_err(|_| RunnerError::Other(format!("missing balance for {:#20x}", evm_address)))?;
     Ok(balance.into())
 }
