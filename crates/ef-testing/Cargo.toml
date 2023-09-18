@@ -19,7 +19,6 @@ reth-rlp = { workspace = true }
 
 # Kakarot deps
 kakarot-rpc-core = { workspace = true }
-hive-utils = { workspace = true }
 kakarot-test-utils = { workspace = true }
 
 # Starknet deps
