@@ -15,7 +15,7 @@ use super::{
 /// Returns the class hash used for the EOA contract.
 pub fn get_eoa_class_hash(
     ctx: &KakarotTestEnvironmentContext,
-    starknet: &AsCachedDb,
+    starknet_db: &AsCachedDb,
 ) -> Result<FieldElement, RunnerError> {
     let eoa = &ctx.kakarot().eoa_addresses;
 
@@ -23,7 +23,7 @@ pub fn get_eoa_class_hash(
         StarknetContractAddress(Into::<StarkFelt>::into(eoa.starknet_address).try_into()?);
 
     // deriving the eao class hash this way so things are always based off the katana dump file
-    let eoa_class_hash: FieldElement = (*starknet
+    let eoa_class_hash: FieldElement = (*starknet_db
         .storage
         .get(&eoa_address)
         .ok_or_else(|| {

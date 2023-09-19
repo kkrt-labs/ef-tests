@@ -42,23 +42,18 @@ async fn handle_pre_state(
 ) -> Result<(), RunnerError> {
     let kakarot_address = kakarot.kakarot_address;
 
-    let mut starknet_state = env.sequencer().sequencer.backend.state.write().await;
-    let db = starknet_state
+    let mut starknet = env.sequencer().sequencer.backend.state.write().await;
+    let starknet_db = starknet
         .maybe_as_cached_db()
         .ok_or_else(|| RunnerError::Other("failed to get Katana database".to_string()))?;
 
-    let eoa_class_hash = get_eoa_class_hash(env, &db)?;
+    let eoa_class_hash = get_eoa_class_hash(env, &starknet_db)?;
     let class_hashes = ClassHashes::new(
         kakarot.proxy_class_hash,
         eoa_class_hash,
         kakarot.contract_account_class_hash,
     );
-    write_test_state(
-        pre_state,
-        kakarot_address,
-        class_hashes,
-        &mut starknet_state,
-    )?;
+    write_test_state(pre_state, kakarot_address, class_hashes, &mut starknet)?;
     Ok(())
 }
 
@@ -178,10 +173,10 @@ impl BlockchainTestCase {
             let starknet_contract_address =
                 StarknetContractAddress(Into::<StarkFelt>::into(starknet_address).try_into()?);
 
-            let db = starknet
+            let starknet_db = starknet
                 .maybe_as_cached_db()
                 .ok_or_else(|| RunnerError::Other("failed to get Katana database".to_string()))?;
-            let actual_state = db.storage.get(&starknet_contract_address);
+            let actual_state = starknet_db.storage.get(&starknet_contract_address);
             match actual_state {
                 None => {
                     // if no state, check post state is empty
