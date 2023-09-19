@@ -5178,7 +5178,7 @@ dependencies = [
 [[package]]
 name = "kakarot-rpc"
 version = "0.1.0"
-source = "git+https://github.com/kkrt-labs/kakarot-rpc.git#ed8c21b391dccb74cfd36e7c90dd325512c9b2f5"
+source = "git+https://github.com/kkrt-labs/kakarot-rpc.git?rev=0894457#089445724cfe113e9c8008e34eaa57d539c220a3"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -5213,7 +5213,7 @@ dependencies = [
 [[package]]
 name = "kakarot-rpc-core"
 version = "0.1.0"
-source = "git+https://github.com/kkrt-labs/kakarot-rpc.git#ed8c21b391dccb74cfd36e7c90dd325512c9b2f5"
+source = "git+https://github.com/kkrt-labs/kakarot-rpc.git?rev=0894457#089445724cfe113e9c8008e34eaa57d539c220a3"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -5254,9 +5254,10 @@ dependencies = [
 [[package]]
 name = "kakarot-test-utils"
 version = "0.1.0"
-source = "git+https://github.com/kkrt-labs/kakarot-rpc.git#ed8c21b391dccb74cfd36e7c90dd325512c9b2f5"
+source = "git+https://github.com/kkrt-labs/kakarot-rpc.git?rev=0894457#089445724cfe113e9c8008e34eaa57d539c220a3"
 dependencies = [
  "bytes",
+ "ctor",
  "dojo-test-utils",
  "dotenv",
  "ethers",
@@ -5278,6 +5279,8 @@ dependencies = [
  "starknet-crypto 0.6.0",
  "starknet_api",
  "tokio",
+ "tracing",
+ "tracing-subscriber",
  "url",
 ]
 

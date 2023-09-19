@@ -27,8 +27,8 @@ revm-primitives = "1.1"
 reth-rlp = { git = "https://github.com/paradigmxyz/reth.git", tag = "v0.1.0-alpha.7" }
 
 # Kakarot deps
-kakarot-rpc-core = { git = "https://github.com/kkrt-labs/kakarot-rpc.git" }
-kakarot-test-utils = { git = "https://github.com/kkrt-labs/kakarot-rpc.git" }
+kakarot-rpc-core = { git = "https://github.com/kkrt-labs/kakarot-rpc.git", rev = "0894457" }
+kakarot-test-utils = { git = "https://github.com/kkrt-labs/kakarot-rpc.git", rev = "0894457" }
 
 # Starknet deps
 katana-core = { git = 'https://github.com/dojoengine/dojo', rev = "b924dac" }

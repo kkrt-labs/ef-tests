@@ -271,7 +271,8 @@ impl Case for BlockchainTestCase {
 
                 tracing::info!("Running test {}", test_name);
 
-                let env = KakarotTestEnvironmentContext::from_dump_state().await;
+                let with_dumped_state = true;
+                let env = KakarotTestEnvironmentContext::new(with_dumped_state).await;
                 // handle pretest
                 self.handle_pre_state(&env, test_name).await?;
 
