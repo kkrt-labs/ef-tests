@@ -12,10 +12,10 @@ pub(crate) fn load_file(path: &Path) -> Result<String, RunnerError> {
 }
 
 pub(crate) fn deserialize_into<T: for<'a> Deserialize<'a>>(
-    val: String,
+    val: &str,
     path: &Path,
 ) -> Result<T, RunnerError> {
-    serde_json::from_str(&val).map_err(|error| RunnerError::Io {
+    serde_json::from_str(val).map_err(|error| RunnerError::Io {
         path: path.into(),
         error: error.to_string(),
     })

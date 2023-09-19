@@ -62,6 +62,10 @@ async fn handle_pre_state(
 //// from more general logic that can be used across tests
 impl BlockchainTestCase {
     /// Returns whether a given test should be skipped
+    /// # Panics
+    ///
+    /// Will panic if the file name cannot be stringified.
+    #[must_use]
     pub fn should_skip(path: &Path) -> bool {
         let name = path.file_name().unwrap().to_str().unwrap();
 
@@ -128,7 +132,7 @@ impl BlockchainTestCase {
         let block = test
             .blocks
             .first()
-            .ok_or(RunnerError::Other("test has no blocks".to_string()))?
+            .ok_or_else(|| RunnerError::Other("test has no blocks".to_string()))?
             .clone();
         // we adjust the rlp to correspond with our currently hardcoded CHAIN_ID
         let tx_encoded = get_signed_rlp_encoded_transaction(
@@ -188,7 +192,7 @@ impl BlockchainTestCase {
                     continue;
                 }
                 Some(state) => {
-                    assert_contract_post_state(test_case_name, evm_address, expected_state, state)?
+                    assert_contract_post_state(test_case_name, evm_address, expected_state, state)?;
                 }
             };
         }
@@ -226,13 +230,13 @@ impl Case for BlockchainTestCase {
         let general_state_tests_path = general_state_tests_path.as_path();
         Ok(Self {
             tests: {
-                let s = load_file(path)?;
-                deserialize_into(s, path)?
+                let file = load_file(path)?;
+                deserialize_into(&file, path)?
             },
             transaction: {
-                let s = load_file(general_state_tests_path)?;
+                let file = load_file(general_state_tests_path)?;
                 let test: BTreeMap<String, serde_json::Value> =
-                    deserialize_into(s, general_state_tests_path)?;
+                    deserialize_into(&file, general_state_tests_path)?;
 
                 let case = test
                     .into_values()
@@ -243,7 +247,7 @@ impl Case for BlockchainTestCase {
                     })?
                     .clone();
 
-                deserialize_into(case.to_string(), general_state_tests_path)?
+                deserialize_into(&case.to_string(), general_state_tests_path)?
             },
             name: test_name.to_string(),
             skip: Self::should_skip(path),
@@ -261,7 +265,7 @@ impl Case for BlockchainTestCase {
             None => None,
         };
 
-        for (test_name, case) in self.tests.iter() {
+        for (test_name, case) in &self.tests {
             if matches!(case.network, ForkSpec::Shanghai) {
                 if let Some(ref test_regexp) = test_regexp {
                     if !test_regexp.is_match(test_name) {
@@ -302,8 +306,8 @@ impl<T: Case> Cases<T> {
     /// Run the contained test cases.
     pub async fn run(&self) -> Vec<CaseResult> {
         let mut results: Vec<CaseResult> = Vec::new();
-        for (path, case) in self.test_cases.iter() {
-            results.push(CaseResult::new(path, case, case.run().await))
+        for (path, case) in &self.test_cases {
+            results.push(CaseResult::new(path, case, case.run().await));
         }
         results
     }

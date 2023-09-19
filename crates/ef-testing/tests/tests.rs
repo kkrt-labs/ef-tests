@@ -31,12 +31,15 @@ fn setup() {
 }
 
 pub fn verify_kakarot_sha() -> Result<String, eyre::Error> {
+    // This is the SHA hash of the latest Kakarot submodule commit, inside Kakarot-RPC
     let remote_sha = fs::read_to_string("../../.katana/remote_kakarot_sha")?;
+    // This is your local SHA hash of the Kakarot commit currently used in the dump.
     let local_sha = fs::read_to_string("../../.katana/kakarot_sha")?;
 
+    // Helper check to remind you to locally run `make fetch-dump` often
     if remote_sha != local_sha {
         return Err(eyre::eyre!(format!(
-            "Kakarot commit hash mismatch: local: {}, remote: {}",
+            "Kakarot commit hash mismatch: local: {}, remote (kakarot submodule in kakarot-rpc repository): {}",
             local_sha, remote_sha
         )));
     }
