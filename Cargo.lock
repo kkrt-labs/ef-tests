@@ -7914,6 +7914,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "cd0b0ec5f1c1ca621c432a25813d8d60c88abe6d3e08a3eb9cf37d97a0fe3d73"
 
 [[package]]
+name = "sequencer"
+version = "0.1.0"
+dependencies = [
+ "blockifier",
+ "rustc-hash",
+ "starknet_api",
+]
+
+[[package]]
 name = "serde"
 version = "1.0.188"
 source = "registry+https://github.com/rust-lang/crates.io-index"
