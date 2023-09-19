@@ -46,7 +46,7 @@ pub fn verify_kakarot_sha() -> Result<String, eyre::Error> {
 
 macro_rules! blockchain_tests {
     ($test_name:ident, $dir:ident) => {
-        #[tokio::test]
+        #[tokio::test(flavor = "multi_thread")]
         async fn $test_name() {
             setup();
             BlockchainTestSuite::new(format!("GeneralStateTests/{}", stringify!($dir)))

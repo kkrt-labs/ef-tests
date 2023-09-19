@@ -15,13 +15,9 @@ use crate::{
 use async_trait::async_trait;
 use ef_tests::models::BlockchainTest;
 use ef_tests::models::{ForkSpec, RootOrState, State};
-use kakarot_rpc_core::{
-    client::api::{KakarotEthApi, KakarotStarknetApi},
-    models::felt::Felt252Wrapper,
-};
+use kakarot_rpc_core::{client::api::KakarotEthApi, models::felt::Felt252Wrapper};
 use kakarot_test_utils::deploy_helpers::{DeployedKakarot, KakarotTestEnvironmentContext};
 use kakarot_test_utils::hive_utils::kakarot::compute_starknet_address;
-use starknet::providers::Provider;
 
 use regex::Regex;
 use starknet::core::types::FieldElement;
@@ -146,14 +142,9 @@ impl BlockchainTestCase {
         )?;
 
         let client = env.client();
-        let hash = client.send_transaction(tx_encoded).await?;
-
-        // we make sure that the transaction has a receipt and fail fast if it doesn't
-        let starknet_provider = env.client().starknet_provider();
-        let transaction_hash: FieldElement = FieldElement::from_bytes_be(&hash)?;
-        starknet_provider
-            .get_transaction_receipt::<FieldElement>(transaction_hash)
-            .await?;
+        // Send the transaction without checking for errors, accounting
+        // for the fact that some transactions might fail.
+        let _ = client.send_transaction(tx_encoded).await;
 
         Ok(())
     }
@@ -338,7 +329,7 @@ mod tests {
             .expect("setting tracing default failed");
     }
 
-    #[tokio::test]
+    #[tokio::test(flavor = "multi_thread")]
     async fn test_load_case() {
         // Given
         let path = Path::new(
@@ -353,7 +344,7 @@ mod tests {
         assert!(case.transaction.transaction.secret_key != B256::zero());
     }
 
-    #[tokio::test]
+    #[tokio::test(flavor = "multi_thread")]
     async fn test_run_add() {
         // Given
         let path = Path::new(
@@ -370,7 +361,7 @@ mod tests {
         case.run().await.unwrap();
     }
 
-    #[tokio::test]
+    #[tokio::test(flavor = "multi_thread")]
     async fn test_run_mul() {
         // Given
         let path = Path::new(
