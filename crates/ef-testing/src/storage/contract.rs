@@ -1,5 +1,5 @@
 use ef_tests::models::Account;
-use hive_utils::madara::utils::{
+use kakarot_test_utils::hive_utils::madara::utils::{
     genesis_set_bytecode, genesis_set_storage_kakarot_contract_account,
 };
 use reth_primitives::Bytes;

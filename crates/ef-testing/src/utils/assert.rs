@@ -2,7 +2,7 @@ use ef_tests::models::Account;
 use kakarot_rpc_core::{
     client::helpers::split_u256_into_field_elements, models::felt::Felt252Wrapper,
 };
-use katana_core::backend::state::StorageRecord;
+use katana_core::db::cached::StorageRecord;
 use reth_primitives::Address;
 use reth_primitives::JsonU256;
 use revm_primitives::U256;

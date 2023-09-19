@@ -1,11 +1,10 @@
-use kakarot_rpc_core::test_utils::deploy_helpers::KakarotTestEnvironmentContext;
-use katana_core::backend::state::MemDb;
+use kakarot_test_utils::deploy_helpers::KakarotTestEnvironmentContext;
+use katana_core::db::cached::AsCachedDb;
 use starknet::core::types::FieldElement;
 use starknet_api::{
     core::ContractAddress as StarknetContractAddress, hash::StarkFelt,
     state::StorageKey as StarknetStorageKey,
 };
-use tokio::sync::RwLockWriteGuard;
 
 use crate::{models::error::RunnerError, utils::starknet::get_starknet_storage_key};
 
@@ -16,7 +15,7 @@ use super::{
 /// Returns the class hash used for the EOA contract.
 pub fn get_eoa_class_hash(
     ctx: &KakarotTestEnvironmentContext,
-    starknet: &RwLockWriteGuard<'_, MemDb>,
+    starknet_db: &AsCachedDb,
 ) -> Result<FieldElement, RunnerError> {
     let eoa = &ctx.kakarot().eoa_addresses;
 
@@ -24,7 +23,7 @@ pub fn get_eoa_class_hash(
         StarknetContractAddress(Into::<StarkFelt>::into(eoa.starknet_address).try_into()?);
 
     // deriving the eao class hash this way so things are always based off the katana dump file
-    let eoa_class_hash: FieldElement = (*starknet
+    let eoa_class_hash: FieldElement = (*starknet_db
         .storage
         .get(&eoa_address)
         .ok_or_else(|| {
