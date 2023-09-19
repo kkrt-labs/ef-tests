@@ -53,7 +53,7 @@ async fn handle_pre_state(
         eoa_class_hash,
         kakarot.contract_account_class_hash,
     );
-    write_test_state(pre_state, kakarot_address, &class_hashes, &mut starknet)?;
+    write_test_state(pre_state, kakarot_address, class_hashes, &mut starknet)?;
     Ok(())
 }
 
