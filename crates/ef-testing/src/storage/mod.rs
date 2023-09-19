@@ -79,7 +79,9 @@ pub fn write_test_state(
         starknet
             .set_class_hash_at(address, ClassHash(class_hashes.proxy_class_hash.into()))
             .map_err(|err| {
-                RunnerError::Other(format!("error setting class hash at {address:#?}: {err}"))
+                RunnerError::SequencerError(format!(
+                    "error setting class hash at {address:#?}: {err}"
+                ))
             })?;
         starknet.set_nonce(address, Nonce(StarkFelt::from(account_nonce)));
         for (k, v) in starknet_contract_storage.into_iter() {

@@ -24,6 +24,9 @@ pub enum RunnerError {
         /// The specific error
         error: String,
     },
+    /// Sequencer error
+    #[error("An error occurred while running the sequencer: {0}")]
+    SequencerError(String),
     /// Skipped test
     #[error("test skipped")]
     Skipped,

@@ -45,7 +45,7 @@ async fn handle_pre_state(
     let mut starknet = env.sequencer().sequencer.backend.state.write().await;
     let starknet_db = starknet
         .maybe_as_cached_db()
-        .ok_or_else(|| RunnerError::Other("failed to get Katana database".to_string()))?;
+        .ok_or_else(|| RunnerError::SequencerError("failed to get Katana database".to_string()))?;
 
     let eoa_class_hash = get_eoa_class_hash(env, &starknet_db)?;
     let class_hashes = ClassHashes::new(
@@ -165,6 +165,9 @@ impl BlockchainTestCase {
 
         // Get lock on the Starknet sequencer
         let mut starknet = env.sequencer().sequencer.backend.state.write().await;
+        let starknet_db = starknet.maybe_as_cached_db().ok_or_else(|| {
+            RunnerError::SequencerError("failed to get Katana database".to_string())
+        })?;
 
         for (evm_address, expected_state) in post_state.iter() {
             let addr: FieldElement = Felt252Wrapper::from(*evm_address).into();
@@ -173,9 +176,6 @@ impl BlockchainTestCase {
             let starknet_contract_address =
                 StarknetContractAddress(Into::<StarkFelt>::into(starknet_address).try_into()?);
 
-            let starknet_db = starknet
-                .maybe_as_cached_db()
-                .ok_or_else(|| RunnerError::Other("failed to get Katana database".to_string()))?;
             let actual_state = starknet_db.storage.get(&starknet_contract_address);
             match actual_state {
                 None => {
