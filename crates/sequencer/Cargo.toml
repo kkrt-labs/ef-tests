@@ -15,6 +15,7 @@ license.workspace = true
 # Starknet
 blockifier = { git = "https://github.com/starkware-libs/blockifier.git", tag = "v0.3.0-rc0" }
 starknet_api = "0.5.0-rc1"
+starknet = { workspace = true }
 
 # Other
 rustc-hash = "1.1.0"

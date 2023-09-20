@@ -1,4 +1,4 @@
-use crate::config::SequencerConfig;
+use blockifier::block_context::BlockContext;
 use blockifier::state::state_api::{State, StateReader};
 
 /// Sequencer is the main struct of the sequencer crate.
@@ -19,7 +19,5 @@ where
     /// Creates a new Sequencer instance.
     pub fn new(context: BlockContext, state: S) -> Self {
         Self { context, state }
-    }
-}
     }
 }
