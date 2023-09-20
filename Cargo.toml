@@ -43,6 +43,8 @@ starknet_api = { git = "https://github.com/starkware-libs/starknet-api", rev = "
 # Other
 async-trait = "0.1.58"
 bytes = "1"
+cairo-vm = "0.8.2"
+cairo-lang-starknet = "2.2.0"
 chrono = { version = "0.4.26", features = ["serde"] }
 ctor = "0.2.4"
 dotenv = "0.15.0"
