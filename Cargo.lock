@@ -5168,7 +5168,7 @@ dependencies = [
 [[package]]
 name = "kakarot-rpc"
 version = "0.1.0"
-source = "git+https://github.com/kkrt-labs/kakarot-rpc.git?rev=0894457#089445724cfe113e9c8008e34eaa57d539c220a3"
+source = "git+https://github.com/kkrt-labs/kakarot-rpc.git?rev=ae5e220#ae5e220ce09a925cad071639b057694678d9a19b"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -5203,7 +5203,7 @@ dependencies = [
 [[package]]
 name = "kakarot-rpc-core"
 version = "0.1.0"
-source = "git+https://github.com/kkrt-labs/kakarot-rpc.git?rev=0894457#089445724cfe113e9c8008e34eaa57d539c220a3"
+source = "git+https://github.com/kkrt-labs/kakarot-rpc.git?rev=ae5e220#ae5e220ce09a925cad071639b057694678d9a19b"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -5244,7 +5244,7 @@ dependencies = [
 [[package]]
 name = "kakarot-test-utils"
 version = "0.1.0"
-source = "git+https://github.com/kkrt-labs/kakarot-rpc.git?rev=0894457#089445724cfe113e9c8008e34eaa57d539c220a3"
+source = "git+https://github.com/kkrt-labs/kakarot-rpc.git?rev=ae5e220#ae5e220ce09a925cad071639b057694678d9a19b"
 dependencies = [
  "bytes",
  "ctor",
