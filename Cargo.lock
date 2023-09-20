@@ -7918,6 +7918,7 @@ name = "sequencer"
 version = "0.1.0"
 dependencies = [
  "blockifier",
+ "lazy_static",
  "rustc-hash",
  "starknet_api",
 ]
