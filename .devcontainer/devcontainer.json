@@ -1,0 +1,9 @@
+{
+	"name": "Kakarot-ef-tests",
+	"image": "mcr.microsoft.com/devcontainers/base:jammy",
+	"features": {
+		"ghcr.io/lee-orr/rusty-dev-containers/cargo-nextest:0": {}
+	},
+	"postCreateCommand": "apt update && apt install -y clang",
+	"remoteUser": "root"
+}
