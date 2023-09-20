@@ -98,6 +98,15 @@ impl BlockchainTestCase {
                 | "buffer.json" // ef-tests #50
                 | "oog.json" // ef-tests #49
                 | "sloadGasCost.json" // ef-tests #78
+                | "TransactionCreateStopInInitcode.json" // ef-tests #108
+                | "CallRecursiveContract.json" // ef-tests #109
+                | "CallContractToCreateContractWhichWouldCreateContractInInitCode.json" // ef-tests #110
+                | "CallContractToCreateContractOOGBonusGas.json" // ef-tests #111
+                | "OutOfGasPrefundedContractCreation.json" // ef-test #112
+                | "CallContractToCreateContractWhichWouldCreateContractIfCalled.json" // ef-test #114
+                | "CallTheContractToCreateEmptyContract.json" // ef-test #115
+                | "OutOfGasContractCreation.json" // ef-test #116
+                | "CallContractToCreateContractAndCallItOOG.json" // ef-test #117
         )
     }
 
