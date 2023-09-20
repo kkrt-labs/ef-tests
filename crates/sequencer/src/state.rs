@@ -22,14 +22,14 @@ use starknet_api::{
 /// See [rustc-hash](https://crates.io/crates/rustc-hash) for more information.
 #[derive(Default)]
 pub struct State {
-    pub classes: FxHashMap<ClassHash, ContractClass>,
-    pub compiled_classes: FxHashMap<ClassHash, CompiledClassHash>,
-    pub contracts: FxHashMap<ContractAddress, ClassHash>,
-    pub storage: FxHashMap<ContractStorageKey, StarkFelt>,
-    pub nonces: FxHashMap<ContractAddress, Nonce>,
+    classes: FxHashMap<ClassHash, ContractClass>,
+    compiled_class_hashes: FxHashMap<ClassHash, CompiledClassHash>,
+    contracts: FxHashMap<ContractAddress, ClassHash>,
+    storage: FxHashMap<ContractStorageKey, StarkFelt>,
+    nonces: FxHashMap<ContractAddress, Nonce>,
 }
 
-impl BlockifierState for State {
+impl<'a> BlockifierState for &'a mut State {
     fn set_storage_at(
         &mut self,
         contract_address: ContractAddress,
@@ -78,17 +78,17 @@ impl BlockifierState for State {
         class_hash: ClassHash,
         compiled_class_hash: CompiledClassHash,
     ) -> StateResult<()> {
-        self.compiled_classes
+        self.compiled_class_hashes
             .insert(class_hash, compiled_class_hash);
         Ok(())
     }
 
-    fn to_state_diff(&self) -> CommitmentStateDiff {
+    fn to_state_diff(&mut self) -> CommitmentStateDiff {
         unreachable!("to_state_diff should not be called in the sequencer")
     }
 }
 
-impl BlockifierStateReader for State {
+impl<'a> BlockifierStateReader for &'a mut State {
     /// Default: 0 for an uninitialized contract address.
     fn get_storage_at(
         &mut self,
@@ -120,7 +120,7 @@ impl BlockifierStateReader for State {
             .unwrap_or_default())
     }
 
-    /// Errors if the compiled class hash is not declared.
+    /// Errors if the compiled class is not declared.
     fn get_compiled_contract_class(
         &mut self,
         class_hash: &ClassHash,
@@ -131,9 +131,9 @@ impl BlockifierStateReader for State {
             .ok_or_else(|| StateError::UndeclaredClassHash(class_hash.to_owned()))
     }
 
-    /// Errors if the class hash is not declared.
+    /// Errors if the compiled class hash is not declared.
     fn get_compiled_class_hash(&mut self, class_hash: ClassHash) -> StateResult<CompiledClassHash> {
-        self.compiled_classes
+        self.compiled_class_hashes
             .get(&class_hash)
             .cloned()
             .ok_or_else(|| StateError::UndeclaredClassHash(class_hash))
@@ -143,21 +143,17 @@ impl BlockifierStateReader for State {
 #[cfg(test)]
 mod tests {
     use blockifier::execution::contract_class::ContractClassV0;
-    use starknet_api::core::PatriciaKey;
+
+    use crate::constants::test_constants::{
+        ONE_COMPILED_HASH, ONE_FELT, ONE_HASH, ONE_PATRICIA, TEST_ADDRESS,
+    };
 
     use super::*;
-    lazy_static::lazy_static! {
-        static ref ONE_FELT: StarkFelt = StarkFelt::from(1u8);
-        static ref ONE_PATRICIA: PatriciaKey = TryInto::<PatriciaKey>::try_into(*ONE_FELT).unwrap();
-        static ref ONE_HASH: ClassHash = ClassHash(*ONE_FELT);
-        static ref ONE_COMPILED_HASH: CompiledClassHash = CompiledClassHash(*ONE_FELT);
-        static ref TEST_ADDRESS: ContractAddress = ContractAddress(*ONE_PATRICIA);
-    }
 
     #[test]
     fn test_storage() {
         // Given
-        let mut state = State::default();
+        let mut state = &mut State::default();
 
         // When
         state.set_storage_at(*TEST_ADDRESS, StorageKey(*ONE_PATRICIA), *ONE_FELT);
@@ -173,7 +169,7 @@ mod tests {
     #[test]
     fn test_nonce() {
         // Given
-        let mut state = State::default();
+        let mut state = &mut State::default();
 
         // When
         state.increment_nonce(*TEST_ADDRESS).unwrap();
@@ -187,7 +183,7 @@ mod tests {
     #[test]
     fn test_class_hash() {
         // Given
-        let mut state = State::default();
+        let mut state = &mut State::default();
 
         // When
         state.set_class_hash_at(*TEST_ADDRESS, *ONE_HASH).unwrap();
@@ -201,7 +197,7 @@ mod tests {
     #[test]
     fn test_contract_class() {
         // Given
-        let mut state = State::default();
+        let mut state = &mut State::default();
 
         // When
         state
@@ -220,7 +216,7 @@ mod tests {
     )]
     fn test_uninitialized_contract_class() {
         // Given
-        let mut state = State::default();
+        let mut state = &mut State::default();
 
         // When
         state.get_compiled_contract_class(&ONE_HASH).unwrap();
@@ -229,7 +225,7 @@ mod tests {
     #[test]
     fn test_compiled_class_hash() {
         // Given
-        let mut state = State::default();
+        let mut state = &mut State::default();
 
         // When
         state
@@ -248,7 +244,7 @@ mod tests {
     )]
     fn test_uninitialized_compiled_class_hash() {
         // Given
-        let mut state = State::default();
+        let mut state = &mut State::default();
 
         // When
         state.get_compiled_class_hash(*ONE_HASH).unwrap();

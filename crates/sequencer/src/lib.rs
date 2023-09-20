@@ -1,3 +1,3 @@
-pub mod config;
+pub mod constants;
 pub mod sequencer;
 pub mod state;
