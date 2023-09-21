@@ -74,19 +74,21 @@ mod tests {
     use blockifier::abi::abi_utils::get_storage_var_address;
     use blockifier::execution::contract_class::{ContractClass, ContractClassV0};
     use blockifier::state::state_api::State as BlockifierState;
-    use starknet::core::types::{
-        BroadcastedInvokeTransaction, BroadcastedTransaction, FieldElement,
-    };
-    use starknet_api::core::{ChainId, ClassHash, ContractAddress};
+    use blockifier::transaction::account_transaction::AccountTransaction;
+    use starknet::core::types::FieldElement;
+    use starknet_api::core::{ChainId, ClassHash, ContractAddress, Nonce};
     use starknet_api::hash::StarkFelt;
+    use starknet_api::transaction::{
+        Calldata, Fee, InvokeTransaction, InvokeTransactionV1, TransactionHash,
+        TransactionSignature,
+    };
 
     use crate::constants::test_constants::{
-        FEE_TOKEN_ADDRESS, ONE_BLOCK_NUMBER, ONE_BLOCK_TIMESTAMP, ONE_CLASS_HASH, SENDER_ADDRESS,
+        FEE_TOKEN_ADDRESS, ONE_BLOCK_NUMBER, ONE_BLOCK_TIMESTAMP, ONE_CLASS_HASH,
         SEQUENCER_ADDRESS, TEST_ADDRESS, TEST_CONTRACT_ACCOUNT, TEST_CONTRACT_ADDRESS,
-        TWO_CLASS_HASH,
+        TWO_CLASS_HASH, ZERO_FELT,
     };
     use crate::state::State;
-    use crate::transaction::StarknetTransaction;
 
     use super::*;
 
@@ -170,25 +172,27 @@ mod tests {
         let mut sequencer = Sequencer::new(context, state);
 
         // When
-        let transaction = StarknetTransaction::new(BroadcastedTransaction::Invoke(
-            BroadcastedInvokeTransaction {
-                sender_address: *SENDER_ADDRESS,
-                calldata: vec![
-                    FieldElement::ONE,
-                    FieldElement::from_hex_be(
-                        "0x3b82f69851fa1625b367ea6c116252a84257da483dcec4d4e4bc270eb5c70a7",
-                    )
-                    .unwrap(),
-                    FieldElement::ZERO,
-                ],
-                max_fee: FieldElement::from(1_000_000u32),
-                signature: vec![],
-                nonce: FieldElement::ZERO,
-                is_query: false,
-            },
-        ))
-        .try_into()
-        .unwrap();
+        let transaction = Transaction::AccountTransaction(AccountTransaction::Invoke(
+            InvokeTransaction::V1(InvokeTransactionV1 {
+                transaction_hash: TransactionHash(*ZERO_FELT),
+                sender_address: *TEST_CONTRACT_ACCOUNT,
+                calldata: Calldata(
+                    vec![
+                        *TEST_ADDRESS, // destination
+                        FieldElement::from_hex_be(
+                            "0x3b82f69851fa1625b367ea6c116252a84257da483dcec4d4e4bc270eb5c70a7",
+                        ) // selector (inc)
+                        .unwrap()
+                        .into(),
+                        *ZERO_FELT, // no data
+                    ]
+                    .into(),
+                ),
+                max_fee: Fee(1_000_000),
+                signature: TransactionSignature(vec![]),
+                nonce: Nonce(*ZERO_FELT),
+            }),
+        ));
         sequencer.execute(transaction).unwrap();
 
         // Then
