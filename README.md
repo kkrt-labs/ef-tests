@@ -3,7 +3,7 @@
 This repository contains the execution of the EF standard execution layer tests.
 
 The Ethereum Foundation provides a suite of [official tests](https://github.com/ethereum/tests) to verify the compliance of EVM clients.
-Passing all these tests qualifies a client as EVM-compliant.
+Passing all these tests qualifies allows a client to gain confidence on his execution layer.
 For further information, please refer to the [official documentation](https://ethereum-tests.readthedocs.io/en/latest/).
 
 As Kakarot is an EVM running within CairoVM, we can't run these tests using the Ethereum Foundation runner ([retesteth](https://github.com/ethereum/retesteth)).
