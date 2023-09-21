@@ -31,7 +31,7 @@ pub struct State {
 
 /// State implementation for the sequencer. We use a mutable reference to the state
 /// because this is what will be available during the implementation of the execution.
-impl<'a> BlockifierState for &'a mut State {
+impl BlockifierState for &mut State {
     fn set_storage_at(
         &mut self,
         contract_address: ContractAddress,
@@ -90,8 +90,8 @@ impl<'a> BlockifierState for &'a mut State {
     }
 }
 
-impl<'a> BlockifierStateReader for &'a mut State {
-    /// Default: 0 for an uninitialized contract address.
+impl BlockifierStateReader for &mut State {
+    /// Default: 0 for an uninitialized contract address or key.
     fn get_storage_at(
         &mut self,
         contract_address: ContractAddress,
@@ -113,7 +113,7 @@ impl<'a> BlockifierStateReader for &'a mut State {
             .unwrap_or_default())
     }
 
-    /// Default: 0 (uninitialized class hash) for an uninitialized contract address.
+    /// Default: 0 for an uninitialized contract address.
     fn get_class_hash_at(&mut self, contract_address: ContractAddress) -> StateResult<ClassHash> {
         Ok(self
             .contracts
@@ -122,7 +122,9 @@ impl<'a> BlockifierStateReader for &'a mut State {
             .unwrap_or_default())
     }
 
-    /// Errors if the compiled class is not declared.
+    /// # Errors
+    ///
+    /// If the compiled class is not declared.
     fn get_compiled_contract_class(
         &mut self,
         class_hash: &ClassHash,
@@ -133,7 +135,9 @@ impl<'a> BlockifierStateReader for &'a mut State {
             .ok_or_else(|| StateError::UndeclaredClassHash(class_hash.to_owned()))
     }
 
-    /// Errors if the compiled class hash is not declared.
+    /// # Errors
+    ///
+    /// If the compiled class hash is not declared.
     fn get_compiled_class_hash(&mut self, class_hash: ClassHash) -> StateResult<CompiledClassHash> {
         self.compiled_class_hashes
             .get(&class_hash)
