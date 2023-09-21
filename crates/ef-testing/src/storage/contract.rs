@@ -2,11 +2,13 @@ use ef_tests::models::Account;
 use kakarot_test_utils::hive_utils::madara::utils::{
     genesis_set_bytecode, genesis_set_storage_kakarot_contract_account,
 };
+use katana_core::db::cached::StorageRecord;
 use reth_primitives::Bytes;
 use starknet::core::types::FieldElement;
 use starknet_api::{hash::StarkFelt, state::StorageKey as StarknetStorageKey};
 
 use crate::models::error::RunnerError;
+use crate::utils::starknet::get_starknet_storage_key;
 
 use super::{
     generate_evm_address_storage, generate_is_initialized_storage, madara_to_katana_storage,
@@ -68,4 +70,10 @@ fn owner_storage(
     kakarot_address: FieldElement,
 ) -> Result<(StarknetStorageKey, StarkFelt), RunnerError> {
     starknet_storage_key_value("Ownable_owner", &[], kakarot_address)
+}
+
+// Contract's have kakarot managed nonces: https://github.com/kkrt-labs/kakarot/blob/main/src/kakarot/accounts/contract/library.cairo#L174
+pub fn get_nonce(record: &StorageRecord) -> Result<StarkFelt, RunnerError> {
+    let nonce_key = get_starknet_storage_key("nonce", &[], 0)?;
+    Ok(record.storage.get(&nonce_key).copied().unwrap_or_default())
 }
