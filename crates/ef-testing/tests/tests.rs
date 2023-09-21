@@ -66,4 +66,5 @@ mod blockchain_tests {
     blockchain_tests!(vm_tests, VMTests);
     blockchain_tests!(memory_tests, stMemoryTest);
     blockchain_tests!(init_code_test, stInitCodeTest);
+    blockchain_tests!(st_solidity_test, stSolidityTest);
 }

@@ -107,6 +107,16 @@ impl BlockchainTestCase {
                 | "CallTheContractToCreateEmptyContract.json" // ef-test #115
                 | "OutOfGasContractCreation.json" // ef-test #116
                 | "CallContractToCreateContractAndCallItOOG.json" // ef-test #117
+                | "TestContractSuicide.json" // ef-test #132
+                | "TestCryptographicFunctions.json" // ef-test #133
+                | "RecursiveCreateContracts.json" // ef-test #134
+                | "ByZero.json" //ef-test #135
+                | "ContractInheritance.json" // ef-test #136
+                | "CallLowLevelCreatesSolidity.json" // ef-test #137
+                | "CreateContractFromMethod.json" // ef-test #138
+                | "TestStoreGasPrices.json" // ef-test #139
+                | "TestContractInteraction.json" // ef-test #140
+                | "RecursiveCreateContractsCreate4Contracts.json" // ef-test #141
         )
     }
 
