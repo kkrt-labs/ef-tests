@@ -40,12 +40,12 @@ regex = { workspace = true }
 reqwest = { workspace = true, optional = true }
 rstest = { workspace = true }
 tokio = { workspace = true }
-tracing = "0.1.37"
+tracing = { workspace = true }
 walkdir = { workspace = true }
 zip = { workspace = true, optional = true }
 
 [dev-dependencies]
-tracing-subscriber = "0.3.17"
+tracing-subscriber = { workspace = true }
 
 [features]
 ef-tests = []

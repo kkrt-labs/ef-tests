@@ -68,4 +68,5 @@ mod blockchain_tests {
     blockchain_tests!(init_code_test, stInitCodeTest);
     blockchain_tests!(st_solidity_test, stSolidityTest);
     blockchain_tests!(st_log_tests, stLogTests);
+    blockchain_tests!(st_bad_opcode, stBadOpcode);
 }

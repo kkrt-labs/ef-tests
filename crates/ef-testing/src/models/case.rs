@@ -69,6 +69,8 @@ impl BlockchainTestCase {
     pub fn should_skip(path: &Path) -> bool {
         let name = path.file_name().unwrap().to_str().unwrap();
 
+        // Split up matches in exact match and regex otherwise compiler isn't happy
+        // and tests fail
         matches!(
             name,
             "calldatacopy.json" // ef-tests #20
@@ -117,7 +119,14 @@ impl BlockchainTestCase {
                 | "TestStoreGasPrices.json" // ef-test #139
                 | "TestContractInteraction.json" // ef-test #140
                 | "RecursiveCreateContractsCreate4Contracts.json" // ef-test #141
-        )
+                | "undefinedOpcodeFirstByte.json" // ef-tests #121
+                | "measureGas.json" // ef-tests #122
+                | "badOpcodes.json" // ef-tests #123
+                | "operationDiffGas.json" // ef-tests #124
+                | "invalidDiffPlaces.json" // ef-tests #125
+                | "invalidAddr.json" // ef-tests #126
+        ) || matches!(name, name if name.starts_with("opc") && name.ends_with(".json"))
+        // ef-test #120
     }
 
     fn test(&self, test_name: &str) -> Result<&BlockchainTest, RunnerError> {

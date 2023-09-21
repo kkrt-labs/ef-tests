@@ -20,10 +20,10 @@ KAKAROT_COMMIT := .katana/remote_kakarot_sha
 .PHONY: $(EF_TESTS_DIR)
 setup: $(EF_TESTS_DIR)
 
-fetch-dump:
+fetch-dump: fetch-kakarot-submodule-commit
 	cargo run --features dump --bin fetch-dump-katana
 
-$(KAKAROT_COMMIT):
+fetch-kakarot-submodule-commit:
 	cargo run --features fetch-commit --bin fetch-kakarot-submodule-commit
 
 # Runs the Ethereum Foundation tests
