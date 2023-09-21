@@ -7,6 +7,7 @@ use blockifier::state::state_api::{State, StateReader};
 /// We bound S such that a mutable reference to S (&'a mut S)
 /// must implement State and StateReader. The `for` keyword
 /// indicates that the bound must hold for any lifetime 'a.
+/// For more details, check out https://doc.rust-lang.org/nomicon/hrtb.html
 pub struct Sequencer<S>
 where
     for<'a> &'a mut S: State + StateReader,

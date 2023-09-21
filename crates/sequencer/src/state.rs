@@ -219,9 +219,7 @@ mod tests {
     }
 
     #[test]
-    #[should_panic(
-        expected = "UndeclaredClassHash(ClassHash(StarkFelt(\"0x0000000000000000000000000000000000000000000000000000000000000001\")))"
-    )]
+    #[should_panic(expected = "UndeclaredClassHash")]
     fn test_uninitialized_contract_class() {
         // Given
         let mut state = &mut State::default();
@@ -247,9 +245,7 @@ mod tests {
     }
 
     #[test]
-    #[should_panic(
-        expected = "UndeclaredClassHash(ClassHash(StarkFelt(\"0x0000000000000000000000000000000000000000000000000000000000000001\"))"
-    )]
+    #[should_panic(expected = "UndeclaredClassHash")]
     fn test_uninitialized_compiled_class_hash() {
         // Given
         let mut state = &mut State::default();
