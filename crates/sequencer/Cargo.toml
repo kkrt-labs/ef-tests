@@ -13,6 +13,7 @@ license.workspace = true
 
 [dependencies]
 # Starknet
+# TODO: remove the blockifier patch on the workspace once we can remove Katana.
 blockifier = { package = "blockifier", git = "https://github.com/starkware-libs/blockifier.git", tag = "v0.3.0-rc0" }
 starknet_api = { workspace = true }
 starknet = { workspace = true }

@@ -148,7 +148,7 @@ mod tests {
     use blockifier::execution::contract_class::ContractClassV0;
 
     use crate::constants::test_constants::{
-        ONE_COMPILED_HASH, ONE_FELT, ONE_HASH, ONE_PATRICIA, TEST_CONTRACT_ADDRESS,
+        ONE_CLASS_HASH, ONE_COMPILED_CLASS_HASH, ONE_FELT, ONE_PATRICIA, TEST_CONTRACT_ADDRESS,
     };
 
     use super::*;
@@ -190,11 +190,11 @@ mod tests {
 
         // When
         state
-            .set_class_hash_at(*TEST_CONTRACT_ADDRESS, *ONE_HASH)
+            .set_class_hash_at(*TEST_CONTRACT_ADDRESS, *ONE_CLASS_HASH)
             .unwrap();
 
         // Then
-        let expected = *ONE_HASH;
+        let expected = *ONE_CLASS_HASH;
         let actual = state.get_class_hash_at(*TEST_CONTRACT_ADDRESS).unwrap();
         assert_eq!(expected, actual);
     }
@@ -206,12 +206,15 @@ mod tests {
 
         // When
         state
-            .set_contract_class(&ONE_HASH, ContractClass::V0(ContractClassV0::default()))
+            .set_contract_class(
+                &ONE_CLASS_HASH,
+                ContractClass::V0(ContractClassV0::default()),
+            )
             .unwrap();
 
         // Then
         let expected = ContractClass::V0(ContractClassV0::default());
-        let actual = state.get_compiled_contract_class(&ONE_HASH).unwrap();
+        let actual = state.get_compiled_contract_class(&ONE_CLASS_HASH).unwrap();
         assert_eq!(expected, actual);
     }
 
@@ -222,7 +225,7 @@ mod tests {
         let mut state = &mut State::default();
 
         // When
-        state.get_compiled_contract_class(&ONE_HASH).unwrap();
+        state.get_compiled_contract_class(&ONE_CLASS_HASH).unwrap();
     }
 
     #[test]
@@ -232,12 +235,12 @@ mod tests {
 
         // When
         state
-            .set_compiled_class_hash(*ONE_HASH, *ONE_COMPILED_HASH)
+            .set_compiled_class_hash(*ONE_CLASS_HASH, *ONE_COMPILED_CLASS_HASH)
             .unwrap();
 
         // Then
-        let expected = *ONE_COMPILED_HASH;
-        let actual = state.get_compiled_class_hash(*ONE_HASH).unwrap();
+        let expected = *ONE_COMPILED_CLASS_HASH;
+        let actual = state.get_compiled_class_hash(*ONE_CLASS_HASH).unwrap();
         assert_eq!(expected, actual);
     }
 
@@ -248,6 +251,6 @@ mod tests {
         let mut state = &mut State::default();
 
         // When
-        state.get_compiled_class_hash(*ONE_HASH).unwrap();
+        state.get_compiled_class_hash(*ONE_CLASS_HASH).unwrap();
     }
 }
