@@ -62,6 +62,9 @@ zip = "0.6.6"
 serde = { version = "1.0.188", features = ["derive"] }
 serde_json = "1.0"
 
+[patch."https://github.com/starkware-libs/blockifier"]
+blockifier = { git = "https://github.com/dojoengine/blockifier", rev = "c794d1b" }
+
 [patch."https://github.com/ethereum/c-kzg-4844"]
 c-kzg = { git = "https://github.com/rjected/c-kzg-4844", branch = "dan/add-serde-feature" }
 

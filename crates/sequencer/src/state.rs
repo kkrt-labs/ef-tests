@@ -29,6 +29,8 @@ pub struct State {
     nonces: FxHashMap<ContractAddress, Nonce>,
 }
 
+/// State implementation for the sequencer. We use a mutable reference to the state
+/// because this is what will be available during the implementation of the execution.
 impl<'a> BlockifierState for &'a mut State {
     fn set_storage_at(
         &mut self,
@@ -83,7 +85,7 @@ impl<'a> BlockifierState for &'a mut State {
         Ok(())
     }
 
-    fn to_state_diff(&mut self) -> CommitmentStateDiff {
+    fn to_state_diff(&self) -> CommitmentStateDiff {
         unreachable!("to_state_diff should not be called in the sequencer")
     }
 }
@@ -145,7 +147,7 @@ mod tests {
     use blockifier::execution::contract_class::ContractClassV0;
 
     use crate::constants::test_constants::{
-        ONE_COMPILED_HASH, ONE_FELT, ONE_HASH, ONE_PATRICIA, TEST_ADDRESS,
+        ONE_COMPILED_HASH, ONE_FELT, ONE_HASH, ONE_PATRICIA, TEST_CONTRACT_ADDRESS,
     };
 
     use super::*;
@@ -156,12 +158,12 @@ mod tests {
         let mut state = &mut State::default();
 
         // When
-        state.set_storage_at(*TEST_ADDRESS, StorageKey(*ONE_PATRICIA), *ONE_FELT);
+        state.set_storage_at(*TEST_CONTRACT_ADDRESS, StorageKey(*ONE_PATRICIA), *ONE_FELT);
 
         // Then
         let expected = *ONE_FELT;
         let actual = state
-            .get_storage_at(*TEST_ADDRESS, StorageKey(*ONE_PATRICIA))
+            .get_storage_at(*TEST_CONTRACT_ADDRESS, StorageKey(*ONE_PATRICIA))
             .unwrap();
         assert_eq!(expected, actual);
     }
@@ -172,11 +174,11 @@ mod tests {
         let mut state = &mut State::default();
 
         // When
-        state.increment_nonce(*TEST_ADDRESS).unwrap();
+        state.increment_nonce(*TEST_CONTRACT_ADDRESS).unwrap();
 
         // Then
         let expected = Nonce(*ONE_FELT);
-        let actual = state.get_nonce_at(*TEST_ADDRESS).unwrap();
+        let actual = state.get_nonce_at(*TEST_CONTRACT_ADDRESS).unwrap();
         assert_eq!(expected, actual);
     }
 
@@ -186,11 +188,13 @@ mod tests {
         let mut state = &mut State::default();
 
         // When
-        state.set_class_hash_at(*TEST_ADDRESS, *ONE_HASH).unwrap();
+        state
+            .set_class_hash_at(*TEST_CONTRACT_ADDRESS, *ONE_HASH)
+            .unwrap();
 
         // Then
         let expected = *ONE_HASH;
-        let actual = state.get_class_hash_at(*TEST_ADDRESS).unwrap();
+        let actual = state.get_class_hash_at(*TEST_CONTRACT_ADDRESS).unwrap();
         assert_eq!(expected, actual);
     }
 

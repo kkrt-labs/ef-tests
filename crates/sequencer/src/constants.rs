@@ -8,6 +8,10 @@ pub mod test_constants {
     };
 
     lazy_static::lazy_static! {
+        pub static ref TEST_CONTRACT_ADDRESS: ContractAddress = ContractAddress(*ONE_PATRICIA);
+        pub static ref TEST_CONTRACT_ACCOUNT: ContractAddress = ContractAddress(*TWO_PATRICIA);
+        pub static ref TEST_ADDRESS: StarkFelt = *ONE_FELT;
+        pub static ref TEST_CONTRACT: StarkFelt = *TWO_FELT;
         pub static ref SENDER_ADDRESS: FieldElement = FieldElement::from(2u8);
         pub static ref SEQUENCER_ADDRESS: ContractAddress = ContractAddress(TryInto::<PatriciaKey>::try_into(StarkFelt::from(1234u16)).unwrap());
         pub static ref FEE_TOKEN_ADDRESS: ContractAddress = ContractAddress(TryInto::<PatriciaKey>::try_into(StarkFelt::from(12345u16)).unwrap());
@@ -21,7 +25,5 @@ pub mod test_constants {
         pub static ref ONE_COMPILED_HASH: CompiledClassHash = CompiledClassHash(*ONE_FELT);
         pub static ref ONE_BLOCK_NUMBER: BlockNumber = BlockNumber(1);
         pub static ref ONE_BLOCK_TIMESTAMP: BlockTimestamp = BlockTimestamp(1);
-        pub static ref TEST_ADDRESS: ContractAddress = ContractAddress(*ONE_PATRICIA);
-        pub static ref TEST_ACCOUNT: ContractAddress = ContractAddress(*TWO_PATRICIA);
     }
 }

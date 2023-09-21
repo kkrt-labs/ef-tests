@@ -61,6 +61,3 @@ required-features = ["dump"]
 name = "fetch-kakarot-submodule-commit"
 path = "src/bin/fetch_kakarot_submodule_commit.rs"
 required-features = ["fetch-commit"]
-
-[patch."https://github.com/starkware-libs/blockifier"]
-blockifier = { git = "https://github.com/dojoengine/blockifier", rev = "c794d1b" }

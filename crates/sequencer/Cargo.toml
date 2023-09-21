@@ -13,8 +13,8 @@ license.workspace = true
 
 [dependencies]
 # Starknet
-blockifier = { git = "https://github.com/starkware-libs/blockifier.git", tag = "v0.3.0-rc0" }
-starknet_api = "0.5.0-rc1"
+blockifier = { package = "blockifier", git = "https://github.com/starkware-libs/blockifier.git", tag = "v0.3.0-rc0" }
+starknet_api = { workspace = true }
 starknet = { workspace = true }
 
 # Other
