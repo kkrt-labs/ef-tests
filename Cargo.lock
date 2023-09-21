@@ -7897,8 +7897,10 @@ dependencies = [
  "blockifier",
  "lazy_static",
  "rustc-hash",
+ "serde_json",
  "starknet",
  "starknet_api",
+ "tracing",
 ]
 
 [[package]]
