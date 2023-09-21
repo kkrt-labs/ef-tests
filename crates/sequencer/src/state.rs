@@ -14,6 +14,8 @@ use starknet_api::{
     hash::StarkFelt,
 };
 
+use crate::commit::Committer;
+
 /// Generic state structure for the sequencer.
 /// The use of FxHashMap allows for a better performance.
 /// This hash map is used by rustc. It uses a non cryptographic hash function
@@ -28,6 +30,8 @@ pub struct State {
     storage: FxHashMap<ContractStorageKey, StarkFelt>,
     nonces: FxHashMap<ContractAddress, Nonce>,
 }
+
+impl Committer for &mut State {}
 
 /// State implementation for the sequencer. We use a mutable reference to the state
 /// because this is what will be available during the implementation of the execution.
