@@ -31,7 +31,7 @@ pub struct State {
     nonces: FxHashMap<ContractAddress, Nonce>,
 }
 
-impl Committer for &mut State {}
+impl Committer<State> for &mut State {}
 
 /// State implementation for the sequencer. We use a mutable reference to the state
 /// because this is what will be available during the implementation of the execution.

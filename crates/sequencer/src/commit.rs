@@ -3,11 +3,11 @@ use blockifier::state::{
     state_api::{State as BlockifierState, StateReader as BlockifierStateReader},
 };
 
-pub trait Committer: BlockifierState + BlockifierStateReader {
-    fn commit<S>(cached_state: &mut CachedState<&mut S>)
-    where
-        for<'a> &'a mut S: BlockifierState + BlockifierStateReader,
-    {
+pub trait Committer<S>
+where
+    for<'a> &'a mut S: BlockifierState + BlockifierStateReader,
+{
+    fn commit(cached_state: &mut CachedState<&mut S>) {
         let diff = cached_state.to_state_diff();
         for (address, class_hash) in diff.address_to_class_hash {
             let _ = cached_state.state.set_class_hash_at(address, class_hash);

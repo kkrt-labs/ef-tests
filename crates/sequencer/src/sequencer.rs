@@ -21,7 +21,7 @@ use tracing::{trace, warn};
 /// For more details, check out https://doc.rust-lang.org/nomicon/hrtb.html
 pub struct Sequencer<S>
 where
-    for<'a> &'a mut S: State + StateReader + Committer,
+    for<'a> &'a mut S: State + StateReader,
 {
     pub context: BlockContext,
     pub state: S,
@@ -29,7 +29,7 @@ where
 
 impl<S> Sequencer<S>
 where
-    for<'a> &'a mut S: State + StateReader + Committer,
+    for<'a> &'a mut S: State + StateReader,
 {
     /// Creates a new Sequencer instance.
     pub fn new(context: BlockContext, state: S) -> Self {
@@ -39,7 +39,7 @@ where
 
 impl<S> Execution for Sequencer<S>
 where
-    for<'a> &'a mut S: State + StateReader + Committer,
+    for<'a> &'a mut S: State + StateReader + Committer<S>,
 {
     fn execute(&mut self, transaction: Transaction) -> Result<(), TransactionExecutionError> {
         let mut cached_state = CachedState::new(&mut self.state);
