@@ -125,6 +125,13 @@ impl BlockchainTestCase {
                 | "operationDiffGas.json" // ef-tests #124
                 | "invalidDiffPlaces.json" // ef-tests #125
                 | "invalidAddr.json" // ef-tests #126
+                | "push0.json" // ef-tests #149
+                | "push0Gas.json" // ef-tests #150
+                | "coinbaseWarmAccountCallGas.json" // ef-tests #153
+                | "coinbaseWarmAccountCallGasFail.json" // ef-tests #154
+                | "create2InitCodeSizeLimit.json" // ef-tests #155
+                | "createInitCodeSizeLimit.json" // ef-tests #156
+                | "creationTxInitCodeSizeLimit.json" // ef-tests #157
         ) || matches!(name, name if name.starts_with("opc") && name.ends_with(".json"))
         // ef-test #120
     }
