@@ -91,7 +91,6 @@ impl BlockifierState for &mut State {
 }
 
 impl BlockifierStateReader for &mut State {
-    /// Default: 0 for an uninitialized contract address or key.
     fn get_storage_at(
         &mut self,
         contract_address: ContractAddress,
@@ -104,7 +103,6 @@ impl BlockifierStateReader for &mut State {
             .unwrap_or_default())
     }
 
-    /// Default: 0 for an uninitialized contract address.
     fn get_nonce_at(&mut self, contract_address: ContractAddress) -> StateResult<Nonce> {
         Ok(self
             .nonces
@@ -113,7 +111,6 @@ impl BlockifierStateReader for &mut State {
             .unwrap_or_default())
     }
 
-    /// Default: 0 for an uninitialized contract address.
     fn get_class_hash_at(&mut self, contract_address: ContractAddress) -> StateResult<ClassHash> {
         Ok(self
             .contracts
