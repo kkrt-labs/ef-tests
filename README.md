@@ -6,8 +6,7 @@ The Ethereum Foundation provides a suite of [official tests](https://github.com/
 Passing all these tests qualifies allows a client to gain confidence on his execution layer.
 For further information, please refer to the [official documentation](https://ethereum-tests.readthedocs.io/en/latest/).
 
-As Kakarot is an EVM running within CairoVM, we can't run these tests using the Ethereum Foundation runner ([retesteth](https://github.com/ethereum/retesteth)).
-We therefore need to develop our own runner to be able to run these tests on Kakarot and thus certify our compatibility with the EVM.
+Kakarot is an EVM running within CairoVM, coupled with a [RPC](https://github.com/kkrt-labs/kakarot-rpc/tree/main), which would make it possible to run these tests using the Ethereum Foundation runner ([retesteth](https://github.com/ethereum/retesteth)). However, in order to limit the possible number of interactions and avoid adding failing points, we develop our own simplified test runner based on Reth's ef-tests runner.
 
 ## Requirements
 
