@@ -153,6 +153,7 @@ mod tests {
         }
     }
 
+    /// Maps builtins and steps to a single cost unit of reference (gas).
     fn vm_resource_fee_cost() -> Arc<HashMap<String, f64>> {
         Arc::new(
             [

@@ -13,7 +13,7 @@ where
             cached_state.state.set_class_hash_at(address, class_hash)?;
         }
         for (address, _) in diff.address_to_nonce {
-            let _ = cached_state.state.increment_nonce(address);
+            cached_state.state.increment_nonce(address)?;
         }
         for (address, storage_updates) in diff.storage_updates {
             for (k, v) in storage_updates {
@@ -21,9 +21,9 @@ where
             }
         }
         for (class_hash, compiled_class_hash) in diff.class_hash_to_compiled_class_hash {
-            let _ = cached_state
+            cached_state
                 .state
-                .set_compiled_class_hash(class_hash, compiled_class_hash);
+                .set_compiled_class_hash(class_hash, compiled_class_hash)?;
         }
         Ok(())
     }
