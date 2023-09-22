@@ -43,17 +43,19 @@ where
 {
     fn execute(&mut self, transaction: Transaction) -> Result<(), TransactionExecutionError> {
         let mut cached_state = CachedState::new(&mut self.state);
-        let res = transaction.execute(&mut cached_state, &self.context, false);
+        let charge_fee = false;
+        let res = transaction.execute(&mut cached_state, &self.context, charge_fee);
 
         match res {
             Err(err) => {
-                warn!("Transaction execution failed: {:?}", err)
+                warn!("Transaction execution failed: {:?}", err);
+                return Err(err);
             }
             Ok(execution_information) => {
-                <&mut S>::commit(&mut cached_state);
+                <&mut S>::commit(&mut cached_state)?;
                 match execution_information.revert_error {
                     Some(err) => {
-                        warn!("Transaction execution failed: {:?}", err)
+                        warn!("Transaction execution reverted: {:?}", err)
                     }
                     None => {
                         trace!("Transaction execution succeeded {execution_information:?}")

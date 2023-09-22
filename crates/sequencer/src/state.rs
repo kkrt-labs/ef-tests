@@ -66,8 +66,13 @@ impl BlockifierState for &mut State {
         contract_address: ContractAddress,
         class_hash: ClassHash,
     ) -> StateResult<()> {
-        self.contracts.insert(contract_address, class_hash);
-        Ok(())
+        match self.contracts.get(&contract_address) {
+            Some(_) => Err(StateError::UnavailableContractAddress(contract_address)),
+            None => {
+                self.contracts.insert(contract_address, class_hash);
+                Ok(())
+            }
+        }
     }
 
     fn set_contract_class(
