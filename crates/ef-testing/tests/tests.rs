@@ -70,4 +70,6 @@ mod blockchain_tests {
     blockchain_tests!(st_log_tests, stLogTests);
     blockchain_tests!(st_bad_opcode, stBadOpcode);
     blockchain_tests!(shanghai, Shanghai);
+    blockchain_tests!(st_code_copy_test, stCodeCopyTest);
+    blockchain_tests!(st_code_size_limit, stCodeSizeLimit);
 }

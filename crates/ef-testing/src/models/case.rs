@@ -132,6 +132,10 @@ impl BlockchainTestCase {
                 | "create2InitCodeSizeLimit.json" // ef-tests #155
                 | "createInitCodeSizeLimit.json" // ef-tests #156
                 | "creationTxInitCodeSizeLimit.json" // ef-tests #157
+                | "codesizeInit.json" // ef-tests #262
+                | "codesizeValid.json" // ef-tests #263
+                | "create2CodeSizeLimit.json" // ef-tests #264
+                | "createCodeSizeLimit.json" // ef-tests #265
         ) || matches!(name, name if name.starts_with("opc") && name.ends_with(".json"))
         // ef-test #120
     }
