@@ -20,7 +20,7 @@ use kakarot_test_utils::deploy_helpers::{DeployedKakarot, KakarotTestEnvironment
 use kakarot_test_utils::hive_utils::kakarot::compute_starknet_address;
 
 use regex::Regex;
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
 use starknet::core::types::FieldElement;
 use starknet_api::{core::ContractAddress as StarknetContractAddress, hash::StarkFelt};
 use std::{
@@ -36,7 +36,7 @@ pub struct BlockchainTestCase {
     skip: bool,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Deserialize)]
 pub struct BlockchainTestsSkip {
     pub filename: Vec<String>,
     pub regex: Vec<String>,
