@@ -72,6 +72,7 @@ mod blockchain_tests {
     blockchain_tests!(shanghai, Shanghai);
     blockchain_tests!(st_code_copy_test, stCodeCopyTest);
     blockchain_tests!(st_code_size_limit, stCodeSizeLimit);
+    blockchain_tests!(st_bugs, stBugs);
     blockchain_tests!(st_call_codes, stCallCodes);
     //blockchain_tests!(st_call_create_call_code_test, stCallCreateCallCodeTest); // ef-tests #257
     blockchain_tests!(
