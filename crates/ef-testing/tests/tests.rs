@@ -70,6 +70,7 @@ mod blockchain_tests {
     blockchain_tests!(st_log_tests, stLogTests);
     blockchain_tests!(st_bad_opcode, stBadOpcode);
     blockchain_tests!(shanghai, Shanghai);
+    blockchain_tests!(st_bugs, stBugs);
     blockchain_tests!(st_call_codes, stCallCodes);
     //blockchain_tests!(st_call_create_call_code_test, stCallCreateCallCodeTest); // ef-tests #257
     blockchain_tests!(
