@@ -117,6 +117,7 @@ impl BlockchainTestCase {
                 | "CallLowLevelCreatesSolidity.json" // ef-test #137
                 | "CreateContractFromMethod.json" // ef-test #138
                 | "TestStoreGasPrices.json" // ef-test #139
+                | "TestContractInteraction.json" // ef-test #140                
                 | "RecursiveCreateContractsCreate4Contracts.json" // ef-test #141
                 | "undefinedOpcodeFirstByte.json" // ef-tests #121
                 | "measureGas.json" // ef-tests #122

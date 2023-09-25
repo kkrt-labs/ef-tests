@@ -39,11 +39,13 @@ pub fn initialize_contract_account(
     kakarot_address: FieldElement,
     evm_address: FieldElement,
     bytecode: &Bytes,
+    nonce: FieldElement,
 ) -> Result<Vec<(StarknetStorageKey, StarkFelt)>, RunnerError> {
     let mut contract_storage = vec![
         generate_evm_address_storage(evm_address)?,
         generate_is_initialized_storage()?,
         owner_storage(kakarot_address)?,
+        managed_nonce(nonce)?,
     ];
     contract_storage.append(&mut bytecode_storage(bytecode)?);
     Ok(contract_storage)
@@ -63,6 +65,11 @@ fn bytecode_storage(bytecode: &Bytes) -> Result<Vec<(StarknetStorageKey, StarkFe
     )?);
 
     Ok(bytecode_storage)
+}
+
+// Returns kakarot managed nonce tuple
+fn managed_nonce(nonce: FieldElement) -> Result<(StarknetStorageKey, StarkFelt), RunnerError> {
+    starknet_storage_key_value("nonce", &[], nonce)
 }
 
 /// Returns the owner storage tuple.

@@ -38,7 +38,6 @@ pub fn write_test_state(
     class_hashes: ClassHashes,
     starknet: &mut RwLockWriteGuard<'_, dyn Database>,
 ) -> Result<(), RunnerError> {
-    // iterate through pre-state addresses
     let mut kakarot_storage = Vec::new();
     for (address, account_info) in state.iter() {
         let mut starknet_contract_storage = Vec::new();
@@ -46,14 +45,15 @@ pub fn write_test_state(
         let starknet_address =
             compute_starknet_address(kakarot_address, class_hashes.proxy_class_hash, address);
 
-        // Push the kakarot state
         kakarot_storage.push(generate_evm_to_starknet_address(address, starknet_address)?);
-
-        // Write evm storage
         starknet_contract_storage.append(&mut generate_evm_contract_storage(account_info)?);
 
-        // Get the implementation class hash and initialize the account
-        let proxy_implementation_class_hash = if is_account_eoa(account_info) {
+        let account_nonce: FieldElement = Felt252Wrapper::try_from(account_info.nonce.0)?.into();
+        let class_hash_impl = if is_account_eoa(account_info) {
+            starknet.set_nonce(
+                StarknetContractAddress(Into::<StarkFelt>::into(starknet_address).try_into()?),
+                Nonce(StarkFelt::from(account_nonce)),
+            );
             starknet_contract_storage.append(&mut initialize_eoa(kakarot_address, address)?);
             class_hashes.eoa_class_hash
         } else {
@@ -61,21 +61,19 @@ pub fn write_test_state(
                 kakarot_address,
                 address,
                 &account_info.code,
+                account_nonce,
             )?);
             class_hashes.contract_account_class_hash
         };
 
-        // Write implementation state of proxy
         starknet_contract_storage.push(starknet_storage_key_value(
             "_implementation",
             &[],
-            proxy_implementation_class_hash,
+            class_hash_impl,
         )?);
 
-        // Update the sequencer state with the eth->starknet address
         let address =
             StarknetContractAddress(Into::<StarkFelt>::into(starknet_address).try_into()?);
-        let account_nonce: FieldElement = Felt252Wrapper::try_from(account_info.nonce.0)?.into();
         starknet
             .set_class_hash_at(address, ClassHash(class_hashes.proxy_class_hash.into()))
             .map_err(|err| {
@@ -83,12 +81,11 @@ pub fn write_test_state(
                     "error setting class hash at {address:#?}: {err}"
                 ))
             })?;
-        starknet.set_nonce(address, Nonce(StarkFelt::from(account_nonce)));
-        for (k, v) in starknet_contract_storage.into_iter() {
-            starknet.set_storage_at(address, k, v);
+
+        for (k, v) in starknet_contract_storage.iter() {
+            starknet.set_storage_at(address, *k, *v);
         }
 
-        // Update the sequencer state with the fee token balance and allowance
         let fee_token_storage = initialize_fee_token_storage(
             kakarot_address,
             starknet_address,
@@ -98,9 +95,7 @@ pub fn write_test_state(
         extend_starknet_state_with_storage(fee_token_address.into(), fee_token_storage, starknet)?;
     }
 
-    // Update the sequencer state with the kakarot state
     extend_starknet_state_with_storage(kakarot_address, kakarot_storage, starknet)?;
-
     Ok(())
 }
 
