@@ -72,7 +72,8 @@ fn owner_storage(
     starknet_storage_key_value("Ownable_owner", &[], kakarot_address)
 }
 
-// Contract's have kakarot managed nonces: https://github.com/kkrt-labs/kakarot/blob/main/src/kakarot/accounts/contract/library.cairo#L174
+// Contract accounts have Kakarot managed nonces: https://github.com/kkrt-labs/kakarot/blob/main/src/kakarot/accounts/contract/library.cairo#L174
+// This diverges from EOAs, which have protocol level nonces, managed by the network
 pub fn get_nonce(record: &StorageRecord) -> Result<StarkFelt, RunnerError> {
     let nonce_key = get_starknet_storage_key("nonce", &[], 0)?;
     Ok(record.storage.get(&nonce_key).copied().unwrap_or_default())
