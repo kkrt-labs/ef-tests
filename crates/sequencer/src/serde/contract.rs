@@ -194,11 +194,11 @@ mod tests {
     use starknet::core::types::contract::SierraClass;
 
     use super::*;
-    use crate::serde::utils::{get_contract_class, rpc_to_inner_class};
+    use crate::serde::utils::{contract_class, rpc_to_inner_class};
 
     #[test]
     fn serialize_and_deserialize_legacy_contract() {
-        let original_contract = get_contract_class(include_str!(
+        let original_contract = contract_class(include_str!(
             "../test_data/contracts/compiled/universal_deployer.json"
         ));
 

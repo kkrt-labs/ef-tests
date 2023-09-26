@@ -33,7 +33,7 @@ pub fn rpc_to_cairo_contract_class(
     })
 }
 
-pub fn get_contract_class(contract_class_str: &str) -> ContractClass {
+pub fn contract_class(contract_class_str: &str) -> ContractClass {
     let legacy_contract_class: ContractClassV0 = serde_json::from_str(contract_class_str).unwrap();
     ContractClass::V0(legacy_contract_class)
 }

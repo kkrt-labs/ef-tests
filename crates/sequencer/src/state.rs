@@ -213,7 +213,7 @@ mod tests {
 
     use std::path::PathBuf;
 
-    use crate::{serde::utils::get_contract_class, state::State};
+    use crate::{serde::utils::contract_class, state::State};
     use blockifier::state::cached_state::ContractStorageKey;
     use starknet_api::{
         core::{ClassHash, CompiledClassHash, ContractAddress, Nonce, PatriciaKey},
@@ -329,7 +329,7 @@ mod tests {
 
         // setting up entry for state.classes
         let class_hash = *ONE_CLASS_HASH;
-        let contract_class = get_contract_class(include_str!(
+        let contract_class = contract_class(include_str!(
             "./test_data/contracts/compiled/universal_deployer.json"
         ));
         let compiled_class_hash = *ONE_COMPILED_CLASS_HASH;
