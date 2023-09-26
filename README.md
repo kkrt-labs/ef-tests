@@ -13,7 +13,7 @@ Kakarot is an EVM running within CairoVM, coupled with a [RPC](https://github.co
 - nextest: to install [nextest](https://nexte.st/index.html), run `cargo install cargo-nextest --locked`
 - A GitHub token in your `.env` file:
   - Copy the `.env.example` file to a `.env` file
-  - Create a [GitHub token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens) and add it inside the `.env` file.
+  - Create a [GitHub token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens) and add it inside the `.env` file (make sure you have selected the `public_repo` scope in the `repo` category).
 
 ## Setup
 

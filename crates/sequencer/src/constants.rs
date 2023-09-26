@@ -16,6 +16,7 @@ pub mod test_constants {
         pub static ref SEQUENCER_ADDRESS: ContractAddress = ContractAddress(TryInto::<PatriciaKey>::try_into(StarkFelt::from(1234u16)).unwrap());
         pub static ref FEE_TOKEN_ADDRESS: ContractAddress = ContractAddress(TryInto::<PatriciaKey>::try_into(StarkFelt::from(12345u16)).unwrap());
 
+        pub static ref ZERO_FELT: StarkFelt = StarkFelt::from(0u8);
         pub static ref ONE_FELT: StarkFelt = StarkFelt::from(1u8);
         pub static ref TWO_FELT: StarkFelt = StarkFelt::from(2u8);
         pub static ref ONE_PATRICIA: PatriciaKey = TryInto::<PatriciaKey>::try_into(*ONE_FELT).unwrap();
