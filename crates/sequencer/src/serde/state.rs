@@ -30,7 +30,7 @@ pub enum SerializationError {
 
 #[derive(Clone, Debug, Serialize, Deserialize, Default)]
 pub struct SerializableState {
-    pub classes: FxHashMap<ClassHash, SerializableClassRecord>,
+    pub classes: FxHashMap<ClassHash, SerializableContractClass>,
     pub compiled_classes_hash: FxHashMap<ClassHash, CompiledClassHash>,
     pub contracts: FxHashMap<ContractAddress, ClassHash>,
     #[serde(with = "serialize_contract_storage")]
@@ -82,22 +82,13 @@ impl From<&State> for SerializableState {
             .classes
             .iter()
             .for_each(|(class_hash, contract_class)| {
-                serializable_state.classes.insert(
-                    *class_hash,
-                    SerializableClassRecord {
-                        class: contract_class.clone().into(),
-                    },
-                );
+                serializable_state
+                    .classes
+                    .insert(*class_hash, contract_class.clone().into());
             });
 
         serializable_state
     }
-}
-
-#[derive(Clone, Debug, Serialize, Deserialize)]
-pub struct SerializableClassRecord {
-    /// The compiled class.
-    pub class: SerializableContractClass,
 }
 
 mod serialize_contract_storage {

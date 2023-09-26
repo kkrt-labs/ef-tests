@@ -192,7 +192,7 @@ impl From<&SerializableState> for State {
         serializable_state.classes.iter().for_each(|(class_hash, contract_class)|{
            state.classes.insert(
                *class_hash,
-               contract_class.class.clone().try_into().unwrap_or_else(|error| panic!("failed to convert SerializableClassRecord to ContractClass for class_hash {},\n error {}", class_hash, error))
+               contract_class.clone().try_into().unwrap_or_else(|error| panic!("failed to convert SerializableClassRecord to ContractClass for class_hash {},\n error {}", class_hash, error))
            );
        });
 
@@ -215,12 +215,7 @@ mod tests {
 
     use crate::{serde::utils::contract_class, state::State};
     use blockifier::state::cached_state::ContractStorageKey;
-    use starknet_api::{
-        core::{ClassHash, CompiledClassHash, ContractAddress, Nonce, PatriciaKey},
-        hash::{StarkFelt, StarkHash},
-        patricia_key, stark_felt,
-        state::StorageKey,
-    };
+    use starknet_api::{core::Nonce, state::StorageKey};
 
     #[test]
     fn test_storage() {
