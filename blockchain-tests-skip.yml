@@ -60,6 +60,10 @@ filename:
   - create2InitCodeSizeLimit.json # ef-tests #155
   - createInitCodeSizeLimit.json # ef-tests #156
   - creationTxInitCodeSizeLimit.json # ef-tests #157
+  - codesizeInit.json # ef-tests #262
+  - codesizeValid.json # ef-tests #263
+  - create2CodeSizeLimit.json # ef-tests #264
+  - createCodeSizeLimit.json # ef-tests #265
   - Call1024BalanceTooLow.json # ef-tests #161
   - Call1024OOG.json # ef-tests #162
   - Call1024PreCalls.json # ef-tests #163
