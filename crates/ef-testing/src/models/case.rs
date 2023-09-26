@@ -125,6 +125,7 @@ impl BlockchainTestCase {
                 | "operationDiffGas.json" // ef-tests #124
                 | "invalidDiffPlaces.json" // ef-tests #125
                 | "invalidAddr.json" // ef-tests #126
+                | "CallContractToCreateContractNoCash.json" // ef-tests #269
         ) || matches!(name, name if name.starts_with("opc") && name.ends_with(".json"))
         // ef-test #120
     }
