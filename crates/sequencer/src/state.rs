@@ -52,9 +52,9 @@ impl State {
 
     /// This will read a dump from a file and initialize the state from it
     pub fn load_state_from_file(path: &PathBuf) -> Result<Self, SerializationError> {
-        let serilizable_state = SerializableState::load_state(path)?;
+        let serializable_state = SerializableState::load_state(path)?;
 
-        Ok(Self::from(&serilizable_state))
+        Ok(Self::from(&serializable_state))
     }
 }
 
