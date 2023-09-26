@@ -117,7 +117,7 @@ impl BlockchainTestCase {
                 | "CallLowLevelCreatesSolidity.json" // ef-test #137
                 | "CreateContractFromMethod.json" // ef-test #138
                 | "TestStoreGasPrices.json" // ef-test #139
-                | "TestContractInteraction.json" // ef-test #140
+                | "TestContractInteraction.json" // ef-test #140                
                 | "RecursiveCreateContractsCreate4Contracts.json" // ef-test #141
                 | "undefinedOpcodeFirstByte.json" // ef-tests #121
                 | "measureGas.json" // ef-tests #122
@@ -125,6 +125,7 @@ impl BlockchainTestCase {
                 | "operationDiffGas.json" // ef-tests #124
                 | "invalidDiffPlaces.json" // ef-tests #125
                 | "invalidAddr.json" // ef-tests #126
+                | "CallContractToCreateContractNoCash.json" // ef-tests #269
                 | "push0.json" // ef-tests #149
                 | "push0Gas.json" // ef-tests #150
                 | "coinbaseWarmAccountCallGas.json" // ef-tests #153
