@@ -182,6 +182,8 @@ filename:
   - extCodeHashSelfInInit.json # ef-tests #289
   - extCodeHashSubcallOOG.json # ef-tests #290
   - dynamicAccountOverwriteEmpty.json # ef-tests #291
+  - ContractCreationSpam.json # ef-tests #296
+  - CrashingTransaction.json # ef-tests #297
 # List of file names regex to be skipped
 regex:
   - ^opc.*\.json$ # ef-test #120
