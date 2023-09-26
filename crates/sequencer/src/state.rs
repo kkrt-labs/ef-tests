@@ -206,6 +206,7 @@ mod tests {
 
     use crate::constants::test_constants::{
         ONE_CLASS_HASH, ONE_COMPILED_CLASS_HASH, ONE_FELT, ONE_PATRICIA, TEST_CONTRACT_ADDRESS,
+        TEST_NONCE, TEST_STORAGE_KEY,
     };
 
     use super::*;
@@ -327,16 +328,15 @@ mod tests {
         let mut state = State::default();
 
         // setting up entry for state.classes
-        let class_hash = ClassHash(stark_felt!("0x1"));
+        let class_hash = *ONE_CLASS_HASH;
         let contract_class = get_contract_class(include_str!(
             "./test_data/contracts/compiled/universal_deployer.json"
         ));
-        let compiled_class_hash = CompiledClassHash(stark_felt!("0x1"));
-        let contract_address = ContractAddress(patricia_key!("0x1"));
-        let contract_storage_key: ContractStorageKey =
-            (contract_address, StorageKey(patricia_key!("0x1")));
-        let storage_value = stark_felt!("0x1");
-        let nonce = Nonce(stark_felt!("0x1"));
+        let compiled_class_hash = *ONE_COMPILED_CLASS_HASH;
+        let contract_address = *TEST_CONTRACT_ADDRESS;
+        let contract_storage_key: ContractStorageKey = (contract_address, *TEST_STORAGE_KEY);
+        let storage_value = *ONE_FELT;
+        let nonce = *TEST_NONCE;
 
         state.classes.insert(class_hash, contract_class);
         state
