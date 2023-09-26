@@ -233,6 +233,28 @@ impl BlockchainTestCase {
                 | "callcodeInInitcodeToExistingContractWithValueTransfer.json" // ef-tests #254
                 | "callcode_checkPC.json" // ef-tests #255
                 | "callcodeDynamicCode2SelfCall.json" // ef-tests #256
+                | "extCodeHashCreatedAndDeletedAccountCall.json" // ef-tests #270
+                | "extCodeHashDeletedAccount3.json" // ef-tests #271
+                | "extCodeHashSubcallSuicide.json" // ef-tests #272
+                | "extCodeHashInInitCode.json" // ef-tests #273
+                | "extCodeHashDeletedAccount.json" // ef-tests #274
+                | "extCodeHashDeletedAccount2.json" // ef-tests #275
+                | "extCodeCopyBounds.json" // ef-tests #276
+                | "createEmptyThenExtcodehash.json" // ef-tests #277
+                | "extcodehashEmpty.json" // ef-tests #278
+                | "extCodeHashDeletedAccount4.json" // ef-tests #279
+                | "extCodeHashCreatedAndDeletedAccountRecheckInOuterCall.json" // ef-tests #280
+                | "extCodeHashCreatedAndDeletedAccountStaticCall.json" // ef-tests #281
+                | "extCodeHashMaxCodeSize.json" // ef-tests #282
+                | "extCodeHashCreatedAndDeletedAccount.json" // ef-tests #283
+                | "extCodeHashChangedAccount.json" // ef-tests #284
+                | "callToSuicideThenExtcodehash.json" // ef-tests #285
+                | "codeCopyZero.json" // ef-tests #286
+                | "extCodeHashDeletedAccount1.json" // ef-tests #287
+                | "callToNonExistent.json" // ef-tests #288
+                | "extCodeHashSelfInInit.json" // ef-tests #289
+                | "extCodeHashSubcallOOG.json" // ef-tests #290
+                | "dynamicAccountOverwriteEmpty.json" // ef-tests #291
         ) || matches!(name, name if name.starts_with("opc") && name.ends_with(".json"))
         // ef-test #120
     }
