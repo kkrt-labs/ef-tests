@@ -20,6 +20,7 @@ use kakarot_test_utils::deploy_helpers::{DeployedKakarot, KakarotTestEnvironment
 use kakarot_test_utils::hive_utils::kakarot::compute_starknet_address;
 
 use regex::Regex;
+use serde::Deserialize;
 use starknet::core::types::FieldElement;
 use starknet_api::{core::ContractAddress as StarknetContractAddress, hash::StarkFelt};
 use std::{
@@ -33,6 +34,21 @@ pub struct BlockchainTestCase {
     pub tests: BTreeMap<String, BlockchainTest>,
     pub transaction: BlockchainTestTransaction,
     skip: bool,
+}
+
+#[derive(Deserialize)]
+pub struct BlockchainTestsSkip {
+    pub filename: Vec<String>,
+    pub regex: Vec<String>,
+}
+
+lazy_static::lazy_static! {
+    pub static ref SKIP: BlockchainTestsSkip = {
+        let skip_file = Path::new("../../blockchain-tests-skip.yml");
+        let skip_str = load_file(skip_file).unwrap();
+
+        serde_yaml::from_str(&skip_str).unwrap()
+    };
 }
 
 async fn handle_pre_state(
@@ -69,194 +85,11 @@ impl BlockchainTestCase {
     pub fn should_skip(path: &Path) -> bool {
         let name = path.file_name().unwrap().to_str().unwrap();
 
-        // Split up matches in exact match and regex otherwise compiler isn't happy
-        // and tests fail
-        matches!(
-            name,
-            "calldatacopy.json" // ef-tests #20
-                | "sha3.json" // ef-tests #19
-                | "exp.json" // kakarot #700
-                | "expPower2.json" // kakarot #700
-                | "expPower256.json" // kakarot #700
-                | "expPower256Of256.json" // kakarot #700
-                | "twoOps.json" // kakarot #700
-                | "addmod.json" // kakarot #695
-                | "mulmod.json" // kakarot #695
-                | "divByZero.json" // kakarot #695
-                | "jumpi.json" // kakarot #693
-                | "jump.json" // ef-tests #38
-                | "jumpToPush.json" // ef-tests #61
-                | "signextend.json" // kakarot #677
-                | "mload.json" // ef-tests #31
-                | "gas.json" // ef-tests #36
-                | "loopExp.json" // ef-tests #39
-                | "loopMul.json" // ef-tests #39
-                | "performanceTester.json" // ef-tests #39
-                | "suicide.json" // ef-tests #57
-                | "blockInfo.json" // ef-tests #67
-                | "envInfo.json" // ef-tests #63
-                | "memCopySelf.json" // ef-tests #52
-                | "bufferSrcOffset.json" // ef-tests #51
-                | "buffer.json" // ef-tests #50
-                | "oog.json" // ef-tests #49
-                | "sloadGasCost.json" // ef-tests #78
-                | "TransactionCreateStopInInitcode.json" // ef-tests #108
-                | "CallRecursiveContract.json" // ef-tests #109
-                | "CallContractToCreateContractWhichWouldCreateContractInInitCode.json" // ef-tests #110
-                | "CallContractToCreateContractOOGBonusGas.json" // ef-tests #111
-                | "OutOfGasPrefundedContractCreation.json" // ef-test #112
-                | "CallContractToCreateContractWhichWouldCreateContractIfCalled.json" // ef-test #114
-                | "CallTheContractToCreateEmptyContract.json" // ef-test #115
-                | "OutOfGasContractCreation.json" // ef-test #116
-                | "CallContractToCreateContractAndCallItOOG.json" // ef-test #117
-                | "TestContractSuicide.json" // ef-test #132
-                | "TestCryptographicFunctions.json" // ef-test #133
-                | "RecursiveCreateContracts.json" // ef-test #134
-                | "ByZero.json" //ef-test #135
-                | "ContractInheritance.json" // ef-test #136
-                | "CallLowLevelCreatesSolidity.json" // ef-test #137
-                | "CreateContractFromMethod.json" // ef-test #138
-                | "TestStoreGasPrices.json" // ef-test #139
-                | "TestContractInteraction.json" // ef-test #140                
-                | "RecursiveCreateContractsCreate4Contracts.json" // ef-test #141
-                | "undefinedOpcodeFirstByte.json" // ef-tests #121
-                | "measureGas.json" // ef-tests #122
-                | "badOpcodes.json" // ef-tests #123
-                | "operationDiffGas.json" // ef-tests #124
-                | "invalidDiffPlaces.json" // ef-tests #125
-                | "invalidAddr.json" // ef-tests #126
-                | "CallContractToCreateContractNoCash.json" // ef-tests #269
-                | "push0.json" // ef-tests #149
-                | "push0Gas.json" // ef-tests #150
-                | "coinbaseWarmAccountCallGas.json" // ef-tests #153
-                | "coinbaseWarmAccountCallGasFail.json" // ef-tests #154
-                | "create2InitCodeSizeLimit.json" // ef-tests #155
-                | "createInitCodeSizeLimit.json" // ef-tests #156
-                | "creationTxInitCodeSizeLimit.json" // ef-tests #157
-                | "codesizeInit.json" // ef-tests #262
-                | "codesizeValid.json" // ef-tests #263
-                | "create2CodeSizeLimit.json" // ef-tests #264
-                | "createCodeSizeLimit.json" // ef-tests #265
-                | "Call1024BalanceTooLow.json" // ef-tests #161
-                | "Call1024OOG.json" // ef-tests #162
-                | "Call1024PreCalls.json" // ef-tests #163
-                | "CallcodeLoseGasOOG.json" // ef-tests #164
-                | "callcodeOutput3.json" // ef-tests #165
-                | "CallLoseGasOOG.json" // ef-tests #166
-                | "callOutput3.json" // ef-tests #167
-                | "callOutput3partial.json" // ef-tests #168
-                | "callOutput3partialFail.json" // ef-tests #169
-                | "CallRecursiveBombPreCall.json" // ef-tests #170
-                | "deleagateCallAfterValueTransfer.json" // ef-tests #171
-                | "Delegatecall1024.json" // ef-tests #172
-                | "Delegatecall1024OOG.json" // ef-tests #173
-                | "delegatecallEmptycontract.json" // ef-tests #174
-                | "delegatecallInInitcodeToEmptyContract.json" // ef-tests #175
-                | "delegatecallInInitcodeToExistingContract.json" // ef-tests #176
-                | "delegatecallInInitcodeToExistingContractOOG.json" // ef-tests #177
-                | "delegatecallOOGinCall.json" // ef-tests #178
-                | "delegatecallSenderCheck.json" // ef-tests #179
-                | "delegatecallValueCheck.json" // ef-tests #180
-                | "delegatecodeDynamicCode.json" // ef-tests #181
-                | "delegatecodeDynamicCode2SelfCall.json" // ef-tests #182
-                | "callcallcallcode_001.json" // ef-tests #183
-                | "callcallcallcode_001_OOGE.json" // ef-tests #184
-                | "callcallcallcode_001_OOGMAfter.json" // ef-tests #185
-                | "callcallcallcode_001_OOGMBefore.json" // ef-tests #186
-                | "callcallcallcode_ABCB_RECURSIVE.json" // ef-tests #187
-                | "callcallcodecallcode_011.json" // ef-tests #188
-                | "callcallcodecallcode_011_OOGE.json" // ef-tests #189
-                | "callcallcodecallcode_011_OOGMAfter.json" // ef-tests #190
-                | "callcallcodecallcode_011_OOGMBefore.json" // ef-tests #191
-                | "callcallcodecallcode_ABCB_RECURSIVE.json" // ef-tests #192
-                | "callcallcodecall_010.json" // ef-tests #193
-                | "callcallcodecall_010_OOGE.json" // ef-tests #194
-                | "callcallcodecall_010_OOGMAfter.json" // ef-tests #195
-                | "callcallcodecall_010_OOGMBefore.json" // ef-tests #196
-                | "callcallcodecall_ABCB_RECURSIVE.json" // ef-tests #197
-                | "callcallcode_01.json" // ef-tests #198
-                | "callcallcode_01_OOGE.json" // ef-tests #199
-                | "callcodecallcallcode_101.json" // ef-tests #200
-                | "callcodecallcallcode_101_OOGE.json" // ef-tests #201
-                | "callcodecallcallcode_101_OOGMAfter.json" // ef-tests #202
-                | "callcodecallcallcode_101_OOGMBefore.json" // ef-tests #203
-                | "callcodecallcallcode_ABCB_RECURSIVE.json" // ef-tests #204
-                | "callcodecallcall_100.json" // ef-tests #205
-                | "callcodecallcall_100_OOGE.json" // ef-tests #206
-                | "callcodecallcall_100_OOGMAfter.json" // ef-tests #207
-                | "callcodecallcall_100_OOGMBefore.json" // ef-tests #208
-                | "callcodecallcall_ABCB_RECURSIVE.json" // ef-tests #209
-                | "callcodecallcodecallcode_111.json" // ef-tests #210
-                | "callcodecallcodecallcode_111_OOGE.json" // ef-tests #211
-                | "callcodecallcodecallcode_111_OOGMAfter.json" // ef-tests #212
-                | "callcodecallcodecallcode_111_OOGMBefore.json" // ef-tests #213
-                | "callcodecallcodecallcode_111_SuicideEnd.json" // ef-tests #214
-                | "callcodecallcodecallcode_ABCB_RECURSIVE.json" // ef-tests #215
-                | "callcodecallcodecall_110.json" // ef-tests #216
-                | "callcodecallcodecall_110_OOGE.json" // ef-tests #217
-                | "callcodecallcodecall_110_OOGMAfter.json" // ef-tests #218
-                | "callcodecallcodecall_110_OOGMBefore.json" // ef-tests #219
-                | "callcodecallcodecall_ABCB_RECURSIVE.json" // ef-tests #220
-                | "callcodecallcode_11.json" // ef-tests #221
-                | "callcodecallcode_11_OOGE.json" // ef-tests #222
-                | "callcodecall_10.json" // ef-tests #223
-                | "callcodecall_10_OOGE.json" // ef-tests #224
-                | "callcallcallcode_001_SuicideEnd.json" // ef-tests #225
-                | "callcallcallcode_001_SuicideMiddle.json" // ef-tests #226
-                | "callcallcodecallcode_011_SuicideEnd.json" // ef-tests #227
-                | "callcallcodecallcode_011_SuicideMiddle.json" // ef-tests #228
-                | "callcallcodecall_010_SuicideEnd.json" // ef-tests #229
-                | "callcallcodecall_010_SuicideMiddle.json" // ef-tests #230
-                | "callcallcode_01_SuicideEnd.json" // ef-tests #231
-                | "callcodecallcallcode_101_SuicideEnd.json" // ef-tests #232
-                | "callcodecallcallcode_101_SuicideMiddle.json" // ef-tests #233
-                | "callcodecallcall_100_SuicideEnd.json" // ef-tests #234
-                | "callcodecallcall_100_SuicideMiddle.json" // ef-tests #235
-                | "callcodecallcodecall_110_SuicideEnd.json" // ef-tests #236
-                | "callcodecall_10_SuicideEnd.json" // ef-tests #237
-                | "callcallcall_000.json" // ef-tests #238
-                | "callcallcall_000_OOGE.json" // ef-tests #239
-                | "callcallcall_000_OOGMAfter.json" // ef-tests #240
-                | "callcallcall_000_OOGMBefore.json" // ef-tests #241
-                | "callcallcall_000_SuicideEnd.json" // ef-tests #242
-                | "callcallcall_000_SuicideMiddle.json" // ef-tests #243
-                | "callcallcall_ABCB_RECURSIVE.json" // ef-tests #244
-                | "callcall_00.json" // ef-tests #245
-                | "callcall_00_OOGE.json" // ef-tests #246
-                | "callcall_00_OOGE_valueTransfer.json" // ef-tests #247
-                | "callcall_00_SuicideEnd.json" // ef-tests #248
-                | "callcodeDynamicCode.json" // ef-tests #249
-                | "callcodeEmptycontract.json" // ef-tests #250
-                | "callcodeInInitcodeToEmptyContract.json" // ef-tests #251
-                | "callcodeInInitcodeToExisContractWithVTransferNEMoney.json" // ef-tests #252
-                | "callcodeInInitcodeToExistingContract.json" // ef-tests #253
-                | "callcodeInInitcodeToExistingContractWithValueTransfer.json" // ef-tests #254
-                | "callcode_checkPC.json" // ef-tests #255
-                | "callcodeDynamicCode2SelfCall.json" // ef-tests #256
-                | "extCodeHashCreatedAndDeletedAccountCall.json" // ef-tests #270
-                | "extCodeHashDeletedAccount3.json" // ef-tests #271
-                | "extCodeHashSubcallSuicide.json" // ef-tests #272
-                | "extCodeHashInInitCode.json" // ef-tests #273
-                | "extCodeHashDeletedAccount.json" // ef-tests #274
-                | "extCodeHashDeletedAccount2.json" // ef-tests #275
-                | "extCodeCopyBounds.json" // ef-tests #276
-                | "createEmptyThenExtcodehash.json" // ef-tests #277
-                | "extcodehashEmpty.json" // ef-tests #278
-                | "extCodeHashDeletedAccount4.json" // ef-tests #279
-                | "extCodeHashCreatedAndDeletedAccountRecheckInOuterCall.json" // ef-tests #280
-                | "extCodeHashCreatedAndDeletedAccountStaticCall.json" // ef-tests #281
-                | "extCodeHashMaxCodeSize.json" // ef-tests #282
-                | "extCodeHashCreatedAndDeletedAccount.json" // ef-tests #283
-                | "extCodeHashChangedAccount.json" // ef-tests #284
-                | "callToSuicideThenExtcodehash.json" // ef-tests #285
-                | "codeCopyZero.json" // ef-tests #286
-                | "extCodeHashDeletedAccount1.json" // ef-tests #287
-                | "callToNonExistent.json" // ef-tests #288
-                | "extCodeHashSelfInInit.json" // ef-tests #289
-                | "extCodeHashSubcallOOG.json" // ef-tests #290
-                | "dynamicAccountOverwriteEmpty.json" // ef-tests #291
-        ) || matches!(name, name if name.starts_with("opc") && name.ends_with(".json"))
-        // ef-test #120
+        SKIP.filename.iter().any(|filename| filename == name)
+            || SKIP
+                .regex
+                .iter()
+                .any(|regex| Regex::new(regex.as_str()).unwrap().is_match(name))
     }
 
     fn test(&self, test_name: &str) -> Result<&BlockchainTest, RunnerError> {
