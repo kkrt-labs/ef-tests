@@ -52,6 +52,7 @@ filename:
   - operationDiffGas.json # ef-tests #124
   - invalidDiffPlaces.json # ef-tests #125
   - invalidAddr.json # ef-tests #126
+  - CallContractToCreateContractNoCash.json # ef-tests #269
   - push0.json # ef-tests #149
   - push0Gas.json # ef-tests #150
   - coinbaseWarmAccountCallGas.json # ef-tests #153
