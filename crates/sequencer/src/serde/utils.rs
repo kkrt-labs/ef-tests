@@ -1,3 +1,5 @@
+// This file has been taken from katana -> https://github.com/dojoengine/dojo/blob/main/crates/katana/core/src/db/serde/utils.rs
+
 use anyhow::Result;
 use blockifier::execution::contract_class::{ContractClass, ContractClassV0};
 use cairo_lang_starknet::casm_contract_class::CasmContractClass;

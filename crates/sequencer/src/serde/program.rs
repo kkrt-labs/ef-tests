@@ -1,3 +1,5 @@
+// This file has been taken from katana -> https://github.com/dojoengine/dojo/blob/main/crates/katana/core/src/db/serde/program.rs
+
 use std::collections::HashMap;
 use std::sync::Arc;
 
