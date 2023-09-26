@@ -2,11 +2,13 @@ use ef_tests::models::Account;
 use kakarot_test_utils::hive_utils::madara::utils::{
     genesis_set_bytecode, genesis_set_storage_kakarot_contract_account,
 };
+use katana_core::db::cached::StorageRecord;
 use reth_primitives::Bytes;
 use starknet::core::types::FieldElement;
 use starknet_api::{hash::StarkFelt, state::StorageKey as StarknetStorageKey};
 
 use crate::models::error::RunnerError;
+use crate::utils::starknet::get_starknet_storage_key;
 
 use super::{
     generate_evm_address_storage, generate_is_initialized_storage, madara_to_katana_storage,
@@ -37,11 +39,13 @@ pub fn initialize_contract_account(
     kakarot_address: FieldElement,
     evm_address: FieldElement,
     bytecode: &Bytes,
+    nonce: FieldElement,
 ) -> Result<Vec<(StarknetStorageKey, StarkFelt)>, RunnerError> {
     let mut contract_storage = vec![
         generate_evm_address_storage(evm_address)?,
         generate_is_initialized_storage()?,
         owner_storage(kakarot_address)?,
+        managed_nonce(nonce)?,
     ];
     contract_storage.append(&mut bytecode_storage(bytecode)?);
     Ok(contract_storage)
@@ -63,9 +67,21 @@ fn bytecode_storage(bytecode: &Bytes) -> Result<Vec<(StarknetStorageKey, StarkFe
     Ok(bytecode_storage)
 }
 
+// Returns kakarot managed nonce tuple
+fn managed_nonce(nonce: FieldElement) -> Result<(StarknetStorageKey, StarkFelt), RunnerError> {
+    starknet_storage_key_value("nonce", &[], nonce)
+}
+
 /// Returns the owner storage tuple.
 fn owner_storage(
     kakarot_address: FieldElement,
 ) -> Result<(StarknetStorageKey, StarkFelt), RunnerError> {
     starknet_storage_key_value("Ownable_owner", &[], kakarot_address)
+}
+
+// Contract accounts have Kakarot managed nonces: https://github.com/kkrt-labs/kakarot/blob/main/src/kakarot/accounts/contract/library.cairo#L174
+// This diverges from EOAs, which have protocol level nonces, managed by the network
+pub fn get_nonce(record: &StorageRecord) -> Result<StarkFelt, RunnerError> {
+    let nonce_key = get_starknet_storage_key("nonce", &[], 0)?;
+    Ok(record.storage.get(&nonce_key).copied().unwrap_or_default())
 }

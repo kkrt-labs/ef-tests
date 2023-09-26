@@ -12,7 +12,33 @@ use std::collections::BTreeMap;
 use std::collections::HashMap;
 
 use crate::models::error::RunnerError;
+use crate::storage::contract::get_nonce;
+use crate::storage::is_account_eoa;
 use crate::utils::starknet::get_starknet_storage_key;
+
+pub fn assert_nonce(
+    expected_state: &Account,
+    actual_state: &StorageRecord,
+) -> Result<(), RunnerError> {
+    let actual_nonce = if is_account_eoa(expected_state) {
+        let Nonce(actual_nonce) = actual_state.nonce;
+        actual_nonce
+    } else {
+        get_nonce(actual_state)?
+    };
+
+    let account_nonce: FieldElement = Felt252Wrapper::try_from(expected_state.nonce.0)?.into();
+    let account_nonce = StarkFelt::from(account_nonce);
+
+    if actual_nonce != account_nonce {
+        return Err(RunnerError::Other(format!(
+            "Expected nonce {} got {}",
+            account_nonce, actual_nonce
+        )));
+    }
+
+    Ok(())
+}
 
 pub fn assert_contract_post_state(
     test_name: &str,
@@ -20,20 +46,16 @@ pub fn assert_contract_post_state(
     expected_state: &Account,
     actual_state: &StorageRecord,
 ) -> Result<(), RunnerError> {
-    let Nonce(actual_nonce) = actual_state.nonce;
-    let account_nonce: FieldElement = Felt252Wrapper::try_from(expected_state.nonce.0)?.into();
-
     // we don't presume gas equivalence
     // TODO: find way to assert on balance
     // assert_eq!(actual_account_balance, StarkFelt::from(expected_account_balance));
 
-    let account_nonce = StarkFelt::from(account_nonce);
-    if actual_nonce != account_nonce {
-        return Err(RunnerError::Other(format!(
-            "{} expected nonce {} for {:#20x}, got {}",
-            test_name, account_nonce, evm_address, actual_nonce
-        )));
-    }
+    assert_nonce(expected_state, actual_state).map_err(|e| {
+        RunnerError::Other(format!(
+            "Test: {}, Address: {:#20x}, Nonce Error: {}",
+            test_name, evm_address, e
+        ))
+    })?;
 
     assert_contract_post_storage(
         test_name,
