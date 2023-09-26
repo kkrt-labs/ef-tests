@@ -182,6 +182,17 @@ filename:
   - extCodeHashSelfInInit.json # ef-tests #289
   - extCodeHashSubcallOOG.json # ef-tests #290
   - dynamicAccountOverwriteEmpty.json # ef-tests #291
+  - CallAskMoreGasOnDepth2ThenTransactionHas.json # ef-tests #303
+  - CallGoesOOGOnSecondLevel.json # ef-tests #304
+  - CreateAndGasInsideCreate.json # ef-tests #305
+  - DelegateCallOnEIP.json # ef-tests #306
+  - NewGasPriceForCodes.json # ef-tests #307
+  - SuicideToExistingContract.json # ef-tests #308
+  - SuicideToNotExistingContract.json # ef-tests #309
+  - Transaction64Rule_d64e0.json # ef-tests #310
+  - Transaction64Rule_d64m1.json # ef-tests #311
+  - Transaction64Rule_d64p1.json # ef-tests #312
+  - Transaction64Rule_integerBoundaries.json # ef-tests #313
 # List of file names regex to be skipped
 regex:
   - ^opc.*\.json$ # ef-test #120
