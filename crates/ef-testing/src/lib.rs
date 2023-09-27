@@ -1,4 +1,5 @@
 pub mod models;
+pub mod sequencer;
 pub mod storage;
 pub mod traits;
 pub mod utils;

@@ -1,0 +1,236 @@
+use blockifier::abi::abi_utils::{
+    get_erc20_balance_var_addresses, get_uint256_storage_var_addresses,
+};
+use blockifier::state::state_api::{State, StateResult};
+use reth_primitives::{Address, Bytes};
+use revm_primitives::U256;
+use starknet_api::core::Nonce;
+use starknet_api::hash::StarkFelt;
+use starknet_api::StarknetApiError;
+
+use super::constants::{
+    CONTRACT_ACCOUNT_CLASS_HASH, EOA_CLASS_HASH, FEE_TOKEN_ADDRESS, KAKAROT_ADDRESS,
+    KAKAROT_CLASS_HASH, KAKAROT_OWNER_ADDRESS, PROXY_CLASS_HASH,
+};
+use super::types::FeltSequencer;
+use super::utils::{
+    class_hash_to_starkfelt, contract_address_to_starkfelt, get_storage_var_address,
+    split_bytecode_to_starkfelt, split_u256,
+};
+use super::KakarotSequencer;
+
+pub trait InitializeEvmState {
+    fn initialize_contract(
+        &mut self,
+        evm_address: &Address,
+        bytecode: &Bytes,
+        nonce: U256,
+        storage: Vec<(U256, U256)>,
+    ) -> StateResult<()>;
+
+    fn initialize_kakarot(&mut self, evm_addresses: Vec<&Address>) -> StateResult<()>;
+
+    fn fund(&mut self, evm_address: &Address, balance: U256) -> StateResult<()>;
+}
+
+impl InitializeEvmState for KakarotSequencer {
+    fn initialize_contract(
+        &mut self,
+        evm_address: &Address,
+        bytecode: &Bytes,
+        nonce: U256,
+        evm_storage: Vec<(U256, U256)>,
+    ) -> StateResult<()> {
+        let starknet_address = self.compute_starknet_address(evm_address);
+        let mut storage = vec![];
+
+        // Initialize the contract evm_address.
+        let evm_address: FeltSequencer = (*evm_address).into();
+        let evm_address_storage = (
+            get_storage_var_address("evm_address", &[]).unwrap(), // safe unwrap: var is ASCII
+            evm_address.into(),
+        );
+        storage.push(evm_address_storage);
+
+        // Initialize the is_initialized_ storage var.
+        let is_initialize_storage = (
+            get_storage_var_address("is_initialized_", &[]).unwrap(), // safe unwrap: var is ASCII
+            StarkFelt::from(1u8),
+        );
+        storage.push(is_initialize_storage);
+
+        // Initialize the contract owner
+        let owner_storage = (
+            get_storage_var_address("Ownable_owner", &[]).unwrap(), // safe unwrap: var is ASCII
+            contract_address_to_starkfelt(&KAKAROT_ADDRESS),
+        );
+        storage.push(owner_storage);
+
+        // Initialize the bytecode storage var.
+        let bytecode_storage = &mut split_bytecode_to_starkfelt(bytecode)
+            .into_iter()
+            .enumerate()
+            .map(|(i, bytes)| {
+                (
+                    get_storage_var_address("bytecode_", &[StarkFelt::from(i as u32)]).unwrap(), // safe unwrap: var is ASCII
+                    bytes,
+                )
+            })
+            .collect();
+        let bytecode_len_storage = (
+            get_storage_var_address("bytecode_len_", &[]).unwrap(), // safe unwrap: var is ASCII
+            StarkFelt::from(bytecode.len() as u32),
+        );
+        storage.append(bytecode_storage);
+        storage.push(bytecode_len_storage);
+
+        // Initialize the kakarot address.
+        let kakarot_address_storage = (
+            get_storage_var_address("kakarot_address", &[]).unwrap(), // safe unwrap: var is ASCII
+            contract_address_to_starkfelt(&KAKAROT_ADDRESS),
+        );
+        storage.push(kakarot_address_storage);
+
+        // Initialize the nonce storage var.
+        let nonce = StarkFelt::from(TryInto::<u128>::try_into(nonce).map_err(|err| {
+            StarknetApiError::OutOfRange {
+                string: err.to_string(),
+            }
+        })?);
+        let nonce_storage = (
+            get_storage_var_address("nonce", &[]).unwrap(), // safe unwrap: var is ASCII
+            nonce,
+        );
+        storage.push(nonce_storage);
+
+        // Initialize the storage vars.
+        let is_evm_storage_empty = evm_storage.is_empty();
+        let evm_storage_storage = &mut evm_storage
+            .into_iter()
+            .flat_map(|(k, v)| {
+                let keys =
+                    get_uint256_storage_var_addresses("storage_", &split_u256(k).map(Into::into))
+                        .unwrap();
+                let values = split_u256(v).map(Into::into);
+                vec![(keys.0, values[0]), (keys.1, values[1])]
+            })
+            .collect();
+        storage.append(evm_storage_storage);
+
+        // Initialize the implementation.
+        let implementation_storage = (
+            get_storage_var_address("_implementation", &[]).unwrap(), // safe unwrap: var is ASCII
+            if bytecode.is_empty() && is_evm_storage_empty {
+                class_hash_to_starkfelt(&EOA_CLASS_HASH)
+            } else {
+                class_hash_to_starkfelt(&CONTRACT_ACCOUNT_CLASS_HASH)
+            },
+        );
+        storage.push(implementation_storage);
+
+        // Write all the storage vars to the sequencer state.
+        let starknet_address = starknet_address.try_into()?;
+        for (k, v) in storage {
+            (&mut self.0.state).set_storage_at(starknet_address, k, v);
+        }
+
+        // Set up the contract class hash and nonce.
+        self.0.state.set_nonce(starknet_address, Nonce(nonce));
+        (&mut self.0.state).set_class_hash_at(starknet_address, *PROXY_CLASS_HASH)?;
+        Ok(())
+    }
+
+    fn initialize_kakarot(&mut self, evm_addresses: Vec<&Address>) -> StateResult<()> {
+        let mut storage = vec![];
+
+        // Initialize the kakarot owner.
+        let kakarot_owner_storage = (
+            get_storage_var_address("Ownable_owner", &[]).unwrap(), // safe unwrap: var is ASCII
+            contract_address_to_starkfelt(&KAKAROT_OWNER_ADDRESS),
+        );
+        storage.push(kakarot_owner_storage);
+
+        // Initialize the kakarot fee token address.
+        let kakarot_fee_token_storage = (
+            get_storage_var_address("native_token_address", &[]).unwrap(), // safe unwrap: var is ASCII
+            contract_address_to_starkfelt(&FEE_TOKEN_ADDRESS),
+        );
+        storage.push(kakarot_fee_token_storage);
+
+        // Initialize the kakarot various class hashes.
+        let kakarot_class_hashes = &mut vec![
+            (
+                get_storage_var_address("contract_account_class_hash", &[]).unwrap(),
+                class_hash_to_starkfelt(&CONTRACT_ACCOUNT_CLASS_HASH),
+            ),
+            (
+                get_storage_var_address("externally_owned_account_class_hash", &[]).unwrap(),
+                class_hash_to_starkfelt(&EOA_CLASS_HASH),
+            ),
+            (
+                get_storage_var_address("account_proxy_class_hash", &[]).unwrap(),
+                class_hash_to_starkfelt(&PROXY_CLASS_HASH),
+            ),
+        ];
+        storage.append(kakarot_class_hashes);
+
+        // Initialize the kakarot address mapping.
+        let evm_starknet_address_mapping_storage = &mut evm_addresses
+            .into_iter()
+            .map(|addr| {
+                let evm_address = FeltSequencer::from(*addr);
+                let starknet_address = self.compute_starknet_address(addr);
+                (
+                    get_storage_var_address("evm_to_starknet_address", &[evm_address.into()])
+                        .unwrap(), // safe unwrap: var is ASCII
+                    starknet_address.into(),
+                )
+            })
+            .collect();
+        storage.append(evm_starknet_address_mapping_storage);
+
+        // Write all the storage vars to the sequencer state.
+        for (k, v) in storage {
+            (&mut self.0.state).set_storage_at(*KAKAROT_ADDRESS, k, v);
+        }
+
+        // Write the kakarot class hash.
+        (&mut self.0.state).set_class_hash_at(*KAKAROT_ADDRESS, *KAKAROT_CLASS_HASH)?;
+        Ok(())
+    }
+
+    fn fund(&mut self, evm_address: &Address, balance: U256) -> StateResult<()> {
+        let starknet_address = self.compute_starknet_address(evm_address);
+        let balance_values = split_u256(balance);
+        let mut storage = vec![];
+
+        // Initialize the balance storage var.
+        let balance_keys = get_erc20_balance_var_addresses(&FEE_TOKEN_ADDRESS)?;
+        let balance_keys = [balance_keys.0, balance_keys.1];
+        let balance_storage = &mut balance_keys
+            .into_iter()
+            .zip(balance_values.into_iter())
+            .map(|(k, v)| (k, StarkFelt::from(v)))
+            .collect();
+        storage.append(balance_storage);
+
+        // Initialize the allowance storage var.
+        let allowance_keys = get_uint256_storage_var_addresses(
+            "ERC20_allowances",
+            &[*FEE_TOKEN_ADDRESS.0.key(), starknet_address.into()],
+        )?;
+        let allowance_keys = [allowance_keys.0, allowance_keys.1];
+        let allowance_storage = &mut allowance_keys
+            .into_iter()
+            .map(|k| (k, StarkFelt::from(u128::MAX)))
+            .collect();
+        storage.append(allowance_storage);
+
+        // Write all the storage vars to the sequencer state.
+        let starknet_address = starknet_address.try_into()?;
+        for (k, v) in storage {
+            (&mut self.0.state).set_storage_at(starknet_address, k, v);
+        }
+        Ok(())
+    }
+}
