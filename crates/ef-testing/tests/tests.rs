@@ -64,7 +64,7 @@ mod blockchain_tests {
 
     blockchain_tests!(shanghai, Shanghai);
     // blockchain_tests!(st_args_zero_one_balance, stArgsZeroOneBalance); // TODO: Implement tests
-    // blockchain_tests!(st_attack_test, stAttackTest); // TODO: Implement tests
+    blockchain_tests!(st_attack_test, stAttackTest);
     blockchain_tests!(st_bad_opcode, stBadOpcode);
     blockchain_tests!(st_bugs, stBugs);
     blockchain_tests!(st_call_codes, stCallCodes);
