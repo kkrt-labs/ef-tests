@@ -184,6 +184,8 @@ filename:
   - dynamicAccountOverwriteEmpty.json # ef-tests #291
   - ContractCreationSpam.json # ef-tests #296
   - CrashingTransaction.json # ef-tests #297
+  - chainId.json # ef-tests #299
+
 # List of file names regex to be skipped
 regex:
   - ^opc.*\.json$ # ef-test #120

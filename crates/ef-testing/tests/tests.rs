@@ -77,7 +77,7 @@ mod blockchain_tests {
         st_call_delegate_codes_homestead,
         stCallDelegateCodesHomestead
     );
-    // blockchain_tests!(st_chain_id, stChainId); // TODO: Implement tests
+    blockchain_tests!(st_chain_id, stChainId);
     blockchain_tests!(st_code_copy_test, stCodeCopyTest);
     blockchain_tests!(st_code_size_limit, stCodeSizeLimit);
     // blockchain_tests!(st_create2, stCreate2); // TODO: Implement tests
