@@ -31,6 +31,12 @@ pub struct State {
     nonces: FxHashMap<ContractAddress, Nonce>,
 }
 
+impl State {
+    pub fn set_nonce(&mut self, contract_address: ContractAddress, nonce: Nonce) {
+        self.nonces.insert(contract_address, nonce);
+    }
+}
+
 impl Committer<State> for &mut State {}
 
 /// State implementation for the sequencer. We use a mutable reference to the state

@@ -2450,6 +2450,7 @@ name = "ef-testing"
 version = "0.1.0"
 dependencies = [
  "async-trait",
+ "blockifier",
  "bytes",
  "chrono",
  "ctor",
@@ -2467,6 +2468,7 @@ dependencies = [
  "reth-rlp",
  "revm-primitives",
  "rstest",
+ "sequencer",
  "serde",
  "serde_json",
  "serde_yaml",
@@ -7903,6 +7905,7 @@ name = "sequencer"
 version = "0.1.0"
 dependencies = [
  "blockifier",
+ "eyre",
  "lazy_static",
  "rustc-hash",
  "serde_json",

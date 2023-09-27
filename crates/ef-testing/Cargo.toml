@@ -20,8 +20,10 @@ reth-rlp = { workspace = true }
 # Kakarot deps
 kakarot-rpc-core = { workspace = true }
 kakarot-test-utils = { workspace = true }
+sequencer = { path = "../sequencer" }
 
 # Starknet deps
+blockifier = { workspace = true }
 dojo-test-utils = { workspace = true }
 katana-core = { workspace = true }
 starknet_api = { workspace = true }

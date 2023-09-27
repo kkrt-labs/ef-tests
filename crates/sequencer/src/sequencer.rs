@@ -86,10 +86,10 @@ mod tests {
         TransactionSignature,
     };
 
+    use crate::constants::test_constants::{FEE_TOKEN_ADDRESS, SEQUENCER_ADDRESS};
     use crate::constants::test_constants::{
-        FEE_TOKEN_ADDRESS, ONE_BLOCK_NUMBER, ONE_BLOCK_TIMESTAMP, ONE_CLASS_HASH,
-        SEQUENCER_ADDRESS, TEST_ADDRESS, TEST_CONTRACT_ACCOUNT, TEST_CONTRACT_ADDRESS,
-        TWO_CLASS_HASH, ZERO_FELT,
+        ONE_BLOCK_NUMBER, ONE_BLOCK_TIMESTAMP, ONE_CLASS_HASH, TEST_ADDRESS, TEST_CONTRACT_ACCOUNT,
+        TEST_CONTRACT_ADDRESS, TWO_CLASS_HASH, ZERO_FELT,
     };
     use crate::state::State;
 
