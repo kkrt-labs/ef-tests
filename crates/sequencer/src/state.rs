@@ -27,7 +27,7 @@ use crate::serde::state::{SerializableState, SerializationError};
 /// which is faster than the default hash function. Think about changing
 /// if the test sequencer is used for tests outside of ef-tests.
 /// See [rustc-hash](https://crates.io/crates/rustc-hash) for more information.
-#[derive(Default)]
+#[derive(Default, Debug)]
 pub struct State {
     pub classes: FxHashMap<ClassHash, ContractClass>,
     pub compiled_class_hashes: FxHashMap<ClassHash, CompiledClassHash>,
@@ -200,6 +200,16 @@ impl From<&SerializableState> for State {
     }
 }
 
+impl PartialEq for State {
+    fn eq(&self, other: &Self) -> bool {
+        (self.classes == other.classes)
+            && (self.compiled_class_hashes == other.compiled_class_hashes)
+            && (self.contracts == other.contracts)
+            && (self.storage == other.storage)
+            && (self.nonces == other.nonces)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use blockifier::execution::contract_class::ContractClassV0;
@@ -359,26 +369,7 @@ mod tests {
             )
         });
 
-        assert_eq!(
-            state.classes.get(&class_hash),
-            loaded_state.classes.get(&class_hash)
-        );
-        assert_eq!(
-            state.compiled_class_hashes.get(&class_hash),
-            loaded_state.compiled_class_hashes.get(&class_hash)
-        );
-        assert_eq!(
-            state.contracts.get(&contract_address),
-            loaded_state.contracts.get(&contract_address)
-        );
-        assert_eq!(
-            state.storage.get(&contract_storage_key),
-            loaded_state.storage.get(&contract_storage_key)
-        );
-        assert_eq!(
-            state.nonces.get(&contract_address),
-            loaded_state.nonces.get(&contract_address)
-        );
+        assert_eq!(state, loaded_state);
 
         fs::remove_file(&dump_file_path).unwrap_or_else(|error| {
             panic!(
