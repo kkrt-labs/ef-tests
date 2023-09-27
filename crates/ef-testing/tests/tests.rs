@@ -64,7 +64,7 @@ mod blockchain_tests {
 
     blockchain_tests!(shanghai, Shanghai);
     // blockchain_tests!(st_args_zero_one_balance, stArgsZeroOneBalance); // TODO: Implement tests
-    // blockchain_tests!(st_attack_test, stAttackTest); // TODO: Implement tests
+    blockchain_tests!(st_attack_test, stAttackTest);
     blockchain_tests!(st_bad_opcode, stBadOpcode);
     blockchain_tests!(st_bugs, stBugs);
     blockchain_tests!(st_call_codes, stCallCodes);
@@ -77,9 +77,9 @@ mod blockchain_tests {
         st_call_delegate_codes_homestead,
         stCallDelegateCodesHomestead
     );
-    // blockchain_tests!(st_chain_id, stChainId); // TODO: Implement tests
-    // blockchain_tests!(st_code_copy_test, stCodeCopyTest); // TODO: Implement tests
-    // blockchain_tests!(st_code_size_limit, stCodeSizeLimit); // TODO: Implement tests
+    blockchain_tests!(st_chain_id, stChainId);
+    blockchain_tests!(st_code_copy_test, stCodeCopyTest);
+    blockchain_tests!(st_code_size_limit, stCodeSizeLimit);
     // blockchain_tests!(st_create2, stCreate2); // TODO: Implement tests
     // blockchain_tests!(st_create_test, stCreateTest); // TODO: Implement tests
     blockchain_tests!(st_delegatecall_test_homestead, stDelegatecallTestHomestead);
