@@ -62,10 +62,10 @@ macro_rules! blockchain_tests {
 mod blockchain_tests {
     use super::*;
 
-    /// TODO: Uncomment tests to add entire folder to test flow.
-    /// All failing tests should be added to the skip session at "blockchain-tests-skip.yml"
-    /// and a respective issue at https://github.com/kkrt-labs/ef-tests/issues should be created.
-    /// Tests from the same folder with the same error can be aggregated in one issue
+    // TODO: Uncomment tests to add entire folder to test flow.
+    // All failing tests should be added to the skip session at "blockchain-tests-skip.yml"
+    // and a respective issue at https://github.com/kkrt-labs/ef-tests/issues should be created.
+    // Tests from the same folder with the same error can be aggregated in one issue
 
     blockchain_tests!(shanghai, Shanghai);
     // blockchain_tests!(st_args_zero_one_balance, stArgsZeroOneBalance); // 4 failing tests
