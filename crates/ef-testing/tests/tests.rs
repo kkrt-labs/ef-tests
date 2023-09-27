@@ -96,14 +96,14 @@ mod blockchain_tests {
     blockchain_tests!(st_eip3607, stEIP3607);
     // blockchain_tests!(st_example, stExample); // failing due to missing field gasPrice, cannot measure number of failing tests
     blockchain_tests!(st_ext_code_hash, stExtCodeHash);
-    // blockchain_tests!(st_homestead_specific, stHomesteadSpecific); // not identified
+    // blockchain_tests!(st_homestead_specific, stHomesteadSpecific); // 4 failing tests
     blockchain_tests!(st_init_code_test, stInitCodeTest);
     blockchain_tests!(st_log_tests, stLogTests);
     // blockchain_tests!(st_mem_expanding_eip150_calls, stMemExpandingEIP150Calls); // 7 failing tests
     // blockchain_tests!(st_memory_stress_test, stMemoryStressTest); // 2 failing tests
     blockchain_tests!(st_memory_test, stMemoryTest);
     // blockchain_tests!(st_non_zero_calls_test, stNonZeroCallsTest); // 13 failing tests
-    // blockchain_tests!(st_pre_compiled_contracts, stPreCompiledContracts); // not identified
+    // blockchain_tests!(st_pre_compiled_contracts, stPreCompiledContracts); // 8 failing tests
     // blockchain_tests!(st_pre_compiled_contracts2, stPreCompiledContracts2); // 97 failing tests
     // blockchain_tests!(st_quadratic_complexity_test, stQuadraticComplexityTest); // 7 failing tests
     // blockchain_tests!(st_random, stRandom); // 79 failing tests
@@ -119,11 +119,11 @@ mod blockchain_tests {
     blockchain_tests!(st_solidity_test, stSolidityTest);
     // blockchain_tests!(st_special_test, stSpecialTest); // 3 failing tests
     // blockchain_tests!(st_stack_tests, stStackTests); // 7 failing tests
-    // blockchain_tests!(st_static_call, stStaticCall); // not identified
+    // blockchain_tests!(st_static_call, stStaticCall); // 207 failing tests
     // blockchain_tests!(st_static_flag_enabled, stStaticFlagEnabled); // 13 failing tests
     // blockchain_tests!(st_system_operations_test, stSystemOperationsTest); // 28 failing tests
     // blockchain_tests!(st_time_consuming, stTimeConsuming); // 14 failing tests
-    // blockchain_tests!(st_transaction_test, stTransactionTest); // not identified
+    // blockchain_tests!(st_transaction_test, stTransactionTest); // failing due to: invalid length 62, expected a (both 0x-prefixed or not) hex string or byte array containing betwee
     // blockchain_tests!(st_transition_test, stTransitionTest); // 3 failing tests
     // blockchain_tests!(st_wallet_test, stWalletTest); // 5 failing tests
     blockchain_tests!(st_zero_calls_revert, stZeroCallsRevert);
