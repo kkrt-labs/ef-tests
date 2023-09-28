@@ -14,13 +14,13 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 120
     steps:
+      - uses: actions/checkout@v3
       - name: Load compiled kakarot contracts
         id: cached-contracts
         uses: actions/cache/restore@v3
         with:
           path: ./lib/kakarot/build
           key: ${{ runner.os }}-contracts
-      - uses: actions/checkout@v3
       - name: Setup rust env
         uses: actions-rs/toolchain@v1
         with:

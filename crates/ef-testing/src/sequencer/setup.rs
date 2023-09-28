@@ -206,7 +206,7 @@ mod tests {
     use starknet::core::types::BroadcastedTransaction;
 
     #[test]
-    fn test_execute_contract_address() {
+    fn test_execute_simple_contract() {
         // Given
         let sequencer = KakarotSequencer::new(SequencerState::default());
         let mut sequencer = sequencer.initialize().unwrap();
