@@ -253,6 +253,12 @@ filename:
   - "LoopCallsDepthThenRevert2.json" # - ef-tests 324
   - "LoopCallsDepthThenRevert3.json" # - ef-tests 324
   - "RevertRemoteSubCallStorageOOG.json" # - ef-tests 324
+  - CALL_OneVCallSuicide.json # ef-tests #350
+  - CALL_ZeroVCallSuicide.json # ef-tests #350
+  - EXP_Empty.json # ef-tests #350
+  - EXTCODESIZE_toEpmty.json # ef-tests #350
+  - EXTCODESIZE_toNonExistent.json # ef-tests #350
+  - vitalikTransactionTest.json # ef-tests #351
 
 # List of file names regex to be skipped
 regex:
