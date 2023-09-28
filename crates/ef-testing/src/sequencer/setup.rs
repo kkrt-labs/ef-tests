@@ -184,3 +184,80 @@ impl InitializeEvmState for KakarotSequencer {
         Ok(())
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use crate::sequencer::{
+        constants::{
+            tests::{PRIVATE_KEY, PUBLIC_KEY, SELECTOR, TEST_CONTRACT_ADDRESS},
+            CHAIN_ID,
+        },
+        utils::to_broadcasted_starknet_transaction,
+    };
+
+    use super::*;
+    use blockifier::state::state_api::StateReader;
+    use bytes::BytesMut;
+    use reth_primitives::{sign_message, AccessList, Signature, TransactionSigned, TxEip1559};
+    use revm_primitives::B256;
+    use sequencer::{
+        execution::Execution, state::State as SequencerState, transaction::StarknetTransaction,
+    };
+    use starknet::core::types::BroadcastedTransaction;
+
+    #[test]
+    fn test_execute_contract_address() {
+        // Given
+        let sequencer = KakarotSequencer::new(SequencerState::default());
+        let mut sequencer = sequencer.initialize().unwrap();
+
+        let transaction = TransactionSigned {
+            hash: B256::default(),
+            signature: Signature::default(),
+            transaction: reth_primitives::Transaction::Eip1559(TxEip1559 {
+                chain_id: *CHAIN_ID,
+                nonce: 0,
+                gas_limit: 0,
+                max_fee_per_gas: 0,
+                max_priority_fee_per_gas: 0,
+                to: reth_primitives::TransactionKind::Call(*TEST_CONTRACT_ADDRESS),
+                value: 0,
+                access_list: AccessList::default(),
+                input: SELECTOR.clone(),
+            }),
+        };
+        let signature =
+            sign_message(*PRIVATE_KEY, transaction.transaction.signature_hash()).unwrap();
+        let mut output = BytesMut::new();
+        transaction.encode_with_signature(&signature, &mut output, false);
+        let transaction = BroadcastedTransaction::Invoke(
+            to_broadcasted_starknet_transaction(&sequencer, &output.to_vec().into()).unwrap(),
+        );
+        let transaction = StarknetTransaction::new(transaction).try_into().unwrap();
+
+        // When
+        let bytecode = Bytes::from(vec![96, 1, 96, 0, 85]); // PUSH 01 PUSH 00 SSTORE
+        let nonce = U256::from(0);
+        sequencer
+            .initialize_contract(&TEST_CONTRACT_ADDRESS, &bytecode, nonce, vec![])
+            .unwrap();
+        sequencer
+            .initialize_contract(&PUBLIC_KEY, &Bytes::default(), U256::from(0), vec![])
+            .unwrap();
+        sequencer.0.execute(transaction).unwrap();
+
+        // Then
+        let contract_starknet_address = sequencer
+            .compute_starknet_address(&TEST_CONTRACT_ADDRESS)
+            .try_into()
+            .unwrap();
+        let storage = (&mut sequencer.0.state)
+            .get_storage_at(
+                contract_starknet_address,
+                get_storage_var_address("storage_", &[StarkFelt::from(0u8), StarkFelt::from(0u8)])
+                    .unwrap(),
+            )
+            .unwrap();
+        assert_eq!(storage, StarkFelt::from(1u8));
+    }
+}
