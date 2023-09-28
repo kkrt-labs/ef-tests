@@ -34,6 +34,7 @@ kakarot-rpc-core = { git = "https://github.com/kkrt-labs/kakarot-rpc.git", rev =
 kakarot-test-utils = { git = "https://github.com/kkrt-labs/kakarot-rpc.git", rev = "ae5e220" }
 
 # Starknet deps
+cairo-vm = "0.8.2"
 blockifier = { package = "blockifier", git = "https://github.com/starkware-libs/blockifier.git", tag = "v0.3.0-rc0" }
 katana-core = { git = 'https://github.com/dojoengine/dojo', rev = "b924dac" }
 dojo-test-utils = { git = 'https://github.com/dojoengine/dojo', rev = "b924dac" }

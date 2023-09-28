@@ -2452,6 +2452,7 @@ dependencies = [
  "async-trait",
  "blockifier",
  "bytes",
+ "cairo-vm",
  "chrono",
  "ctor",
  "dojo-test-utils",
@@ -7905,6 +7906,7 @@ name = "sequencer"
 version = "0.1.0"
 dependencies = [
  "blockifier",
+ "eyre",
  "lazy_static",
  "rustc-hash",
  "serde_json",

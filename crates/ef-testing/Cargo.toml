@@ -24,6 +24,7 @@ sequencer = { path = "../sequencer" }
 
 # Starknet deps
 blockifier = { workspace = true }
+cairo-vm = { workspace = true }
 dojo-test-utils = { workspace = true }
 katana-core = { workspace = true }
 starknet_api = { workspace = true }
