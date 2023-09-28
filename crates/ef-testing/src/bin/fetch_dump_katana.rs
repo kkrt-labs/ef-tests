@@ -23,9 +23,14 @@ struct WorkflowRun {
 /// with all of Kakarot Cairo smart contracts deployed is dumped in an artifact called 'dump-katana'
 /// Starting a Starknet local chain from checkpoint speeds up all our processes.
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    dotenvy::dotenv()?;
-    let token =
-        std::env::var("GITHUB_TOKEN").map_err(|_| eyre::eyre!("Missing GITHUB_TOKEN in .env"))?;
+    let env = dotenvy::dotenv();
+    let token = std::env::var("GITHUB_TOKEN").map_err(|_| {
+        if let Err(message) = env {
+            eyre::eyre!("Failed to read in .env: {message}")
+        } else {
+            eyre::eyre!("Missing GITHUB_TOKEN in .env")
+        }
+    })?;
     let url = "https://api.github.com/repos/kkrt-labs/kakarot-rpc/actions/artifacts";
 
     let client = reqwest::blocking::Client::builder()
