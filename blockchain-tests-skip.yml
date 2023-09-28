@@ -185,6 +185,40 @@ filename:
   - ContractCreationSpam.json # ef-tests #296
   - CrashingTransaction.json # ef-tests #297
   - chainId.json # ef-tests #299
+  - returndatacopy_following_too_big_transfer.json # ef-tests 317
+  - returndatasize_bug.json # ef-tests 317
+  - returndatasize_initial_zero_read.json # ef-tests 317
+  - returndatasize_following_successful_create.json # ef-tests 317
+  - returndatacopy_following_revert_in_create.json # ef-tests 317
+  - returndatacopy_following_failing_call.json # ef-tests 317
+  - returndatacopy_following_revert.json # ef-tests 318
+  - subcallReturnMoreThenExpected.json # ef-tests 318
+  - returndatacopy_afterFailing_create.json # ef-tests 317
+  - returndatacopy_following_successful_create.json # ef-tests 317
+  - returndatacopy_after_failing_staticcall.json # ef-tests 318
+  - create_callprecompile_returndatasize.json # ef-tests 317
+  - returndatacopy_overrun.json # ef-tests 317
+  - call_then_call_value_fail_then_returndatasize.json # ef-tests 317
+  - call_then_create_successful_then_returndatasize.json # ef-tests 317
+  - returndatasize_after_successful_delegatecall.json # ef-tests 318
+  - returndatacopy_following_create.json # ef-tests 317
+  - revertRetDataSize.json # ef-tests 320
+  - tooLongReturnDataCopy.json # ef-tests 319
+  - returndatacopy_initial_big_sum.json # ef-tests 317
+  - call_ecrec_success_empty_then_returndatasize.json # ef-tests 317
+  - returndatacopy_initial.json # ef-tests 317
+  - returndatacopy_following_call.json # ef-tests 318
+  - returndatacopy_after_successful_callcode.json
+  - modexp_modsize0_returndatasize.json # ef-tests 318
+  - returndatacopy_initial_256.json # ef-tests 318
+  - returndatacopy_0_0_following_successful_create.json # ef-tests 317
+  - clearReturnBuffer.json # ef-tests 317
+  - call_outsize_then_create_successful_then_returndatasize.json # ef-tests 317
+  - returndatasize_after_successful_callcode.json # ef-tests 318
+  - returndatacopy_after_failing_delegatecall.json # ef-tests 317
+  - returndatasize_after_successful_staticcall.json # ef-tests 318
+  - returndatasize_initial.json # ef-tests 317
+  - returndatacopy_after_successful_delegatecall.json # ef-tests 318
 
 # List of file names regex to be skipped
 regex:
