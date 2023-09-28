@@ -99,7 +99,7 @@ mod blockchain_tests {
     // blockchain_tests!(st_homestead_specific, stHomesteadSpecific); // 4 failing tests
     blockchain_tests!(st_init_code_test, stInitCodeTest);
     blockchain_tests!(st_log_tests, stLogTests);
-    // blockchain_tests!(st_mem_expanding_eip150_calls, stMemExpandingEIP150Calls); // 7 failing tests
+    blockchain_tests!(st_mem_expanding_eip150_calls, stMemExpandingEIP150Calls);
     // blockchain_tests!(st_memory_stress_test, stMemoryStressTest); // 2 failing tests
     blockchain_tests!(st_memory_test, stMemoryTest);
     // blockchain_tests!(st_non_zero_calls_test, stNonZeroCallsTest); // 13 failing tests
