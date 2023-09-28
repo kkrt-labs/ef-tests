@@ -21,7 +21,7 @@ KAKAROT_COMMIT := .katana/remote_kakarot_sha
 setup: $(EF_TESTS_DIR) setup-kakarot
 
 setup-kakarot:
-	git submodules update --init --recursive
+	git submodule update --init --recursive
 
 fetch-dump: fetch-kakarot-submodule-commit
 	cargo run --features dump --bin fetch-dump-katana
