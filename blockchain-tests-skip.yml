@@ -173,7 +173,7 @@ filename:
   - extCodeHashCreatedAndDeletedAccountRecheckInOuterCall.json # ef-tests #280
   - extCodeHashCreatedAndDeletedAccountStaticCall.json # ef-tests #281
   - extCodeHashMaxCodeSize.json # ef-tests #282
-  - extCodeHashCreatedAndDeletedAccount.json # ef-tests
+  - extCodeHashCreatedAndDeletedAccount.json # ef-tests #283
   - extCodeHashChangedAccount.json # ef-tests #284
   - callToSuicideThenExtcodehash.json # ef-tests #285
   - codeCopyZero.json # ef-tests #286
@@ -196,64 +196,131 @@ filename:
   - Transaction64Rule_d64m1.json # ef-tests #311
   - Transaction64Rule_d64p1.json # ef-tests #312
   - Transaction64Rule_integerBoundaries.json # ef-tests #313
-  - returndatacopy_following_too_big_transfer.json # ef-tests 317
-  - returndatasize_bug.json # ef-tests 317
-  - returndatasize_initial_zero_read.json # ef-tests 317
-  - returndatasize_following_successful_create.json # ef-tests 317
-  - returndatacopy_following_revert_in_create.json # ef-tests 317
-  - returndatacopy_following_failing_call.json # ef-tests 317
-  - returndatacopy_following_revert.json # ef-tests 318
-  - subcallReturnMoreThenExpected.json # ef-tests 318
-  - returndatacopy_afterFailing_create.json # ef-tests 317
-  - returndatacopy_following_successful_create.json # ef-tests 317
-  - returndatacopy_after_failing_staticcall.json # ef-tests 318
-  - create_callprecompile_returndatasize.json # ef-tests 317
-  - returndatacopy_overrun.json # ef-tests 317
-  - call_then_call_value_fail_then_returndatasize.json # ef-tests 317
-  - call_then_create_successful_then_returndatasize.json # ef-tests 317
-  - returndatasize_after_successful_delegatecall.json # ef-tests 318
-  - returndatacopy_following_create.json # ef-tests 317
-  - revertRetDataSize.json # ef-tests 320
-  - tooLongReturnDataCopy.json # ef-tests 319
-  - returndatacopy_initial_big_sum.json # ef-tests 317
-  - call_ecrec_success_empty_then_returndatasize.json # ef-tests 317
-  - returndatacopy_initial.json # ef-tests 317
-  - returndatacopy_following_call.json # ef-tests 318
-  - returndatacopy_after_successful_callcode.json
-  - modexp_modsize0_returndatasize.json # ef-tests 318
-  - returndatacopy_initial_256.json # ef-tests 318
-  - returndatacopy_0_0_following_successful_create.json # ef-tests 317
-  - clearReturnBuffer.json # ef-tests 317
-  - call_outsize_then_create_successful_then_returndatasize.json # ef-tests 317
-  - returndatasize_after_successful_callcode.json # ef-tests 318
-  - returndatacopy_after_failing_delegatecall.json # ef-tests 317
-  - returndatasize_after_successful_staticcall.json # ef-tests 318
-  - returndatasize_initial.json # ef-tests 317
-  - returndatacopy_after_successful_delegatecall.json # ef-tests 318
-  - "RevertOpcodeMultipleSubCalls.json" # - ef-tests 322
-  - "RevertPrefoundCall.json" # - ef-tests 322
-  - "LoopCallsDepthThenRevert.json" # - ef-tests 322
-  - "stateRevert.json" # - ef-tests 322
-  - "RevertDepthCreateOOG.json" # - ef-tests 322
-  - "costRevert.json" # - ef-tests 322
-  - "LoopDelegateCallsDepthThenRevert.json" # - ef-tests 322
-  - "RevertOpcodeInCallsOnNonEmptyReturnData.json" # - ef-tests 322
-  - "RevertOpcodeCalls.json" # - ef-tests 322
-  - "LoopCallsThenRevert.json" # - ef-tests 322
-  - "TouchToEmptyAccountRevert2.json" # - ef-tests 322
-  - "TouchToEmptyAccountRevert3.json" # - ef-tests 322
-  - "RevertDepthCreateAddressCollision.json" # - ef-tests 322
-  - "RevertPrecompiledTouchExactOOG.json" # - ef-tests 323
-  - "RevertPrefound.json" # - ef-tests 323
-  - "RevertPrefoundEmpty.json" # - ef-tests 323
-  - "RevertOpcodeCreate.json" # - ef-tests 323
-  - "RevertOnEmptyStack.json" # - ef-tests 323
-  - "RevertInCreateInInit.json" # - ef-tests 323
-  - "RevertPrefoundEmptyCall.json" # - ef-tests 323
-  - "LoopCallsDepthThenRevert2.json" # - ef-tests 324
-  - "LoopCallsDepthThenRevert3.json" # - ef-tests 324
-  - "RevertRemoteSubCallStorageOOG.json" # - ef-tests 324
-
+  - returndatacopy_following_too_big_transfer.json # ef-tests #317
+  - returndatasize_bug.json # ef-tests #317
+  - returndatasize_initial_zero_read.json # ef-tests #317
+  - returndatasize_following_successful_create.json # ef-tests #317
+  - returndatacopy_following_revert_in_create.json # ef-tests #317
+  - returndatacopy_following_failing_call.json # ef-tests #317
+  - returndatacopy_following_revert.json # ef-tests #318
+  - subcallReturnMoreThenExpected.json # ef-tests #318
+  - returndatacopy_afterFailing_create.json # ef-tests #317
+  - returndatacopy_following_successful_create.json # ef-tests #317
+  - returndatacopy_after_failing_staticcall.json # ef-tests #318
+  - create_callprecompile_returndatasize.json # ef-tests #317
+  - returndatacopy_overrun.json # ef-tests #317
+  - call_then_call_value_fail_then_returndatasize.json # ef-tests #317
+  - call_then_create_successful_then_returndatasize.json # ef-tests #317
+  - returndatasize_after_successful_delegatecall.json # ef-tests #318
+  - returndatacopy_following_create.json # ef-tests #317
+  - revertRetDataSize.json # ef-tests #320
+  - tooLongReturnDataCopy.json # ef-tests #319
+  - returndatacopy_initial_big_sum.json # ef-tests #317
+  - call_ecrec_success_empty_then_returndatasize.json # ef-tests #317
+  - returndatacopy_initial.json # ef-tests #317
+  - returndatacopy_following_call.json # ef-tests #318
+  - returndatacopy_after_successful_callcode.json # ef-tests #318
+  - modexp_modsize0_returndatasize.json # ef-tests #318
+  - returndatacopy_initial_256.json # ef-tests #318
+  - returndatacopy_0_0_following_successful_create.json # ef-tests #317
+  - clearReturnBuffer.json # ef-tests #317
+  - call_outsize_then_create_successful_then_returndatasize.json # ef-tests #317
+  - returndatasize_after_successful_callcode.json # ef-tests #318
+  - returndatacopy_after_failing_delegatecall.json # ef-tests #317
+  - returndatasize_after_successful_staticcall.json # ef-tests #318
+  - returndatasize_initial.json # ef-tests #317
+  - returndatacopy_after_successful_delegatecall.json # ef-tests #318
+  - RevertOpcodeMultipleSubCalls.json # ef-tests #322
+  - RevertPrefoundCall.json # ef-tests #322
+  - LoopCallsDepthThenRevert.json # ef-tests #322
+  - stateRevert.json # ef-tests #322
+  - RevertDepthCreateOOG.json # ef-tests #322
+  - costRevert.json # ef-tests #322
+  - LoopDelegateCallsDepthThenRevert.json # ef-tests #322
+  - RevertOpcodeInCallsOnNonEmptyReturnData.json # ef-tests #322
+  - RevertOpcodeCalls.json # ef-tests #322
+  - LoopCallsThenRevert.json # ef-tests #322
+  - TouchToEmptyAccountRevert2.json # ef-tests #322
+  - TouchToEmptyAccountRevert3.json # ef-tests #322
+  - RevertDepthCreateAddressCollision.json # ef-tests #322
+  - RevertPrecompiledTouchExactOOG.json # ef-tests #323
+  - RevertPrefound.json # ef-tests #323
+  - RevertPrefoundEmpty.json # ef-tests #323
+  - RevertOpcodeCreate.json # ef-tests #323
+  - RevertOnEmptyStack.json # ef-tests #323
+  - RevertInCreateInInit.json # ef-tests #323
+  - RevertPrefoundEmptyCall.json # ef-tests #323
+  - LoopCallsDepthThenRevert2.json # ef-tests #324
+  - LoopCallsDepthThenRevert3.json # ef-tests #324
+  - RevertRemoteSubCallStorageOOG.json # ef-tests #324
+  - RevertDepthCreate2OOG.json # ef-tests #334
+  - RevertDepthCreate2OOGBerlin.json # ef-tests #334
+  - RevertDepthCreateAddressCollisionBerlin.json # ef-tests #334
+  - create2callPrecompiles.json # ef-tests #335
+  - create2checkFieldsInInitcode.json # ef-tests #335
+  - create2collisionBalance.json # ef-tests #335
+  - create2collisionCode.json # ef-tests #335
+  - create2collisionCode2.json # ef-tests #335
+  - create2collisionNonce.json # ef-tests #335
+  - create2collisionStorage.json # ef-tests #335
+  - create2InitCodes.json # ef-tests #335
+  - create2noCash.json # ef-tests #335
+  - Create2OnDepth1023.json # ef-tests #335
+  - Create2OnDepth1024.json # ef-tests #335
+  - Create2OOGFromCallRefunds.json # ef-tests #335
+  - Create2Recursive.json # ef-tests #335
+  - CREATE2_FirstByte_loop.json # ef-tests #335
+  - CREATE2_Suicide.json # ef-tests #335
+  - CreateMessageRevertedOOGInInit.json # ef-tests #335
+  - call_outsize_then_create2_successful_then_returndatasize.json # ef-tests #336
+  - call_then_create2_successful_then_returndatasize.json # ef-tests #336
+  - Create2OOGafterInitCodeReturndata.json # ef-tests #336
+  - Create2OOGafterInitCodeReturndata2.json # ef-tests #336
+  - Create2OOGafterInitCodeRevert.json # ef-tests #336
+  - Create2OOGafterInitCodeRevert2.json # ef-tests #336
+  - CREATE2_HighNonce.json # ef-tests #336
+  - CREATE2_HighNonceDelegatecall.json # ef-tests #336
+  - CreateMessageReverted.json # ef-tests #336
+  - RevertInCreateInInitCreate2.json # ef-tests #336
+  - RevertOpcodeInCreateReturnsCreate2.json # ef-tests #336
+  - create2collisionSelfdestructed.json # ef-tests #337
+  - create2collisionSelfdestructed2.json # ef-tests #337
+  - create2SmartInitCode.json # ef-tests #337
+  - CREATE2_ContractSuicideDuringInit_ThenStoreThenReturn.json # ef-tests #337
+  - CreateAddressWarmAfterFail.json # ef-tests #338
+  - CreateCollisionToEmpty.json # ef-tests #338
+  - CreateOOGafterInitCodeReturndata.json # ef-tests #338
+  - CreateOOGafterInitCodeReturndata2.json # ef-tests #338
+  - CreateResults.json # ef-tests #338
+  - CREATE_AcreateB_BSuicide_BStore.json # ef-tests #338
+  - CREATE_EContract_ThenCALLToNonExistentAcc.json # ef-tests #338
+  - CREATE_EmptyContract.json # ef-tests #338
+  - CREATE_EmptyContractAndCallIt_0wei.json # ef-tests #338
+  - CREATE_EmptyContractAndCallIt_1wei.json # ef-tests #338
+  - CREATE_EmptyContractWithBalance.json # ef-tests #338
+  - CREATE_EmptyContractWithStorage.json # ef-tests #338
+  - CREATE_EmptyContractWithStorageAndCallIt_0wei.json # ef-tests #338
+  - CREATE_EmptyContractWithStorageAndCallIt_1wei.json # ef-tests #338
+  - CREATE_HighNonce.json # ef-tests #338
+  - TransactionCollisionToEmpty.json # ef-tests #338
+  - CodeInConstructor.json # ef-tests #339
+  - CreateCollisionResults.json # ef-tests #339
+  - createFailResult.json # ef-tests #339
+  - createLargeResult.json # ef-tests #339
+  - CreateOOGafterInitCodeRevert.json # ef-tests #339
+  - CreateOOGafterInitCodeRevert2.json # ef-tests #339
+  - CreateOOGafterMaxCodesize.json # ef-tests #339
+  - CREATE_ContractSuicideDuringInit.json # ef-tests #339
+  - CREATE_ContractSuicideDuringInit_ThenStoreThenReturn.json # ef-tests #339
+  - CREATE_ContractSuicideDuringInit_WithValue.json # ef-tests #339
+  - CREATE_ContractSuicideDuringInit_WithValueToItself.json # ef-tests #339
+  - CreateOOGFromCallRefunds.json # ef-tests #340
+  - CreateOOGFromEOARefunds.json # ef-tests #340
+  - CREATE_EContractCreateEContractInInit_Tr.json # ef-tests #340
+  - CREATE_EContractCreateNEContractInInitOOG_Tr.json # ef-tests #340
+  - CREATE_EContractCreateNEContractInInit_Tr.json # ef-tests #340
+  - CREATE_empty000CreateinInitCode_Transaction.json # ef-tests #340
+  - CREATE_FirstByte_loop.json # ef-tests #340
 # List of file names regex to be skipped
 regex:
   - ^opc.*\.json$ # ef-test #120
