@@ -185,6 +185,17 @@ filename:
   - ContractCreationSpam.json # ef-tests #296
   - CrashingTransaction.json # ef-tests #297
   - chainId.json # ef-tests #299
+  - CallAskMoreGasOnDepth2ThenTransactionHas.json # ef-tests #303
+  - CallGoesOOGOnSecondLevel.json # ef-tests #304
+  - CreateAndGasInsideCreate.json # ef-tests #305
+  - DelegateCallOnEIP.json # ef-tests #306
+  - NewGasPriceForCodes.json # ef-tests #307
+  - SuicideToExistingContract.json # ef-tests #308
+  - SuicideToNotExistingContract.json # ef-tests #309
+  - Transaction64Rule_d64e0.json # ef-tests #310
+  - Transaction64Rule_d64m1.json # ef-tests #311
+  - Transaction64Rule_d64p1.json # ef-tests #312
+  - Transaction64Rule_integerBoundaries.json # ef-tests #313
 
 # List of file names regex to be skipped
 regex:
