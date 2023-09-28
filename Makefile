@@ -18,7 +18,7 @@ KAKAROT_COMMIT := .katana/remote_kakarot_sha
 
 # Ensures the commands for $(EF_TESTS_DIR) always run on `make setup`, regardless if the directory exists
 .PHONY: $(EF_TESTS_DIR)
-setup: $(EF_TESTS_DIR) setup-kakarot
+setup: $(EF_TESTS_DIR) 
 
 setup-kakarot: pull-kakarot	
 	cd lib/kakarot && make setup && make build
