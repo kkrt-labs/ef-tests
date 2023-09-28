@@ -3,59 +3,107 @@ pub mod setup;
 pub mod types;
 pub mod utils;
 
-use std::collections::HashMap;
-use std::sync::Arc;
-
-use blockifier::block_context::BlockContext;
+use blockifier::execution::contract_class::{ContractClass, ContractClassV0};
+use blockifier::state::errors::StateError;
+use blockifier::state::state_api::{State as BlockifierState, StateResult};
+use cairo_vm::types::errors::program_errors::ProgramError;
 use reth_primitives::Address;
 use sequencer::sequencer::Sequencer;
 use sequencer::state::State;
 use starknet::core::utils::get_contract_address;
-use starknet_api::block::{BlockNumber, BlockTimestamp};
-use starknet_api::core::ChainId;
 
-use self::constants::{FEE_TOKEN_ADDRESS, KAKAROT_ADDRESS, PROXY_CLASS_HASH, SEQUENCER_ADDRESS};
+use self::constants::{
+    BLOCK_CONTEXT, CONTRACT_ACCOUNT_CLASS, CONTRACT_ACCOUNT_CLASS_HASH, EOA_CLASS, EOA_CLASS_HASH,
+    FEE_TOKEN_ADDRESS, KAKAROT_ADDRESS, KAKAROT_CLASS, KAKAROT_CLASS_HASH, KAKAROT_OWNER_ADDRESS,
+    PROXY_CLASS, PROXY_CLASS_HASH,
+};
 use self::types::FeltSequencer;
+use self::utils::{
+    class_hash_to_starkfelt, contract_address_to_starkfelt, get_storage_var_address,
+};
 
 pub(crate) struct KakarotSequencer(Sequencer<State>);
 
 #[allow(dead_code)]
 impl KakarotSequencer {
     pub fn new(state: State) -> Self {
-        let sequencer = Sequencer::new(Self::default_kakarot_block_context(), state);
+        let sequencer = Sequencer::new(BLOCK_CONTEXT.clone(), state);
         Self(sequencer)
     }
 
-    fn default_kakarot_block_context() -> BlockContext {
-        BlockContext {
-            chain_id: ChainId("KKRT".into()),
-            block_number: BlockNumber(0),
-            block_timestamp: BlockTimestamp(0),
-            sequencer_address: *SEQUENCER_ADDRESS,
-            fee_token_address: *FEE_TOKEN_ADDRESS,
-            vm_resource_fee_cost: Arc::new(Self::default_vm_resource_fee_cost()),
-            gas_price: 1,
-            invoke_tx_max_n_steps: 2u32.pow(24),
-            validate_max_n_steps: 2u32.pow(24),
-            max_recursion_depth: 1024,
-        }
-    }
+    pub fn initialize(mut self) -> StateResult<Self> {
+        let mut storage = vec![];
 
-    fn default_vm_resource_fee_cost() -> HashMap<String, f64> {
-        [
-            (String::from("n_steps"), 1_f64),
-            ("pedersen_builtin".to_string(), 1_f64),
-            ("range_check_builtin".to_string(), 1_f64),
-            ("ecdsa_builtin".to_string(), 1_f64),
-            ("bitwise_builtin".to_string(), 1_f64),
-            ("poseidon_builtin".to_string(), 1_f64),
-            ("output_builtin".to_string(), 1_f64),
-            ("ec_op_builtin".to_string(), 1_f64),
-            ("keccak_builtin".to_string(), 1_f64),
-            ("segment_arena_builtin".to_string(), 1_f64),
-        ]
-        .into_iter()
-        .collect()
+        // Initialize the kakarot owner.
+        let kakarot_owner_storage = (
+            get_storage_var_address("Ownable_owner", &[]).unwrap(), // safe unwrap: var is ASCII
+            contract_address_to_starkfelt(&KAKAROT_OWNER_ADDRESS),
+        );
+        storage.push(kakarot_owner_storage);
+
+        // Initialize the kakarot fee token address.
+        let kakarot_fee_token_storage = (
+            get_storage_var_address("native_token_address", &[]).unwrap(), // safe unwrap: var is ASCII
+            contract_address_to_starkfelt(&FEE_TOKEN_ADDRESS),
+        );
+        storage.push(kakarot_fee_token_storage);
+
+        // Initialize the kakarot various class hashes.
+        let kakarot_class_hashes = &mut vec![
+            (
+                get_storage_var_address("contract_account_class_hash", &[]).unwrap(),
+                class_hash_to_starkfelt(&CONTRACT_ACCOUNT_CLASS_HASH),
+            ),
+            (
+                get_storage_var_address("externally_owned_account_class_hash", &[]).unwrap(),
+                class_hash_to_starkfelt(&EOA_CLASS_HASH),
+            ),
+            (
+                get_storage_var_address("account_proxy_class_hash", &[]).unwrap(),
+                class_hash_to_starkfelt(&PROXY_CLASS_HASH),
+            ),
+        ];
+        storage.append(kakarot_class_hashes);
+
+        // Write all the storage vars to the sequencer state.
+        for (k, v) in storage {
+            (&mut self.0.state).set_storage_at(*KAKAROT_ADDRESS, k, v);
+        }
+
+        // Write the kakarot class and class hash.
+        (&mut self.0.state).set_class_hash_at(*KAKAROT_ADDRESS, *KAKAROT_CLASS_HASH)?;
+        (&mut self.0.state).set_contract_class(
+            &KAKAROT_CLASS_HASH,
+            ContractClass::V0(ContractClassV0::try_from_json_string(
+                &serde_json::to_string(&*KAKAROT_CLASS)
+                    .map_err(|err| StateError::ProgramError(ProgramError::Parse(err)))?,
+            )?),
+        )?;
+
+        // Write proxy, eoa and contract account classes and class hashes.
+        (&mut self.0.state).set_contract_class(
+            &PROXY_CLASS_HASH,
+            ContractClass::V0(ContractClassV0::try_from_json_string(
+                &serde_json::to_string(&*PROXY_CLASS)
+                    .map_err(|err| StateError::ProgramError(ProgramError::Parse(err)))?,
+            )?),
+        )?;
+        (&mut self.0.state).set_contract_class(
+            &CONTRACT_ACCOUNT_CLASS_HASH,
+            ContractClass::V0(ContractClassV0::try_from_json_string(
+                &serde_json::to_string(&*CONTRACT_ACCOUNT_CLASS)
+                    .map_err(|err| StateError::ProgramError(ProgramError::Parse(err)))?,
+            )?),
+        )?;
+        (&mut self.0.state).set_contract_class(
+            &EOA_CLASS_HASH,
+            ContractClass::V0(ContractClassV0::try_from_json_string(
+                &serde_json::to_string(&*EOA_CLASS)
+                    .map_err(|err| StateError::ProgramError(ProgramError::Parse(err)))?,
+            )?),
+        )?;
+
+        Ok(self)
     }
 
     pub fn compute_starknet_address(&self, evm_address: &Address) -> FeltSequencer {
@@ -67,5 +115,23 @@ impl KakarotSequencer {
             (*KAKAROT_ADDRESS.0.key()).into(),
         );
         starknet_address.into()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_initialize() {
+        // Given
+        let state = State::default();
+        let sequencer = KakarotSequencer::new(state);
+
+        // When
+        let result = sequencer.initialize();
+
+        // Then
+        assert!(result.is_ok());
     }
 }

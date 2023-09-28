@@ -10,7 +10,7 @@ use starknet_api::StarknetApiError;
 
 use super::constants::{
     CONTRACT_ACCOUNT_CLASS_HASH, EOA_CLASS_HASH, FEE_TOKEN_ADDRESS, KAKAROT_ADDRESS,
-    KAKAROT_CLASS_HASH, KAKAROT_OWNER_ADDRESS, PROXY_CLASS_HASH,
+    PROXY_CLASS_HASH,
 };
 use super::types::FeltSequencer;
 use super::utils::{
@@ -27,8 +27,6 @@ pub trait InitializeEvmState {
         nonce: U256,
         storage: Vec<(U256, U256)>,
     ) -> StateResult<()>;
-
-    fn initialize_kakarot(&mut self, evm_addresses: Vec<&Address>) -> StateResult<()>;
 
     fn fund(&mut self, evm_address: &Address, balance: U256) -> StateResult<()>;
 }
@@ -137,65 +135,17 @@ impl InitializeEvmState for KakarotSequencer {
         // Set up the contract class hash and nonce.
         self.0.state.set_nonce(starknet_address, Nonce(nonce));
         (&mut self.0.state).set_class_hash_at(starknet_address, *PROXY_CLASS_HASH)?;
-        Ok(())
-    }
 
-    fn initialize_kakarot(&mut self, evm_addresses: Vec<&Address>) -> StateResult<()> {
-        let mut storage = vec![];
-
-        // Initialize the kakarot owner.
-        let kakarot_owner_storage = (
-            get_storage_var_address("Ownable_owner", &[]).unwrap(), // safe unwrap: var is ASCII
-            contract_address_to_starkfelt(&KAKAROT_OWNER_ADDRESS),
+        // Add the address to the Kakarot evm to starknet mapping
+        let evm_starknet_address_mapping_storage = (
+            get_storage_var_address("evm_to_starknet_address", &[evm_address.into()]).unwrap(), // safe unwrap: var is ASCII
+            contract_address_to_starkfelt(&starknet_address),
         );
-        storage.push(kakarot_owner_storage);
-
-        // Initialize the kakarot fee token address.
-        let kakarot_fee_token_storage = (
-            get_storage_var_address("native_token_address", &[]).unwrap(), // safe unwrap: var is ASCII
-            contract_address_to_starkfelt(&FEE_TOKEN_ADDRESS),
+        (&mut self.0.state).set_storage_at(
+            *KAKAROT_ADDRESS,
+            evm_starknet_address_mapping_storage.0,
+            evm_starknet_address_mapping_storage.1,
         );
-        storage.push(kakarot_fee_token_storage);
-
-        // Initialize the kakarot various class hashes.
-        let kakarot_class_hashes = &mut vec![
-            (
-                get_storage_var_address("contract_account_class_hash", &[]).unwrap(),
-                class_hash_to_starkfelt(&CONTRACT_ACCOUNT_CLASS_HASH),
-            ),
-            (
-                get_storage_var_address("externally_owned_account_class_hash", &[]).unwrap(),
-                class_hash_to_starkfelt(&EOA_CLASS_HASH),
-            ),
-            (
-                get_storage_var_address("account_proxy_class_hash", &[]).unwrap(),
-                class_hash_to_starkfelt(&PROXY_CLASS_HASH),
-            ),
-        ];
-        storage.append(kakarot_class_hashes);
-
-        // Initialize the kakarot address mapping.
-        let evm_starknet_address_mapping_storage = &mut evm_addresses
-            .into_iter()
-            .map(|addr| {
-                let evm_address = FeltSequencer::from(*addr);
-                let starknet_address = self.compute_starknet_address(addr);
-                (
-                    get_storage_var_address("evm_to_starknet_address", &[evm_address.into()])
-                        .unwrap(), // safe unwrap: var is ASCII
-                    starknet_address.into(),
-                )
-            })
-            .collect();
-        storage.append(evm_starknet_address_mapping_storage);
-
-        // Write all the storage vars to the sequencer state.
-        for (k, v) in storage {
-            (&mut self.0.state).set_storage_at(*KAKAROT_ADDRESS, k, v);
-        }
-
-        // Write the kakarot class hash.
-        (&mut self.0.state).set_class_hash_at(*KAKAROT_ADDRESS, *KAKAROT_CLASS_HASH)?;
         Ok(())
     }
 
