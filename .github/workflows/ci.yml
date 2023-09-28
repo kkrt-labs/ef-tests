@@ -1,0 +1,23 @@
+---
+name: Workflow - CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  linters:
+    name: Linters
+    uses: ./.github/workflows/linters.yml
+
+  submodules:
+    name: Compile Kakarot contracts
+    uses: ./.github/workflows/kakarot.yml
+
+  tests: 
+    name: Rust tests
+    uses: ./.github/workflows/test.yml
+    needs: submodules
+
+  

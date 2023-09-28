@@ -20,7 +20,10 @@ KAKAROT_COMMIT := .katana/remote_kakarot_sha
 .PHONY: $(EF_TESTS_DIR)
 setup: $(EF_TESTS_DIR) setup-kakarot
 
-setup-kakarot:
+setup-kakarot: pull-kakarot	
+	cd lib/kakarot && make setup && make build
+
+pull-kakarot:
 	git submodule update --init --recursive
 
 fetch-dump: fetch-kakarot-submodule-commit
