@@ -257,6 +257,19 @@ filename:
   - createContractViaContract.json # ef-tests #354
   - createContractViaContractOOGInitCode.json # ef-tests #354
   - createContractViaTransactionCost53000.json # ef-tests #354
+  - NonZeroValue_CALL.json # ef-tests #360
+  - NonZeroValue_CALLCODE.json # ef-tests #360
+  - NonZeroValue_CALLCODE_ToEmpty.json # ef-tests #360
+  - NonZeroValue_CALLCODE_ToNonNonZeroBalance.json # ef-tests #360
+  - NonZeroValue_CALLCODE_ToOneStorageKey.json # ef-tests #360
+  - NonZeroValue_CALL_ToEmpty.json # ef-tests #360
+  - NonZeroValue_CALL_ToNonNonZeroBalance.json # ef-tests #360
+  - NonZeroValue_CALL_ToOneStorageKey.json # ef-tests #360
+  - NonZeroValue_DELEGATECALL.json # ef-tests #360
+  - NonZeroValue_DELEGATECALL_ToEmpty.json # ef-tests #360
+  - NonZeroValue_DELEGATECALL_ToNonNonZeroBalance.json # ef-tests #360
+  - NonZeroValue_DELEGATECALL_ToOneStorageKey.json # ef-tests #360
+  - NonZeroValue_SUICIDE.json # ef-tests #361
 
 # List of file names regex to be skipped
 regex:
