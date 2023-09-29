@@ -287,6 +287,10 @@ filename:
   - RawExtCodeCopyGas.json # ef-tests #344
   - RawExtCodeCopyMemoryGas.json # ef-tests #344
   - RawExtCodeSizeGas.json # ef-tests #344
+  - contractCreationOOGdontLeaveEmptyContractViaTransaction.json # ef-tests #353
+  - createContractViaContract.json # ef-tests #354
+  - createContractViaContractOOGInitCode.json # ef-tests #354
+  - createContractViaTransactionCost53000.json # ef-tests #354
 
 # List of file names regex to be skipped
 regex:
