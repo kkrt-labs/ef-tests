@@ -253,6 +253,40 @@ filename:
   - "LoopCallsDepthThenRevert2.json" # - ef-tests 324
   - "LoopCallsDepthThenRevert3.json" # - ef-tests 324
   - "RevertRemoteSubCallStorageOOG.json" # - ef-tests 324
+  - gasCostMemSeg.json # ef-tests #343
+  - RawCreateGas.json # ef-tests #343
+  - RawCreateGasMemory.json # ef-tests #343
+  - RawCreateGasValueTransfer.json # ef-tests #343
+  - RawCreateGasValueTransferMemory.json # ef-tests #343
+  - eip2929-ff.json # ef-tests #344
+  - eip2929.json # ef-tests #344
+  - gasCostMemory.json # ef-tests #344
+  - RawBalanceGas.json # ef-tests #344
+  - RawCallCodeGas.json # ef-tests #344
+  - RawCallCodeGasAsk.json # ef-tests #344
+  - RawCallCodeGasMemory.json # ef-tests #344
+  - RawCallCodeGasMemoryAsk.json # ef-tests #344
+  - RawCallCodeGasValueTransfer.json # ef-tests #344
+  - RawCallCodeGasValueTransferAsk.json # ef-tests #344
+  - RawCallCodeGasValueTransferMemory.json # ef-tests #344
+  - RawCallCodeGasValueTransferMemoryAsk.json # ef-tests #344
+  - RawCallGas.json # ef-tests #344
+  - RawCallGasAsk.json # ef-tests #344
+  - RawCallGasValueTransfer.json # ef-tests #344
+  - RawCallGasValueTransferAsk.json # ef-tests #344
+  - RawCallGasValueTransferMemory.json # ef-tests #344
+  - RawCallGasValueTransferMemoryAsk.json # ef-tests #344
+  - RawCallMemoryGas.json # ef-tests #344
+  - RawCallMemoryGasAsk.json # ef-tests #344
+  - RawCreateFailGasValueTransfer.json # ef-tests #344
+  - RawCreateFailGasValueTransfer2.json # ef-tests #344
+  - RawDelegateCallGas.json # ef-tests #344
+  - RawDelegateCallGasAsk.json # ef-tests #344
+  - RawDelegateCallGasMemory.json # ef-tests #344
+  - RawDelegateCallGasMemoryAsk.json # ef-tests #344
+  - RawExtCodeCopyGas.json # ef-tests #344
+  - RawExtCodeCopyMemoryGas.json # ef-tests #344
+  - RawExtCodeSizeGas.json # ef-tests #344
   - CALL_OneVCallSuicide.json # ef-tests #350
   - CALL_ZeroVCallSuicide.json # ef-tests #350
   - EXP_Empty.json # ef-tests #350
@@ -263,6 +297,21 @@ filename:
   - createContractViaContract.json # ef-tests #354
   - createContractViaContractOOGInitCode.json # ef-tests #354
   - createContractViaTransactionCost53000.json # ef-tests #354
+  - NonZeroValue_CALL.json # ef-tests #360
+  - NonZeroValue_CALLCODE.json # ef-tests #360
+  - NonZeroValue_CALLCODE_ToEmpty.json # ef-tests #360
+  - NonZeroValue_CALLCODE_ToNonNonZeroBalance.json # ef-tests #360
+  - NonZeroValue_CALLCODE_ToOneStorageKey.json # ef-tests #360
+  - NonZeroValue_CALL_ToEmpty.json # ef-tests #360
+  - NonZeroValue_CALL_ToNonNonZeroBalance.json # ef-tests #360
+  - NonZeroValue_CALL_ToOneStorageKey.json # ef-tests #360
+  - NonZeroValue_DELEGATECALL.json # ef-tests #360
+  - NonZeroValue_DELEGATECALL_ToEmpty.json # ef-tests #360
+  - NonZeroValue_DELEGATECALL_ToNonNonZeroBalance.json # ef-tests #360
+  - NonZeroValue_DELEGATECALL_ToOneStorageKey.json # ef-tests #360
+  - NonZeroValue_SUICIDE.json # ef-tests #361
+  - RETURN_Bounds.json # ef-tests #366
+  - FillStack.json # ef-tests #367
 
 # List of file names regex to be skipped
 regex:

@@ -89,7 +89,7 @@ mod blockchain_tests {
     // blockchain_tests!(st_create_test, stCreateTest); // 34 failing tests
     blockchain_tests!(st_delegatecall_test_homestead, stDelegatecallTestHomestead);
     blockchain_tests!(st_eip150_specific, stEIP150Specific);
-    // blockchain_tests!(st_eip150single_code_gas_prices, stEIP150singleCodeGasPrices); // 34 failing tests
+    blockchain_tests!(st_eip150single_code_gas_prices, stEIP150singleCodeGasPrices);
     // blockchain_tests!(st_eip1559, stEIP1559); // failing due to missing field gasPrice, cannot measure number of failing tests
     blockchain_tests!(st_eip158_specific, stEIP158Specific);
     // blockchain_tests!(st_eip2930, stEIP2930); // failing due to missing field gasPrice, cannot measure number of failing tests
@@ -100,9 +100,9 @@ mod blockchain_tests {
     blockchain_tests!(st_init_code_test, stInitCodeTest);
     blockchain_tests!(st_log_tests, stLogTests);
     // blockchain_tests!(st_mem_expanding_eip150_calls, stMemExpandingEIP150Calls); // 7 failing tests
-    // blockchain_tests!(st_memory_stress_test, stMemoryStressTest); // 2 failing tests
+    blockchain_tests!(st_memory_stress_test, stMemoryStressTest);
     blockchain_tests!(st_memory_test, stMemoryTest);
-    // blockchain_tests!(st_non_zero_calls_test, stNonZeroCallsTest); // 13 failing tests
+    blockchain_tests!(st_non_zero_calls_test, stNonZeroCallsTest);
     // blockchain_tests!(st_pre_compiled_contracts, stPreCompiledContracts); // 8 failing tests
     // blockchain_tests!(st_pre_compiled_contracts2, stPreCompiledContracts2); // 97 failing tests
     // blockchain_tests!(st_quadratic_complexity_test, stQuadraticComplexityTest); // 7 failing tests
