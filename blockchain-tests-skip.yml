@@ -321,6 +321,11 @@ filename:
   - CREATE_EContractCreateNEContractInInit_Tr.json # ef-tests #340
   - CREATE_empty000CreateinInitCode_Transaction.json # ef-tests #340
   - CREATE_FirstByte_loop.json # ef-tests #340
+  - contractCreationOOGdontLeaveEmptyContractViaTransaction.json # ef-tests #353
+  - createContractViaContract.json # ef-tests #354
+  - createContractViaContractOOGInitCode.json # ef-tests #354
+  - createContractViaTransactionCost53000.json # ef-tests #354
+
 # List of file names regex to be skipped
 regex:
   - ^opc.*\.json$ # ef-test #120
