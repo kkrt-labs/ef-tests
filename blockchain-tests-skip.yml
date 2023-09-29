@@ -253,6 +253,10 @@ filename:
   - "LoopCallsDepthThenRevert2.json" # - ef-tests 324
   - "LoopCallsDepthThenRevert3.json" # - ef-tests 324
   - "RevertRemoteSubCallStorageOOG.json" # - ef-tests 324
+  - contractCreationOOGdontLeaveEmptyContractViaTransaction.json # ef-tests #353
+  - createContractViaContract.json # ef-tests #354
+  - createContractViaContractOOGInitCode.json # ef-tests #354
+  - createContractViaTransactionCost53000.json # ef-tests #354
   - CallAndCallcodeConsumeMoreGasThenTransactionHasWithMemExpandingCalls.json # ef-tests #356
   - CallAskMoreGasOnDepth2ThenTransactionHasWithMemExpandingCalls.json # ef-tests #356
   - CallGoesOOGOnSecondLevelWithMemExpandingCalls.json # ef-tests #356
