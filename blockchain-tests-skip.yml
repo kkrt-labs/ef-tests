@@ -291,6 +291,13 @@ filename:
   - createContractViaContract.json # ef-tests #354
   - createContractViaContractOOGInitCode.json # ef-tests #354
   - createContractViaTransactionCost53000.json # ef-tests #354
+  - CallAndCallcodeConsumeMoreGasThenTransactionHasWithMemExpandingCalls.json # ef-tests #356
+  - CallAskMoreGasOnDepth2ThenTransactionHasWithMemExpandingCalls.json # ef-tests #356
+  - CallGoesOOGOnSecondLevelWithMemExpandingCalls.json # ef-tests #356
+  - DelegateCallOnEIPWithMemExpandingCalls.json # ef-tests #356
+  - ExecuteCallThatAskMoreGasThenTransactionHasWithMemExpandingCalls.json # ef-tests #356
+  - NewGasPriceForCodesWithMemExpandingCalls.json # ef-tests #356
+  - CreateAndGasInsideCreateWithMemExpandingCalls.json # ef-tests #357
   - NonZeroValue_CALL.json # ef-tests #360
   - NonZeroValue_CALLCODE.json # ef-tests #360
   - NonZeroValue_CALLCODE_ToEmpty.json # ef-tests #360
