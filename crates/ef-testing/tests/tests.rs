@@ -103,8 +103,8 @@ mod blockchain_tests {
     blockchain_tests!(st_memory_stress_test, stMemoryStressTest);
     blockchain_tests!(st_memory_test, stMemoryTest);
     blockchain_tests!(st_non_zero_calls_test, stNonZeroCallsTest);
-    // blockchain_tests!(st_pre_compiled_contracts, stPreCompiledContracts); // 8 failing tests
-    // blockchain_tests!(st_pre_compiled_contracts2, stPreCompiledContracts2); // 97 failing tests
+    blockchain_tests!(st_pre_compiled_contracts, stPreCompiledContracts);
+    blockchain_tests!(st_pre_compiled_contracts2, stPreCompiledContracts2);
     // blockchain_tests!(st_quadratic_complexity_test, stQuadraticComplexityTest); // 7 failing tests
     // blockchain_tests!(st_random, stRandom); // 79 failing tests
     // blockchain_tests!(st_random2, stRandom2); // 40 failing tests
