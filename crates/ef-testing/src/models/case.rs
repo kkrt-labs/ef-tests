@@ -100,8 +100,8 @@ impl BlockchainTestCase {
                 .unwrap()
                 .iter()
                 .any(|filename| filename == name);
-        } 
-        
+        }
+
         if !should_skip && SKIP.regex.contains_key(dir) {
             should_skip = SKIP
                 .regex
