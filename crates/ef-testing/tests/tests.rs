@@ -68,7 +68,7 @@ mod blockchain_tests {
     // Tests from the same folder with the same error can be aggregated in one issue
 
     blockchain_tests!(shanghai, Shanghai);
-    // blockchain_tests!(st_args_zero_one_balance, stArgsZeroOneBalance); // 4 failing tests
+    blockchain_tests!(st_args_zero_one_balance, stArgsZeroOneBalance);
     blockchain_tests!(st_attack_test, stAttackTest);
     blockchain_tests!(st_bad_opcode, stBadOpcode);
     blockchain_tests!(st_bugs, stBugs);

@@ -313,6 +313,10 @@ filename:
   - NonZeroValue_SUICIDE.json # ef-tests #361
   - RETURN_Bounds.json # ef-tests #366
   - FillStack.json # ef-tests #367
+  - createNonConst.json # ef-tests #368
+  - mulmodNonConst.json # ef-tests #368
+  - suicideNonConst.json # ef-tests #370
+  - callNonConst.json # ef-tests #371
 
 # List of file names regex to be skipped
 regex:
