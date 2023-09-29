@@ -270,6 +270,8 @@ filename:
   - NonZeroValue_DELEGATECALL_ToNonNonZeroBalance.json # ef-tests #360
   - NonZeroValue_DELEGATECALL_ToOneStorageKey.json # ef-tests #360
   - NonZeroValue_SUICIDE.json # ef-tests #361
+  - RETURN_Bounds.json # ef-tests #366
+  - FillStack.json # ef-tests #367
 
 # List of file names regex to be skipped
 regex:
