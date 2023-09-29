@@ -1,4 +1,5 @@
-# # List of file names to be skipped
+# List of file names to be skipped
+# The first level corresponds to the directory, the second to the list of file names to ignore.
 filename:
   vmArithmeticTest:
     - mulmod.json # kakarot #695
@@ -438,6 +439,7 @@ filename:
     - RecursiveCreateContractsCreate4Contracts.json # ef-test #141
 
 # List of file names regex to be skipped
+# The first level corresponds to the directory, the second to the list of file names regex to ignore.
 regex:
   stBadOpcode:
     - ^opc.*\.json$ # ef-test #120
