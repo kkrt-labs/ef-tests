@@ -96,7 +96,7 @@ mod blockchain_tests {
     blockchain_tests!(st_eip3607, stEIP3607);
     // blockchain_tests!(st_example, stExample); // failing due to missing field gasPrice, cannot measure number of failing tests
     blockchain_tests!(st_ext_code_hash, stExtCodeHash);
-    // blockchain_tests!(st_homestead_specific, stHomesteadSpecific); // 4 failing tests
+    blockchain_tests!(st_homestead_specific, stHomesteadSpecific);
     blockchain_tests!(st_init_code_test, stInitCodeTest);
     blockchain_tests!(st_log_tests, stLogTests);
     // blockchain_tests!(st_mem_expanding_eip150_calls, stMemExpandingEIP150Calls); // 7 failing tests
