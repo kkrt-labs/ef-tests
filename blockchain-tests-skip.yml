@@ -313,6 +313,13 @@ filename:
   - NonZeroValue_SUICIDE.json # ef-tests #361
   - RETURN_Bounds.json # ef-tests #366
   - FillStack.json # ef-tests #367
+  - Call1MB1024Calldepth.json # ef-tests #375
+  - Call20KbytesContract50_1.json # ef-tests #375
+  - Call20KbytesContract50_2.json # ef-tests #375
+  - Call20KbytesContract50_3.json # ef-tests #375
+  - Return50000.json # ef-tests #375
+  - Return50000_2.json # ef-tests #375
+  - Create1000Shnghai.json # ef-tests #376
 
 # List of file names regex to be skipped
 regex:
