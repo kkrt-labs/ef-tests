@@ -453,6 +453,7 @@ filename:
     - TestContractInteraction.json # ef-test #140
     - RecursiveCreateContractsCreate4Contracts.json # ef-test #141
   stSystemOperationsTest:
+    - ABAcalls0.json # ef-test #450
     - ABAcalls1.json # ef-test #450
     - ABAcalls2.json # ef-test #450
     - ABAcalls3.json # ef-test #450
