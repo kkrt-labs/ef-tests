@@ -1,7 +1,3 @@
-# List of file names regex to be skipped
-regex:
-  - ^opc.*\.json$ # ef-test #120
-
 # List of file names to be skipped
 # The first level corresponds to the directory, the second to the list of file names to ignore.
 filename:
@@ -448,7 +444,7 @@ filename:
     - TestStoreGasPrices.json # ef-test #139
     - TestContractInteraction.json # ef-test #140
     - RecursiveCreateContractsCreate4Contracts.json # ef-test #141
-  stArgsZeroOneBalance : 
+  stArgsZeroOneBalance:
     - createNonConst.json # ef-tests #368
     - mulmodNonConst.json # ef-tests #368
     - suicideNonConst.json # ef-tests #370
