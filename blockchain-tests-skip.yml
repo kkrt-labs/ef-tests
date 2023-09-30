@@ -287,6 +287,12 @@ filename:
   - RawExtCodeCopyGas.json # ef-tests #344
   - RawExtCodeCopyMemoryGas.json # ef-tests #344
   - RawExtCodeSizeGas.json # ef-tests #344
+  - CALL_OneVCallSuicide.json # ef-tests #350
+  - CALL_ZeroVCallSuicide.json # ef-tests #350
+  - EXP_Empty.json # ef-tests #350
+  - EXTCODESIZE_toEpmty.json # ef-tests #350
+  - EXTCODESIZE_toNonExistent.json # ef-tests #350
+  - vitalikTransactionTest.json # ef-tests #351
   - contractCreationOOGdontLeaveEmptyContractViaTransaction.json # ef-tests #353
   - createContractViaContract.json # ef-tests #354
   - createContractViaContractOOGInitCode.json # ef-tests #354
