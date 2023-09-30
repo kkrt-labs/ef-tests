@@ -372,6 +372,14 @@ filename:
     - NonZeroValue_DELEGATECALL_ToNonNonZeroBalance.json # ef-tests #360
     - NonZeroValue_DELEGATECALL_ToOneStorageKey.json # ef-tests #360
     - NonZeroValue_SUICIDE.json # ef-tests #361
+  stQuadraticComplexityTest:
+    - Call1MB1024Calldepth.json # ef-tests #375
+    - Call20KbytesContract50_1.json # ef-tests #375
+    - Call20KbytesContract50_2.json # ef-tests #375
+    - Call20KbytesContract50_3.json # ef-tests #375
+    - Return50000.json # ef-tests #375
+    - Return50000_2.json # ef-tests #375
+    - Create1000Shnghai.json # ef-tests #376
   stReturnDataTest:
     - returndatacopy_following_too_big_transfer.json # ef-tests #317
     - returndatasize_bug.json # ef-tests #317
@@ -448,6 +456,11 @@ filename:
     - tx_e1c174e2.json # ef-tests #412
     - eoaEmpty.json # ef-tests #413
     - selfdestructEIP2929.json # ef-tests #413
+  stArgsZeroOneBalance:
+    - createNonConst.json # ef-tests #368
+    - mulmodNonConst.json # ef-tests #368
+    - suicideNonConst.json # ef-tests #370
+    - callNonConst.json # ef-tests #371
 
 # List of file names regex to be skipped
 # The first level corresponds to the directory, the second to the list of file names regex to ignore.
