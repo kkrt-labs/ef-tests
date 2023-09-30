@@ -230,6 +230,7 @@ filename:
     - RevertDepthCreate2OOG.json # ef-tests #334
     - RevertDepthCreate2OOGBerlin.json # ef-tests #334
     - RevertDepthCreateAddressCollisionBerlin.json # ef-tests #334
+    - RevertDepthCreateAddressCollision.json # ef-tests #334
     - create2callPrecompiles.json # ef-tests #335
     - create2checkFieldsInInitcode.json # ef-tests #335
     - create2collisionBalance.json # ef-tests #335
@@ -257,6 +258,13 @@ filename:
     - CreateMessageReverted.json # ef-tests #336
     - RevertInCreateInInitCreate2.json # ef-tests #336
     - RevertOpcodeInCreateReturnsCreate2.json # ef-tests #336
+    - returndatasize_following_successful_create.json # ef-tests #336
+    - returndatacopy_afterFailing_create.json # ef-tests #336
+    - returndatacopy_following_create.json # ef-tests #336
+    - RevertOpcodeCreate.json # ef-tests #336
+    - returndatacopy_following_revert_in_create.json # ef-tests #336
+    - returndatacopy_0_0_following_successful_create.json # ef-tests #336
+    - returndatacopy_following_successful_create.json # ef-tests #336
     - create2collisionSelfdestructed.json # ef-tests #337
     - create2collisionSelfdestructed2.json # ef-tests #337
     - create2SmartInitCode.json # ef-tests #337
