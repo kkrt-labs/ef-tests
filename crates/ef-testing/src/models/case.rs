@@ -38,8 +38,8 @@ pub struct BlockchainTestCase {
 
 #[derive(Deserialize)]
 pub struct BlockchainTestsSkip {
-    pub filename: Vec<String>,
-    pub regex: Vec<String>,
+    pub filename: BTreeMap<String, Vec<String>>,
+    pub regex: BTreeMap<String, Vec<String>>,
 }
 
 lazy_static::lazy_static! {
@@ -83,13 +83,35 @@ impl BlockchainTestCase {
     /// Will panic if the file name cannot be stringified.
     #[must_use]
     pub fn should_skip(path: &Path) -> bool {
+        let dir = path
+            .parent()
+            .unwrap()
+            .file_name()
+            .unwrap()
+            .to_str()
+            .unwrap();
         let name = path.file_name().unwrap().to_str().unwrap();
 
-        SKIP.filename.iter().any(|filename| filename == name)
-            || SKIP
-                .regex
+        let mut should_skip = false;
+        if SKIP.filename.contains_key(dir) {
+            should_skip = SKIP
+                .filename
+                .get(dir)
+                .unwrap()
                 .iter()
-                .any(|regex| Regex::new(regex.as_str()).unwrap().is_match(name))
+                .any(|filename| filename == name);
+        }
+
+        if !should_skip && SKIP.regex.contains_key(dir) {
+            should_skip = SKIP
+                .regex
+                .get(dir)
+                .unwrap()
+                .iter()
+                .any(|regex| Regex::new(regex.as_str()).unwrap().is_match(name));
+        }
+
+        should_skip
     }
 
     fn test(&self, test_name: &str) -> Result<&BlockchainTest, RunnerError> {
@@ -373,7 +395,7 @@ mod tests {
     fn test_should_skip() {
         // Given
         let path = Path::new(
-            "ethereum-tests/BlockchainTests/GeneralStateTests/VMTests/vmArithmeticTest/calldatacopy.json",
+            "ethereum-tests/BlockchainTests/GeneralStateTests/VMTests/vmArithmeticTest/mulmod.json",
         );
 
         // When
