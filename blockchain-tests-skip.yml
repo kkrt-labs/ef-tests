@@ -444,6 +444,11 @@ filename:
     - TestStoreGasPrices.json # ef-test #139
     - TestContractInteraction.json # ef-test #140
     - RecursiveCreateContractsCreate4Contracts.json # ef-test #141
+  stArgsZeroOneBalance:
+    - createNonConst.json # ef-tests #368
+    - mulmodNonConst.json # ef-tests #368
+    - suicideNonConst.json # ef-tests #370
+    - callNonConst.json # ef-tests #371
 
 # List of file names regex to be skipped
 # The first level corresponds to the directory, the second to the list of file names regex to ignore.
