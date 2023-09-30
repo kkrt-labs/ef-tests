@@ -124,7 +124,7 @@ mod blockchain_tests {
     // blockchain_tests!(st_system_operations_test, stSystemOperationsTest); // 28 failing tests
     // blockchain_tests!(st_time_consuming, stTimeConsuming); // 14 failing tests
     // blockchain_tests!(st_transaction_test, stTransactionTest); // failing due to: invalid length 62, expected a (both 0x-prefixed or not) hex string or byte array containing betwee
-    // blockchain_tests!(st_transition_test, stTransitionTest); // 3 failing tests
+    blockchain_tests!(st_transition_test, stTransitionTest);
     // blockchain_tests!(st_wallet_test, stWalletTest); // 5 failing tests
     blockchain_tests!(st_zero_calls_revert, stZeroCallsRevert);
     // blockchain_tests!(st_zero_calls_test, stZeroCallsTest); // 1 failing test
