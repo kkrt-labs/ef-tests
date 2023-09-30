@@ -68,7 +68,7 @@ mod blockchain_tests {
     // Tests from the same folder with the same error can be aggregated in one issue
 
     blockchain_tests!(shanghai, Shanghai);
-    // blockchain_tests!(st_args_zero_one_balance, stArgsZeroOneBalance); // 4 failing tests
+    blockchain_tests!(st_args_zero_one_balance, stArgsZeroOneBalance);
     blockchain_tests!(st_attack_test, stAttackTest);
     blockchain_tests!(st_bad_opcode, stBadOpcode);
     blockchain_tests!(st_bugs, stBugs);
@@ -89,9 +89,9 @@ mod blockchain_tests {
     blockchain_tests!(st_create_test, stCreateTest);
     blockchain_tests!(st_delegatecall_test_homestead, stDelegatecallTestHomestead);
     blockchain_tests!(st_eip150_specific, stEIP150Specific);
-    // blockchain_tests!(st_eip150single_code_gas_prices, stEIP150singleCodeGasPrices); // 34 failing tests
+    blockchain_tests!(st_eip150single_code_gas_prices, stEIP150singleCodeGasPrices);
     // blockchain_tests!(st_eip1559, stEIP1559); // failing due to missing field gasPrice, cannot measure number of failing tests
-    // blockchain_tests!(st_eip158_specific, stEIP158Specific); // 6 failing tests
+    blockchain_tests!(st_eip158_specific, stEIP158Specific);
     // blockchain_tests!(st_eip2930, stEIP2930); // failing due to missing field gasPrice, cannot measure number of failing tests
     blockchain_tests!(st_eip3607, stEIP3607);
     // blockchain_tests!(st_example, stExample); // failing due to missing field gasPrice, cannot measure number of failing tests
@@ -99,13 +99,13 @@ mod blockchain_tests {
     blockchain_tests!(st_homestead_specific, stHomesteadSpecific);
     blockchain_tests!(st_init_code_test, stInitCodeTest);
     blockchain_tests!(st_log_tests, stLogTests);
-    // blockchain_tests!(st_mem_expanding_eip150_calls, stMemExpandingEIP150Calls); // 7 failing tests
-    // blockchain_tests!(st_memory_stress_test, stMemoryStressTest); // 2 failing tests
+    blockchain_tests!(st_mem_expanding_eip150_calls, stMemExpandingEIP150Calls);
+    blockchain_tests!(st_memory_stress_test, stMemoryStressTest);
     blockchain_tests!(st_memory_test, stMemoryTest);
-    // blockchain_tests!(st_non_zero_calls_test, stNonZeroCallsTest); // 13 failing tests
+    blockchain_tests!(st_non_zero_calls_test, stNonZeroCallsTest);
     // blockchain_tests!(st_pre_compiled_contracts, stPreCompiledContracts); // 8 failing tests
     // blockchain_tests!(st_pre_compiled_contracts2, stPreCompiledContracts2); // 97 failing tests
-    // blockchain_tests!(st_quadratic_complexity_test, stQuadraticComplexityTest); // 7 failing tests
+    blockchain_tests!(st_quadratic_complexity_test, stQuadraticComplexityTest);
     // blockchain_tests!(st_random, stRandom); // 79 failing tests
     // blockchain_tests!(st_random2, stRandom2); // 40 failing tests
     // blockchain_tests!(st_recursive_create, stRecursiveCreate); // 2 failing tests
