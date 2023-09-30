@@ -1,4 +1,5 @@
 # List of file names to be skipped
+# The first level corresponds to the directory, the second to the list of file names to ignore.
 filename:
   - calldatacopy.json # ef-tests #20
   - sha3.json # ef-tests #19
@@ -319,5 +320,7 @@ filename:
   - callNonConst.json # ef-tests #371
 
 # List of file names regex to be skipped
+# The first level corresponds to the directory, the second to the list of file names regex to ignore.
 regex:
-  - ^opc.*\.json$ # ef-test #120
+  stBadOpcode:
+    - ^opc.*\.json$ # ef-test #120
