@@ -123,7 +123,7 @@ mod blockchain_tests {
     // blockchain_tests!(st_static_flag_enabled, stStaticFlagEnabled); // 13 failing tests
     // blockchain_tests!(st_system_operations_test, stSystemOperationsTest); // 28 failing tests
     // blockchain_tests!(st_time_consuming, stTimeConsuming); // 14 failing tests
-    // blockchain_tests!(st_transaction_test, stTransactionTest); // ef-test #447 - 
+    // blockchain_tests!(st_transaction_test, stTransactionTest); // ef-test #447 -
     // blockchain_tests!(st_transition_test, stTransitionTest); // 3 failing tests
     // blockchain_tests!(st_wallet_test, stWalletTest); // 5 failing tests
     blockchain_tests!(st_zero_calls_revert, stZeroCallsRevert);
