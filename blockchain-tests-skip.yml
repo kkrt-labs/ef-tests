@@ -444,6 +444,20 @@ filename:
     - TestStoreGasPrices.json # ef-test #139
     - TestContractInteraction.json # ef-test #140
     - RecursiveCreateContractsCreate4Contracts.json # ef-test #141
+  stStaticFlagEnabled:
+    - CallcodeToPrecompileFromCalledContract.json # ef-test #443
+    - CallcodeToPrecompileFromContractInitialization.json # ef-test #443
+    - CallWithNOTZeroValueToPrecompileFromContractInitialization.json # ef-test #443
+    - CallWithZeroValueToPrecompileFromCalledContract.json # ef-test #443
+    - CallWithZeroValueToPrecompileFromContractInitialization.json # ef-test #443
+    - CallcodeToPrecompileFromTransaction.json # ef-test #444
+    - CallWithNOTZeroValueToPrecompileFromCalledContract.json # ef-test #444
+    - CallWithZeroValueToPrecompileFromTransaction.json # ef-test #444
+    - CallWithNOTZeroValueToPrecompileFromTransaction.json # ef-test #444
+    - DelegatecallToPrecompileFromCalledContract.json # ef-test #443
+    - DelegatecallToPrecompileFromContractInitialization.json # ef-test #443
+    - DelegatecallToPrecompileFromTransaction.json # ef-test #444
+    - StaticcallForPrecompilesIssue683.json # ef-test #444
 
 # List of file names regex to be skipped
 # The first level corresponds to the directory, the second to the list of file names regex to ignore.
