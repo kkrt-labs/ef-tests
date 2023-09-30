@@ -68,7 +68,7 @@ mod blockchain_tests {
     // Tests from the same folder with the same error can be aggregated in one issue
 
     blockchain_tests!(shanghai, Shanghai);
-    // blockchain_tests!(st_args_zero_one_balance, stArgsZeroOneBalance); // 4 failing tests
+    blockchain_tests!(st_args_zero_one_balance, stArgsZeroOneBalance);
     blockchain_tests!(st_attack_test, stAttackTest);
     blockchain_tests!(st_bad_opcode, stBadOpcode);
     blockchain_tests!(st_bugs, stBugs);
@@ -125,7 +125,7 @@ mod blockchain_tests {
     // blockchain_tests!(st_time_consuming, stTimeConsuming); // 14 failing tests
     // blockchain_tests!(st_transaction_test, stTransactionTest); // failing due to: invalid length 62, expected a (both 0x-prefixed or not) hex string or byte array containing betwee
     // blockchain_tests!(st_transition_test, stTransitionTest); // 3 failing tests
-    // blockchain_tests!(st_wallet_test, stWalletTest); // 5 failing tests
+    blockchain_tests!(st_wallet_test, stWalletTest);
     blockchain_tests!(st_zero_calls_revert, stZeroCallsRevert);
     // blockchain_tests!(st_zero_calls_test, stZeroCallsTest); // 1 failing test
     // blockchain_tests!(st_zero_knowledge, stZeroKnowledge); // 60 failing
