@@ -319,6 +319,33 @@ filename:
   - NonZeroValue_SUICIDE.json # ef-tests #361
   - RETURN_Bounds.json # ef-tests #366
   - FillStack.json # ef-tests #367
+  - InitCollision.json # ef-tests #408
+  - sstoreGas.json # ef-tests #409
+  - InitCollisionNonZeroNonce.json # ef-tests #410
+  - sstore_0to0.json # ef-tests #410
+  - sstore_0to0to0.json # ef-tests #410
+  - sstore_0to0toX.json # ef-tests #410
+  - sstore_0toX.json # ef-tests #410
+  - sstore_0toXto0.json # ef-tests #410
+  - sstore_0toXto0toX.json # ef-tests #410
+  - sstore_0toXtoX.json # ef-tests #410
+  - sstore_0toXtoY.json # ef-tests #410
+  - sstore_changeFromExternalCallInInitCode.json # ef-tests #410
+  - sstore_gasLeft.json # ef-tests #410
+  - sstore_Xto0.json # ef-tests #410
+  - sstore_Xto0to0.json # ef-tests #410
+  - sstore_Xto0toX.json # ef-tests #410
+  - sstore_Xto0toXto0.json # ef-tests #410
+  - sstore_Xto0toY.json # ef-tests #410
+  - sstore_XtoX.json # ef-tests #410
+  - sstore_XtoXto0.json # ef-tests #410
+  - sstore_XtoXtoX.json # ef-tests #410
+  - sstore_XtoXtoY.json # ef-tests #410
+  - sstore_XtoY.json # ef-tests #410
+  - sstore_XtoYto0.json # ef-tests #410
+  - sstore_XtoYtoX.json # ef-tests #410
+  - sstore_XtoYtoY.json # ef-tests #410
+  - sstore_XtoYtoZ.json # ef-tests #410
 
 # List of file names regex to be skipped
 regex:
