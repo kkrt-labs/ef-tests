@@ -455,3 +455,4 @@ filename:
 regex:
   stBadOpcode:
     - ^opc.*\.json$ # ef-test #120
+
