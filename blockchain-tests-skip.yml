@@ -319,6 +319,9 @@ filename:
   - NonZeroValue_SUICIDE.json # ef-tests #361
   - RETURN_Bounds.json # ef-tests #366
   - FillStack.json # ef-tests #367
+  - diffPlaces.json # ef-tests #411
+  - selfBalanceCallTypes.json # ef-tests #411
+  - selfBalanceUpdate.json # ef-tests #411
 
 # List of file names regex to be skipped
 regex:
