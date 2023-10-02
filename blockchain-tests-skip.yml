@@ -965,6 +965,21 @@ filename:
     - delegatecallAtTransition.json # ef-test #433
     - delegatecallAfterTransition.json # ef-test #433
     - delegatecallBeforeTransition.json # ef-test #433
+  stTimeConsuming:
+    - CALLBlake2f_MaxRounds.json
+    - sstore_combinations_initial00.json
+    - sstore_combinations_initial00_2.json
+    - sstore_combinations_initial01.json
+    - sstore_combinations_initial01_2.json
+    - sstore_combinations_initial10.json
+    - sstore_combinations_initial10_2.json
+    - sstore_combinations_initial11.json
+    - sstore_combinations_initial11_2.json
+    - sstore_combinations_initial20.json
+    - sstore_combinations_initial20_2.json
+    - sstore_combinations_initial21.json
+    - sstore_combinations_initial21_2.json
+    - static_Call50000_sha256.json
 
 # List of file names regex to be skipped
 # The first level corresponds to the directory, the second to the list of file names regex to ignore.
