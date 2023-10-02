@@ -458,6 +458,9 @@ filename:
     - Return50000.json # ef-tests #375
     - Return50000_2.json # ef-tests #375
     - Create1000Shnghai.json # ef-tests #376
+  stRecursiveCreate:
+    - recursiveCreate.json # ef-tests #379
+    - recursiveCreateReturnValue.json # ef-tests #380
   stReturnDataTest:
     - returndatacopy_following_too_big_transfer.json # ef-tests #317
     - returndatasize_bug.json # ef-tests #317
