@@ -685,6 +685,12 @@ filename:
     - TestStoreGasPrices.json # ef-test #139
     - TestContractInteraction.json # ef-test #140
     - RecursiveCreateContractsCreate4Contracts.json # ef-test #141
+  stWalletTest:
+    - walletConfirm.json # ef-test #429
+    - walletExecuteOverDailyLimitMultiOwner.json # ef-test #430
+    - walletExecuteOverDailyLimitOnlyOneOwner.json # ef-test #430
+    - walletExecuteOverDailyLimitOnlyOneOwnerNew.json # ef-test #430
+    - walletExecuteUnderDailyLimit.json # ef-test #430
   stStaticCall:
     - StaticcallToPrecompileFromContractInitialization.json # ef-tests #421
     - static_CallContractToCreateContractAndCallItOOG.json # ef-tests #421
