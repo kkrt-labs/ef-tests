@@ -11,35 +11,35 @@ use starknet_api::{
 
 lazy_static! {
     // Chain params
-    pub static ref CHAIN_ID: u64 = 1_263_227_476;
+    pub static ref CHAIN_ID: u64 = 0x4b4b5254;
 
-    // Vm resources
+    // Vm resources: maps resource name to fee cost.
     pub static ref VM_RESOURCES: HashMap<String, f64> = [
-        (String::from("n_steps"), 1f64),
-        ("pedersen_builtin".to_string(), 1f64),
-        ("range_check_builtin".to_string(), 1f64),
-        ("ecdsa_builtin".to_string(), 1f64),
-        ("bitwise_builtin".to_string(), 1f64),
-        ("poseidon_builtin".to_string(), 1f64),
-        ("output_builtin".to_string(), 1f64),
-        ("ec_op_builtin".to_string(), 1f64),
-        ("keccak_builtin".to_string(), 1f64),
-        ("segment_arena_builtin".to_string(), 1f64),
+        (String::from("n_steps"), 1_f64),
+        ("pedersen_builtin".to_string(), 1_f64),
+        ("range_check_builtin".to_string(), 1_f64),
+        ("ecdsa_builtin".to_string(), 1_f64),
+        ("bitwise_builtin".to_string(), 1_f64),
+        ("poseidon_builtin".to_string(), 1_f64),
+        ("output_builtin".to_string(), 1_f64),
+        ("ec_op_builtin".to_string(), 1_f64),
+        ("keccak_builtin".to_string(), 1_f64),
+        ("segment_arena_builtin".to_string(), 1_f64),
     ]
     .into_iter()
     .collect();
 
     // Block context
     pub static ref BLOCK_CONTEXT: BlockContext = BlockContext {
-            chain_id: ChainId("KKRT".into()),
+            chain_id: ChainId(String::from_utf8(CHAIN_ID.to_be_bytes().to_vec()).unwrap()),
             block_number: BlockNumber(0),
             block_timestamp: BlockTimestamp(0),
             sequencer_address: *SEQUENCER_ADDRESS,
             fee_token_address: *FEE_TOKEN_ADDRESS,
             vm_resource_fee_cost: Arc::new(VM_RESOURCES.clone()),
             gas_price: 1,
-            invoke_tx_max_n_steps: 2u32.pow(24),
-            validate_max_n_steps: 2u32.pow(24),
+            invoke_tx_max_n_steps: 2_u32.pow(24),
+            validate_max_n_steps: 2_u32.pow(24),
             max_recursion_depth: 1024,
         };
 
@@ -63,9 +63,9 @@ lazy_static! {
         .unwrap()
     );
     pub static ref KAKAROT_ADDRESS: ContractAddress =
-        ContractAddress(TryInto::<PatriciaKey>::try_into(StarkFelt::from(1u8)).unwrap());
+        ContractAddress(TryInto::<PatriciaKey>::try_into(StarkFelt::from(1_u8)).unwrap());
     pub static ref KAKAROT_OWNER_ADDRESS: ContractAddress =
-        ContractAddress(TryInto::<PatriciaKey>::try_into(StarkFelt::from(2u8)).unwrap());
+        ContractAddress(TryInto::<PatriciaKey>::try_into(StarkFelt::from(2_u8)).unwrap());
 
     // Main contract classes
     pub static ref KAKAROT_CLASS: LegacyContractClass = serde_json::from_reader::<_, LegacyContractClass>(std::fs::File::open("../../lib/kakarot/build/kakarot.json").unwrap()).unwrap();
@@ -86,7 +86,7 @@ pub mod tests {
     use std::str::FromStr;
 
     use lazy_static::lazy_static;
-    use reth_primitives::{Address, Bytes};
+    use reth_primitives::Address;
     use revm_primitives::B256;
 
     lazy_static! {
@@ -96,6 +96,5 @@ pub mod tests {
         pub static ref PUBLIC_KEY: Address =
             Address::from_str("0x7513A12F74fFF533ee12F20EE524e4883CBd1945").unwrap();
         pub static ref TEST_CONTRACT_ADDRESS: Address = Address::from_low_u64_be(10);
-        pub static ref SELECTOR: Bytes = Bytes::from_str("0x693c6139").unwrap();
     }
 }

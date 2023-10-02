@@ -1,24 +1,31 @@
-use blockifier::abi::abi_utils::get_storage_var_address as blockifier_get_storage_var_address;
-use reth_primitives::{Bytes, TransactionSigned};
+use super::{
+    constants::{KAKAROT_ADDRESS, PROXY_CLASS_HASH},
+    types::FeltSequencer,
+};
+use reth_primitives::{Address, Bytes, TransactionSigned};
 use reth_rlp::Decodable;
 use revm_primitives::U256;
 use starknet::{
-    core::types::{BroadcastedInvokeTransaction, FieldElement},
+    core::{
+        types::{BroadcastedInvokeTransaction, FieldElement},
+        utils::get_contract_address,
+    },
     macros::selector,
 };
 use starknet_api::{
     core::{ClassHash, ContractAddress},
     hash::StarkFelt,
-    state::StorageKey,
 };
 
-use super::{constants::KAKAROT_ADDRESS, KakarotSequencer};
-
-pub(crate) fn get_storage_var_address(
-    storage_var: &str,
-    keys: &[StarkFelt],
-) -> Result<StorageKey, eyre::Error> {
-    Ok(blockifier_get_storage_var_address(storage_var, keys)?)
+pub fn compute_starknet_address(evm_address: &Address) -> FeltSequencer {
+    let evm_address: FeltSequencer = (*evm_address).into();
+    let starknet_address = get_contract_address(
+        evm_address.into(),
+        PROXY_CLASS_HASH.0.into(),
+        &[],
+        (*KAKAROT_ADDRESS.0.key()).into(),
+    );
+    starknet_address.into()
 }
 
 pub(crate) fn split_bytecode_to_starkfelt(bytecode: &Bytes) -> Vec<StarkFelt> {
@@ -53,7 +60,6 @@ pub fn bytes_to_felt_vec(bytes: &Bytes) -> Vec<FieldElement> {
 
 #[allow(dead_code)]
 pub(crate) fn to_broadcasted_starknet_transaction(
-    sequencer: &KakarotSequencer,
     bytes: &Bytes,
 ) -> Result<BroadcastedInvokeTransaction, eyre::Error> {
     let transaction = TransactionSigned::decode(&mut bytes.as_ref())?;
@@ -63,7 +69,7 @@ pub(crate) fn to_broadcasted_starknet_transaction(
         .ok_or_else(|| eyre::eyre!("Missing signer in signed transaction"))?;
 
     let nonce = FieldElement::from(transaction.nonce());
-    let starknet_address = sequencer.compute_starknet_address(&evm_address);
+    let starknet_address = compute_starknet_address(&evm_address);
 
     let mut calldata = bytes_to_felt_vec(bytes);
 

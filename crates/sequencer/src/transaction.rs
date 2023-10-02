@@ -4,6 +4,7 @@ use blockifier::transaction::{
     account_transaction::AccountTransaction,
     transaction_execution::Transaction as ExecutionTransaction,
 };
+use starknet::core::crypto::compute_hash_on_elements;
 use starknet::core::types::{BroadcastedTransaction, FieldElement};
 use starknet_api::core::{ContractAddress, Nonce, PatriciaKey};
 use starknet_api::hash::{StarkFelt, StarkHash};
@@ -19,17 +20,22 @@ impl StarknetTransaction {
     pub fn new(transaction: BroadcastedTransaction) -> Self {
         Self(transaction)
     }
-}
 
-impl TryFrom<StarknetTransaction> for ExecutionTransaction {
-    type Error = eyre::Error;
-
-    fn try_from(transaction: StarknetTransaction) -> Result<Self, Self::Error> {
-        match transaction.0 {
+    pub fn try_into_execution_transaction(
+        self,
+        chain_id: FieldElement,
+    ) -> Result<ExecutionTransaction, eyre::Error> {
+        match self.0 {
             BroadcastedTransaction::Invoke(invoke) => Ok(ExecutionTransaction::AccountTransaction(
                 AccountTransaction::Invoke(InvokeTransaction::V1(InvokeTransactionV1 {
                     transaction_hash: TransactionHash(Into::<StarkHash>::into(
-                        Into::<StarkFelt>::into(FieldElement::ONE), // TODO: Replace with actual computed hash.
+                        Into::<StarkFelt>::into(compute_transaction_hash(
+                            invoke.sender_address,
+                            &invoke.calldata,
+                            invoke.max_fee,
+                            chain_id,
+                            invoke.nonce,
+                        )),
                     )),
                     max_fee: Fee(invoke.max_fee.try_into()?),
                     signature: TransactionSignature(
@@ -58,4 +64,30 @@ impl TryFrom<StarknetTransaction> for ExecutionTransaction {
             _ => Err(eyre::eyre!("Unsupported transaction type")),
         }
     }
+}
+
+const PREFIX_INVOKE: FieldElement = FieldElement::from_mont([
+    18443034532770911073,
+    18446744073709551615,
+    18446744073709551615,
+    513398556346534256,
+]);
+
+fn compute_transaction_hash(
+    sender_address: FieldElement,
+    calldata: &[FieldElement],
+    max_fee: FieldElement,
+    chain_id: FieldElement,
+    nonce: FieldElement,
+) -> FieldElement {
+    compute_hash_on_elements(&[
+        PREFIX_INVOKE,
+        FieldElement::ONE,
+        sender_address,
+        FieldElement::ZERO, // entry_point_selector
+        compute_hash_on_elements(calldata),
+        max_fee,
+        chain_id,
+        nonce,
+    ])
 }

@@ -29,13 +29,10 @@ jobs:
           override: true
       - name: Retrieve cached dependencies
         uses: Swatinem/rust-cache@v2
-      # fetch ef tests
       - name: fetch ef tests
         run: make setup
-      # fetch dump
       - name: fetch dump
         run: GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }} make fetch-dump
       - uses: taiki-e/install-action@nextest
-      # run tests
       - name: run tests
         run: make ef-tests

@@ -1,5 +1,5 @@
 use blockifier::abi::abi_utils::{
-    get_erc20_balance_var_addresses, get_uint256_storage_var_addresses,
+    get_erc20_balance_var_addresses, get_storage_var_address, get_uint256_storage_var_addresses,
 };
 use blockifier::state::state_api::{State, StateResult};
 use reth_primitives::{Address, Bytes};
@@ -14,7 +14,7 @@ use super::constants::{
 };
 use super::types::FeltSequencer;
 use super::utils::{
-    class_hash_to_starkfelt, contract_address_to_starkfelt, get_storage_var_address,
+    class_hash_to_starkfelt, compute_starknet_address, contract_address_to_starkfelt,
     split_bytecode_to_starkfelt, split_u256,
 };
 use super::KakarotSequencer;
@@ -39,30 +39,48 @@ impl InitializeEvmState for KakarotSequencer {
         nonce: U256,
         evm_storage: Vec<(U256, U256)>,
     ) -> StateResult<()> {
-        let starknet_address = self.compute_starknet_address(evm_address);
-        let mut storage = vec![];
+        let nonce = StarkFelt::from(TryInto::<u128>::try_into(nonce).map_err(|err| {
+            StarknetApiError::OutOfRange {
+                string: err.to_string(),
+            }
+        })?);
+        let starknet_address = compute_starknet_address(evm_address);
+        let evm_address = Into::<FeltSequencer>::into(*evm_address).into();
 
-        // Initialize the contract evm_address.
-        let evm_address: FeltSequencer = (*evm_address).into();
-        let evm_address_storage = (
-            get_storage_var_address("evm_address", &[]).unwrap(), // safe unwrap: var is ASCII
-            evm_address.into(),
-        );
-        storage.push(evm_address_storage);
-
-        // Initialize the is_initialized_ storage var.
-        let is_initialize_storage = (
-            get_storage_var_address("is_initialized_", &[]).unwrap(), // safe unwrap: var is ASCII
-            StarkFelt::from(1u8),
-        );
-        storage.push(is_initialize_storage);
-
-        // Initialize the contract owner
-        let owner_storage = (
-            get_storage_var_address("Ownable_owner", &[]).unwrap(), // safe unwrap: var is ASCII
-            contract_address_to_starkfelt(&KAKAROT_ADDRESS),
-        );
-        storage.push(owner_storage);
+        let mut storage = vec![
+            (
+                get_storage_var_address("evm_address", &[]).unwrap(), // safe unwrap: var is ASCII
+                evm_address,
+            ),
+            (
+                get_storage_var_address("is_initialized_", &[]).unwrap(), // safe unwrap: var is ASCII
+                StarkFelt::from(1u8),
+            ),
+            (
+                get_storage_var_address("Ownable_owner", &[]).unwrap(), // safe unwrap: var is ASCII
+                contract_address_to_starkfelt(&KAKAROT_ADDRESS),
+            ),
+            (
+                get_storage_var_address("bytecode_len_", &[]).unwrap(), // safe unwrap: var is ASCII
+                StarkFelt::from(bytecode.len() as u32),
+            ),
+            (
+                get_storage_var_address("kakarot_address", &[]).unwrap(), // safe unwrap: var is ASCII
+                contract_address_to_starkfelt(&KAKAROT_ADDRESS),
+            ),
+            (
+                get_storage_var_address("nonce", &[]).unwrap(), // safe unwrap: var is ASCII
+                nonce,
+            ),
+            (
+                get_storage_var_address("_implementation", &[]).unwrap(), // safe unwrap: var is ASCII
+                if bytecode.is_empty() && evm_storage.is_empty() {
+                    class_hash_to_starkfelt(&EOA_CLASS_HASH)
+                } else {
+                    class_hash_to_starkfelt(&CONTRACT_ACCOUNT_CLASS_HASH)
+                },
+            ),
+        ];
 
         // Initialize the bytecode storage var.
         let bytecode_storage = &mut split_bytecode_to_starkfelt(bytecode)
@@ -75,56 +93,20 @@ impl InitializeEvmState for KakarotSequencer {
                 )
             })
             .collect();
-        let bytecode_len_storage = (
-            get_storage_var_address("bytecode_len_", &[]).unwrap(), // safe unwrap: var is ASCII
-            StarkFelt::from(bytecode.len() as u32),
-        );
         storage.append(bytecode_storage);
-        storage.push(bytecode_len_storage);
-
-        // Initialize the kakarot address.
-        let kakarot_address_storage = (
-            get_storage_var_address("kakarot_address", &[]).unwrap(), // safe unwrap: var is ASCII
-            contract_address_to_starkfelt(&KAKAROT_ADDRESS),
-        );
-        storage.push(kakarot_address_storage);
-
-        // Initialize the nonce storage var.
-        let nonce = StarkFelt::from(TryInto::<u128>::try_into(nonce).map_err(|err| {
-            StarknetApiError::OutOfRange {
-                string: err.to_string(),
-            }
-        })?);
-        let nonce_storage = (
-            get_storage_var_address("nonce", &[]).unwrap(), // safe unwrap: var is ASCII
-            nonce,
-        );
-        storage.push(nonce_storage);
 
         // Initialize the storage vars.
-        let is_evm_storage_empty = evm_storage.is_empty();
         let evm_storage_storage = &mut evm_storage
-            .into_iter()
+            .iter()
             .flat_map(|(k, v)| {
                 let keys =
-                    get_uint256_storage_var_addresses("storage_", &split_u256(k).map(Into::into))
+                    get_uint256_storage_var_addresses("storage_", &split_u256(*k).map(Into::into))
                         .unwrap();
-                let values = split_u256(v).map(Into::into);
+                let values = split_u256(*v).map(Into::into);
                 vec![(keys.0, values[0]), (keys.1, values[1])]
             })
             .collect();
         storage.append(evm_storage_storage);
-
-        // Initialize the implementation.
-        let implementation_storage = (
-            get_storage_var_address("_implementation", &[]).unwrap(), // safe unwrap: var is ASCII
-            if bytecode.is_empty() && is_evm_storage_empty {
-                class_hash_to_starkfelt(&EOA_CLASS_HASH)
-            } else {
-                class_hash_to_starkfelt(&CONTRACT_ACCOUNT_CLASS_HASH)
-            },
-        );
-        storage.push(implementation_storage);
 
         // Write all the storage vars to the sequencer state.
         let starknet_address = starknet_address.try_into()?;
@@ -138,7 +120,7 @@ impl InitializeEvmState for KakarotSequencer {
 
         // Add the address to the Kakarot evm to starknet mapping
         let evm_starknet_address_mapping_storage = (
-            get_storage_var_address("evm_to_starknet_address", &[evm_address.into()]).unwrap(), // safe unwrap: var is ASCII
+            get_storage_var_address("evm_to_starknet_address", &[evm_address]).unwrap(), // safe unwrap: var is ASCII
             contract_address_to_starkfelt(&starknet_address),
         );
         (&mut self.0.state).set_storage_at(
@@ -150,7 +132,7 @@ impl InitializeEvmState for KakarotSequencer {
     }
 
     fn fund(&mut self, evm_address: &Address, balance: U256) -> StateResult<()> {
-        let starknet_address = self.compute_starknet_address(evm_address);
+        let starknet_address = compute_starknet_address(evm_address);
         let balance_values = split_u256(balance);
         let mut storage = vec![];
 
@@ -187,9 +169,9 @@ impl InitializeEvmState for KakarotSequencer {
 
 #[cfg(test)]
 mod tests {
-    use crate::sequencer::{
+    use crate::evm_sequencer::{
         constants::{
-            tests::{PRIVATE_KEY, PUBLIC_KEY, SELECTOR, TEST_CONTRACT_ADDRESS},
+            tests::{PRIVATE_KEY, PUBLIC_KEY, TEST_CONTRACT_ADDRESS},
             CHAIN_ID,
         },
         utils::to_broadcasted_starknet_transaction,
@@ -203,7 +185,7 @@ mod tests {
     use sequencer::{
         execution::Execution, state::State as SequencerState, transaction::StarknetTransaction,
     };
-    use starknet::core::types::BroadcastedTransaction;
+    use starknet::core::types::{BroadcastedTransaction, FieldElement};
 
     #[test]
     fn test_execute_simple_contract() {
@@ -223,7 +205,7 @@ mod tests {
                 to: reth_primitives::TransactionKind::Call(*TEST_CONTRACT_ADDRESS),
                 value: 0,
                 access_list: AccessList::default(),
-                input: SELECTOR.clone(),
+                input: Bytes::default(),
             }),
         };
         let signature =
@@ -231,9 +213,11 @@ mod tests {
         let mut output = BytesMut::new();
         transaction.encode_with_signature(&signature, &mut output, false);
         let transaction = BroadcastedTransaction::Invoke(
-            to_broadcasted_starknet_transaction(&sequencer, &output.to_vec().into()).unwrap(),
+            to_broadcasted_starknet_transaction(&output.to_vec().into()).unwrap(),
         );
-        let transaction = StarknetTransaction::new(transaction).try_into().unwrap();
+        let transaction = StarknetTransaction::new(transaction)
+            .try_into_execution_transaction(FieldElement::from(*CHAIN_ID))
+            .unwrap();
 
         // When
         let bytecode = Bytes::from(vec![96, 1, 96, 0, 85]); // PUSH 01 PUSH 00 SSTORE
@@ -247,8 +231,7 @@ mod tests {
         sequencer.0.execute(transaction).unwrap();
 
         // Then
-        let contract_starknet_address = sequencer
-            .compute_starknet_address(&TEST_CONTRACT_ADDRESS)
+        let contract_starknet_address = compute_starknet_address(&TEST_CONTRACT_ADDRESS)
             .try_into()
             .unwrap();
         let storage = (&mut sequencer.0.state)
