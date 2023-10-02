@@ -226,6 +226,84 @@ filename:
     - codesizeValid.json # ef-tests #263
     - create2CodeSizeLimit.json # ef-tests #264
     - createCodeSizeLimit.json # ef-tests #265
+  stCreate2:
+    - RevertDepthCreate2OOG.json # ef-tests #334
+    - RevertDepthCreate2OOGBerlin.json # ef-tests #334
+    - RevertDepthCreateAddressCollisionBerlin.json # ef-tests #334
+    - RevertDepthCreateAddressCollision.json # ef-tests #334
+    - create2callPrecompiles.json # ef-tests #335
+    - create2checkFieldsInInitcode.json # ef-tests #335
+    - create2collisionBalance.json # ef-tests #335
+    - create2collisionCode.json # ef-tests #335
+    - create2collisionCode2.json # ef-tests #335
+    - create2collisionNonce.json # ef-tests #335
+    - create2collisionStorage.json # ef-tests #335
+    - create2InitCodes.json # ef-tests #335
+    - create2noCash.json # ef-tests #335
+    - Create2OnDepth1023.json # ef-tests #335
+    - Create2OnDepth1024.json # ef-tests #335
+    - Create2OOGFromCallRefunds.json # ef-tests #335
+    - Create2Recursive.json # ef-tests #335
+    - CREATE2_FirstByte_loop.json # ef-tests #335
+    - CREATE2_Suicide.json # ef-tests #335
+    - CreateMessageRevertedOOGInInit.json # ef-tests #335
+    - call_outsize_then_create2_successful_then_returndatasize.json # ef-tests #336
+    - call_then_create2_successful_then_returndatasize.json # ef-tests #336
+    - Create2OOGafterInitCodeReturndata.json # ef-tests #336
+    - Create2OOGafterInitCodeReturndata2.json # ef-tests #336
+    - Create2OOGafterInitCodeRevert.json # ef-tests #336
+    - Create2OOGafterInitCodeRevert2.json # ef-tests #336
+    - CREATE2_HighNonce.json # ef-tests #336
+    - CREATE2_HighNonceDelegatecall.json # ef-tests #336
+    - CreateMessageReverted.json # ef-tests #336
+    - RevertInCreateInInitCreate2.json # ef-tests #336
+    - RevertOpcodeInCreateReturnsCreate2.json # ef-tests #336
+    - returndatasize_following_successful_create.json # ef-tests #336
+    - returndatacopy_afterFailing_create.json # ef-tests #336
+    - returndatacopy_following_create.json # ef-tests #336
+    - RevertOpcodeCreate.json # ef-tests #336
+    - returndatacopy_following_revert_in_create.json # ef-tests #336
+    - returndatacopy_0_0_following_successful_create.json # ef-tests #336
+    - returndatacopy_following_successful_create.json # ef-tests #336
+    - create2collisionSelfdestructed.json # ef-tests #337
+    - create2collisionSelfdestructed2.json # ef-tests #337
+    - create2SmartInitCode.json # ef-tests #337
+    - CREATE2_ContractSuicideDuringInit_ThenStoreThenReturn.json # ef-tests #337
+  stCreateTest:
+    - CreateAddressWarmAfterFail.json # ef-tests #338
+    - CreateCollisionToEmpty.json # ef-tests #338
+    - CreateOOGafterInitCodeReturndata.json # ef-tests #338
+    - CreateOOGafterInitCodeReturndata2.json # ef-tests #338
+    - CreateResults.json # ef-tests #338
+    - CREATE_AcreateB_BSuicide_BStore.json # ef-tests #338
+    - CREATE_EContract_ThenCALLToNonExistentAcc.json # ef-tests #338
+    - CREATE_EmptyContract.json # ef-tests #338
+    - CREATE_EmptyContractAndCallIt_0wei.json # ef-tests #338
+    - CREATE_EmptyContractAndCallIt_1wei.json # ef-tests #338
+    - CREATE_EmptyContractWithBalance.json # ef-tests #338
+    - CREATE_EmptyContractWithStorage.json # ef-tests #338
+    - CREATE_EmptyContractWithStorageAndCallIt_0wei.json # ef-tests #338
+    - CREATE_EmptyContractWithStorageAndCallIt_1wei.json # ef-tests #338
+    - CREATE_HighNonce.json # ef-tests #338
+    - TransactionCollisionToEmpty.json # ef-tests #338
+    - CodeInConstructor.json # ef-tests #339
+    - CreateCollisionResults.json # ef-tests #339
+    - createFailResult.json # ef-tests #339
+    - createLargeResult.json # ef-tests #339
+    - CreateOOGafterInitCodeRevert.json # ef-tests #339
+    - CreateOOGafterInitCodeRevert2.json # ef-tests #339
+    - CreateOOGafterMaxCodesize.json # ef-tests #339
+    - CREATE_ContractSuicideDuringInit.json # ef-tests #339
+    - CREATE_ContractSuicideDuringInit_ThenStoreThenReturn.json # ef-tests #339
+    - CREATE_ContractSuicideDuringInit_WithValue.json # ef-tests #339
+    - CREATE_ContractSuicideDuringInit_WithValueToItself.json # ef-tests #339
+    - CreateOOGFromCallRefunds.json # ef-tests #340
+    - CreateOOGFromEOARefunds.json # ef-tests #340
+    - CREATE_EContractCreateEContractInInit_Tr.json # ef-tests #340
+    - CREATE_EContractCreateNEContractInInitOOG_Tr.json # ef-tests #340
+    - CREATE_EContractCreateNEContractInInit_Tr.json # ef-tests #340
+    - CREATE_empty000CreateinInitCode_Transaction.json # ef-tests #340
+    - CREATE_FirstByte_loop.json # ef-tests #340
   stDelegatecallTestHomestead:
     - Call1024BalanceTooLow.json # ef-tests #332
     - Call1024OOG.json # ef-tests #332
@@ -372,6 +450,124 @@ filename:
     - NonZeroValue_DELEGATECALL_ToNonNonZeroBalance.json # ef-tests #360
     - NonZeroValue_DELEGATECALL_ToOneStorageKey.json # ef-tests #360
     - NonZeroValue_SUICIDE.json # ef-tests #361
+  stPreCompiledContracts:
+    - blake2B.json # ef-tests #389
+    - identity_to_bigger.json # ef-tests #389
+    - identity_to_smaller.json # ef-tests #389
+    - idPrecomps.json # ef-tests #389
+    - modexp.json # ef-tests #389
+    - modexpTests.json # ef-tests #389
+    - precompsEIP2929.json # ef-tests #389
+    - sec80.json # ef-tests #389
+  stPreCompiledContracts2:
+    - CallIdentity_1_nonzeroValue.json # ef-tests #390
+    - CallSha256_1_nonzeroValue.json # ef-tests #390
+    - CALLBlake2f.json # ef-tests #391
+    - CALLCODEBlake2f.json # ef-tests #391
+    - CALLCODEEcrecover0.json # ef-tests #391
+    - CALLCODEEcrecover0_0input.json # ef-tests #391
+    - CALLCODEEcrecover0_completeReturnValue.json # ef-tests #391
+    - CALLCODEEcrecover0_gas3000.json # ef-tests #391
+    - CALLCODEEcrecover0_overlappingInputOutput.json # ef-tests #391
+    - CALLCODEEcrecover1.json # ef-tests #391
+    - CALLCODEEcrecover2.json # ef-tests #391
+    - CALLCODEEcrecover3.json # ef-tests #391
+    - CALLCODEEcrecover80.json # ef-tests #391
+    - CALLCODEEcrecoverH_prefixed0.json # ef-tests #391
+    - CALLCODEEcrecoverR_prefixed0.json # ef-tests #391
+    - CALLCODEEcrecoverS_prefixed0.json # ef-tests #391
+    - CALLCODEEcrecoverV_prefixed0.json # ef-tests #391
+    - CALLCODEEcrecoverV_prefixedf0.json # ef-tests #391
+    - CALLCODEIdentitiy_0.json # ef-tests #391
+    - CALLCODEIdentitiy_1.json # ef-tests #391
+    - CALLCODEIdentity_1_nonzeroValue.json # ef-tests #391
+    - CALLCODEIdentity_2.json # ef-tests #391
+    - CALLCODEIdentity_3.json # ef-tests #391
+    - CALLCODEIdentity_4.json # ef-tests #391
+    - CALLCODEIdentity_4_gas17.json # ef-tests #391
+    - CALLCODEIdentity_4_gas18.json # ef-tests #391
+    - CALLCODEIdentity_5.json # ef-tests #391
+    - CALLCODERipemd160_0.json # ef-tests #391
+    - CALLCODERipemd160_1.json # ef-tests #391
+    - CALLCODERipemd160_2.json # ef-tests #391
+    - CALLCODERipemd160_3.json # ef-tests #391
+    - CALLCODERipemd160_3_postfixed0.json # ef-tests #391
+    - CALLCODERipemd160_3_prefixed0.json # ef-tests #391
+    - CALLCODERipemd160_4.json # ef-tests #391
+    - CALLCODERipemd160_4_gas719.json # ef-tests #391
+    - CALLCODERipemd160_5.json # ef-tests #391
+    - CALLCODESha256_0.json # ef-tests #391
+    - CALLCODESha256_1.json # ef-tests #391
+    - CALLCODESha256_1_nonzeroValue.json # ef-tests #391
+    - CALLCODESha256_2.json # ef-tests #391
+    - CALLCODESha256_3.json # ef-tests #391
+    - CALLCODESha256_3_postfix0.json # ef-tests #391
+    - CALLCODESha256_3_prefix0.json # ef-tests #391
+    - CALLCODESha256_4.json # ef-tests #391
+    - CALLCODESha256_4_gas99.json # ef-tests #391
+    - CALLCODESha256_5.json # ef-tests #391
+    - CallEcrecover0.json # ef-tests #391
+    - CallEcrecover0_0input.json # ef-tests #391
+    - CallEcrecover0_completeReturnValue.json # ef-tests #391
+    - CallEcrecover0_gas3000.json # ef-tests #391
+    - CallEcrecover0_overlappingInputOutput.json # ef-tests #391
+    - CallEcrecover1.json # ef-tests #391
+    - CallEcrecover2.json # ef-tests #391
+    - CallEcrecover3.json # ef-tests #391
+    - CallEcrecover80.json # ef-tests #391
+    - CallEcrecoverCheckLength.json # ef-tests #391
+    - CallEcrecoverCheckLengthWrongV.json # ef-tests #391
+    - CallEcrecoverH_prefixed0.json # ef-tests #391
+    - CallEcrecoverInvalidSignature.json # ef-tests #391
+    - CallEcrecoverR_prefixed0.json # ef-tests #391
+    - CallEcrecoverS_prefixed0.json # ef-tests #391
+    - CallEcrecoverUnrecoverableKey.json # ef-tests #391
+    - CallEcrecoverV_prefixed0.json # ef-tests #391
+    - CallEcrecover_Overflow.json # ef-tests #391
+    - CallIdentitiy_0.json # ef-tests #391
+    - CallIdentitiy_1.json # ef-tests #391
+    - CallIdentity_2.json # ef-tests #391
+    - CallIdentity_3.json # ef-tests #391
+    - CallIdentity_4.json # ef-tests #391
+    - CallIdentity_4_gas17.json # ef-tests #391
+    - CallIdentity_4_gas18.json # ef-tests #391
+    - CallIdentity_5.json # ef-tests #391
+    - CallIdentity_6_inputShorterThanOutput.json # ef-tests #391
+    - CallRipemd160_0.json # ef-tests #391
+    - CallRipemd160_1.json # ef-tests #391
+    - CallRipemd160_2.json # ef-tests #391
+    - CallRipemd160_3.json # ef-tests #391
+    - CallRipemd160_3_postfixed0.json # ef-tests #391
+    - CallRipemd160_3_prefixed0.json # ef-tests #391
+    - CallRipemd160_4.json # ef-tests #391
+    - CallRipemd160_4_gas719.json # ef-tests #391
+    - CallRipemd160_5.json # ef-tests #391
+    - CallSha256_0.json # ef-tests #391
+    - CallSha256_1.json # ef-tests #391
+    - CallSha256_2.json # ef-tests #391
+    - CallSha256_3.json # ef-tests #391
+    - CallSha256_3_postfix0.json # ef-tests #391
+    - CallSha256_3_prefix0.json # ef-tests #391
+    - CallSha256_4.json # ef-tests #391
+    - CallSha256_4_gas99.json # ef-tests #391
+    - CallSha256_5.json # ef-tests #391
+    - ecrecoverShortBuff.json # ef-tests #391
+    - ecrecoverWeirdV.json # ef-tests #391
+    - modexp_0_0_0_20500.json # ef-tests #391
+    - modexp_0_0_0_22000.json # ef-tests #391
+    - modexp_0_0_0_25000.json # ef-tests #391
+    - modexp_0_0_0_35000.json # ef-tests #391
+  stQuadraticComplexityTest:
+    - Call1MB1024Calldepth.json # ef-tests #375
+    - Call20KbytesContract50_1.json # ef-tests #375
+    - Call20KbytesContract50_2.json # ef-tests #375
+    - Call20KbytesContract50_3.json # ef-tests #375
+    - Return50000.json # ef-tests #375
+    - Return50000_2.json # ef-tests #375
+    - Create1000Shnghai.json # ef-tests #376
+  stRecursiveCreate:
+    - recursiveCreate.json # ef-tests #379
+    - recursiveCreateReturnValue.json # ef-tests #380
   stReturnDataTest:
     - returndatacopy_following_too_big_transfer.json # ef-tests #317
     - returndatasize_bug.json # ef-tests #317
@@ -431,12 +627,43 @@ filename:
     - "LoopCallsDepthThenRevert2.json" # ef-tests #324
     - "LoopCallsDepthThenRevert3.json" # ef-tests #324
     - "RevertRemoteSubCallStorageOOG.json" # ef-tests #324
+  stShift:
+    - shiftCombinations.json # ef-tests #383
+    - shiftSignedCombinations.json # ef-tests #383
   stSLoadTest:
     - sloadGasCost.json # ef-tests #78
   stSelfBalance:
     - diffPlaces.json # ef-tests #411
     - selfBalanceCallTypes.json # ef-tests #411
     - selfBalanceUpdate.json # ef-tests #411
+  stSStoreTest:
+    - InitCollision.json # ef-tests #408
+    - sstoreGas.json # ef-tests #409
+    - InitCollisionNonZeroNonce.json # ef-tests #410
+    - sstore_0to0.json # ef-tests #410
+    - sstore_0to0to0.json # ef-tests #410
+    - sstore_0to0toX.json # ef-tests #410
+    - sstore_0toX.json # ef-tests #410
+    - sstore_0toXto0.json # ef-tests #410
+    - sstore_0toXto0toX.json # ef-tests #410
+    - sstore_0toXtoX.json # ef-tests #410
+    - sstore_0toXtoY.json # ef-tests #410
+    - sstore_changeFromExternalCallInInitCode.json # ef-tests #410
+    - sstore_gasLeft.json # ef-tests #410
+    - sstore_Xto0.json # ef-tests #410
+    - sstore_Xto0to0.json # ef-tests #410
+    - sstore_Xto0toX.json # ef-tests #410
+    - sstore_Xto0toXto0.json # ef-tests #410
+    - sstore_Xto0toY.json # ef-tests #410
+    - sstore_XtoX.json # ef-tests #410
+    - sstore_XtoXto0.json # ef-tests #410
+    - sstore_XtoXtoX.json # ef-tests #410
+    - sstore_XtoXtoY.json # ef-tests #410
+    - sstore_XtoY.json # ef-tests #410
+    - sstore_XtoYto0.json # ef-tests #410
+    - sstore_XtoYtoX.json # ef-tests #410
+    - sstore_XtoYtoY.json # ef-tests #410
+    - sstore_XtoYtoZ.json # ef-tests #410
   stSolidityTest:
     - TestContractSuicide.json # ef-test #132
     - TestCryptographicFunctions.json # ef-test #133
@@ -448,6 +675,15 @@ filename:
     - TestStoreGasPrices.json # ef-test #139
     - TestContractInteraction.json # ef-test #140
     - RecursiveCreateContractsCreate4Contracts.json # ef-test #141
+  stSpecialTest:
+    - tx_e1c174e2.json # ef-tests #412
+    - eoaEmpty.json # ef-tests #413
+    - selfdestructEIP2929.json # ef-tests #413
+  stArgsZeroOneBalance:
+    - createNonConst.json # ef-tests #368
+    - mulmodNonConst.json # ef-tests #368
+    - suicideNonConst.json # ef-tests #370
+    - callNonConst.json # ef-tests #371
 
 # List of file names regex to be skipped
 # The first level corresponds to the directory, the second to the list of file names regex to ignore.
