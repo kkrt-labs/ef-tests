@@ -119,7 +119,7 @@ mod blockchain_tests {
     blockchain_tests!(st_solidity_test, stSolidityTest);
     blockchain_tests!(st_special_test, stSpecialTest);
     blockchain_tests!(st_stack_tests, stStackTests);
-    // blockchain_tests!(st_static_call, stStaticCall); // 207 failing tests
+    blockchain_tests!(st_static_call, stStaticCall);
     // blockchain_tests!(st_static_flag_enabled, stStaticFlagEnabled); // 13 failing tests
     // blockchain_tests!(st_system_operations_test, stSystemOperationsTest); // 28 failing tests
     // blockchain_tests!(st_time_consuming, stTimeConsuming); // 14 failing tests
