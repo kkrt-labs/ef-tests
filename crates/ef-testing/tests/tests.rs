@@ -117,12 +117,19 @@ mod blockchain_tests {
     blockchain_tests!(st_self_balance, stSelfBalance);
     blockchain_tests!(st_shift, stShift);
     blockchain_tests!(st_solidity_test, stSolidityTest);
+    // blockchain_tests!(st_special_test, stSpecialTest); // 3 failing tests
+    // blockchain_tests!(st_stack_tests, stStackTests); // 7 failing tests
+    // blockchain_tests!(st_static_call, stStaticCall); // 207 failing tests
+    blockchain_tests!(st_static_flag_enabled, stStaticFlagEnabled);
     blockchain_tests!(st_special_test, stSpecialTest);
     blockchain_tests!(st_stack_tests, stStackTests);
     blockchain_tests!(st_static_call, stStaticCall);
     // blockchain_tests!(st_static_flag_enabled, stStaticFlagEnabled); // 13 failing tests
     blockchain_tests!(st_system_operations_test, stSystemOperationsTest);
     // blockchain_tests!(st_time_consuming, stTimeConsuming); // 14 failing tests
+    // blockchain_tests!(st_transaction_test, stTransactionTest); // failing due to: invalid length 62, expected a (both 0x-prefixed or not) hex string or byte array containing betwee
+    blockchain_tests!(st_transition_test, stTransitionTest);
+    // blockchain_tests!(st_wallet_test, stWalletTest); // 5 failing tests
     // blockchain_tests!(st_transaction_test, stTransactionTest); // ef-test #447 -
     // blockchain_tests!(st_transition_test, stTransitionTest); // 3 failing tests
     blockchain_tests!(st_wallet_test, stWalletTest);
