@@ -520,6 +520,9 @@ filename:
     - "LoopCallsDepthThenRevert2.json" # ef-tests #324
     - "LoopCallsDepthThenRevert3.json" # ef-tests #324
     - "RevertRemoteSubCallStorageOOG.json" # ef-tests #324
+  stShift:
+    - shiftCombinations.json # ef-tests #383
+    - shiftSignedCombinations.json # ef-tests #383
   stSLoadTest:
     - sloadGasCost.json # ef-tests #78
   stSolidityTest:
