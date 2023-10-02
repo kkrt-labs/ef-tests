@@ -90,11 +90,11 @@ mod blockchain_tests {
     blockchain_tests!(st_delegatecall_test_homestead, stDelegatecallTestHomestead);
     blockchain_tests!(st_eip150_specific, stEIP150Specific);
     blockchain_tests!(st_eip150single_code_gas_prices, stEIP150singleCodeGasPrices);
-    // blockchain_tests!(st_eip1559, stEIP1559); // failing due to missing field gasPrice, cannot measure number of failing tests
+    // blockchain_tests!(st_eip1559, stEIP1559); // ef-tests #455 - failing due to missing field gasPrice, cannot measure number of failing tests
     blockchain_tests!(st_eip158_specific, stEIP158Specific);
-    // blockchain_tests!(st_eip2930, stEIP2930); // failing due to missing field gasPrice, cannot measure number of failing tests
+    // blockchain_tests!(st_eip2930, stEIP2930); // ef-tests #455 - failing due to missing field gasPrice, cannot measure number of failing tests
     blockchain_tests!(st_eip3607, stEIP3607);
-    // blockchain_tests!(st_example, stExample); // failing due to missing field gasPrice, cannot measure number of failing tests
+    // blockchain_tests!(st_example, stExample); // ef-tests #455 - failing due to missing field gasPrice, cannot measure number of failing tests
     blockchain_tests!(st_ext_code_hash, stExtCodeHash);
     blockchain_tests!(st_homestead_specific, stHomesteadSpecific);
     blockchain_tests!(st_init_code_test, stInitCodeTest);
@@ -109,16 +109,16 @@ mod blockchain_tests {
     // blockchain_tests!(st_random, stRandom); // 79 failing tests
     // blockchain_tests!(st_random2, stRandom2); // 40 failing tests
     blockchain_tests!(st_recursive_create, stRecursiveCreate);
-    // blockchain_tests!(st_refund_test, stRefundTest); // 9 failing tests
+    blockchain_tests!(st_refund_test, stRefundTest);
     blockchain_tests!(st_return_data_test, stReturnDataTest);
     blockchain_tests!(st_revert_test, stRevertTest);
     blockchain_tests!(st_sload_test, stSLoadTest);
     blockchain_tests!(st_sstore_test, stSStoreTest);
-    // blockchain_tests!(st_self_balance, stSelfBalance); // 3 failing tests
+    blockchain_tests!(st_self_balance, stSelfBalance);
     blockchain_tests!(st_shift, stShift);
     blockchain_tests!(st_solidity_test, stSolidityTest);
     blockchain_tests!(st_special_test, stSpecialTest);
-    // blockchain_tests!(st_stack_tests, stStackTests); // 7 failing tests
+    blockchain_tests!(st_stack_tests, stStackTests);
     blockchain_tests!(st_static_call, stStaticCall);
     // blockchain_tests!(st_static_flag_enabled, stStaticFlagEnabled); // 13 failing tests
     // blockchain_tests!(st_system_operations_test, stSystemOperationsTest); // 28 failing tests
