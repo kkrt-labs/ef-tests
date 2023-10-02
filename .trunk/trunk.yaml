@@ -6,17 +6,24 @@ cli:
 plugins:
   sources:
     - id: trunk
-      ref: v1.2.4
+      ref: v1.2.5
       uri: https://github.com/trunk-io/plugins
 runtimes:
   enabled:
     - node@18.12.1
     - python@3.10.8
 lint:
+  definitions:
+    - name: clippy
+      commands:
+        - run:
+            cargo clippy --message-format json --locked --workspace
+            --all-features --all-targets -- --cap-lints=warn --no-deps -D
+            warnings
   enabled:
     - actionlint@1.6.26
     - checkov@2.4.9
-    - clippy@1.65.0
+    - clippy@SYSTEM
     - git-diff-check
     - markdownlint@0.37.0
     - osv-scanner@1.4.0
@@ -30,6 +37,6 @@ actions:
   disabled:
     - trunk-announce
     - trunk-fmt-pre-commit
-  enabled:
     - trunk-check-pre-push
+  enabled:
     - trunk-upgrade-available
