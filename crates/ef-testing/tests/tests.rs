@@ -11,7 +11,7 @@ static INIT: Once = Once::new();
 fn setup() {
     INIT.call_once(|| {
         // Set-up tracing filter
-        let filter = filter::EnvFilter::new("tests=info,ef_testing=info,katana_core=info");
+        let filter = filter::EnvFilter::new("tests=warn,ef_testing=warn,executor=warn");
         let subscriber = FmtSubscriber::builder().with_env_filter(filter).finish();
         tracing::subscriber::set_global_default(subscriber)
             .expect("setting tracing default failed");
