@@ -808,6 +808,20 @@ filename:
     - ecadd_1-3_0-0_25000_80.json # ef-test #462
     - ecmul_0-0_340282366920938463463374607431768211456_28000_128.json # ef-test #462
     - ecmul_0-3_0_21000_80.json # ef-test #462
+  stStaticFlagEnabled:
+    - CallcodeToPrecompileFromCalledContract.json # ef-test #443
+    - CallcodeToPrecompileFromContractInitialization.json # ef-test #443
+    - CallWithNOTZeroValueToPrecompileFromContractInitialization.json # ef-test #443
+    - CallWithZeroValueToPrecompileFromCalledContract.json # ef-test #443
+    - CallWithZeroValueToPrecompileFromContractInitialization.json # ef-test #443
+    - CallcodeToPrecompileFromTransaction.json # ef-test #444
+    - CallWithNOTZeroValueToPrecompileFromCalledContract.json # ef-test #444
+    - CallWithZeroValueToPrecompileFromTransaction.json # ef-test #444
+    - CallWithNOTZeroValueToPrecompileFromTransaction.json # ef-test #444
+    - DelegatecallToPrecompileFromCalledContract.json # ef-test #443
+    - DelegatecallToPrecompileFromContractInitialization.json # ef-test #443
+    - DelegatecallToPrecompileFromTransaction.json # ef-test #444
+    - StaticcallForPrecompilesIssue683.json # ef-test #444
   stWalletTest:
     - walletConfirm.json # ef-test #429
     - walletExecuteOverDailyLimitMultiOwner.json # ef-test #430
@@ -1039,6 +1053,10 @@ filename:
     - mulmodNonConst.json # ef-tests #368
     - suicideNonConst.json # ef-tests #370
     - callNonConst.json # ef-tests #371
+  stTransitionTest:
+    - delegatecallAtTransition.json # ef-test #433
+    - delegatecallAfterTransition.json # ef-test #433
+    - delegatecallBeforeTransition.json # ef-test #433
 
 # List of file names regex to be skipped
 # The first level corresponds to the directory, the second to the list of file names regex to ignore.
