@@ -674,6 +674,8 @@ filename:
     - sstore_XtoYtoX.json # ef-tests #410
     - sstore_XtoYtoY.json # ef-tests #410
     - sstore_XtoYtoZ.json # ef-tests #410
+  stZeroCallsTest:
+    - ZeroValue_CALL.json # ef-tests #436
   stSolidityTest:
     - TestContractSuicide.json # ef-test #132
     - TestCryptographicFunctions.json # ef-test #133
@@ -699,6 +701,12 @@ filename:
     - DelegatecallToPrecompileFromContractInitialization.json # ef-test #443
     - DelegatecallToPrecompileFromTransaction.json # ef-test #444
     - StaticcallForPrecompilesIssue683.json # ef-test #444
+  stWalletTest:
+    - walletConfirm.json # ef-test #429
+    - walletExecuteOverDailyLimitMultiOwner.json # ef-test #430
+    - walletExecuteOverDailyLimitOnlyOneOwner.json # ef-test #430
+    - walletExecuteOverDailyLimitOnlyOneOwnerNew.json # ef-test #430
+    - walletExecuteUnderDailyLimit.json # ef-test #430
   stStaticCall:
     - StaticcallToPrecompileFromContractInitialization.json # ef-tests #421
     - static_CallContractToCreateContractAndCallItOOG.json # ef-tests #421
