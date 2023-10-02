@@ -643,6 +643,10 @@ filename:
     - TestStoreGasPrices.json # ef-test #139
     - TestContractInteraction.json # ef-test #140
     - RecursiveCreateContractsCreate4Contracts.json # ef-test #141
+  stSpecialTest:
+    - tx_e1c174e2.json # ef-tests #412
+    - eoaEmpty.json # ef-tests #413
+    - selfdestructEIP2929.json # ef-tests #413
   stArgsZeroOneBalance:
     - createNonConst.json # ef-tests #368
     - mulmodNonConst.json # ef-tests #368
