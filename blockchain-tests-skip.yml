@@ -675,7 +675,7 @@ filename:
     - sstore_XtoYtoY.json # ef-tests #410
     - sstore_XtoYtoZ.json # ef-tests #410
   stZeroCallsTest:
-    - ZeroValue_CALL.json
+    - ZeroValue_CALL.json # ef-tests #436
   stSolidityTest:
     - TestContractSuicide.json # ef-test #132
     - TestCryptographicFunctions.json # ef-test #133
