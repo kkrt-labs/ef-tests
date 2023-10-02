@@ -685,6 +685,14 @@ filename:
     - TestStoreGasPrices.json # ef-test #139
     - TestContractInteraction.json # ef-test #140
     - RecursiveCreateContractsCreate4Contracts.json # ef-test #141
+  stStackTests:
+    - underflowTest.json # ef-tests #414
+    - shallowStack.json # ef-tests #415
+    - stackOverflowM1.json # ef-tests #415
+    - stackOverflowM1DUP.json # ef-tests #415
+    - stackOverflowM1PUSH.json # ef-tests #415
+    - stackOverflowSWAP.json # ef-tests #415
+    - stacksanitySWAP.json # ef-tests #415
   stSpecialTest:
     - tx_e1c174e2.json # ef-tests #412
     - eoaEmpty.json # ef-tests #413
