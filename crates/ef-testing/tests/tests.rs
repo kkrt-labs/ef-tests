@@ -109,7 +109,7 @@ mod blockchain_tests {
     // blockchain_tests!(st_random, stRandom); // 79 failing tests
     // blockchain_tests!(st_random2, stRandom2); // 40 failing tests
     blockchain_tests!(st_recursive_create, stRecursiveCreate);
-    // blockchain_tests!(st_refund_test, stRefundTest); // 9 failing tests
+    blockchain_tests!(st_refund_test, stRefundTest);
     blockchain_tests!(st_return_data_test, stReturnDataTest);
     blockchain_tests!(st_revert_test, stRevertTest);
     blockchain_tests!(st_sload_test, stSLoadTest);

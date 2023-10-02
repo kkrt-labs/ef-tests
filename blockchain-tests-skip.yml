@@ -450,6 +450,16 @@ filename:
     - NonZeroValue_DELEGATECALL_ToNonNonZeroBalance.json # ef-tests #360
     - NonZeroValue_DELEGATECALL_ToOneStorageKey.json # ef-tests #360
     - NonZeroValue_SUICIDE.json # ef-tests #361
+  stRefundTest:
+    - refundFF.json # ef-tests #405
+    - refundMax.json # ef-tests #405
+    - refundSSTORE.json # ef-tests #405
+    - refund_TxToSuicide.json # ef-tests #406
+    - refund600.json # ef-tests #407
+    - refundSuicide50procentCap.json # ef-tests #407
+    - refund_CallA_notEnoughGasInCall.json # ef-tests #407
+    - refund_CallA_OOG.json # ef-tests #407
+    - refund_OOG.json # ef-tests #407
   stPreCompiledContracts:
     - blake2B.json # ef-tests #389
     - identity_to_bigger.json # ef-tests #389
