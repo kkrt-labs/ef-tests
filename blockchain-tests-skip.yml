@@ -918,6 +918,10 @@ filename:
     - mulmodNonConst.json # ef-tests #368
     - suicideNonConst.json # ef-tests #370
     - callNonConst.json # ef-tests #371
+  stTransitionTest:
+    - delegatecallAtTransition.json # ef-test #433
+    - delegatecallAfterTransition.json # ef-test #433
+    - delegatecallBeforeTransition.json # ef-test #433
 
 # List of file names regex to be skipped
 # The first level corresponds to the directory, the second to the list of file names regex to ignore.
