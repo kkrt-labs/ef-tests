@@ -114,7 +114,7 @@ mod blockchain_tests {
     blockchain_tests!(st_revert_test, stRevertTest);
     blockchain_tests!(st_sload_test, stSLoadTest);
     blockchain_tests!(st_sstore_test, stSStoreTest);
-    // blockchain_tests!(st_self_balance, stSelfBalance); // 3 failing tests
+    blockchain_tests!(st_self_balance, stSelfBalance);
     blockchain_tests!(st_shift, stShift);
     blockchain_tests!(st_solidity_test, stSolidityTest);
     blockchain_tests!(st_special_test, stSpecialTest);

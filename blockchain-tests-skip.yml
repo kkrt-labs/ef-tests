@@ -642,6 +642,10 @@ filename:
     - shiftSignedCombinations.json # ef-tests #383
   stSLoadTest:
     - sloadGasCost.json # ef-tests #78
+  stSelfBalance:
+    - diffPlaces.json # ef-tests #411
+    - selfBalanceCallTypes.json # ef-tests #411
+    - selfBalanceUpdate.json # ef-tests #411
   stSStoreTest:
     - InitCollision.json # ef-tests #408
     - sstoreGas.json # ef-tests #409
