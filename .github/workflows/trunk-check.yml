@@ -1,6 +1,7 @@
 name: Trunk
 
 on:
+  # trunk-ignore(yamllint/empty-values)
   workflow_call:
 
 concurrency:

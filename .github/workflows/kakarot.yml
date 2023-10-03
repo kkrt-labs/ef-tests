@@ -1,6 +1,7 @@
 name: Kakarot compilation caching
 
 on:
+  # trunk-ignore(yamllint/empty-values)
   workflow_call:
 
 permissions: read-all

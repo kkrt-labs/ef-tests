@@ -1,6 +1,7 @@
 name: test
 
 on:
+  # trunk-ignore(yamllint/empty-values)
   workflow_call:
 
 permissions: read-all
@@ -11,6 +12,7 @@ concurrency:
 
 jobs:
   test:
+    # trunk-ignore(actionlint/runner-label)
     runs-on: ubuntu-latest-16-cores
     timeout-minutes: 120
     steps:
