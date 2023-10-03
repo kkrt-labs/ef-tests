@@ -1,8 +1,7 @@
 name: test
 
 on:
-  # trunk-ignore(yamllint/empty-values)
-  workflow_call:
+  workflow_call: {}
 
 permissions: read-all
 

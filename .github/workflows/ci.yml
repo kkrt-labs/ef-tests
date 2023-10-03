@@ -1,5 +1,4 @@
 ---
-permissions: read-all
 name: Workflow - CI
 
 on:
@@ -9,10 +8,15 @@ on:
     branches:
       - main
 
+permissions: read-all
+
 jobs:
   trunk:
     name: Trunk
     uses: ./.github/workflows/trunk-check.yml
+    permissions:
+      checks: write
+      contents: read
 
   submodules:
     name: Compile Kakarot contracts
