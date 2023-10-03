@@ -4,7 +4,7 @@ on:
   workflow_call:
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  group: ${{ github.workflow }}-${{ github.ref }}-trunk
   cancel-in-progress: true
 
 permissions: read-all
