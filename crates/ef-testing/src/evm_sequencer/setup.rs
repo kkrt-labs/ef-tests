@@ -124,7 +124,7 @@ impl EvmState for KakarotSequencer {
         let balance_keys = [balance_keys.0, balance_keys.1];
         let balance_storage = &mut balance_keys
             .into_iter()
-            .zip(balance_values.into_iter())
+            .zip(balance_values)
             .map(|(k, v)| (k, StarkFelt::from(v)))
             .collect();
         storage.append(balance_storage);
