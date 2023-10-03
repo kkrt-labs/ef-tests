@@ -1,37 +1,40 @@
 ---
 name: Bug Report
 about: Create a report to help Kakarot to improve
-title: 'bug: '
-labels: 'bug'
-assignees: ''
+title: "bug: "
+labels: "bug"
+assignees: ""
 ---
 
-# Bug Report
+## Bug Report
 
-**Kakarot version:**
+### Kakarot version
 
 <!-- Please specify commit or tag version. -->
 
-**Current behavior:**
+### Current behavior
 
 <!-- Describe how the bug manifests. -->
 
-**Expected behavior:**
+### Expected behavior
 
 <!-- Describe what the behavior would be without the bug. -->
 
-**Steps to reproduce:**
+### Steps to reproduce
 
-<!--  Please explain the steps required to duplicate the issue, especially if you are able to provide a sample application. -->
+<!--  Please explain the steps required to duplicate the issue,
+especially if you are able to provide a sample application. -->
 
-**Related code:**
+### Related code
 
-<!-- If you are able to illustrate the bug or feature request with an example, please provide it here. -->
+<!-- If you are able to illustrate the bug or feature request with an example,
+please provide it here. -->
 
-```
+```text
 insert short code snippets here
 ```
 
-**Other information:**
+### Other information
 
-<!-- List any other information that is relevant to your issue. Related issues, suggestions on how to fix, Stack Overflow links, forum links, etc. -->
+<!-- List any other information that is relevant to your issue. Related issues,
+suggestions on how to fix, Stack Overflow links, forum links, etc. -->

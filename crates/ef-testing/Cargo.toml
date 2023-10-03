@@ -31,7 +31,7 @@ starknet = { workspace = true }
 async-trait = { workspace = true }
 ctor = { workspace = true }
 chrono = { workspace = true, optional = true }
-dotenv = { workspace = true, optional = true }
+dotenvy = { workspace = true, optional = true }
 eyre = { workspace = true }
 lazy_static = { workspace = true }
 thiserror = { workspace = true }
@@ -51,7 +51,7 @@ tracing-subscriber = { workspace = true }
 
 [features]
 ef-tests = []
-dump = ["reqwest", "dotenv", "chrono", "zip"]
+dump = ["reqwest", "dotenvy", "chrono", "zip"]
 fetch-commit = ["reqwest"]
 
 [[bin]]

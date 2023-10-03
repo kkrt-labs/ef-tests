@@ -614,29 +614,29 @@ filename:
     - tooLongReturnDataCopy.json # ef-tests #319
     - revertRetDataSize.json # ef-tests #320
   stRevertTest:
-    - "RevertOpcodeMultipleSubCalls.json" # ef-tests #322
-    - "RevertPrefoundCall.json" # ef-tests #322
-    - "LoopCallsDepthThenRevert.json" # ef-tests #322
-    - "stateRevert.json" # ef-tests #322
-    - "RevertDepthCreateOOG.json" # ef-tests #322
-    - "costRevert.json" # ef-tests #322
-    - "LoopDelegateCallsDepthThenRevert.json" # ef-tests #322
-    - "RevertOpcodeInCallsOnNonEmptyReturnData.json" # ef-tests #322
-    - "RevertOpcodeCalls.json" # ef-tests #322
-    - "LoopCallsThenRevert.json" # ef-tests #322
-    - "TouchToEmptyAccountRevert2.json" # ef-tests #322
-    - "TouchToEmptyAccountRevert3.json" # ef-tests #322
-    - "RevertDepthCreateAddressCollision.json" # ef-tests #322
-    - "RevertPrecompiledTouchExactOOG.json" # ef-tests #323
-    - "RevertPrefound.json" # ef-tests #323
-    - "RevertPrefoundEmpty.json" # ef-tests #323
-    - "RevertOpcodeCreate.json" # ef-tests #323
-    - "RevertOnEmptyStack.json" # ef-tests #323
-    - "RevertInCreateInInit.json" # ef-tests #323
-    - "RevertPrefoundEmptyCall.json" # ef-tests #323
-    - "LoopCallsDepthThenRevert2.json" # ef-tests #324
-    - "LoopCallsDepthThenRevert3.json" # ef-tests #324
-    - "RevertRemoteSubCallStorageOOG.json" # ef-tests #324
+    - RevertOpcodeMultipleSubCalls.json # ef-tests #322
+    - RevertPrefoundCall.json # ef-tests #322
+    - LoopCallsDepthThenRevert.json # ef-tests #322
+    - stateRevert.json # ef-tests #322
+    - RevertDepthCreateOOG.json # ef-tests #322
+    - costRevert.json # ef-tests #322
+    - LoopDelegateCallsDepthThenRevert.json # ef-tests #322
+    - RevertOpcodeInCallsOnNonEmptyReturnData.json # ef-tests #322
+    - RevertOpcodeCalls.json # ef-tests #322
+    - LoopCallsThenRevert.json # ef-tests #322
+    - TouchToEmptyAccountRevert2.json # ef-tests #322
+    - TouchToEmptyAccountRevert3.json # ef-tests #322
+    - RevertDepthCreateAddressCollision.json # ef-tests #322
+    - RevertPrecompiledTouchExactOOG.json # ef-tests #323
+    - RevertPrefound.json # ef-tests #323
+    - RevertPrefoundEmpty.json # ef-tests #323
+    - RevertOpcodeCreate.json # ef-tests #323
+    - RevertOnEmptyStack.json # ef-tests #323
+    - RevertInCreateInInit.json # ef-tests #323
+    - RevertPrefoundEmptyCall.json # ef-tests #323
+    - LoopCallsDepthThenRevert2.json # ef-tests #324
+    - LoopCallsDepthThenRevert3.json # ef-tests #324
+    - RevertRemoteSubCallStorageOOG.json # ef-tests #324
   stShift:
     - shiftCombinations.json # ef-tests #383
     - shiftSignedCombinations.json # ef-tests #383
