@@ -687,6 +687,35 @@ filename:
     - TestStoreGasPrices.json # ef-test #139
     - TestContractInteraction.json # ef-test #140
     - RecursiveCreateContractsCreate4Contracts.json # ef-test #141
+  stSystemOperationsTest:
+    - ABAcalls0.json # ef-test #450
+    - ABAcalls1.json # ef-test #450
+    - ABAcalls2.json # ef-test #450
+    - ABAcalls3.json # ef-test #450
+    - ABAcallsSuicide0.json # ef-test #450
+    - Call10.json # ef-test #450
+    - callerAccountBalance.json # ef-test #450
+    - CallRecursiveBomb0.json # ef-test #450
+    - CallRecursiveBomb0_OOG_atMaxCallDepth.json # ef-test #450
+    - CallRecursiveBomb1.json # ef-test #450
+    - CallRecursiveBomb2.json # ef-test #450
+    - CallRecursiveBomb3.json # ef-test #450
+    - CallRecursiveBombLog.json # ef-test #450
+    - CallRecursiveBombLog2.json # ef-test #450
+    - CallToNameRegistratorAddressTooBigRight.json # ef-test #450
+    - PostToReturn1.json # ef-test #450
+    - CreateHashCollision.json # ef-test #451
+    - createNameRegistratorValueTooHigh.json # ef-test #451
+    - createNameRegistratorZeroMem.json # ef-test #451
+    - createNameRegistratorZeroMem2.json # ef-test #451
+    - createNameRegistratorZeroMemExpansion.json # ef-test #451
+    - createWithInvalidOpcode.json # ef-test #451
+    - testRandomTest.json # ef-test #451
+    - doubleSelfdestructTest.json # ef-test #452
+    - extcodecopy.json # ef-test #452
+    - multiSelfdestruct.json # ef-test #452
+    - suicideCallerAddresTooBigRight.json # ef-test #452
+    - suicideNotExistingAccount.json # ef-test #452
   stStaticFlagEnabled:
     - CallcodeToPrecompileFromCalledContract.json # ef-test #443
     - CallcodeToPrecompileFromContractInitialization.json # ef-test #443
