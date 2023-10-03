@@ -20,6 +20,7 @@ lint:
             cargo clippy --message-format json --locked --workspace
             --all-features --all-targets -- --cap-lints=warn --no-deps -D
             warnings
+      run_timeout: 20m
   enabled:
     - actionlint@1.6.26
     - checkov@2.4.9

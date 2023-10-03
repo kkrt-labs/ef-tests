@@ -1,3 +1,4 @@
+pub mod evm_sequencer;
 pub mod models;
 pub mod storage;
 pub mod traits;

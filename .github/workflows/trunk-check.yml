@@ -1,21 +1,17 @@
 name: Trunk
 
 on:
-  push:
-    branches: [main]
-  pull_request:
-    branches: [main]
+  workflow_call: {}
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  group: ${{ github.workflow }}-${{ github.ref }}-trunk
   cancel-in-progress: true
-
-permissions: read-all
 
 jobs:
   trunk_check:
     name: Trunk Check Runner
     runs-on: ubuntu-latest
+    # trunk-ignore(checkov/CKV2_GHA_1)
     permissions:
       checks: write # For trunk to post annotations
       contents: read # For repo checkout

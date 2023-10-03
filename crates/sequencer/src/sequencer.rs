@@ -23,7 +23,7 @@ pub struct Sequencer<S>
 where
     for<'a> &'a mut S: State + StateReader,
 {
-    pub context: BlockContext,
+    pub block_context: BlockContext,
     pub state: S,
 }
 
@@ -32,8 +32,11 @@ where
     for<'a> &'a mut S: State + StateReader,
 {
     /// Creates a new Sequencer instance.
-    pub fn new(context: BlockContext, state: S) -> Self {
-        Self { context, state }
+    pub fn new(block_context: BlockContext, state: S) -> Self {
+        Self {
+            block_context,
+            state,
+        }
     }
 }
 
@@ -44,7 +47,7 @@ where
     fn execute(&mut self, transaction: Transaction) -> Result<(), TransactionExecutionError> {
         let mut cached_state = CachedState::new(&mut self.state);
         let charge_fee = false;
-        let res = transaction.execute(&mut cached_state, &self.context, charge_fee);
+        let res = transaction.execute(&mut cached_state, &self.block_context, charge_fee);
 
         match res {
             Err(err) => {
@@ -86,10 +89,10 @@ mod tests {
         TransactionSignature,
     };
 
+    use crate::constants::test_constants::{FEE_TOKEN_ADDRESS, SEQUENCER_ADDRESS};
     use crate::constants::test_constants::{
-        FEE_TOKEN_ADDRESS, ONE_BLOCK_NUMBER, ONE_BLOCK_TIMESTAMP, ONE_CLASS_HASH,
-        SEQUENCER_ADDRESS, TEST_ADDRESS, TEST_CONTRACT_ACCOUNT, TEST_CONTRACT_ADDRESS,
-        TWO_CLASS_HASH, ZERO_FELT,
+        ONE_BLOCK_NUMBER, ONE_BLOCK_TIMESTAMP, ONE_CLASS_HASH, TEST_ADDRESS, TEST_CONTRACT_ACCOUNT,
+        TEST_CONTRACT_ADDRESS, TWO_CLASS_HASH, ZERO_FELT,
     };
     use crate::state::State;
 

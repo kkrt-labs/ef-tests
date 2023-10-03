@@ -1,0 +1,28 @@
+---
+name: Workflow - CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches:
+      - main
+
+permissions: read-all
+
+jobs:
+  trunk:
+    name: Trunk
+    uses: ./.github/workflows/trunk-check.yml
+    permissions:
+      checks: write
+      contents: read
+
+  submodules:
+    name: Compile Kakarot contracts
+    uses: ./.github/workflows/kakarot.yml
+
+  tests:
+    name: Rust tests
+    uses: ./.github/workflows/test.yml
+    needs: submodules
