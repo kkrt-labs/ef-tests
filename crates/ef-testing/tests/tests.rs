@@ -88,10 +88,10 @@ mod blockchain_tests {
     blockchain_tests!(st_create2, stCreate2);
     blockchain_tests!(st_create_test, stCreateTest);
     blockchain_tests!(st_delegatecall_test_homestead, stDelegatecallTestHomestead);
-    blockchain_tests!(st_eip150_specific, stEIP150Specific);
     blockchain_tests!(st_eip150single_code_gas_prices, stEIP150singleCodeGasPrices);
-    // blockchain_tests!(st_eip1559, stEIP1559); // ef-tests #455 - failing due to missing field gasPrice, cannot measure number of failing tests
+    blockchain_tests!(st_eip150_specific, stEIP150Specific);
     blockchain_tests!(st_eip158_specific, stEIP158Specific);
+    // blockchain_tests!(st_eip1559, stEIP1559); // ef-tests #455 - failing due to missing field gasPrice, cannot measure number of failing tests
     // blockchain_tests!(st_eip2930, stEIP2930); // ef-tests #455 - failing due to missing field gasPrice, cannot measure number of failing tests
     blockchain_tests!(st_eip3607, stEIP3607);
     // blockchain_tests!(st_example, stExample); // ef-tests #455 - failing due to missing field gasPrice, cannot measure number of failing tests
@@ -112,26 +112,19 @@ mod blockchain_tests {
     blockchain_tests!(st_refund_test, stRefundTest);
     blockchain_tests!(st_return_data_test, stReturnDataTest);
     blockchain_tests!(st_revert_test, stRevertTest);
-    blockchain_tests!(st_sload_test, stSLoadTest);
-    blockchain_tests!(st_sstore_test, stSStoreTest);
     blockchain_tests!(st_self_balance, stSelfBalance);
     blockchain_tests!(st_shift, stShift);
+    blockchain_tests!(st_sload_test, stSLoadTest);
     blockchain_tests!(st_solidity_test, stSolidityTest);
-    // blockchain_tests!(st_special_test, stSpecialTest); // 3 failing tests
-    // blockchain_tests!(st_stack_tests, stStackTests); // 7 failing tests
-    // blockchain_tests!(st_static_call, stStaticCall); // 207 failing tests
-    blockchain_tests!(st_static_flag_enabled, stStaticFlagEnabled);
     blockchain_tests!(st_special_test, stSpecialTest);
+    blockchain_tests!(st_sstore_test, stSStoreTest);
     blockchain_tests!(st_stack_tests, stStackTests);
     blockchain_tests!(st_static_call, stStaticCall);
-    // blockchain_tests!(st_static_flag_enabled, stStaticFlagEnabled); // 13 failing tests
-    // blockchain_tests!(st_system_operations_test, stSystemOperationsTest); // 28 failing tests
+    blockchain_tests!(st_static_flag_enabled, stStaticFlagEnabled);
+    blockchain_tests!(st_system_operations_test, stSystemOperationsTest);
     // blockchain_tests!(st_time_consuming, stTimeConsuming); // 14 failing tests
     // blockchain_tests!(st_transaction_test, stTransactionTest); // failing due to: invalid length 62, expected a (both 0x-prefixed or not) hex string or byte array containing betwee
     blockchain_tests!(st_transition_test, stTransitionTest);
-    // blockchain_tests!(st_wallet_test, stWalletTest); // 5 failing tests
-    // blockchain_tests!(st_transaction_test, stTransactionTest); // ef-test #447 -
-    // blockchain_tests!(st_transition_test, stTransitionTest); // 3 failing tests
     blockchain_tests!(st_wallet_test, stWalletTest);
     blockchain_tests!(st_zero_calls_revert, stZeroCallsRevert);
     blockchain_tests!(st_zero_knowledge, stZeroKnowledge);
