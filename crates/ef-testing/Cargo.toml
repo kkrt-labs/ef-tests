@@ -37,6 +37,8 @@ chrono = { workspace = true, optional = true }
 dotenvy = { workspace = true, optional = true }
 eyre = { workspace = true }
 lazy_static = { workspace = true }
+nom = { workspace = true }
+num-traits = { workspace = true }
 thiserror = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }

@@ -2463,6 +2463,8 @@ dependencies = [
  "kakarot-test-utils",
  "katana-core",
  "lazy_static",
+ "nom",
+ "num-traits 0.2.16",
  "regex",
  "reqwest",
  "reth-primitives",
