@@ -965,6 +965,7 @@ filename:
     - delegatecallAtTransition.json # ef-test #433
     - delegatecallAfterTransition.json # ef-test #433
     - delegatecallBeforeTransition.json # ef-test #433
+
   stTimeConsuming:
     - CALLBlake2f_MaxRounds.json # ef-test #440
     - sstore_combinations_initial00.json # ef-test #440
