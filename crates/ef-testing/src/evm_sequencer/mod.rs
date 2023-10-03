@@ -10,12 +10,14 @@ use blockifier::state::state_api::{State as BlockifierState, StateResult};
 use cairo_vm::types::errors::program_errors::ProgramError;
 use sequencer::sequencer::Sequencer;
 use sequencer::state::State;
+use serde::de::Error;
 
 use self::constants::{
     BLOCK_CONTEXT, CONTRACT_ACCOUNT_CLASS, CONTRACT_ACCOUNT_CLASS_HASH, EOA_CLASS, EOA_CLASS_HASH,
     FEE_TOKEN_ADDRESS, KAKAROT_ADDRESS, KAKAROT_CLASS, KAKAROT_CLASS_HASH, KAKAROT_OWNER_ADDRESS,
     PROXY_CLASS, PROXY_CLASS_HASH,
 };
+use self::types::StarknetContractClassV0;
 
 pub(crate) struct KakarotSequencer(Sequencer<State>);
 
@@ -55,26 +57,34 @@ impl KakarotSequencer {
         )?;
 
         // Write proxy, eoa and contract account classes and class hashes.
+        let proxy_class = StarknetContractClassV0::from(PROXY_CLASS.clone());
         (&mut self.0.state).set_contract_class(
             &PROXY_CLASS_HASH,
-            ContractClass::V0(ContractClassV0::try_from_json_string(
-                &serde_json::to_string(&*PROXY_CLASS)
-                    .map_err(|err| StateError::ProgramError(ProgramError::Parse(err)))?,
-            )?),
+            ContractClass::V0(ContractClassV0::try_from(proxy_class).map_err(|err| {
+                StateError::ProgramError(ProgramError::Parse(serde_json::error::Error::custom(
+                    err.to_string(),
+                )))
+            })?),
         )?;
+        let contract_account_class = StarknetContractClassV0::from(CONTRACT_ACCOUNT_CLASS.clone());
         (&mut self.0.state).set_contract_class(
             &CONTRACT_ACCOUNT_CLASS_HASH,
-            ContractClass::V0(ContractClassV0::try_from_json_string(
-                &serde_json::to_string(&*CONTRACT_ACCOUNT_CLASS)
-                    .map_err(|err| StateError::ProgramError(ProgramError::Parse(err)))?,
+            ContractClass::V0(ContractClassV0::try_from(contract_account_class).map_err(
+                |err| {
+                    StateError::ProgramError(ProgramError::Parse(serde_json::error::Error::custom(
+                        err.to_string(),
+                    )))
+                },
             )?),
         )?;
+        let eoa_class = StarknetContractClassV0::from(EOA_CLASS.clone());
         (&mut self.0.state).set_contract_class(
             &EOA_CLASS_HASH,
-            ContractClass::V0(ContractClassV0::try_from_json_string(
-                &serde_json::to_string(&*EOA_CLASS)
-                    .map_err(|err| StateError::ProgramError(ProgramError::Parse(err)))?,
-            )?),
+            ContractClass::V0(ContractClassV0::try_from(eoa_class).map_err(|err| {
+                StateError::ProgramError(ProgramError::Parse(serde_json::error::Error::custom(
+                    err.to_string(),
+                )))
+            })?),
         )?;
 
         Ok(self)
