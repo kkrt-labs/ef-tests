@@ -12,10 +12,7 @@ use starknet::{
     },
     macros::selector,
 };
-use starknet_api::{
-    core::{ClassHash, ContractAddress},
-    hash::StarkFelt,
-};
+use starknet_api::hash::StarkFelt;
 
 pub fn compute_starknet_address(evm_address: &Address) -> FeltSequencer {
     let evm_address: FeltSequencer = (*evm_address).into();
@@ -46,14 +43,6 @@ pub(crate) fn split_u256(value: U256) -> [u128; 2] {
     ]
 }
 
-pub(crate) fn contract_address_to_starkfelt(contract_address: &ContractAddress) -> StarkFelt {
-    *contract_address.0.key()
-}
-
-pub(crate) fn class_hash_to_starkfelt(class_hash: &ClassHash) -> StarkFelt {
-    class_hash.0
-}
-
 pub fn bytes_to_felt_vec(bytes: &Bytes) -> Vec<FieldElement> {
     bytes.to_vec().into_iter().map(FieldElement::from).collect()
 }
@@ -74,12 +63,12 @@ pub(crate) fn to_broadcasted_starknet_transaction(
     let mut calldata = bytes_to_felt_vec(bytes);
 
     let mut execute_calldata: Vec<FieldElement> = vec![
-        FieldElement::ONE,                                      // call array length
-        contract_address_to_starkfelt(&KAKAROT_ADDRESS).into(), // contract address
-        selector!("eth_send_transaction"),                      // selector
-        FieldElement::ZERO,                                     // data offset
-        FieldElement::from(calldata.len()),                     // data length
-        FieldElement::from(calldata.len()),                     // calldata length
+        FieldElement::ONE,                  // call array length
+        (*KAKAROT_ADDRESS.0.key()).into(),  // contract address
+        selector!("eth_send_transaction"),  // selector
+        FieldElement::ZERO,                 // data offset
+        FieldElement::from(calldata.len()), // data length
+        FieldElement::from(calldata.len()), // calldata length
     ];
     execute_calldata.append(&mut calldata);
 

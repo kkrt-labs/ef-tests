@@ -16,7 +16,6 @@ use self::constants::{
     FEE_TOKEN_ADDRESS, KAKAROT_ADDRESS, KAKAROT_CLASS, KAKAROT_CLASS_HASH, KAKAROT_OWNER_ADDRESS,
     PROXY_CLASS, PROXY_CLASS_HASH,
 };
-use self::utils::{class_hash_to_starkfelt, contract_address_to_starkfelt};
 
 pub(crate) struct KakarotSequencer(Sequencer<State>);
 
@@ -29,31 +28,20 @@ impl KakarotSequencer {
 
     pub fn initialize(mut self) -> StateResult<Self> {
         let storage = vec![
-            (
-                get_storage_var_address("Ownable_owner", &[]).unwrap(), // safe unwrap: var is ASCII
-                contract_address_to_starkfelt(&KAKAROT_OWNER_ADDRESS),
-            ),
-            (
-                get_storage_var_address("native_token_address", &[]).unwrap(), // safe unwrap: var is ASCII
-                contract_address_to_starkfelt(&FEE_TOKEN_ADDRESS),
-            ),
-            (
-                get_storage_var_address("contract_account_class_hash", &[]).unwrap(),
-                class_hash_to_starkfelt(&CONTRACT_ACCOUNT_CLASS_HASH),
-            ),
-            (
-                get_storage_var_address("externally_owned_account_class_hash", &[]).unwrap(),
-                class_hash_to_starkfelt(&EOA_CLASS_HASH),
-            ),
-            (
-                get_storage_var_address("account_proxy_class_hash", &[]).unwrap(),
-                class_hash_to_starkfelt(&PROXY_CLASS_HASH),
-            ),
+            ("Ownable_owner", *KAKAROT_OWNER_ADDRESS.0.key()),
+            ("native_token_address", *FEE_TOKEN_ADDRESS.0.key()),
+            ("contract_account_class_hash", CONTRACT_ACCOUNT_CLASS_HASH.0),
+            ("externally_owned_account_class_hash", EOA_CLASS_HASH.0),
+            ("account_proxy_class_hash", PROXY_CLASS_HASH.0),
         ];
 
         // Write all the storage vars to the sequencer state.
         for (k, v) in storage {
-            (&mut self.0.state).set_storage_at(*KAKAROT_ADDRESS, k, v);
+            (&mut self.0.state).set_storage_at(
+                *KAKAROT_ADDRESS,
+                get_storage_var_address(k, &[]).unwrap(), // safe unwrap: all vars are ASCII
+                v,
+            );
         }
 
         // Write the kakarot class and class hash.

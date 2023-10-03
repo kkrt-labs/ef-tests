@@ -66,13 +66,6 @@ impl StarknetTransaction {
     }
 }
 
-const PREFIX_INVOKE: FieldElement = FieldElement::from_mont([
-    18443034532770911073,
-    18446744073709551615,
-    18446744073709551615,
-    513398556346534256,
-]);
-
 fn compute_transaction_hash(
     sender_address: FieldElement,
     calldata: &[FieldElement],
@@ -81,7 +74,7 @@ fn compute_transaction_hash(
     nonce: FieldElement,
 ) -> FieldElement {
     compute_hash_on_elements(&[
-        PREFIX_INVOKE,
+        FieldElement::from_byte_slice_be(b"invoke").unwrap(),
         FieldElement::ONE,
         sender_address,
         FieldElement::ZERO, // entry_point_selector
