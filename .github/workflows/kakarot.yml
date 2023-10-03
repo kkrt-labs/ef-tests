@@ -3,6 +3,12 @@ name: Kakarot compilation caching
 on:
   workflow_call:
 
+permissions: read-all
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   submodules:
     runs-on: ubuntu-latest

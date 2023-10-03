@@ -7,9 +7,9 @@ on:
   pull_request:
 
 jobs:
-  linters:
-    name: Linters
-    uses: ./.github/workflows/linters.yml
+  trunk:
+    name: Trunk
+    uses: ./.github/workflows/trunk-check.yml
 
   submodules:
     name: Compile Kakarot contracts
