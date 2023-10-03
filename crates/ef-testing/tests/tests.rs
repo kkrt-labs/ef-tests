@@ -130,6 +130,5 @@ mod blockchain_tests {
     blockchain_tests!(st_zero_calls_test, stZeroCallsTest);
     blockchain_tests!(st_zero_knowledge, stZeroKnowledge);
     blockchain_tests!(st_zero_knowledge2, stZeroKnowledge2);
-    
     blockchain_tests!(vm_tests, VmTests);
 }
