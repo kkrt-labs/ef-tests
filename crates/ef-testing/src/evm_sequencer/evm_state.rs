@@ -10,7 +10,7 @@ use starknet_api::hash::StarkFelt;
 use starknet_api::StarknetApiError;
 
 use super::constants::{
-    CONTRACT_ACCOUNT_CLASS_HASH, EOA_CLASS_HASH, FEE_TOKEN_ADDRESS, KAKAROT_ADDRESS,
+    CONTRACT_ACCOUNT_CLASS_HASH, EOA_CLASS_HASH, ETH_FEE_TOKEN_ADDRESS, KAKAROT_ADDRESS,
     PROXY_CLASS_HASH,
 };
 use super::types::FeltSequencer;
@@ -144,7 +144,7 @@ impl EvmState for KakarotSequencer {
 
         // Write all the storage vars to the sequencer state.
         for (k, v) in storage {
-            (&mut self.0.state).set_storage_at(*FEE_TOKEN_ADDRESS, k, v);
+            (&mut self.0.state).set_storage_at(*ETH_FEE_TOKEN_ADDRESS, k, v);
         }
         Ok(())
     }

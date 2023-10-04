@@ -1,5 +1,6 @@
 use std::sync::Arc;
 
+use blockifier::transaction::transactions::InvokeTransaction as BlockifierInvokeTransaction;
 use blockifier::transaction::{
     account_transaction::AccountTransaction,
     transaction_execution::Transaction as ExecutionTransaction,
@@ -27,38 +28,40 @@ impl StarknetTransaction {
     ) -> Result<ExecutionTransaction, eyre::Error> {
         match self.0 {
             BroadcastedTransaction::Invoke(invoke) => Ok(ExecutionTransaction::AccountTransaction(
-                AccountTransaction::Invoke(InvokeTransaction::V1(InvokeTransactionV1 {
-                    transaction_hash: TransactionHash(Into::<StarkHash>::into(
-                        Into::<StarkFelt>::into(compute_transaction_hash(
+                AccountTransaction::Invoke(BlockifierInvokeTransaction {
+                    tx: InvokeTransaction::V1(InvokeTransactionV1 {
+                        max_fee: Fee(invoke.max_fee.try_into()?),
+                        signature: TransactionSignature(
+                            invoke
+                                .signature
+                                .into_iter()
+                                .map(Into::<StarkFelt>::into)
+                                .collect(),
+                        ),
+                        nonce: Nonce(invoke.nonce.try_into()?),
+                        sender_address: ContractAddress(TryInto::<PatriciaKey>::try_into(Into::<
+                            StarkHash,
+                        >::into(
+                            Into::<StarkFelt>::into(invoke.sender_address),
+                        ))?),
+                        calldata: Calldata(Arc::new(
+                            invoke
+                                .calldata
+                                .iter()
+                                .map(|x| Into::<StarkFelt>::into(*x))
+                                .collect(),
+                        )),
+                    }),
+                    tx_hash: TransactionHash(Into::<StarkHash>::into(Into::<StarkFelt>::into(
+                        compute_transaction_hash(
                             invoke.sender_address,
                             &invoke.calldata,
                             invoke.max_fee,
                             chain_id,
                             invoke.nonce,
-                        )),
-                    )),
-                    max_fee: Fee(invoke.max_fee.try_into()?),
-                    signature: TransactionSignature(
-                        invoke
-                            .signature
-                            .into_iter()
-                            .map(Into::<StarkFelt>::into)
-                            .collect(),
-                    ),
-                    nonce: Nonce(invoke.nonce.try_into()?),
-                    sender_address: ContractAddress(TryInto::<PatriciaKey>::try_into(Into::<
-                        StarkHash,
-                    >::into(
-                        Into::<StarkFelt>::into(invoke.sender_address),
-                    ))?),
-                    calldata: Calldata(Arc::new(
-                        invoke
-                            .calldata
-                            .into_iter()
-                            .map(Into::<StarkFelt>::into)
-                            .collect(),
-                    )),
-                })),
+                        ),
+                    ))),
+                }),
             )),
             // TODO: Add support for other transaction types.
             _ => Err(eyre::eyre!("Unsupported transaction type")),

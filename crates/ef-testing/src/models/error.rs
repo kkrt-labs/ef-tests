@@ -1,7 +1,6 @@
 use std::{fmt::Debug, path::PathBuf};
 
 use blockifier::{state::errors::StateError, transaction::errors::TransactionExecutionError};
-use kakarot_rpc_core::{client::errors::EthApiError, models::ConversionError};
 use starknet::{
     core::{types::FromByteArrayError, utils::NonAsciiNameError},
     providers::ProviderError,
@@ -45,12 +44,6 @@ impl From<eyre::Error> for RunnerError {
     }
 }
 
-impl<E: std::error::Error> From<EthApiError<E>> for RunnerError {
-    fn from(err: EthApiError<E>) -> Self {
-        Self::Other(err.to_string())
-    }
-}
-
 impl<E: std::error::Error> From<ProviderError<E>> for RunnerError {
     fn from(err: ProviderError<E>) -> Self {
         Self::Other(err.to_string())
@@ -59,12 +52,6 @@ impl<E: std::error::Error> From<ProviderError<E>> for RunnerError {
 
 impl From<regex::Error> for RunnerError {
     fn from(err: regex::Error) -> Self {
-        Self::Other(err.to_string())
-    }
-}
-
-impl From<ConversionError<()>> for RunnerError {
-    fn from(err: ConversionError<()>) -> Self {
         Self::Other(err.to_string())
     }
 }

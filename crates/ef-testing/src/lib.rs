@@ -4,7 +4,7 @@ pub mod traits;
 pub mod utils;
 
 use bytes::BytesMut;
-use kakarot_rpc_core::client::constants::CHAIN_ID;
+use evm_sequencer::constants::CHAIN_ID;
 use models::error::RunnerError;
 use reth_primitives::{sign_message, Bytes, SealedBlock, Signature, Transaction};
 use reth_rlp::Decodable;
@@ -28,7 +28,7 @@ pub fn get_signed_rlp_encoded_transaction(block: &Bytes, pk: B256) -> Result<Byt
         .cloned()
         .ok_or_else(|| RunnerError::Other("No transaction in pre state block".to_string()))?;
 
-    tx_signed.transaction.set_chain_id(CHAIN_ID);
+    tx_signed.transaction.set_chain_id(*CHAIN_ID);
     let signature = sign_tx(&tx_signed.transaction, &pk)?;
     tx_signed.encode_with_signature(&signature, &mut out, true);
 

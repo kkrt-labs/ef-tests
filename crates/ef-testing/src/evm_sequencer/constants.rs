@@ -1,6 +1,6 @@
 use std::{collections::HashMap, sync::Arc};
 
-use blockifier::block_context::BlockContext;
+use blockifier::block_context::{BlockContext, FeeTokenAddresses, GasPrices};
 use lazy_static::lazy_static;
 use starknet::core::types::{contract::legacy::LegacyContractClass, FieldElement};
 use starknet_api::{
@@ -41,9 +41,9 @@ lazy_static! {
             block_number: BlockNumber(0),
             block_timestamp: BlockTimestamp(0),
             sequencer_address: *SEQUENCER_ADDRESS,
-            fee_token_address: *FEE_TOKEN_ADDRESS,
+            fee_token_addresses: FeeTokenAddresses{eth_fee_token_address: *ETH_FEE_TOKEN_ADDRESS, strk_fee_token_address: *STRK_FEE_TOKEN_ADDRESS},
             vm_resource_fee_cost: Arc::new(VM_RESOURCES.clone()),
-            gas_price: 1,
+            gas_prices: GasPrices{eth_l1_gas_price: 1, strk_l1_gas_price: 1},
             invoke_tx_max_n_steps: 2_u32.pow(24),
             validate_max_n_steps: 2_u32.pow(24),
             max_recursion_depth: 1024,
@@ -59,10 +59,19 @@ lazy_static! {
         ))
         .unwrap()
     );
-    pub static ref FEE_TOKEN_ADDRESS: ContractAddress = ContractAddress(
+    pub static ref ETH_FEE_TOKEN_ADDRESS: ContractAddress = ContractAddress(
         TryInto::<PatriciaKey>::try_into(StarkFelt::from(
             FieldElement::from_hex_be(
                 "0x049D36570D4e46f48e99674bd3fcc84644DdD6b96F7C741B1562B82f9e004dC7"
+            )
+            .unwrap()
+        ))
+        .unwrap()
+    );
+    pub static ref STRK_FEE_TOKEN_ADDRESS: ContractAddress = ContractAddress(
+        TryInto::<PatriciaKey>::try_into(StarkFelt::from(
+            FieldElement::from_hex_be(
+                "0xCa14007Eff0dB1f8135f4C25B34De49AB0d42766"
             )
             .unwrap()
         ))
