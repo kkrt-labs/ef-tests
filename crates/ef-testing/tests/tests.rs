@@ -128,7 +128,7 @@ mod blockchain_tests {
     blockchain_tests!(st_wallet_test, stWalletTest);
     blockchain_tests!(st_zero_calls_revert, stZeroCallsRevert);
     blockchain_tests!(st_zero_calls_test, stZeroCallsTest);
-    // blockchain_tests!(st_zero_knowledge, stZeroKnowledge); // 60 failing
-    // blockchain_tests!(st_zero_knowledge2, stZeroKnowledge2); // 59 failing
+    blockchain_tests!(st_zero_knowledge, stZeroKnowledge);
+    blockchain_tests!(st_zero_knowledge2, stZeroKnowledge2);
     blockchain_tests!(vm_tests, VmTests);
 }
