@@ -167,18 +167,23 @@ impl EvmState for KakarotSequencer {
     fn get_nonce(&mut self, evm_address: &Address) -> StateResult<U256> {
         let starknet_address = compute_starknet_address(evm_address);
 
-        let nonce_protocol = (&mut self.0.state)
-            .get_nonce_at(starknet_address.try_into()?)?
-            .0;
+        let implementation = (&mut self.0.state)
+            .get_storage_at(
+                starknet_address.try_into()?,
+                get_storage_var_address("_implementation", &[])?,
+            )
+            .unwrap();
 
-        let key = get_storage_var_address("nonce", &[])?;
-        let nonce_managed =
-            (&mut self.0.state).get_storage_at(starknet_address.try_into()?, key)?;
-
-        let nonce = if nonce_managed > nonce_protocol {
-            nonce_managed
+        let nonce = if implementation == EOA_CLASS_HASH.0 {
+            (&mut self.0.state)
+                .get_nonce_at(starknet_address.try_into()?)?
+                .0
+        } else if implementation == CONTRACT_ACCOUNT_CLASS_HASH.0 {
+            let key = get_storage_var_address("nonce", &[])?;
+            (&mut self.0.state).get_storage_at(starknet_address.try_into()?, key)?
         } else {
-            nonce_protocol
+            // We can't throw an error here, because it could just be an uninitialized account.
+            StarkFelt::from(0_u8)
         };
 
         Ok(U256::from_be_bytes(
