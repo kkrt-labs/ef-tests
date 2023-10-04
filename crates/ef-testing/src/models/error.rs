@@ -1,5 +1,6 @@
 use std::{fmt::Debug, path::PathBuf};
 
+use blockifier::{state::errors::StateError, transaction::errors::TransactionExecutionError};
 use kakarot_rpc_core::{client::errors::EthApiError, models::ConversionError};
 use starknet::{
     core::{types::FromByteArrayError, utils::NonAsciiNameError},
@@ -8,7 +9,7 @@ use starknet::{
 use starknet_api::StarknetApiError;
 
 /// Error type based off <https://github.com/paradigmxyz/reth/blob/main/testing/ef-tests/src/result.rs>
-#[derive(Clone, Debug, thiserror::Error)]
+#[derive(Debug, thiserror::Error)]
 pub enum RunnerError {
     /// Assertion error
     #[error("{0}")]
@@ -26,7 +27,10 @@ pub enum RunnerError {
     },
     /// Sequencer error
     #[error("An error occurred while running the sequencer: {0}")]
-    SequencerError(String),
+    SequencerError(#[from] StateError),
+    /// Execution error
+    #[error("An error occurred while executing the transaction: {0}")]
+    ExecutionError(#[from] TransactionExecutionError),
     /// Skipped test
     #[error("test skipped")]
     Skipped,
