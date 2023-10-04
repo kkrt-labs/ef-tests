@@ -982,7 +982,6 @@ filename:
     - static_Call50000_sha256.json # ef-test #440
 
 # List of file names regex to be skipped
-
 # The first level corresponds to the directory, the second to the list of file names regex to ignore.
 regex:
   stBadOpcode:
