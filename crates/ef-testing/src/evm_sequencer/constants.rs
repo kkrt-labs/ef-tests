@@ -72,12 +72,14 @@ lazy_static! {
     pub static ref CONTRACT_ACCOUNT_CLASS: LegacyContractClass = serde_json::from_reader::<_, LegacyContractClass>(std::fs::File::open("../../lib/kakarot/build/contract_account.json").unwrap()).unwrap();
     pub static ref EOA_CLASS: LegacyContractClass = serde_json::from_reader::<_, LegacyContractClass>(std::fs::File::open("../../lib/kakarot/build/externally_owned_account.json").unwrap()).unwrap();
     pub static ref PROXY_CLASS: LegacyContractClass = serde_json::from_reader::<_, LegacyContractClass>(std::fs::File::open("../../lib/kakarot/build/proxy.json").unwrap()).unwrap();
+    pub static ref FEE_TOKEN_CLASS: LegacyContractClass = serde_json::from_reader::<_, LegacyContractClass>(std::fs::File::open("../../lib/kakarot/build/fixtures/ERC20.json").unwrap()).unwrap();
 
     // Main class hashes
     pub static ref KAKAROT_CLASS_HASH: ClassHash = ClassHash(KAKAROT_CLASS.class_hash().unwrap().into());
     pub static ref CONTRACT_ACCOUNT_CLASS_HASH: ClassHash = ClassHash(CONTRACT_ACCOUNT_CLASS.class_hash().unwrap().into());
     pub static ref EOA_CLASS_HASH: ClassHash = ClassHash(EOA_CLASS.class_hash().unwrap().into());
     pub static ref PROXY_CLASS_HASH: ClassHash = ClassHash(PROXY_CLASS.class_hash().unwrap().into());
+    pub static ref FEE_TOKEN_CLASS_HASH: ClassHash = ClassHash(FEE_TOKEN_CLASS.class_hash().unwrap().into());
 
 }
 

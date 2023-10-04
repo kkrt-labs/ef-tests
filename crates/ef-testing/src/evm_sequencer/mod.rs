@@ -1,5 +1,5 @@
 pub mod constants;
-pub mod setup;
+pub mod evm_state;
 pub mod types;
 pub mod utils;
 
@@ -7,14 +7,17 @@ use blockifier::abi::abi_utils::get_storage_var_address;
 use blockifier::execution::contract_class::{ContractClass, ContractClassV0};
 use blockifier::state::errors::StateError;
 use blockifier::state::state_api::{State as BlockifierState, StateResult};
+use blockifier::transaction::errors::TransactionExecutionError;
+use blockifier::transaction::transaction_execution::Transaction;
 use cairo_vm::types::errors::program_errors::ProgramError;
+use sequencer::execution::Execution;
 use sequencer::sequencer::Sequencer;
 use sequencer::state::State;
 
 use self::constants::{
     BLOCK_CONTEXT, CONTRACT_ACCOUNT_CLASS, CONTRACT_ACCOUNT_CLASS_HASH, EOA_CLASS, EOA_CLASS_HASH,
-    FEE_TOKEN_ADDRESS, KAKAROT_ADDRESS, KAKAROT_CLASS, KAKAROT_CLASS_HASH, KAKAROT_OWNER_ADDRESS,
-    PROXY_CLASS, PROXY_CLASS_HASH,
+    FEE_TOKEN_ADDRESS, FEE_TOKEN_CLASS, FEE_TOKEN_CLASS_HASH, KAKAROT_ADDRESS, KAKAROT_CLASS,
+    KAKAROT_CLASS_HASH, KAKAROT_OWNER_ADDRESS, PROXY_CLASS, PROXY_CLASS_HASH,
 };
 
 pub(crate) struct KakarotSequencer(Sequencer<State>);
@@ -54,7 +57,7 @@ impl KakarotSequencer {
             )?),
         )?;
 
-        // Write proxy, eoa and contract account classes and class hashes.
+        // Write proxy, eoa, contract account and erc20 classes and class hashes.
         (&mut self.0.state).set_contract_class(
             &PROXY_CLASS_HASH,
             ContractClass::V0(ContractClassV0::try_from_json_string(
@@ -76,8 +79,22 @@ impl KakarotSequencer {
                     .map_err(|err| StateError::ProgramError(ProgramError::Parse(err)))?,
             )?),
         )?;
+        (&mut self.0.state).set_contract_class(
+            &FEE_TOKEN_CLASS_HASH,
+            ContractClass::V0(ContractClassV0::try_from_json_string(
+                &serde_json::to_string(&*FEE_TOKEN_CLASS)
+                    .map_err(|err| StateError::ProgramError(ProgramError::Parse(err)))?,
+            )?),
+        )?;
+        (&mut self.0.state).set_class_hash_at(*FEE_TOKEN_ADDRESS, *FEE_TOKEN_CLASS_HASH)?;
 
         Ok(self)
+    }
+}
+
+impl Execution for KakarotSequencer {
+    fn execute(&mut self, transaction: Transaction) -> Result<(), TransactionExecutionError> {
+        self.0.execute(transaction)
     }
 }
 

@@ -1,9 +1,10 @@
 use blockifier::abi::abi_utils::{
     get_erc20_balance_var_addresses, get_storage_var_address, get_uint256_storage_var_addresses,
 };
-use blockifier::state::state_api::{State, StateResult};
+use blockifier::state::state_api::{State, StateReader, StateResult};
 use reth_primitives::{Address, Bytes};
 use revm_primitives::U256;
+use starknet::core::types::FieldElement;
 use starknet_api::core::Nonce;
 use starknet_api::hash::StarkFelt;
 use starknet_api::StarknetApiError;
@@ -26,6 +27,10 @@ pub trait EvmState {
     ) -> StateResult<()>;
 
     fn fund(&mut self, evm_address: &Address, balance: U256) -> StateResult<()>;
+
+    fn get_storage_at(&mut self, evm_address: &Address, key: U256) -> StateResult<U256>;
+
+    fn get_nonce(&mut self, evm_address: &Address) -> StateResult<U256>;
 }
 
 impl EvmState for KakarotSequencer {
@@ -102,14 +107,10 @@ impl EvmState for KakarotSequencer {
         (&mut self.0.state).set_class_hash_at(starknet_address, *PROXY_CLASS_HASH)?;
 
         // Add the address to the Kakarot evm to starknet mapping
-        let evm_starknet_address_mapping_storage = (
-            get_storage_var_address("evm_to_starknet_address", &[evm_address]).unwrap(), // safe unwrap: var is ASCII
-            *starknet_address.0.key(),
-        );
         (&mut self.0.state).set_storage_at(
             *KAKAROT_ADDRESS,
-            evm_starknet_address_mapping_storage.0,
-            evm_starknet_address_mapping_storage.1,
+            get_storage_var_address("evm_to_starknet_address", &[evm_address]).unwrap(),
+            *starknet_address.0.key(),
         );
         Ok(())
     }
@@ -120,7 +121,7 @@ impl EvmState for KakarotSequencer {
         let mut storage = vec![];
 
         // Initialize the balance storage var.
-        let balance_keys = get_erc20_balance_var_addresses(&FEE_TOKEN_ADDRESS)?;
+        let balance_keys = get_erc20_balance_var_addresses(&starknet_address.try_into()?)?;
         let balance_keys = [balance_keys.0, balance_keys.1];
         let balance_storage = &mut balance_keys
             .into_iter()
@@ -132,7 +133,7 @@ impl EvmState for KakarotSequencer {
         // Initialize the allowance storage var.
         let allowance_keys = get_uint256_storage_var_addresses(
             "ERC20_allowances",
-            &[*FEE_TOKEN_ADDRESS.0.key(), starknet_address.into()],
+            &[starknet_address.into(), *KAKAROT_ADDRESS.0.key()],
         )?;
         let allowance_keys = [allowance_keys.0, allowance_keys.1];
         let allowance_storage = &mut allowance_keys
@@ -142,11 +143,47 @@ impl EvmState for KakarotSequencer {
         storage.append(allowance_storage);
 
         // Write all the storage vars to the sequencer state.
-        let starknet_address = starknet_address.try_into()?;
         for (k, v) in storage {
-            (&mut self.0.state).set_storage_at(starknet_address, k, v);
+            (&mut self.0.state).set_storage_at(*FEE_TOKEN_ADDRESS, k, v);
         }
         Ok(())
+    }
+
+    fn get_storage_at(&mut self, evm_address: &Address, key: U256) -> StateResult<U256> {
+        let keys = split_u256(key).map(Into::into);
+        let keys = get_uint256_storage_var_addresses("storage_", &keys).unwrap(); // safe unwrap: all vars are ASCII
+
+        let starknet_address = compute_starknet_address(evm_address);
+
+        let low = (&mut self.0.state).get_storage_at(starknet_address.try_into()?, keys.0)?;
+        let high = (&mut self.0.state).get_storage_at(starknet_address.try_into()?, keys.1)?;
+
+        let low = U256::from_be_bytes(Into::<FieldElement>::into(low).to_bytes_be());
+        let high = U256::from_be_bytes(Into::<FieldElement>::into(high).to_bytes_be());
+
+        Ok(high << 128 | low)
+    }
+
+    fn get_nonce(&mut self, evm_address: &Address) -> StateResult<U256> {
+        let starknet_address = compute_starknet_address(evm_address);
+
+        let nonce_protocol = (&mut self.0.state)
+            .get_nonce_at(starknet_address.try_into()?)?
+            .0;
+
+        let key = get_storage_var_address("nonce", &[])?;
+        let nonce_managed =
+            (&mut self.0.state).get_storage_at(starknet_address.try_into()?, key)?;
+
+        let nonce = if nonce_managed > nonce_protocol {
+            nonce_managed
+        } else {
+            nonce_protocol
+        };
+
+        Ok(U256::from_be_bytes(
+            Into::<FieldElement>::into(nonce).to_bytes_be(),
+        ))
     }
 }
 
