@@ -304,6 +304,7 @@ filename:
     - CREATE_EContractCreateNEContractInInit_Tr.json # ef-tests #340
     - CREATE_empty000CreateinInitCode_Transaction.json # ef-tests #340
     - CREATE_FirstByte_loop.json # ef-tests #340
+    - CreateTransactionHighNonce.json # ef-tests #471
   stDelegatecallTestHomestead:
     - Call1024BalanceTooLow.json # ef-tests #332
     - Call1024OOG.json # ef-tests #332

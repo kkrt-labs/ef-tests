@@ -7,10 +7,11 @@ use revm_primitives::U256;
 use starknet::core::types::FieldElement;
 use starknet_api::core::Nonce;
 use starknet_api::hash::StarkFelt;
+use starknet_api::state::StorageKey;
 use starknet_api::StarknetApiError;
 
 use super::constants::{
-    CONTRACT_ACCOUNT_CLASS_HASH, EOA_CLASS_HASH, FEE_TOKEN_ADDRESS, KAKAROT_ADDRESS,
+    CONTRACT_ACCOUNT_CLASS_HASH, EOA_CLASS_HASH, ETH_FEE_TOKEN_ADDRESS, KAKAROT_ADDRESS,
     PROXY_CLASS_HASH,
 };
 use super::types::FeltSequencer;
@@ -81,18 +82,18 @@ impl EvmState for KakarotSequencer {
         storage.append(bytecode_storage);
 
         // Initialize the storage vars.
-        let evm_storage_storage = &mut evm_storage
+        let evm_storage_storage: Vec<(StorageKey, StarkFelt)> = evm_storage
             .iter()
             .flat_map(|(k, v)| {
                 let keys = split_u256(*k).map(Into::into);
-                let values = split_u256(*v).map(Into::into);
-                vec![
-                    (("storage_", vec![keys[0]]), values[0]),
-                    (("storage_", vec![keys[1]]), values[1]),
-                ]
+                let values = split_u256(*v).map(Into::<StarkFelt>::into);
+                let keys = get_uint256_storage_var_addresses("storage_", &keys).unwrap(); // safe unwrap: all vars are ASCII
+                vec![(keys.0, values[0]), (keys.1, values[1])]
             })
             .collect();
-        storage.append(evm_storage_storage);
+        for (k, v) in evm_storage_storage {
+            (&mut self.0.state).set_storage_at(starknet_address, k, v);
+        }
 
         // Write all the storage vars to the sequencer state.
         for ((var, keys), v) in storage {
@@ -144,7 +145,7 @@ impl EvmState for KakarotSequencer {
 
         // Write all the storage vars to the sequencer state.
         for (k, v) in storage {
-            (&mut self.0.state).set_storage_at(*FEE_TOKEN_ADDRESS, k, v);
+            (&mut self.0.state).set_storage_at(*ETH_FEE_TOKEN_ADDRESS, k, v);
         }
         Ok(())
     }

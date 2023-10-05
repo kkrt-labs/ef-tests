@@ -16,7 +16,7 @@ use sequencer::state::State;
 
 use self::constants::{
     BLOCK_CONTEXT, CONTRACT_ACCOUNT_CLASS, CONTRACT_ACCOUNT_CLASS_HASH, EOA_CLASS, EOA_CLASS_HASH,
-    FEE_TOKEN_ADDRESS, FEE_TOKEN_CLASS, FEE_TOKEN_CLASS_HASH, KAKAROT_ADDRESS, KAKAROT_CLASS,
+    ETH_FEE_TOKEN_ADDRESS, FEE_TOKEN_CLASS, FEE_TOKEN_CLASS_HASH, KAKAROT_ADDRESS, KAKAROT_CLASS,
     KAKAROT_CLASS_HASH, KAKAROT_OWNER_ADDRESS, PROXY_CLASS, PROXY_CLASS_HASH,
 };
 
@@ -32,7 +32,7 @@ impl KakarotSequencer {
     pub fn initialize(mut self) -> StateResult<Self> {
         let storage = vec![
             ("Ownable_owner", *KAKAROT_OWNER_ADDRESS.0.key()),
-            ("native_token_address", *FEE_TOKEN_ADDRESS.0.key()),
+            ("native_token_address", *ETH_FEE_TOKEN_ADDRESS.0.key()),
             ("contract_account_class_hash", CONTRACT_ACCOUNT_CLASS_HASH.0),
             ("externally_owned_account_class_hash", EOA_CLASS_HASH.0),
             ("account_proxy_class_hash", PROXY_CLASS_HASH.0),
@@ -86,7 +86,7 @@ impl KakarotSequencer {
                     .map_err(|err| StateError::ProgramError(ProgramError::Parse(err)))?,
             )?),
         )?;
-        (&mut self.0.state).set_class_hash_at(*FEE_TOKEN_ADDRESS, *FEE_TOKEN_CLASS_HASH)?;
+        (&mut self.0.state).set_class_hash_at(*ETH_FEE_TOKEN_ADDRESS, *FEE_TOKEN_CLASS_HASH)?;
 
         Ok(self)
     }
@@ -94,7 +94,8 @@ impl KakarotSequencer {
 
 impl Execution for KakarotSequencer {
     fn execute(&mut self, transaction: Transaction) -> Result<(), TransactionExecutionError> {
-        self.0.execute(transaction)
+        let _ = self.0.execute(transaction);
+        Ok(())
     }
 }
 

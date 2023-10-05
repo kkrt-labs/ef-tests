@@ -59,6 +59,9 @@ impl BlockifierState for &mut State {
             .unwrap_or_default();
 
         let mut current_nonce: u64 = current_nonce.0.try_into()?;
+        if current_nonce == u64::MAX {
+            return Err(StateError::StateReadError("Nonce overflow".into()));
+        }
         current_nonce += 1;
 
         self.nonces
@@ -100,7 +103,7 @@ impl BlockifierState for &mut State {
         Ok(())
     }
 
-    fn to_state_diff(&self) -> CommitmentStateDiff {
+    fn to_state_diff(&mut self) -> CommitmentStateDiff {
         unreachable!("to_state_diff should not be called in the sequencer")
     }
 }
@@ -163,7 +166,7 @@ mod tests {
     use blockifier::execution::contract_class::ContractClassV0;
 
     use crate::constants::test_constants::{
-        ONE_CLASS_HASH, ONE_COMPILED_CLASS_HASH, ONE_FELT, ONE_PATRICIA, TEST_CONTRACT_ADDRESS,
+        ONE_CLASS_HASH, ONE_COMPILED_CLASS_HASH, ONE_FELT, ONE_PATRICIA, TEST_CONTRACT,
     };
 
     use super::*;
@@ -174,12 +177,12 @@ mod tests {
         let mut state = &mut State::default();
 
         // When
-        state.set_storage_at(*TEST_CONTRACT_ADDRESS, StorageKey(*ONE_PATRICIA), *ONE_FELT);
+        state.set_storage_at(*TEST_CONTRACT, StorageKey(*ONE_PATRICIA), *ONE_FELT);
 
         // Then
         let expected = *ONE_FELT;
         let actual = state
-            .get_storage_at(*TEST_CONTRACT_ADDRESS, StorageKey(*ONE_PATRICIA))
+            .get_storage_at(*TEST_CONTRACT, StorageKey(*ONE_PATRICIA))
             .unwrap();
         assert_eq!(expected, actual);
     }
@@ -190,11 +193,11 @@ mod tests {
         let mut state = &mut State::default();
 
         // When
-        state.increment_nonce(*TEST_CONTRACT_ADDRESS).unwrap();
+        state.increment_nonce(*TEST_CONTRACT).unwrap();
 
         // Then
         let expected = Nonce(*ONE_FELT);
-        let actual = state.get_nonce_at(*TEST_CONTRACT_ADDRESS).unwrap();
+        let actual = state.get_nonce_at(*TEST_CONTRACT).unwrap();
         assert_eq!(expected, actual);
     }
 
@@ -205,12 +208,12 @@ mod tests {
 
         // When
         state
-            .set_class_hash_at(*TEST_CONTRACT_ADDRESS, *ONE_CLASS_HASH)
+            .set_class_hash_at(*TEST_CONTRACT, *ONE_CLASS_HASH)
             .unwrap();
 
         // Then
         let expected = *ONE_CLASS_HASH;
-        let actual = state.get_class_hash_at(*TEST_CONTRACT_ADDRESS).unwrap();
+        let actual = state.get_class_hash_at(*TEST_CONTRACT).unwrap();
         assert_eq!(expected, actual);
     }
 

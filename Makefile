@@ -13,9 +13,6 @@ $(EF_TESTS_DIR):
 	tar -xzf ethereum-tests.tar.gz --strip-components=1 -C $(EF_TESTS_DIR)
 	rm ethereum-tests.tar.gz
 
-# Path to remote commit hash for Kakarot used in the Katana dump
-KAKAROT_COMMIT := .katana/remote_kakarot_sha
-
 # Ensures the commands for $(EF_TESTS_DIR) always run on `make setup`, regardless if the directory exists
 .PHONY: $(EF_TESTS_DIR)
 setup: $(EF_TESTS_DIR) 
@@ -26,16 +23,10 @@ setup-kakarot: pull-kakarot
 pull-kakarot:
 	git submodule update --init --recursive
 
-fetch-dump: fetch-kakarot-submodule-commit
-	cargo run --features dump --bin fetch-dump-katana
-
-fetch-kakarot-submodule-commit:
-	cargo run --features fetch-commit --bin fetch-kakarot-submodule-commit
-
 # Runs the Ethereum Foundation tests
-ef-tests: $(KAKAROT_COMMIT)
+ef-tests:
 	cargo nextest run -p ef-testing --features ef-tests 
 
 # Runs specific test
-ef-test: $(KAKAROT_COMMIT)
+ef-test:
 	TARGET=$(target) cargo test -p ef-testing --features ef-tests -- --nocapture

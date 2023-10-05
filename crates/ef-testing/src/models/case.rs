@@ -2,27 +2,24 @@
 
 use super::{error::RunnerError, result::CaseResult, BlockchainTestTransaction};
 use crate::{
+    evm_sequencer::{
+        constants::CHAIN_ID, evm_state::EvmState, utils::to_broadcasted_starknet_transaction,
+        KakarotSequencer,
+    },
     get_signed_rlp_encoded_transaction,
-    storage::{
-        eoa::get_eoa_class_hash, fee_token::read_balance, models::ClassHashes, write_test_state,
-    },
     traits::Case,
-    utils::{
-        assert::{assert_contract_post_state, assert_empty_post_state},
-        io::{deserialize_into, load_file},
-    },
+    utils::{deserialize_into, load_file},
 };
 use async_trait::async_trait;
 use ef_tests::models::BlockchainTest;
-use ef_tests::models::{ForkSpec, RootOrState, State};
-use kakarot_rpc_core::{client::api::KakarotEthApi, models::felt::Felt252Wrapper};
-use kakarot_test_utils::deploy_helpers::{DeployedKakarot, KakarotTestEnvironmentContext};
-use kakarot_test_utils::hive_utils::kakarot::compute_starknet_address;
+use ef_tests::models::{ForkSpec, RootOrState};
 
 use regex::Regex;
+use sequencer::{
+    execution::Execution, state::State as SequencerState, transaction::StarknetTransaction,
+};
 use serde::Deserialize;
-use starknet::core::types::FieldElement;
-use starknet_api::{core::ContractAddress as StarknetContractAddress, hash::StarkFelt};
+use starknet::core::types::{BroadcastedTransaction, FieldElement};
 use std::{
     collections::BTreeMap,
     path::{Path, PathBuf},
@@ -49,28 +46,6 @@ lazy_static::lazy_static! {
 
         serde_yaml::from_str(&skip_str).unwrap()
     };
-}
-
-async fn handle_pre_state(
-    kakarot: &DeployedKakarot,
-    env: &KakarotTestEnvironmentContext,
-    pre_state: &State,
-) -> Result<(), RunnerError> {
-    let kakarot_address = kakarot.kakarot_address;
-
-    let mut starknet = env.sequencer().sequencer.backend.state.write().await;
-    let starknet_db = starknet
-        .maybe_as_cached_db()
-        .ok_or_else(|| RunnerError::SequencerError("failed to get Katana database".to_string()))?;
-
-    let eoa_class_hash = get_eoa_class_hash(env, &starknet_db)?;
-    let class_hashes = ClassHashes::new(
-        kakarot.proxy_class_hash,
-        eoa_class_hash,
-        kakarot.contract_account_class_hash,
-    );
-    write_test_state(pre_state, kakarot_address, class_hashes, &mut starknet)?;
-    Ok(())
 }
 
 // Division of logic:
@@ -123,20 +98,27 @@ impl BlockchainTestCase {
 
     async fn handle_pre_state(
         &self,
-        env: &KakarotTestEnvironmentContext,
+        sequencer: &mut KakarotSequencer,
         test_case_name: &str,
     ) -> Result<(), RunnerError> {
         let test = self.test(test_case_name)?;
 
-        let kakarot = env.kakarot();
-        handle_pre_state(kakarot, env, &test.pre).await?;
+        for (address, account) in test.pre.iter() {
+            sequencer.setup_account(
+                address,
+                &account.code,
+                account.nonce.0,
+                account.storage.iter().map(|(k, v)| (k.0, v.0)).collect(),
+            )?;
+            sequencer.fund(address, account.balance.0)?;
+        }
 
         Ok(())
     }
 
     async fn handle_transaction(
         &self,
-        env: &KakarotTestEnvironmentContext,
+        sequencer: &mut KakarotSequencer,
         test_case_name: &str,
     ) -> Result<(), RunnerError> {
         let test = self.test(test_case_name)?;
@@ -153,17 +135,21 @@ impl BlockchainTestCase {
             self.transaction.transaction.secret_key,
         )?;
 
-        let client = env.client();
-        // Send the transaction without checking for errors, accounting
-        // for the fact that some transactions might fail.
-        let _ = client.send_transaction(tx_encoded).await;
+        let starknet_transaction = StarknetTransaction::new(BroadcastedTransaction::Invoke(
+            to_broadcasted_starknet_transaction(&tx_encoded)?,
+        ));
+        sequencer.execute(
+            starknet_transaction
+                .try_into_execution_transaction(FieldElement::from(*CHAIN_ID))
+                .unwrap(),
+        )?;
 
         Ok(())
     }
 
     async fn handle_post_state(
         &self,
-        env: &KakarotTestEnvironmentContext,
+        sequencer: &mut KakarotSequencer,
         test_case_name: &str,
     ) -> Result<(), RunnerError> {
         let test = self.test(test_case_name)?;
@@ -177,37 +163,25 @@ impl BlockchainTestCase {
             RootOrState::State(state) => state,
         };
 
-        let kakarot = env.kakarot();
-        let kakarot_address = kakarot.kakarot_address;
-
-        // Get lock on the Starknet sequencer
-        let mut starknet = env.sequencer().sequencer.backend.state.write().await;
-        let starknet_db = starknet.maybe_as_cached_db().ok_or_else(|| {
-            RunnerError::SequencerError("failed to get Katana database".to_string())
-        })?;
-
-        for (evm_address, expected_state) in post_state.iter() {
-            let addr: FieldElement = Felt252Wrapper::from(*evm_address).into();
-            let starknet_address =
-                compute_starknet_address(kakarot_address, kakarot.proxy_class_hash, addr);
-            let starknet_contract_address =
-                StarknetContractAddress(Into::<StarkFelt>::into(starknet_address).try_into()?);
-
-            let actual_state = starknet_db.storage.get(&starknet_contract_address);
-            match actual_state {
-                None => {
-                    // if no state, check post state is empty
-                    let actual_balance = read_balance(evm_address, starknet_address, &mut starknet)
-                        .map_err(|err| {
-                            RunnerError::Assertion(format!("{} {}", test_case_name, err))
-                        })?;
-                    assert_empty_post_state(test_case_name, expected_state, actual_balance)?;
-                    continue;
+        // TODO we should assert on contract code in order to be sure that created contracts are created with the correct code
+        // TODO we should assert that the balance of all accounts but the sender is correct
+        for (address, expected_state) in post_state.iter() {
+            for (k, v) in expected_state.storage.iter() {
+                let actual = sequencer.get_storage_at(address, k.0)?;
+                if actual != v.0 {
+                    return Err(RunnerError::Other(format!(
+                        "storage mismatch for {:#20x} at {:#32x}: expected {:#32x}, got {:#32x}",
+                        address, k.0, v.0, actual
+                    )));
                 }
-                Some(state) => {
-                    assert_contract_post_state(test_case_name, evm_address, expected_state, state)?;
-                }
-            };
+            }
+            let actual = sequencer.get_nonce(address)?;
+            if actual != expected_state.nonce.0 {
+                return Err(RunnerError::Other(format!(
+                    "nonce mismatch for {:#20x}: expected {:#32x}, got {:#32x}",
+                    address, expected_state.nonce.0, actual
+                )));
+            }
         }
 
         Ok(())
@@ -286,22 +260,18 @@ impl Case for BlockchainTestCase {
                     }
                 }
 
+                let sequencer = KakarotSequencer::new(SequencerState::default());
+                let mut sequencer = sequencer.initialize()?;
+
                 tracing::info!("Running test {}", test_name);
 
-                let with_dumped_state = true;
-                let env = KakarotTestEnvironmentContext::new(with_dumped_state).await;
-                // handle pretest
-                self.handle_pre_state(&env, test_name).await?;
-
-                // necessary to have our updated state actually applied to transaction
-                // think of it as 'burping' the sequencer
-                env.sequencer().sequencer.backend.mine_empty_block().await;
+                self.handle_pre_state(&mut sequencer, test_name).await?;
 
                 // handle transaction
-                self.handle_transaction(&env, test_name).await?;
+                self.handle_transaction(&mut sequencer, test_name).await?;
 
                 // handle post state
-                self.handle_post_state(&env, test_name).await?;
+                self.handle_post_state(&mut sequencer, test_name).await?;
             }
         }
         Ok(())
@@ -336,7 +306,7 @@ mod tests {
     #[ctor]
     fn setup() {
         // Change this to "error" to see less output.
-        let filter = filter::EnvFilter::new("ef_testing=info");
+        let filter = filter::EnvFilter::new("ef_testing=info,sequencer=warn");
         let subscriber = FmtSubscriber::builder().with_env_filter(filter).finish();
         tracing::subscriber::set_global_default(subscriber)
             .expect("setting tracing default failed");
