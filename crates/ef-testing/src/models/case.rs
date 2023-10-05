@@ -306,7 +306,7 @@ mod tests {
     #[ctor]
     fn setup() {
         // Change this to "error" to see less output.
-        let filter = filter::EnvFilter::new("ef_testing=info,executor=warn,sequencer=warn");
+        let filter = filter::EnvFilter::new("ef_testing=info,sequencer=warn");
         let subscriber = FmtSubscriber::builder().with_env_filter(filter).finish();
         tracing::subscriber::set_global_default(subscriber)
             .expect("setting tracing default failed");
