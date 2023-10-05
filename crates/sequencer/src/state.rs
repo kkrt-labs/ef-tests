@@ -59,6 +59,9 @@ impl BlockifierState for &mut State {
             .unwrap_or_default();
 
         let mut current_nonce: u64 = current_nonce.0.try_into()?;
+        if current_nonce == u64::MAX {
+            return Err(StateError::StateReadError("Nonce overflow".into()));
+        }
         current_nonce += 1;
 
         self.nonces

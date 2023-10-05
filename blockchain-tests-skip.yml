@@ -121,6 +121,7 @@ filename:
     - callcodeInInitcodeToExistingContractWithValueTransfer.json # ef-tests #328
     - callcode_checkPC.json # ef-tests #327
     - callcodeDynamicCode2SelfCall.json # ef-tests #329
+    - call_OOG_additionalGasCosts2.json # TODO make ans issue
   stCallDelegateCodesCallCodeHomestead:
     - callcallcallcode_001.json # ef-tests #330
     - callcallcallcode_001_OOGE.json # ef-tests #330
@@ -269,6 +270,7 @@ filename:
     - create2collisionSelfdestructed2.json # ef-tests #337
     - create2SmartInitCode.json # ef-tests #337
     - CREATE2_ContractSuicideDuringInit_ThenStoreThenReturn.json # ef-tests #337
+    - Create2OOGafterInitCodeReturndata3.json
   stCreateTest:
     - CreateAddressWarmAfterFail.json # ef-tests #338
     - CreateCollisionToEmpty.json # ef-tests #338
@@ -304,6 +306,7 @@ filename:
     - CREATE_EContractCreateNEContractInInit_Tr.json # ef-tests #340
     - CREATE_empty000CreateinInitCode_Transaction.json # ef-tests #340
     - CREATE_FirstByte_loop.json # ef-tests #340
+    - CreateTransactionHighNonce.json # TODO make an issue
   stDelegatecallTestHomestead:
     - Call1024BalanceTooLow.json # ef-tests #332
     - Call1024OOG.json # ef-tests #332
@@ -450,6 +453,7 @@ filename:
     - NonZeroValue_DELEGATECALL_ToNonNonZeroBalance.json # ef-tests #360
     - NonZeroValue_DELEGATECALL_ToOneStorageKey.json # ef-tests #360
     - NonZeroValue_SUICIDE.json # ef-tests #361
+    - NonZeroValue_TransactionCALLwithData_ToOneStorageKey.json # TODO make an issue
   stRefundTest:
     - refundFF.json # ef-tests #405
     - refundMax.json # ef-tests #405
