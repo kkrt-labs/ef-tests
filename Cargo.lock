@@ -1841,6 +1841,7 @@ dependencies = [
  "reth-rlp",
  "revm-primitives",
  "rstest",
+ "secp256k1",
  "sequencer",
  "serde",
  "serde_json",

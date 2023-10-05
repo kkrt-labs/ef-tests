@@ -36,6 +36,8 @@ pub trait EvmState {
     fn get_nonce_at(&mut self, evm_address: &Address) -> StateResult<U256>;
 
     fn get_code_at(&mut self, evm_address: &Address) -> StateResult<Bytes>;
+
+    fn get_balance_at(&mut self, evm_address: &Address) -> StateResult<U256>;
 }
 
 impl EvmState for KakarotSequencer {
@@ -223,6 +225,21 @@ impl EvmState for KakarotSequencer {
         bytecode.append(&mut felt_to_bytes(&code.into(), remainder as usize).to_vec());
 
         Ok(Bytes::from(bytecode))
+    }
+
+    fn get_balance_at(&mut self, evm_address: &Address) -> StateResult<U256> {
+        let starknet_address = compute_starknet_address(evm_address);
+
+        let balance_keys = get_erc20_balance_var_addresses(&starknet_address.try_into()?)?;
+        let balance_keys = [balance_keys.0, balance_keys.1];
+
+        let low = (&mut self.0.state).get_storage_at(*ETH_FEE_TOKEN_ADDRESS, balance_keys[0])?;
+        let high = (&mut self.0.state).get_storage_at(*ETH_FEE_TOKEN_ADDRESS, balance_keys[1])?;
+
+        let low = U256::from_be_bytes(Into::<FieldElement>::into(low).to_bytes_be());
+        let high = U256::from_be_bytes(Into::<FieldElement>::into(high).to_bytes_be());
+
+        Ok(high << 128 | low)
     }
 }
 

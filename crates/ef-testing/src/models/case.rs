@@ -8,7 +8,7 @@ use crate::{
     },
     get_signed_rlp_encoded_transaction,
     traits::Case,
-    utils::{deserialize_into, load_file},
+    utils::{address_from_private_key, deserialize_into, load_file},
 };
 use async_trait::async_trait;
 use ef_tests::models::BlockchainTest;
@@ -153,6 +153,8 @@ impl BlockchainTestCase {
         test_case_name: &str,
     ) -> Result<(), RunnerError> {
         let test = self.test(test_case_name)?;
+        let sk = self.transaction.transaction.secret_key;
+        let sender_address = address_from_private_key(sk)?;
 
         let post_state = match test.post_state.as_ref().ok_or_else(|| {
             RunnerError::Other(format!("missing post state for {}", test_case_name))
@@ -188,6 +190,18 @@ impl BlockchainTestCase {
                 return Err(RunnerError::Other(format!(
                     "code mismatch for {:#20x}: expected {:#x}, got {:#x}",
                     address, expected_state.code, actual
+                )));
+            }
+            // Skip sender address because of the difference in gas cost
+            if address == &sender_address {
+                continue;
+            }
+            // Balance
+            let actual = sequencer.get_balance_at(address)?;
+            if actual != expected_state.balance.0 {
+                return Err(RunnerError::Other(format!(
+                    "balance mismatch for {:#20x}: expected {:#32x}, got {:#32x}",
+                    address, expected_state.balance.0, actual
                 )));
             }
         }

@@ -33,10 +33,11 @@ chrono = { workspace = true, optional = true }
 dotenvy = { workspace = true, optional = true }
 eyre = { workspace = true }
 lazy_static = { workspace = true }
-thiserror = { workspace = true }
+secp256k1 = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
 serde_yaml = { workspace = true }
+thiserror = { workspace = true }
 regex = { workspace = true }
 reqwest = { workspace = true, optional = true }
 rstest = { workspace = true }
