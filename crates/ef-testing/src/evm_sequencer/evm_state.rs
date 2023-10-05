@@ -15,7 +15,9 @@ use super::constants::{
     PROXY_CLASS_HASH,
 };
 use super::types::FeltSequencer;
-use super::utils::{compute_starknet_address, split_bytecode_to_starkfelt, split_u256};
+use super::utils::{
+    compute_starknet_address, felt_to_bytes, split_bytecode_to_starkfelt, split_u256,
+};
 use super::KakarotSequencer;
 
 pub trait EvmState {
@@ -31,7 +33,9 @@ pub trait EvmState {
 
     fn get_storage_at(&mut self, evm_address: &Address, key: U256) -> StateResult<U256>;
 
-    fn get_nonce(&mut self, evm_address: &Address) -> StateResult<U256>;
+    fn get_nonce_at(&mut self, evm_address: &Address) -> StateResult<U256>;
+
+    fn get_code_at(&mut self, evm_address: &Address) -> StateResult<Bytes>;
 }
 
 impl EvmState for KakarotSequencer {
@@ -165,7 +169,7 @@ impl EvmState for KakarotSequencer {
         Ok(high << 128 | low)
     }
 
-    fn get_nonce(&mut self, evm_address: &Address) -> StateResult<U256> {
+    fn get_nonce_at(&mut self, evm_address: &Address) -> StateResult<U256> {
         let starknet_address = compute_starknet_address(evm_address);
 
         let implementation = (&mut self.0.state)
@@ -190,6 +194,35 @@ impl EvmState for KakarotSequencer {
         Ok(U256::from_be_bytes(
             Into::<FieldElement>::into(nonce).to_bytes_be(),
         ))
+    }
+
+    fn get_code_at(&mut self, evm_address: &Address) -> StateResult<Bytes> {
+        let starknet_address = compute_starknet_address(evm_address);
+
+        let bytecode_len = (&mut self.0.state).get_storage_at(
+            starknet_address.try_into()?,
+            get_storage_var_address("bytecode_len_", &[])?,
+        )?;
+        let bytecode_len: u64 = bytecode_len.try_into()?;
+        if bytecode_len == 0 {
+            return Ok(Bytes::default());
+        }
+
+        let full_16 = bytecode_len / 16;
+        let mut bytecode: Vec<u8> = Vec::new();
+
+        for i in 0..full_16 {
+            let key = get_storage_var_address("bytecode_", &[StarkFelt::from(i)])?;
+            let code = (&mut self.0.state).get_storage_at(starknet_address.try_into()?, key)?;
+            bytecode.append(&mut felt_to_bytes(&code.into(), 16).to_vec());
+        }
+
+        let remainder = bytecode_len % 16;
+        let key = get_storage_var_address("bytecode_", &[StarkFelt::from(full_16)])?;
+        let code = (&mut self.0.state).get_storage_at(starknet_address.try_into()?, key)?;
+        bytecode.append(&mut felt_to_bytes(&code.into(), remainder as usize).to_vec());
+
+        Ok(Bytes::from(bytecode))
     }
 }
 

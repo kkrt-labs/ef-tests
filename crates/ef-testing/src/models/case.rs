@@ -163,9 +163,8 @@ impl BlockchainTestCase {
             RootOrState::State(state) => state,
         };
 
-        // TODO we should assert on contract code in order to be sure that created contracts are created with the correct code
-        // TODO we should assert that the balance of all accounts but the sender is correct
         for (address, expected_state) in post_state.iter() {
+            // Storage
             for (k, v) in expected_state.storage.iter() {
                 let actual = sequencer.get_storage_at(address, k.0)?;
                 if actual != v.0 {
@@ -175,11 +174,20 @@ impl BlockchainTestCase {
                     )));
                 }
             }
-            let actual = sequencer.get_nonce(address)?;
+            // Nonce
+            let actual = sequencer.get_nonce_at(address)?;
             if actual != expected_state.nonce.0 {
                 return Err(RunnerError::Other(format!(
                     "nonce mismatch for {:#20x}: expected {:#32x}, got {:#32x}",
                     address, expected_state.nonce.0, actual
+                )));
+            }
+            // Bytecode
+            let actual = sequencer.get_code_at(address)?;
+            if actual != expected_state.code {
+                return Err(RunnerError::Other(format!(
+                    "code mismatch for {:#20x}: expected {:#x}, got {:#x}",
+                    address, expected_state.code, actual
                 )));
             }
         }

@@ -47,6 +47,10 @@ pub fn bytes_to_felt_vec(bytes: &Bytes) -> Vec<FieldElement> {
     bytes.to_vec().into_iter().map(FieldElement::from).collect()
 }
 
+pub fn felt_to_bytes(felt: &FieldElement, len: usize) -> Bytes {
+    Bytes::from(&felt.to_bytes_be()[16..len + 16])
+}
+
 #[allow(dead_code)]
 pub(crate) fn to_broadcasted_starknet_transaction(
     bytes: &Bytes,
@@ -84,4 +88,38 @@ pub(crate) fn to_broadcasted_starknet_transaction(
     };
 
     Ok(request)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_felt_to_bytes_full() {
+        // Given
+        let felt = FieldElement::from_hex_be("0x1234567890abcdef1234567890abcdef").unwrap();
+
+        // When
+        let bytes = felt_to_bytes(&felt, 16);
+
+        // Then
+        let expected = Bytes::from(vec![
+            0x12, 0x34, 0x56, 0x78, 0x90, 0xab, 0xcd, 0xef, 0x12, 0x34, 0x56, 0x78, 0x90, 0xab,
+            0xcd, 0xef,
+        ]);
+        assert_eq!(bytes, expected);
+    }
+
+    #[test]
+    fn test_felt_to_bytes_partial() {
+        // Given
+        let felt = FieldElement::from_hex_be("0x12345678900000000000000000000000").unwrap();
+
+        // When
+        let bytes = felt_to_bytes(&felt, 5);
+
+        // Then
+        let expected = Bytes::from(vec![0x12, 0x34, 0x56, 0x78, 0x90]);
+        assert_eq!(bytes, expected);
+    }
 }
