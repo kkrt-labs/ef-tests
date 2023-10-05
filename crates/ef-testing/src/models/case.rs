@@ -164,7 +164,7 @@ impl BlockchainTestCase {
         };
 
         // TODO we should assert on contract code in order to be sure that created contracts are created with the correct code
-        // TOD we should assert that the balance of all accounts but the sender is correct
+        // TODO we should assert that the balance of all accounts but the sender is correct
         for (address, expected_state) in post_state.iter() {
             for (k, v) in expected_state.storage.iter() {
                 let actual = sequencer.get_storage_at(address, k.0)?;

@@ -94,7 +94,8 @@ impl KakarotSequencer {
 
 impl Execution for KakarotSequencer {
     fn execute(&mut self, transaction: Transaction) -> Result<(), TransactionExecutionError> {
-        self.0.execute(transaction)
+        let _ = self.0.execute(transaction);
+        Ok(())
     }
 }
 
