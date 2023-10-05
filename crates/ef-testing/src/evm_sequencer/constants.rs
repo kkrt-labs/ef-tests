@@ -2,11 +2,13 @@ use std::{collections::HashMap, sync::Arc};
 
 use blockifier::block_context::{BlockContext, FeeTokenAddresses, GasPrices};
 use lazy_static::lazy_static;
-use starknet::core::types::{contract::legacy::LegacyContractClass, FieldElement};
+use starknet::core::types::contract::legacy::LegacyContractClass;
 use starknet_api::{
     block::{BlockNumber, BlockTimestamp},
+    contract_address,
     core::{ChainId, ClassHash, ContractAddress, PatriciaKey},
-    hash::StarkFelt,
+    hash::{StarkFelt, StarkHash},
+    patricia_key,
 };
 
 fn load_legacy_contract_class(path: &str) -> Result<LegacyContractClass, eyre::Error> {
@@ -50,33 +52,9 @@ lazy_static! {
         };
 
     // Main addresses
-    pub static ref SEQUENCER_ADDRESS: ContractAddress = ContractAddress(
-        TryInto::<PatriciaKey>::try_into(StarkFelt::from(
-            FieldElement::from_hex_be(
-                "0x01176a1bd84444c89232ec27754698e5d2e7e1a7f1539f12027f28b23ec9f3d8"
-            )
-            .unwrap()
-        ))
-        .unwrap()
-    );
-    pub static ref ETH_FEE_TOKEN_ADDRESS: ContractAddress = ContractAddress(
-        TryInto::<PatriciaKey>::try_into(StarkFelt::from(
-            FieldElement::from_hex_be(
-                "0x049D36570D4e46f48e99674bd3fcc84644DdD6b96F7C741B1562B82f9e004dC7"
-            )
-            .unwrap()
-        ))
-        .unwrap()
-    );
-    pub static ref STRK_FEE_TOKEN_ADDRESS: ContractAddress = ContractAddress(
-        TryInto::<PatriciaKey>::try_into(StarkFelt::from(
-            FieldElement::from_hex_be(
-                "0xCa14007Eff0dB1f8135f4C25B34De49AB0d42766"
-            )
-            .unwrap()
-        ))
-        .unwrap()
-    );
+    pub static ref SEQUENCER_ADDRESS: ContractAddress = contract_address!("0x01176a1bd84444c89232ec27754698e5d2e7e1a7f1539f12027f28b23ec9f3d8");
+    pub static ref ETH_FEE_TOKEN_ADDRESS: ContractAddress = contract_address!("0x049D36570D4e46f48e99674bd3fcc84644DdD6b96F7C741B1562B82f9e004dC7");
+    pub static ref STRK_FEE_TOKEN_ADDRESS: ContractAddress = contract_address!("0xCa14007Eff0dB1f8135f4C25B34De49AB0d42766");
     pub static ref KAKAROT_ADDRESS: ContractAddress =
         ContractAddress(TryInto::<PatriciaKey>::try_into(StarkFelt::from(1_u8)).unwrap());
     pub static ref KAKAROT_OWNER_ADDRESS: ContractAddress =
