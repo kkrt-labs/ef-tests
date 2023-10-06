@@ -688,6 +688,7 @@ filename:
     - TestStoreGasPrices.json # ef-test #139
     - TestContractInteraction.json # ef-test #140
     - RecursiveCreateContractsCreate4Contracts.json # ef-test #141
+    - SelfDestruct.json # ef-tests #478
   stZeroKnowledge:
     - ecmul_1-2_2_28000_96.json
     - ecmul_1-2_340282366920938463463374607431768211456_21000_128.json # ef-test #459
@@ -1066,6 +1067,35 @@ filename:
     - static_Return50000_2.json # ef-tests #425
     - static_RETURN_Bounds.json # ef-tests #425
     - static_RevertDepth2.json # ef-tests #425
+    - static_callcodecallcodecall_110_SuicideEnd.json # ef-tests #480
+    - static_callcodecallcodecall_110_SuicideMiddle2.json # ef-tests #480
+    - static_refund_CallToSuicideTwice.json # ef-tests #480
+    - static_ABAcallsSuicide1.json # ef-tests #480
+    - static_log0_nonEmptyMem_logMemSize1.json # ef-tests #480
+    - static_log1_logMemsizeTooHigh.json # ef-tests #480
+    - static_log1_MaxTopic.json # ef-tests #480
+    - static_callcodecallcodecall_110_SuicideMiddle.json # ef-tests #480
+    - static_CREATE_ContractSuicideDuringInit_ThenStoreThenReturn.json # ef-tests #480
+    - static_call_value_inherit.json # ef-tests #480
+    - static_log1_logMemsizeZero.json # ef-tests #480
+    - static_log0_nonEmptyMem.json # ef-tests #480
+    - static_callcodecall_10_SuicideEnd.json # ef-tests #480
+    - static_log0_logMemsizeTooHigh.json # ef-tests #480
+    - static_log0_logMemsizeZero.json # ef-tests #480
+    - static_refund_CallA.json # ef-tests #480
+    - static_log0_logMemStartTooHigh.json # ef-tests #480
+    - static_log1_emptyMem.json # ef-tests #480
+    - static_log0_nonEmptyMem_logMemSize1_logMemStart31.json # ef-tests #480
+    - static_callWithHighValueAndGasOOG.json # ef-tests #480
+    - static_makeMoney.json # ef-tests #480
+    - static_callcodecall_10_SuicideEnd2.json # ef-tests #480
+    - static_CallToNameRegistrator0.json # ef-tests #480
+    - static_callcodecallcodecall_110_SuicideEnd2.json # ef-tests #480
+    - static_CREATE_ContractSuicideDuringInit_WithValue.json # ef-tests #480
+    - static_InternlCallStoreClearsOOG.json # ef-tests #480
+    - static_log1_logMemStartTooHigh.json # ef-tests #480
+    - static_log_Caller.json # ef-tests #480
+    - static_callcodecallcodecall_110_SuicideEnd.json # ef-tests #480
   stStackTests:
     - underflowTest.json # ef-tests #414
     - shallowStack.json # ef-tests #415
@@ -1078,6 +1108,9 @@ filename:
     - tx_e1c174e2.json # ef-tests #412
     - eoaEmpty.json # ef-tests #413
     - selfdestructEIP2929.json # ef-tests #413
+    - block504980.json # ef-tests #479
+    - JUMPDEST_Attack.json # ef-tests #479
+    - JUMPDEST_AttackwithJump.json # ef-tests #479
   stArgsZeroOneBalance:
     - createNonConst.json # ef-tests #368
     - mulmodNonConst.json # ef-tests #368
