@@ -15,6 +15,7 @@ use ef_tests::models::BlockchainTest;
 use ef_tests::models::{ForkSpec, RootOrState};
 
 use regex::Regex;
+use revm_primitives::U256;
 use sequencer::{
     execution::Execution, state::State as SequencerState, transaction::StarknetTransaction,
 };
@@ -163,9 +164,52 @@ impl BlockchainTestCase {
             RootOrState::State(state) => state,
         };
 
+        // There are three possible cases for accounts in the pre/post states
+        let mut test_state = post_state.clone();
+        for key in test.pre.keys() {
+            // 1. Some of the pre-state accounts are destructed (SELFDESTRUCT)
+            // In this case, some keys in the "pre" state are not present in "post" state
+            // We need to insert them to make sure we assert properly on the end result
+            if !post_state.contains_key(key) {
+                test_state.insert(*key, test.pre.get(key).unwrap().clone());
+            }
+
+            // 2. Some of the pre-state accounts' state is wiped as part of the transaction
+            // We need to check that values that were present in pre are now zeros in post,
+            // For all addresses and storage keys that are not present in post
+            if post_state.contains_key(key) {
+                let post_account_storage = &post_state
+                    .get(key)
+                    .ok_or_else(|| {
+                        RunnerError::Other(format!("missing post state for address {}", key))
+                    })?
+                    .storage;
+                let pre_account_storage = &test
+                    .pre
+                    .get(key)
+                    .ok_or_else(|| {
+                        RunnerError::Other(format!("missing pre state for address {}", key))
+                    })?
+                    .storage;
+
+                // If the post account's storage does not contain a key from the pre-state,
+                // It means its storage was deleted
+                // We need to insert in the tree that we use for assertions value 0x00 at this storage key.
+                for storage_key in pre_account_storage.keys() {
+                    if !post_account_storage.contains_key(storage_key) {
+                        test_state
+                            .get_mut(key)
+                            .unwrap()
+                            .storage
+                            .insert(*storage_key, U256::ZERO.into());
+                    }
+                }
+            }
+        }
+
         // TODO we should assert on contract code in order to be sure that created contracts are created with the correct code
         // TODO we should assert that the balance of all accounts but the sender is correct
-        for (address, expected_state) in post_state.iter() {
+        for (address, expected_state) in test_state.iter() {
             for (k, v) in expected_state.storage.iter() {
                 let actual = sequencer.get_storage_at(address, k.0)?;
                 if actual != v.0 {
