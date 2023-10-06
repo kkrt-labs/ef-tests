@@ -122,4 +122,16 @@ mod tests {
         let expected = Bytes::from(vec![0x12, 0x34, 0x56, 0x78, 0x90]);
         assert_eq!(bytes, expected);
     }
+
+    #[test]
+    fn test_felt_to_bytes_empty() {
+        // Given
+        let felt = FieldElement::from_hex_be("0x12345678900000000000000000000000").unwrap();
+
+        // When
+        let bytes = felt_to_bytes(&felt, 0);
+
+        // Then
+        assert_eq!(bytes, Bytes::default());
+    }
 }
