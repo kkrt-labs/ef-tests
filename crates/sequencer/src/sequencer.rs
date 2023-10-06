@@ -10,6 +10,7 @@ use blockifier::{
         transactions::ExecutableTransaction,
     },
 };
+use starknet_api::core::ContractAddress;
 use tracing::{trace, warn};
 
 /// Sequencer is the main struct of the sequencer crate.
@@ -45,6 +46,21 @@ where
     for<'a> &'a mut S: State + StateReader + Committer<S>,
 {
     fn execute(&mut self, transaction: Transaction) -> Result<(), TransactionExecutionError> {
+        let sender_address = match &transaction {
+            Transaction::AccountTransaction(tx) => match tx {
+                blockifier::transaction::account_transaction::AccountTransaction::Invoke(tx) => {
+                    tx.tx.sender_address()
+                }
+                blockifier::transaction::account_transaction::AccountTransaction::Declare(tx) => {
+                    tx.tx().sender_address()
+                }
+                blockifier::transaction::account_transaction::AccountTransaction::DeployAccount(
+                    tx,
+                ) => tx.contract_address,
+            },
+            Transaction::L1HandlerTransaction(_) => ContractAddress::from(0u8),
+        };
+
         let mut cached_state = CachedState::new(&mut self.state, GlobalContractCache::default());
         let charge_fee = false;
         let validate = true;
@@ -57,12 +73,15 @@ where
             }
             Ok(execution_information) => match execution_information.revert_error {
                 Some(err) => {
+                    // If the transaction reverted, we increment the nonce.
+                    (&mut self.state).increment_nonce(sender_address)?;
                     warn!(
                         "Transaction execution reverted: {}",
                         err.replace("\\n", "\n")
                     )
                 }
                 None => {
+                    // If the transaction succeeded, we commit the state.
                     <&mut S>::commit(&mut cached_state)?;
                     trace!("Transaction execution succeeded {execution_information:?}")
                 }
