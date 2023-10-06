@@ -8,7 +8,7 @@ use crate::{
     },
     get_signed_rlp_encoded_transaction,
     traits::Case,
-    utils::{address_from_private_key, deserialize_into, load_file},
+    utils::{address_from_private_key, deserialize_into, load_file, update_post_state},
 };
 use async_trait::async_trait;
 use ef_tests::models::BlockchainTest;
@@ -156,7 +156,7 @@ impl BlockchainTestCase {
         let sk = self.transaction.transaction.secret_key;
         let sender_address = address_from_private_key(sk)?;
 
-        let post_state = match test.post_state.as_ref().ok_or_else(|| {
+        let post_state = match test.post_state.clone().ok_or_else(|| {
             RunnerError::Other(format!("missing post state for {}", test_case_name))
         })? {
             RootOrState::Root(_) => {
@@ -164,6 +164,7 @@ impl BlockchainTestCase {
             }
             RootOrState::State(state) => state,
         };
+        let post_state = update_post_state(post_state, test.pre.clone());
 
         for (address, expected_state) in post_state.iter() {
             // Storage
