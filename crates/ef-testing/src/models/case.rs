@@ -49,8 +49,8 @@ lazy_static::lazy_static! {
 }
 
 // Division of logic:
-//// 'handle' methods attempt to abstract the data coming from BlockChainTestCase
-//// from more general logic that can be used across tests
+// 'handle' methods attempt to abstract the data coming from BlockChainTestCase
+// from more general logic that can be used across tests
 impl BlockchainTestCase {
     /// Returns whether a given test should be skipped
     /// # Panics
@@ -67,15 +67,15 @@ impl BlockchainTestCase {
             .unwrap();
         let name = path.file_name().unwrap().to_str().unwrap();
 
-        let mut should_skip = false;
-        if SKIP.filename.contains_key(dir) {
-            should_skip = SKIP
-                .filename
+        let mut should_skip = if SKIP.filename.contains_key(dir) {
+            SKIP.filename
                 .get(dir)
                 .unwrap()
                 .iter()
-                .any(|filename| filename == name);
-        }
+                .any(|filename| filename == name)
+        } else {
+            false
+        };
 
         if !should_skip && SKIP.regex.contains_key(dir) {
             should_skip = SKIP
@@ -127,8 +127,7 @@ impl BlockchainTestCase {
         let block = test
             .blocks
             .first()
-            .ok_or_else(|| RunnerError::Other("test has no blocks".to_string()))?
-            .clone();
+            .ok_or_else(|| RunnerError::Other("test has no blocks".to_string()))?;
         // we adjust the rlp to correspond with our currently hardcoded CHAIN_ID
         let tx_encoded = get_signed_rlp_encoded_transaction(
             &block.rlp,

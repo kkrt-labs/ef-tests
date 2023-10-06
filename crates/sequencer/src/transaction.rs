@@ -18,10 +18,13 @@ use starknet_api::transaction::{
 pub struct StarknetTransaction(BroadcastedTransaction);
 
 impl StarknetTransaction {
-    pub fn new(transaction: BroadcastedTransaction) -> Self {
+    #[must_use]
+    #[inline]
+    pub const fn new(transaction: BroadcastedTransaction) -> Self {
         Self(transaction)
     }
 
+    #[inline]
     pub fn try_into_execution_transaction(
         self,
         chain_id: FieldElement,

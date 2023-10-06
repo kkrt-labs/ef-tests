@@ -5,7 +5,7 @@ use blockifier::state::{
 
 pub trait Committer<S>
 where
-    for<'a> &'a mut S: BlockifierState + BlockifierStateReader,
+    for<'any> &'any mut S: BlockifierState + BlockifierStateReader,
 {
     fn commit(cached_state: &mut CachedState<&mut S>) -> StateResult<()> {
         let diff = cached_state.to_state_diff();

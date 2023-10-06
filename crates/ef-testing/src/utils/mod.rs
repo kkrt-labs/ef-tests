@@ -46,12 +46,12 @@ pub(crate) fn update_post_state(
             let post_account_storage = &post_state
                 .get(k)
                 .map(|x| x.storage.clone())
-                .unwrap_or(BTreeMap::new());
+                .unwrap_or_default();
 
             let pre_account_storage = pre_state
                 .get(k)
                 .map(|x| x.storage.clone())
-                .unwrap_or(BTreeMap::new());
+                .unwrap_or_default();
 
             for storage_key in pre_account_storage.keys() {
                 if !post_account_storage.contains_key(storage_key) {
