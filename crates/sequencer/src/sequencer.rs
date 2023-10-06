@@ -55,20 +55,18 @@ where
                 warn!("Transaction execution failed: {:?}", err);
                 return Err(err);
             }
-            Ok(execution_information) => {
-                <&mut S>::commit(&mut cached_state)?;
-                match execution_information.revert_error {
-                    Some(err) => {
-                        warn!(
-                            "Transaction execution reverted: {}",
-                            err.replace("\\n", "\n")
-                        )
-                    }
-                    None => {
-                        trace!("Transaction execution succeeded {execution_information:?}")
-                    }
+            Ok(execution_information) => match execution_information.revert_error {
+                Some(err) => {
+                    warn!(
+                        "Transaction execution reverted: {}",
+                        err.replace("\\n", "\n")
+                    )
                 }
-            }
+                None => {
+                    <&mut S>::commit(&mut cached_state)?;
+                    trace!("Transaction execution succeeded {execution_information:?}")
+                }
+            },
         }
 
         Ok(())
