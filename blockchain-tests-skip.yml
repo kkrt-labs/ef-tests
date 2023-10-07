@@ -47,6 +47,10 @@ filename:
     - operationDiffGas.json # ef-tests #124
     - invalidDiffPlaces.json # ef-tests #125
     - invalidAddr.json # ef-tests #126
+  stBugs:
+    - randomStatetestDEFAULT-Tue_07_58_41-15153-575192.json # ef-tests #483
+    - randomStatetestDEFAULT-Tue_07_58_41-15153-575192_london.json # ef-tests #483
+    - staticcall_createfails.json # ef-tests #484
   stCallCodes:
     - callcallcall_000.json # ef-tests #327
     - callcallcall_000_OOGE.json # ef-tests #327
