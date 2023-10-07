@@ -243,6 +243,10 @@ filename:
     - callcodecallcode_11_OOGE.json # ef-tests #331
     - callcodecall_10.json # ef-tests #331
     - callcodecall_10_OOGE.json # ef-tests #331
+    - callcodecallcodecallcode_111_SuicideEnd.json # ef-tests #487
+    - callcodecallcodecallcode_111_SuicideMiddle.json # ef-tests #487
+    - callcodecallcodecall_110_SuicideMiddle.json # ef-tests #487
+    - callcodecallcode_11_SuicideEnd.json # ef-tests #487
   stChainId:
     - chainId.json # ef-tests #299
   stCodeSizeLimit:
