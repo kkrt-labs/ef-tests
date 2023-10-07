@@ -403,6 +403,11 @@ filename:
     - RawExtCodeCopyGas.json # ef-tests #344
     - RawExtCodeCopyMemoryGas.json # ef-tests #344
     - RawExtCodeSizeGas.json # ef-tests #344
+    - eip2929OOG.json # ef-tests #344
+    - gasCostBerlin.json # ef-tests #344
+    - gasCostExp.json # ef-tests #344
+    - gasCostJump.json # ef-tests #344
+    - gasCostReturn.json # ef-tests #344
   stEIP158Specific:
     - CALL_OneVCallSuicide.json # ef-tests #350
     - CALL_ZeroVCallSuicide.json # ef-tests #350
