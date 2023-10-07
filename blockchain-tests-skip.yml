@@ -125,6 +125,10 @@ filename:
     - callcodeInInitcodeToExistingContractWithValueTransfer.json # ef-tests #328
     - callcode_checkPC.json # ef-tests #327
     - callcodeDynamicCode2SelfCall.json # ef-tests #329
+    - callcodecallcodecallcode_111_SuicideEnd.json # ef-tests #485
+    - callcodecallcodecallcode_111_SuicideMiddle.json # ef-tests #485
+    - callcodecallcodecall_110_SuicideMiddle.json # ef-tests #485
+    - callcodecallcode_11_SuicideEnd.json # ef-tests #485
   stCallDelegateCodesCallCodeHomestead:
     - callcallcallcode_001.json # ef-tests #330
     - callcallcallcode_001_OOGE.json # ef-tests #330
