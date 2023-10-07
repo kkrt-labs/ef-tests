@@ -1115,6 +1115,8 @@ filename:
     - createNonConst.json # ef-tests #368
     - mulmodNonConst.json # ef-tests #368
     - suicideNonConst.json # ef-tests #370
+    - callcodeNonConst.json # ef-tests #370
+    - delegatecallNonConst.json # ef-tests #370
     - callNonConst.json # ef-tests #371
   stTransitionTest:
     - delegatecallAtTransition.json # ef-test #433
