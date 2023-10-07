@@ -172,6 +172,22 @@ filename:
     - callcodecallcode_11_OOGE.json # ef-tests #330
     - callcodecall_10.json # ef-tests #330
     - callcodecall_10_OOGE.json # ef-tests #330
+    - callcallcallcode_001_SuicideEnd.json # ef-tests #486
+    - callcallcallcode_001_SuicideMiddle.json # ef-tests #486
+    - callcallcodecallcode_011_SuicideEnd.json # ef-tests #486
+    - callcallcodecallcode_011_SuicideMiddle.json # ef-tests #486
+    - callcallcodecall_010_SuicideEnd.json # ef-tests #486
+    - callcallcodecall_010_SuicideMiddle.json # ef-tests #486
+    - callcallcode_01_SuicideEnd.json # ef-tests #486
+    - callcodecallcallcode_101_SuicideEnd.json # ef-tests #486
+    - callcodecallcallcode_101_SuicideMiddle.json # ef-tests #486
+    - callcodecallcall_100_SuicideEnd.json # ef-tests #486
+    - callcodecallcall_100_SuicideMiddle.json # ef-tests #486
+    - callcodecallcodecallcode_111_SuicideMiddle.json # ef-tests #486
+    - callcodecallcodecall_110_SuicideEnd.json # ef-tests #486
+    - callcodecallcodecall_110_SuicideMiddle.json # ef-tests #486
+    - callcodecallcode_11_SuicideEnd.json # ef-tests #486
+    - callcodecall_10_SuicideEnd.json # ef-tests #486
   stCallDelegateCodesHomestead:
     - callcallcallcode_001_SuicideEnd.json # ef-tests #331
     - callcallcallcode_001_SuicideMiddle.json # ef-tests #331
