@@ -2,8 +2,19 @@
   "name": "Kakarot-ef-tests",
   "image": "mcr.microsoft.com/devcontainers/base:jammy",
   "features": {
-    "ghcr.io/lee-orr/rusty-dev-containers/cargo-nextest:0": {}
+    "ghcr.io/lee-orr/rusty-dev-containers/cargo-nextest:0": {},
+    "ghcr.io/devcontainers/features/python:1": {
+      "installTools": true,
+      "version": "3.9"
+    },
+    "ghcr.io/devcontainers-contrib/features/pipx-package:1": {
+      "package": "poetry",
+      "version": "latest"
+    },
+    "ghcr.io/devcontainers-contrib/features/apt-get-packages:1": {
+      "packages": "clang"
+    },
+    "ghcr.io/trunk-io/devcontainer-feature/trunk:1": {}
   },
-  "postCreateCommand": "apt update && apt install -y clang",
   "remoteUser": "root"
 }
