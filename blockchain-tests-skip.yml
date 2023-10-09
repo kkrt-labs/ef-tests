@@ -459,6 +459,32 @@ filename:
     - EXTCODESIZE_toEpmty.json # ef-tests #350
     - EXTCODESIZE_toNonExistent.json # ef-tests #350
     - vitalikTransactionTest.json # ef-tests #351
+  stEIP1559:
+    - senderBalance.json # ef-tests #499
+    - typeTwoBerlin.json # ef-tests #500
+    - lowGasLimit.json # ef-tests #500
+    - baseFeeDiffPlaces.json # ef-tests #499
+    - outOfFundsOldTypes.json # ef-tests #500
+    - intrinsic.json # ef-tests #500
+    - outOfFunds.json # ef-tests #499
+    - lowGasPriceOldTypes.json # ef-tests #500
+    - valCausesOOF.json # ef-tests #500
+    - gasPriceDiffPlaces.json # ef-tests #499
+  stEIP2930:
+    - addressOpcodes.json # ef-tests #502
+    - manualCreate.json # ef-tests #501
+    - storageCosts.json # ef-tests #502
+    - coinbaseT2.json # ef-tests #503
+    - coinbaseT01.json # ef-tests #503
+    - variedContext.json # ef-tests #502
+    - transactionCosts.json # ef-tests #501
+  stExample:
+    - rangesExample.json # ef-tests #505
+    - eip1559.json # ef-tests #504
+    - invalidTr.json # ef-tests #504
+    - accessListExample.json # ef-tests #505
+    - basefeeExample.json # ef-tests #505
+    - mergeTest.json # ef-tests #504
   stExtCodeHash:
     - extCodeHashCreatedAndDeletedAccountCall.json # ef-tests #270
     - extCodeHashDeletedAccount3.json # ef-tests #271
@@ -1248,6 +1274,23 @@ filename:
     - sstore_combinations_initial21.json # ef-test #440
     - sstore_combinations_initial21_2.json # ef-test #440
     - static_Call50000_sha256.json # ef-test #440
+  stTransactionTest:
+    - CreateMessageSuccess.json # ef-test #508
+    - SuicidesAndInternlCallSuicidesBonusGasAtCallFailed.json # ef-test #506
+    - OverflowGasRequire2.json # ef-test #506
+    - ContractStoreClearsOOG.json # ef-test #507
+    - InternlCallStoreClearsOOG.json # ef-test #507
+    - SuicidesAndInternlCallSuicidesBonusGasAtCall.json # ef-test #506
+    - InternalCallHittingGasLimit2.json # ef-test #506
+    - StoreClearsAndInternlCallStoreClearsOOG.json # ef-test #507
+    - StoreGasOnCreate.json # ef-test #508
+    - Opcodes_TransactionInit.json # ef-test #508
+    - HighGasPrice.json # ef-test #509
+    - ValueOverflow.json # ef-test #509
+    - SuicidesAndInternlCallSuicidesSuccess.json # ef-test #506
+    - PointAtInfinityECRecover.json # ef-test #507
+    - SuicidesStopAfterSuicide.json # ef-test #506
+    - TransactionSendingToZero.json # ef-test #506
 
 # List of file names regex to be skipped
 # The first level corresponds to the directory, the second to the list of file names regex to ignore.

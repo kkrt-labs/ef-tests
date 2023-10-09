@@ -5,8 +5,8 @@ pub mod suite;
 
 use std::str::FromStr;
 
-use reth_primitives::{Bytes, U128, U64};
-use revm_primitives::{B160, B256};
+use reth_primitives::{Bytes, U64};
+use revm_primitives::{B160, B256, U256};
 use serde::{self, de, Deserialize, Deserializer};
 
 #[derive(Debug, PartialEq, Eq, Deserialize)]
@@ -30,13 +30,13 @@ where
 pub struct Transaction {
     pub data: Vec<Bytes>,
     pub gas_limit: Vec<U64>,
-    pub gas_price: U64,
+    pub gas_price: Option<U256>,
     pub nonce: U64,
     pub secret_key: B256,
     #[serde(deserialize_with = "deserialize_b160_optional")]
     pub to: Option<B160>,
     pub sender: B160,
-    pub value: Vec<U128>,
+    pub value: Vec<String>,
 }
 
 #[cfg(test)]
