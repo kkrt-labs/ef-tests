@@ -32,7 +32,7 @@ In order to set up the repo and start the testing, please follow the below
 instructions:
 
 - run `make setup`
-- run `make fetch-dump`
+- run `make setup-kakarot`
 
 ## Test execution
 
