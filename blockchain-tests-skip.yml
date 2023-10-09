@@ -21,7 +21,6 @@ filename:
     - return.json # ef-tests #496
     - codecopy.json # ef-tests #496
     - pop.json # ef-test #496
-    - random.json # ef-test #496
   vmPerformance:
     - performanceTester.json # ef-tests #39
     - loopExp.json # ef-tests #39
@@ -32,7 +31,7 @@ filename:
     - suicide.json # ef-tests #57
     - envInfo.json # ef-tests #63
     - blockInfo.json # ef-tests #67
-
+    - random.json # ef-test #496
   vmLogTest:
     - log0.json # ef-test #496
     - log1.json # ef-test #496
