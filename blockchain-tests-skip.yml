@@ -27,6 +27,16 @@ filename:
     - suicide.json # ef-tests #57
     - envInfo.json # ef-tests #63
     - blockInfo.json # ef-tests #67
+    - mul.json # ef-test #496
+    - return.json # ef-tests #496
+    - codecopy.json # ef-tests #496
+    - pop.json # ef-test #496
+    - log0.json # ef-test #496
+    - log1.json # ef-test #496
+    - log2.json # ef-test #496
+    - log3.json # ef-test #496
+    - log4.json # ef-test #496
+    - random.json # ef-test #496
   stEIP3855-push0:
     - push0.json # ef-tests #149
     - push0Gas.json # ef-tests #150
@@ -752,6 +762,11 @@ filename:
     - sstore_XtoYtoZ.json # ef-tests #410
   stZeroCallsTest:
     - ZeroValue_CALL.json # ef-tests #436
+  stZeroCallsRevert:
+    - ZeroValue_SUICIDE_OOGRevert.json # ef-tests #494
+    - ZeroValue_SUICIDE_ToOneStorageKey_OOGRevert.json # ef-test #494
+    - ZeroValue_SUICIDE_ToNonZeroBalance_OOGRevert.json # ef-test #494
+    - ZeroValue_SUICIDE_ToEmpty_OOGRevert.json # ef-test #494
   stSolidityTest:
     - TestContractSuicide.json # ef-test #132
     - TestCryptographicFunctions.json # ef-test #133
