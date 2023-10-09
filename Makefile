@@ -29,4 +29,4 @@ tests:
 
 # Runs ef tests only
 ef-test:
-	cargo nextest run --package ef-testing --test tests --features ef-tests -- blockchain_tests
+	cargo nextest run --package ef-testing --test tests --features ef-tests
