@@ -15,18 +15,18 @@ $(EF_TESTS_DIR):
 
 # Ensures the commands for $(EF_TESTS_DIR) always run on `make setup`, regardless if the directory exists
 .PHONY: $(EF_TESTS_DIR)
-setup: $(EF_TESTS_DIR) 
+setup: $(EF_TESTS_DIR)
 
-setup-kakarot: pull-kakarot	
+setup-kakarot: pull-kakarot
 	cd lib/kakarot && make setup && make build
 
 pull-kakarot:
 	git submodule update --init --recursive
 
-# Runs the Ethereum Foundation tests
-ef-tests:
-	cargo nextest run -p ef-testing --features ef-tests 
+# Runs the repo tests
+tests:
+	cargo nextest run --all-features
 
-# Runs specific test
+# Runs ef tests only
 ef-test:
-	TARGET=$(target) cargo test -p ef-testing --features ef-tests -- --nocapture
+	cargo nextest run --package ef-testing --test tests --features ef-tests -- blockchain_tests

@@ -36,8 +36,8 @@ instructions:
 
 ## Test execution
 
-To run the whole test suite, execute `make ef-tests` To run a specific test or
-list of tests, execute `make target=regular_expression ef-test` where
+To run the whole test suite, execute `make ef-test` To run a specific test or
+list of tests, execute `TARGET=regular_expression make ef-test` where
 regular_expression allows you to filter on the specific tests you want to run.
 
 ## Acknowledgement

@@ -51,7 +51,7 @@ of an issue raised by an Integrator.
 ### Debugger
 
 Pick an issue from the available `Integrator` issues. Verify that the test fails
-(you can run a specific test by using `make target=your_test_name ef-test`). If
+(you can run a specific test by using `TARGET=your_test_name make ef-test`). If
 it does, you can start debugging it. The following documentation can be used:
 
 - [Test fillers](https://github.com/ethereum/tests/tree/develop/src/GeneralStateTestsFiller):
@@ -103,7 +103,7 @@ Ethereum/test:
   blockifier = { git = "https://github.com/jobez/blockifier.git", rev = "7f00407" }
   ```
 
-- Run `make target=your_test_name ef-test`. You should see the executed opcodes
+- Run `TARGET=your_test_name make ef-test`. You should see the executed opcodes
   being printed out.
 
 #### Reproducing in Python (to be updated once Python test flow is improved)

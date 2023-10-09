@@ -59,7 +59,10 @@ where
                 <&mut S>::commit(&mut cached_state)?;
                 match execution_information.revert_error {
                     Some(err) => {
-                        warn!("Transaction execution reverted: {:?}", err)
+                        warn!(
+                            "Transaction execution reverted: {}",
+                            err.replace("\\n", "\n")
+                        )
                     }
                     None => {
                         trace!("Transaction execution succeeded {execution_information:?}")
