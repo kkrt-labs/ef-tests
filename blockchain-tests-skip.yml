@@ -888,6 +888,26 @@ filename:
     - multiSelfdestruct.json # ef-test #452
     - suicideCallerAddresTooBigRight.json # ef-test #452
     - suicideNotExistingAccount.json # ef-test #452
+    - CallToNameRegistratorNotMuchMemory0.json # ef-test #490
+    - CallToReturn1.json # ef-test #490
+    - CallToNameRegistratorAddressTooBigLeft.json # ef-test #490
+    - callcodeTo0.json # ef-test #490
+    - ABAcallsSuicide1.json # ef-test #490
+    - callcodeToNameRegistrator0.json # ef-test #490
+    - CallToNameRegistratorZeorSizeMemExpansion.json # ef-test #490
+    - callcodeToNameRegistratorZeroMemExpanion.json # ef-test #490
+    - createNameRegistrator.json # ef-test #490
+    - CallToReturn1ForDynamicJump1.json # ef-test #490
+    - callcodeToNameRegistratorAddresTooBigLeft.json # ef-test #490
+    - CallToNameRegistratorOutOfGas.json # ef-test #490
+    - callcodeToNameRegistratorAddresTooBigRight.json # ef-test #490
+    - CallToNameRegistratorNotMuchMemory1.json # ef-test #490
+    - doubleSelfdestructTouch.json # ef-test #490
+    - CalltoReturn2.json # ef-test #490
+    - callcodeToReturn1.json # ef-test #490
+    - CallToReturn1ForDynamicJump0.json # ef-test #490
+    - CallToNameRegistratorNotMuchMemory0.json # ef-test #490
+    - CallToNameRegistratorAddressTooBigLeft.json # ef-test #490
   stStaticFlagEnabled:
     - CallcodeToPrecompileFromCalledContract.json # ef-test #443
     - CallcodeToPrecompileFromContractInitialization.json # ef-test #443
