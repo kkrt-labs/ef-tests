@@ -572,6 +572,7 @@ filename:
     - randomStatetest627.json # ef-tests #395
     - randomStatetest628.json # ef-tests #395
     - randomStatetest636.json # ef-tests #395
+    - randomStatetest506.json # ef-tests #395
   stRefundTest:
     - refundFF.json # ef-tests #405
     - refundMax.json # ef-tests #405
