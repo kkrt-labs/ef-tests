@@ -59,7 +59,7 @@ pub trait Suite {
 
         let results = Cases { test_cases }.run().await;
 
-        assert_tests_pass(&self.suite_name(), &suite_path, &results);
+        assert_tests_pass(&self.suite_name(), &results);
     }
 }
 
