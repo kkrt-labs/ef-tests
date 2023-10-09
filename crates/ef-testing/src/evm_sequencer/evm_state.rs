@@ -211,17 +211,17 @@ impl EvmState for KakarotSequencer {
         }
 
         // Assumes that the bytecode is stored in 16 byte chunks.
-        let len_16_bytes_chunk = bytecode_len / 16;
+        let num_chunks = bytecode_len / 16;
         let mut bytecode: Vec<u8> = Vec::new();
 
-        for i in 0..len_16_bytes_chunk {
-            let key = get_storage_var_address("bytecode_", &[StarkFelt::from(i)])?;
+        for chunk_index in 0..num_chunks {
+            let key = get_storage_var_address("bytecode_", &[StarkFelt::from(chunk_index)])?;
             let code = (&mut self.0.state).get_storage_at(starknet_address.try_into()?, key)?;
             bytecode.append(&mut felt_to_bytes(&code.into(), 16).to_vec());
         }
 
         let remainder = bytecode_len % 16;
-        let key = get_storage_var_address("bytecode_", &[StarkFelt::from(len_16_bytes_chunk)])?;
+        let key = get_storage_var_address("bytecode_", &[StarkFelt::from(num_chunks)])?;
         let code = (&mut self.0.state).get_storage_at(starknet_address.try_into()?, key)?;
         bytecode.append(&mut felt_to_bytes(&code.into(), remainder as usize).to_vec());
 
