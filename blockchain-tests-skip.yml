@@ -129,6 +129,39 @@ filename:
     - callcodecallcodecallcode_111_SuicideMiddle.json # ef-tests #485
     - callcodecallcodecall_110_SuicideMiddle.json # ef-tests #485
     - callcodecallcode_11_SuicideEnd.json # ef-tests #485
+  stCallCreateCallCodeTest:
+    - Call1024BalanceTooLow.json # ef-tests #493
+    - CallcodeLoseGasOOG.json # ef-tests #493
+    - createInitFailUndefinedInstruction2.json # ef-tests #495
+    - createInitFailBadJumpDestination2.json # ef-tests #495
+    - createNameRegistratorendowmentTooHigh.json # ef-tests #497
+    - Callcode1024OOG.json # ef-tests #493
+    - CallLoseGasOOG.json # ef-tests #493
+    - Call1024OOG.json # ef-tests #493
+    - callcodeOutput3partialFail.json # ef-tests #493
+    - callWithHighValueAndGasOOG.json # ef-tests #493
+    - callWithHighValueOOGinCall.json # ef-tests #493
+    - createFailBalanceTooLow.json # ef-tests #495
+    - Call1024PreCalls.json # ef-tests #495
+    - callOutput3Fail.json # ef-tests #493
+    - CallRecursiveBombPreCall.json # ef-tests #495
+    - callOutput3.json # ef-tests #493
+    - contractCreationMakeCallThatAskMoreGasThenTransactionProvided.json # ef-tests #493
+    - callcodeWithHighValueAndGasOOG.json # ef-tests #495
+    - createInitFailStackUnderflow.json # ef-tests #495
+    - callcodeOutput3Fail.json # ef-tests #493
+    - createJS_NoCollision.json # ef-tests #493
+    - Callcode1024BalanceTooLow.json # ef-tests #493
+    - callcodeOutput3.json # ef-tests #493
+    - callWithHighValueAndOOGatTxLevel.json
+    - callcodeOutput3partial.json # ef-tests #493
+    - createInitFailStackSizeLargerThan1024.json # ef-tests #495
+    - createInitOOGforCREATE.json # ef-tests #498
+    - callOutput3partial.json # ef-tests #493
+    - createInitFailBadJumpDestination.json # ef-tests #495
+    - createInitFailUndefinedInstruction.json # ef-tests #493
+    - createInitFail_OOGduringInit2.json # ef-tests #497
+    - callOutput3partialFail.json # ef-tests #493
   stCallDelegateCodesCallCodeHomestead:
     - callcallcallcode_001.json # ef-tests #330
     - callcallcallcode_001_OOGE.json # ef-tests #330

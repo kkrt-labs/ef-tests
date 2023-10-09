@@ -5,7 +5,7 @@ pub mod suite;
 
 use std::str::FromStr;
 
-use reth_primitives::{Bytes, U64};
+use reth_primitives::{Bytes, U128, U64};
 use revm_primitives::{B160, B256};
 use serde::{self, de, Deserialize, Deserializer};
 
@@ -36,7 +36,7 @@ pub struct Transaction {
     #[serde(deserialize_with = "deserialize_b160_optional")]
     pub to: Option<B160>,
     pub sender: B160,
-    pub value: Vec<U64>,
+    pub value: Vec<U128>,
 }
 
 #[cfg(test)]
