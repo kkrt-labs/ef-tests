@@ -73,13 +73,10 @@ pub(crate) fn print_results(
         skipped.len()
     );
 
-    for case in skipped {
-        println!("[S] Case {} skipped", case.path.display());
-    }
-
     for case in failed {
-        let error = case.result.clone().unwrap_err();
-
-        println!("[!] Case {} failed:\n{}", case.path.display(), error);
+        match &case.result {
+            Ok(_) => unreachable!(),
+            Err(err) => println!("[!] Case {} failed:\n{}", case.path.display(), err),
+        }
     }
 }

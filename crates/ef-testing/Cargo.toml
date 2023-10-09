@@ -18,12 +18,11 @@ revm-primitives = { workspace = true }
 reth-rlp = { workspace = true }
 
 # Kakarot deps
-kakarot-rpc-core = { workspace = true }
-kakarot-test-utils = { workspace = true }
+sequencer = { path = "../sequencer" }
 
 # Starknet deps
-dojo-test-utils = { workspace = true }
-katana-core = { workspace = true }
+blockifier = { workspace = true }
+cairo-vm = { workspace = true }
 starknet_api = { workspace = true }
 starknet = { workspace = true }
 
@@ -31,7 +30,7 @@ starknet = { workspace = true }
 async-trait = { workspace = true }
 ctor = { workspace = true }
 chrono = { workspace = true, optional = true }
-dotenv = { workspace = true, optional = true }
+dotenvy = { workspace = true, optional = true }
 eyre = { workspace = true }
 lazy_static = { workspace = true }
 thiserror = { workspace = true }
@@ -51,15 +50,3 @@ tracing-subscriber = { workspace = true }
 
 [features]
 ef-tests = []
-dump = ["reqwest", "dotenv", "chrono", "zip"]
-fetch-commit = ["reqwest"]
-
-[[bin]]
-name = "fetch-dump-katana"
-path = "src/bin/fetch_dump_katana.rs"
-required-features = ["dump"]
-
-[[bin]]
-name = "fetch-kakarot-submodule-commit"
-path = "src/bin/fetch_kakarot_submodule_commit.rs"
-required-features = ["fetch-commit"]

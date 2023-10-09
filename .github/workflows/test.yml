@@ -1,16 +1,27 @@
 name: test
 
 on:
-  push:
-    branches: [main]
-  pull_request:
+  workflow_call: {}
+
+permissions: read-all
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}-test
+  cancel-in-progress: true
 
 jobs:
   test:
+    # trunk-ignore(actionlint/runner-label)
     runs-on: ubuntu-latest-32-cores
-    timeout-minutes: 30
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v3
+      - name: Load compiled kakarot contracts
+        id: cached-contracts
+        uses: actions/cache/restore@v3
+        with:
+          path: ./lib/kakarot/build
+          key: ${{ runner.os }}-contracts
       - name: Setup rust env
         uses: actions-rs/toolchain@v1
         with:
@@ -19,13 +30,8 @@ jobs:
           override: true
       - name: Retrieve cached dependencies
         uses: Swatinem/rust-cache@v2
-      # fetch ef tests
       - name: fetch ef tests
         run: make setup
-      # fetch dump
-      - name: fetch dump
-        run: GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }} make fetch-dump
       - uses: taiki-e/install-action@nextest
-      # run tests
       - name: run tests
         run: make ef-tests

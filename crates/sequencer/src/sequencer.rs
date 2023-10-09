@@ -2,7 +2,7 @@ use crate::{commit::Committer, execution::Execution};
 use blockifier::{
     block_context::BlockContext,
     state::{
-        cached_state::CachedState,
+        cached_state::{CachedState, GlobalContractCache},
         state_api::{State, StateReader},
     },
     transaction::{
@@ -23,7 +23,7 @@ pub struct Sequencer<S>
 where
     for<'a> &'a mut S: State + StateReader,
 {
-    pub context: BlockContext,
+    pub block_context: BlockContext,
     pub state: S,
 }
 
@@ -32,8 +32,11 @@ where
     for<'a> &'a mut S: State + StateReader,
 {
     /// Creates a new Sequencer instance.
-    pub fn new(context: BlockContext, state: S) -> Self {
-        Self { context, state }
+    pub fn new(block_context: BlockContext, state: S) -> Self {
+        Self {
+            block_context,
+            state,
+        }
     }
 }
 
@@ -42,9 +45,10 @@ where
     for<'a> &'a mut S: State + StateReader + Committer<S>,
 {
     fn execute(&mut self, transaction: Transaction) -> Result<(), TransactionExecutionError> {
-        let mut cached_state = CachedState::new(&mut self.state);
+        let mut cached_state = CachedState::new(&mut self.state, GlobalContractCache::default());
         let charge_fee = false;
-        let res = transaction.execute(&mut cached_state, &self.context, charge_fee);
+        let validate = true;
+        let res = transaction.execute(&mut cached_state, &self.block_context, charge_fee, validate);
 
         match res {
             Err(err) => {
@@ -75,9 +79,11 @@ mod tests {
     use std::sync::Arc;
 
     use blockifier::abi::abi_utils::get_storage_var_address;
+    use blockifier::block_context::{FeeTokenAddresses, GasPrices};
     use blockifier::execution::contract_class::{ContractClass, ContractClassV0, ContractClassV1};
     use blockifier::state::state_api::State as BlockifierState;
     use blockifier::transaction::account_transaction::AccountTransaction;
+    use blockifier::transaction::transactions::InvokeTransaction as BlockifierInvokeTransaction;
     use starknet::macros::selector;
     use starknet_api::core::{ChainId, ClassHash, ContractAddress, Nonce};
     use starknet_api::hash::StarkFelt;
@@ -87,8 +93,10 @@ mod tests {
     };
 
     use crate::constants::test_constants::{
-        FEE_TOKEN_ADDRESS, ONE_BLOCK_NUMBER, ONE_BLOCK_TIMESTAMP, ONE_CLASS_HASH,
-        SEQUENCER_ADDRESS, TEST_ADDRESS, TEST_CONTRACT_ACCOUNT, TEST_CONTRACT_ADDRESS,
+        ETH_FEE_TOKEN_ADDRESS, SEQUENCER_ADDRESS, STRK_FEE_TOKEN_ADDRESS,
+    };
+    use crate::constants::test_constants::{
+        ONE_BLOCK_NUMBER, ONE_BLOCK_TIMESTAMP, ONE_CLASS_HASH, TEST_ACCOUNT, TEST_CONTRACT,
         TWO_CLASS_HASH, ZERO_FELT,
     };
     use crate::state::State;
@@ -131,7 +139,7 @@ mod tests {
 
     fn fund(address: StarkFelt, mut state: &mut State) {
         state.set_storage_at(
-            *FEE_TOKEN_ADDRESS,
+            *ETH_FEE_TOKEN_ADDRESS,
             get_storage_var_address("ERC20_balances", &[address]).unwrap(),
             StarkFelt::from(u128::MAX),
         );
@@ -143,10 +151,16 @@ mod tests {
             block_number: *ONE_BLOCK_NUMBER,
             block_timestamp: *ONE_BLOCK_TIMESTAMP,
             sequencer_address: *SEQUENCER_ADDRESS,
-            fee_token_address: *FEE_TOKEN_ADDRESS,
+            fee_token_addresses: FeeTokenAddresses {
+                strk_fee_token_address: *STRK_FEE_TOKEN_ADDRESS,
+                eth_fee_token_address: *ETH_FEE_TOKEN_ADDRESS,
+            },
 
             vm_resource_fee_cost: vm_resource_fee_cost(),
-            gas_price: 1,
+            gas_prices: GasPrices {
+                eth_l1_gas_price: 1,
+                strk_l1_gas_price: 1,
+            },
             invoke_tx_max_n_steps: 4_000_000,
             validate_max_n_steps: 4_000_000,
             max_recursion_depth: 1_000,
@@ -174,13 +188,12 @@ mod tests {
     }
 
     fn test_transaction() -> Transaction {
-        Transaction::AccountTransaction(AccountTransaction::Invoke(InvokeTransaction::V1(
-            InvokeTransactionV1 {
-                transaction_hash: TransactionHash(*ZERO_FELT),
-                sender_address: *TEST_CONTRACT_ACCOUNT,
+        Transaction::AccountTransaction(AccountTransaction::Invoke(BlockifierInvokeTransaction {
+            tx: InvokeTransaction::V1(InvokeTransactionV1 {
+                sender_address: *TEST_ACCOUNT,
                 calldata: Calldata(
                     vec![
-                        *TEST_ADDRESS, // destination
+                        *TEST_CONTRACT.0.key(), // destination
                         selector!("inc").into(),
                         *ZERO_FELT, // no data
                     ]
@@ -189,8 +202,9 @@ mod tests {
                 max_fee: Fee(1_000_000),
                 signature: TransactionSignature(vec![]),
                 nonce: Nonce(*ZERO_FELT),
-            },
-        )))
+            }),
+            tx_hash: TransactionHash(*ZERO_FELT),
+        }))
     }
 
     #[test]
@@ -201,19 +215,19 @@ mod tests {
 
         declare_and_deploy_contract(
             "src/test_data/cairo_0/compiled_classes/counter.json",
-            *TEST_CONTRACT_ADDRESS,
+            *TEST_CONTRACT,
             *ONE_CLASS_HASH,
             mutable,
             true,
         );
         declare_and_deploy_contract(
             "src/test_data/cairo_0/compiled_classes/account.json",
-            *TEST_CONTRACT_ACCOUNT,
+            *TEST_ACCOUNT,
             *TWO_CLASS_HASH,
             mutable,
             true,
         );
-        fund(*TEST_ADDRESS, mutable);
+        fund(*TEST_ACCOUNT.0.key(), mutable);
 
         let context = block_context();
         let mut sequencer = Sequencer::new(context, state);
@@ -226,7 +240,7 @@ mod tests {
         let expected = StarkFelt::from(1u8);
         let actual = (&mut sequencer.state)
             .get_storage_at(
-                *TEST_CONTRACT_ADDRESS,
+                *TEST_CONTRACT,
                 get_storage_var_address("counter", &[]).unwrap(),
             )
             .unwrap();
@@ -241,19 +255,19 @@ mod tests {
 
         declare_and_deploy_contract(
             "src/test_data/cairo_1/compiled_classes/counter.json",
-            *TEST_CONTRACT_ADDRESS,
+            *TEST_CONTRACT,
             *ONE_CLASS_HASH,
             mutable,
             false,
         );
         declare_and_deploy_contract(
             "src/test_data/cairo_1/compiled_classes/account.json",
-            *TEST_CONTRACT_ACCOUNT,
+            *TEST_ACCOUNT,
             *TWO_CLASS_HASH,
             mutable,
             false,
         );
-        fund(*TEST_ADDRESS, mutable);
+        fund(*TEST_ACCOUNT.0.key(), mutable);
 
         let context = block_context();
         let mut sequencer = Sequencer::new(context, state);
@@ -266,7 +280,7 @@ mod tests {
         let expected = StarkFelt::from(1u8);
         let actual = (&mut sequencer.state)
             .get_storage_at(
-                *TEST_CONTRACT_ADDRESS,
+                *TEST_CONTRACT,
                 get_storage_var_address("counter", &[]).unwrap(),
             )
             .unwrap();

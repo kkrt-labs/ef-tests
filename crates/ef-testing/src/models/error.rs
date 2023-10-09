@@ -1,6 +1,6 @@
 use std::{fmt::Debug, path::PathBuf};
 
-use kakarot_rpc_core::{client::errors::EthApiError, models::ConversionError};
+use blockifier::{state::errors::StateError, transaction::errors::TransactionExecutionError};
 use starknet::{
     core::{types::FromByteArrayError, utils::NonAsciiNameError},
     providers::ProviderError,
@@ -8,7 +8,7 @@ use starknet::{
 use starknet_api::StarknetApiError;
 
 /// Error type based off <https://github.com/paradigmxyz/reth/blob/main/testing/ef-tests/src/result.rs>
-#[derive(Clone, Debug, thiserror::Error)]
+#[derive(Debug, thiserror::Error)]
 pub enum RunnerError {
     /// Assertion error
     #[error("{0}")]
@@ -26,7 +26,10 @@ pub enum RunnerError {
     },
     /// Sequencer error
     #[error("An error occurred while running the sequencer: {0}")]
-    SequencerError(String),
+    SequencerError(#[from] StateError),
+    /// Execution error
+    #[error("An error occurred while executing the transaction: {0}")]
+    ExecutionError(#[from] TransactionExecutionError),
     /// Skipped test
     #[error("test skipped")]
     Skipped,
@@ -41,12 +44,6 @@ impl From<eyre::Error> for RunnerError {
     }
 }
 
-impl<E: std::error::Error> From<EthApiError<E>> for RunnerError {
-    fn from(err: EthApiError<E>) -> Self {
-        Self::Other(err.to_string())
-    }
-}
-
 impl<E: std::error::Error> From<ProviderError<E>> for RunnerError {
     fn from(err: ProviderError<E>) -> Self {
         Self::Other(err.to_string())
@@ -55,12 +52,6 @@ impl<E: std::error::Error> From<ProviderError<E>> for RunnerError {
 
 impl From<regex::Error> for RunnerError {
     fn from(err: regex::Error) -> Self {
-        Self::Other(err.to_string())
-    }
-}
-
-impl From<ConversionError<()>> for RunnerError {
-    fn from(err: ConversionError<()>) -> Self {
         Self::Other(err.to_string())
     }
 }

@@ -1,0 +1,29 @@
+name: Trunk
+
+on:
+  workflow_call: {}
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}-trunk
+  cancel-in-progress: true
+
+jobs:
+  trunk_check:
+    name: Trunk Check Runner
+    runs-on: ubuntu-latest
+    # trunk-ignore(checkov/CKV2_GHA_1)
+    permissions:
+      checks: write # For trunk to post annotations
+      contents: read # For repo checkout
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: nightly
+          override: true
+          components: clippy
+      - uses: Swatinem/rust-cache@v2
+      - name: Trunk Check
+        uses: trunk-io/trunk-action@v1
