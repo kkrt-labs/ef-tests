@@ -508,6 +508,20 @@ filename:
     - extCodeHashSelfInInit.json # ef-tests #289
     - extCodeHashSubcallOOG.json # ef-tests #290
     - dynamicAccountOverwriteEmpty.json # ef-tests #291
+    - extCodeHashDynamicArgument.json # ef-tests #512
+    - extCodeHashPrecompiles.json # ef-tests #512
+  stLogTests:
+    - log0_logMemsizeTooHigh.json # ef-tests #513
+    - log0_logMemStartTooHigh.json # ef-tests #513
+    - log1_logMemsizeTooHigh.json # ef-tests #513
+    - log1_logMemStartTooHigh.json # ef-tests #513
+    - log2_logMemsizeTooHigh.json # ef-tests #513
+    - log2_logMemStartTooHigh.json # ef-tests #513
+    - log3_logMemsizeTooHigh.json # ef-tests #513
+    - log3_logMemStartTooHigh.json # ef-tests #513
+    - log4_logMemsizeTooHigh.json # ef-tests #513
+    - log4_logMemStartTooHigh.json # ef-tests #513
+    - logInOOG_Call.json # ef-tests #513
   stHomesteadSpecific:
     - contractCreationOOGdontLeaveEmptyContractViaTransaction.json # ef-tests #353
     - createContractViaContract.json # ef-tests #354
@@ -536,10 +550,27 @@ filename:
     - RETURN_Bounds.json # ef-tests #366
     - FillStack.json # ef-tests #367
   stMemoryTest:
-    - oog.json # ef-tests #49
     - buffer.json # ef-tests #50
     - bufferSrcOffset.json # ef-tests #51
+    - calldatacopy_dejavu.json # ef-tests #518
+    - codecopy_dejavu.json # ef-tests #518
+    - codecopy_dejavu2.json # ef-tests #518
+    - extcodecopy_dejavu.json # ef-tests #518
+    - log1_dejavu.json # ef-tests #518
+    - log3_dejavu.json # ef-tests #518
+    - log4_dejavu.json # ef-tests #518
     - memCopySelf.json # ef-tests #52
+    - mload_dejavu.json # ef-tests #518
+    - mstore_dejavu.json # ef-tests #518
+    - mstroe8_dejavu.json # ef-tests #518
+    - oog.json # ef-tests #49
+    - sha3_dejavu.json # ef-tests #518
+    - stackLimitGas_1023.json # ef-tests #518
+    - stackLimitGas_1024.json # ef-tests #518
+    - stackLimitPush31_1023.json # ef-tests #518
+    - stackLimitPush31_1024.json # ef-tests #518
+    - stackLimitPush32_1023.json # ef-tests #518
+    - stackLimitPush32_1024.json # ef-tests #518
   stNonZeroCallsTest:
     - NonZeroValue_CALL.json # ef-tests #360
     - NonZeroValue_CALLCODE.json # ef-tests #360
@@ -554,6 +585,9 @@ filename:
     - NonZeroValue_DELEGATECALL_ToNonNonZeroBalance.json # ef-tests #360
     - NonZeroValue_DELEGATECALL_ToOneStorageKey.json # ef-tests #360
     - NonZeroValue_SUICIDE.json # ef-tests #361
+    - NonZeroValue_SUICIDE_ToEmpty.json # ef-tests #514
+    - NonZeroValue_SUICIDE_ToOneStorageKey.json # ef-tests #514
+    - NonZeroValue_SUICIDE_ToNonNonZeroBalance.json # ef-tests #514
   stRefundTest:
     - refundFF.json # ef-tests #405
     - refundMax.json # ef-tests #405
@@ -570,6 +604,7 @@ filename:
     - refund_CallToSuicideStorage.json # ef-tests #489
   stPreCompiledContracts:
     - blake2B.json # ef-tests #389
+    - delegatecall09Undefined.json # ef-tests #515
     - identity_to_bigger.json # ef-tests #389
     - identity_to_smaller.json # ef-tests #389
     - idPrecomps.json # ef-tests #389
@@ -585,7 +620,9 @@ filename:
     - CALLCODEEcrecover0.json # ef-tests #391
     - CALLCODEEcrecover0_0input.json # ef-tests #391
     - CALLCODEEcrecover0_completeReturnValue.json # ef-tests #391
+    - CALLCODEEcrecover0_Gas2999.json # ef-tests #517
     - CALLCODEEcrecover0_gas3000.json # ef-tests #391
+    - CALLCODEEcrecover0_NoGas.json # ef-tests #516
     - CALLCODEEcrecover0_overlappingInputOutput.json # ef-tests #391
     - CALLCODEEcrecover1.json # ef-tests #391
     - CALLCODEEcrecover2.json # ef-tests #391
@@ -627,7 +664,9 @@ filename:
     - CallEcrecover0.json # ef-tests #391
     - CallEcrecover0_0input.json # ef-tests #391
     - CallEcrecover0_completeReturnValue.json # ef-tests #391
+    - CallEcrecover0_Gas2999.json # ef-tests #517
     - CallEcrecover0_gas3000.json # ef-tests #391
+    - CallEcrecover0_NoGas.json # ef-tests #516
     - CallEcrecover0_overlappingInputOutput.json # ef-tests #391
     - CallEcrecover1.json # ef-tests #391
     - CallEcrecover2.json # ef-tests #391
