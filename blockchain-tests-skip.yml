@@ -494,6 +494,10 @@ filename:
     - refund_CallA_notEnoughGasInCall.json # ef-tests #407
     - refund_CallA_OOG.json # ef-tests #407
     - refund_OOG.json # ef-tests #407
+    - refund_CallToSuicideNoStorage.json # ef-tests #489
+    - refund_TxToSuicideOOG.json # ef-tests #489
+    - refund_CallToSuicideTwice.json # ef-tests #489
+    - refund_CallToSuicideStorage.json # ef-tests #489
   stPreCompiledContracts:
     - blake2B.json # ef-tests #389
     - identity_to_bigger.json # ef-tests #389
@@ -647,6 +651,10 @@ filename:
     - returndatacopy_after_successful_delegatecall.json # ef-tests #318
     - tooLongReturnDataCopy.json # ef-tests #319
     - revertRetDataSize.json # ef-tests #320
+    - returndatasize_after_failing_delegatecall.json # ef-tests #491
+    - returndatasize_after_failing_staticcall.json # ef-tests #491
+    - returndatasize_after_oog_after_deeper.json # ef-tests #491
+    - returndatasize_after_failing_callcode.json # ef-tests #491
   stRevertTest:
     - RevertOpcodeMultipleSubCalls.json # ef-tests #322
     - RevertPrefoundCall.json # ef-tests #322
@@ -671,6 +679,7 @@ filename:
     - LoopCallsDepthThenRevert2.json # ef-tests #324
     - LoopCallsDepthThenRevert3.json # ef-tests #324
     - RevertRemoteSubCallStorageOOG.json # ef-tests #324
+    - RevertInCallCode.json # ef-tests #492
   stShift:
     - shiftCombinations.json # ef-tests #383
     - shiftSignedCombinations.json # ef-tests #383
@@ -722,6 +731,13 @@ filename:
     - TestContractInteraction.json # ef-test #140
     - RecursiveCreateContractsCreate4Contracts.json # ef-test #141
     - SelfDestruct.json # ef-tests #478
+  stSpecialTest:
+    - tx_e1c174e2.json # ef-tests #412
+    - eoaEmpty.json # ef-tests #413
+    - selfdestructEIP2929.json # ef-tests #413
+    - JUMPDEST_AttackwithJump.json # ef-tests #479
+    - JUMPDEST_Attack.json # ef-tests #479
+    - block504980.json # ef-tests #479
   stZeroKnowledge:
     - ecmul_1-2_2_28000_96.json
     - ecmul_1-2_340282366920938463463374607431768211456_21000_128.json # ef-test #459
@@ -1137,13 +1153,6 @@ filename:
     - stackOverflowM1PUSH.json # ef-tests #415
     - stackOverflowSWAP.json # ef-tests #415
     - stacksanitySWAP.json # ef-tests #415
-  stSpecialTest:
-    - tx_e1c174e2.json # ef-tests #412
-    - eoaEmpty.json # ef-tests #413
-    - selfdestructEIP2929.json # ef-tests #413
-    - block504980.json # ef-tests #479
-    - JUMPDEST_Attack.json # ef-tests #479
-    - JUMPDEST_AttackwithJump.json # ef-tests #479
   stArgsZeroOneBalance:
     - createNonConst.json # ef-tests #368
     - mulmodNonConst.json # ef-tests #368
