@@ -11,12 +11,17 @@ filename:
     - expPower256Of256.json # kakarot #700
     - exp.json # kakarot #700
     - addmod.json # kakarot #695
+    - mul.json # ef-test #496
   vmIOandFlowOperations:
     - mload.json # ef-tests #31
     - gas.json # ef-tests #36
     - jumpi.json # kakarot #693
     - jump.json # ef-tests #38
     - jumpToPush.json # ef-tests #61
+    - return.json # ef-tests #496
+    - codecopy.json # ef-tests #496
+    - pop.json # ef-test #496
+    - random.json # ef-test #496
   vmPerformance:
     - performanceTester.json # ef-tests #39
     - loopExp.json # ef-tests #39
@@ -27,16 +32,13 @@ filename:
     - suicide.json # ef-tests #57
     - envInfo.json # ef-tests #63
     - blockInfo.json # ef-tests #67
-    - mul.json # ef-test #496
-    - return.json # ef-tests #496
-    - codecopy.json # ef-tests #496
-    - pop.json # ef-test #496
+
+  vmLogTest:
     - log0.json # ef-test #496
     - log1.json # ef-test #496
     - log2.json # ef-test #496
     - log3.json # ef-test #496
     - log4.json # ef-test #496
-    - random.json # ef-test #496
   stEIP3855-push0:
     - push0.json # ef-tests #149
     - push0Gas.json # ef-tests #150
