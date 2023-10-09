@@ -210,23 +210,25 @@ impl EvmState for KakarotSequencer {
             return Ok(Bytes::default());
         }
 
-        let full_16 = bytecode_len / 16;
+        // Assumes that the bytecode is stored in 16 byte chunks.
+        let len_16_bytes_chunk = bytecode_len / 16;
         let mut bytecode: Vec<u8> = Vec::new();
 
-        for i in 0..full_16 {
+        for i in 0..len_16_bytes_chunk {
             let key = get_storage_var_address("bytecode_", &[StarkFelt::from(i)])?;
             let code = (&mut self.0.state).get_storage_at(starknet_address.try_into()?, key)?;
             bytecode.append(&mut felt_to_bytes(&code.into(), 16).to_vec());
         }
 
         let remainder = bytecode_len % 16;
-        let key = get_storage_var_address("bytecode_", &[StarkFelt::from(full_16)])?;
+        let key = get_storage_var_address("bytecode_", &[StarkFelt::from(len_16_bytes_chunk)])?;
         let code = (&mut self.0.state).get_storage_at(starknet_address.try_into()?, key)?;
         bytecode.append(&mut felt_to_bytes(&code.into(), remainder as usize).to_vec());
 
         Ok(Bytes::from(bytecode))
     }
 
+    /// Returns the balance of native tokens at the given address.
     fn get_balance_at(&mut self, evm_address: &Address) -> StateResult<U256> {
         let starknet_address = compute_starknet_address(evm_address);
         let (low, high) = (&mut self.0.state)

@@ -8,12 +8,13 @@ use crate::{
     },
     get_signed_rlp_encoded_transaction,
     traits::Case,
-    utils::{address_from_private_key, deserialize_into, load_file, update_post_state},
+    utils::{deserialize_into, load_file, update_post_state},
 };
 use async_trait::async_trait;
 use ef_tests::models::BlockchainTest;
 use ef_tests::models::{ForkSpec, RootOrState};
 
+use ethers_signers::{LocalWallet, Signer};
 use regex::Regex;
 use sequencer::{
     execution::Execution, state::State as SequencerState, transaction::StarknetTransaction,
@@ -153,7 +154,9 @@ impl BlockchainTestCase {
     ) -> Result<(), RunnerError> {
         let test = self.test(test_case_name)?;
         let sk = self.transaction.transaction.secret_key;
-        let sender_address = address_from_private_key(sk)?;
+        let wallet =
+            LocalWallet::from_bytes(&sk.0).map_err(|err| RunnerError::Other(err.to_string()))?;
+        let sender_address = wallet.address().to_fixed_bytes();
 
         let post_state = match test.post_state.clone().ok_or_else(|| {
             RunnerError::Other(format!("missing post state for {}", test_case_name))
@@ -193,7 +196,7 @@ impl BlockchainTestCase {
                 )));
             }
             // Skip sender address because of the difference in gas cost
-            if address == &sender_address {
+            if address.0 == sender_address {
                 continue;
             }
             // Balance

@@ -13,6 +13,7 @@ bytes = { workspace = true }
 
 # Eth deps
 ef-tests = { workspace = true }
+ethers-signers = { workspace = true }
 reth-primitives = { workspace = true }
 revm-primitives = { workspace = true }
 reth-rlp = { workspace = true }
@@ -36,7 +37,6 @@ lazy_static = { workspace = true }
 regex = { workspace = true }
 reqwest = { workspace = true, optional = true }
 rstest = { workspace = true }
-secp256k1 = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
 serde_yaml = { workspace = true }
