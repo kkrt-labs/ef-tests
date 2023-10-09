@@ -29,11 +29,8 @@ impl CaseResult {
 }
 
 /// Assert that all the given tests passed and print the results to stdout.
-pub(crate) fn assert_tests_pass(suite_name: &str, path: &Path, results: &[CaseResult]) {
-    let (passed, failed, skipped) = categorize_results(results);
-
-    print_results(suite_name, path, &passed, &failed, &skipped);
-
+pub(crate) fn assert_tests_pass(_suite_name: &str, _path: &Path, results: &[CaseResult]) {
+    let (_passed, failed, _skipped) = categorize_results(results);
     assert!(failed.is_empty(), "Some tests failed (see above)");
 }
 
@@ -54,29 +51,4 @@ pub(crate) fn categorize_results(
     }
 
     (passed, failed, skipped)
-}
-
-/// Display the given test results to stdout.
-pub(crate) fn print_results(
-    suite_name: &str,
-    path: &Path,
-    passed: &[&CaseResult],
-    failed: &[&CaseResult],
-    skipped: &[&CaseResult],
-) {
-    println!("\n Suite: {suite_name} (at {})", path.display());
-    println!(
-        "Ran {} tests ({} passed, {} failed, {} skipped) \n",
-        passed.len() + failed.len() + skipped.len(),
-        passed.len(),
-        failed.len(),
-        skipped.len()
-    );
-
-    for case in failed {
-        match &case.result {
-            Ok(_) => unreachable!(),
-            Err(err) => println!("[!] Case {} failed:\n{}", case.path.display(), err),
-        }
-    }
 }
