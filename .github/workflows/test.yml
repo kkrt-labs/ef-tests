@@ -12,7 +12,7 @@ concurrency:
 jobs:
   test:
     # trunk-ignore(actionlint/runner-label)
-    runs-on: ubuntu-latest-16-cores
+    runs-on: ubuntu-latest-32-cores
     timeout-minutes: 45
     steps:
       - uses: actions/checkout@v3
