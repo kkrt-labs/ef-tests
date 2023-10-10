@@ -549,6 +549,13 @@ filename:
   stMemoryStressTest:
     - RETURN_Bounds.json # ef-tests #366
     - FillStack.json # ef-tests #367
+    - mload32bitBound.json # ef-tests #521
+    - SSTORE_Bounds.json # ef-tests #521
+    - MSTORE_Bounds.json # ef-tests #521
+    - mload32bitBound2.json # ef-tests #521
+    - MSTORE_Bounds2a.json # ef-tests #521
+    - MLOAD_Bounds.json # ef-tests #521
+    - MSTORE_Bounds2.json # ef-tests #521
   stMemoryTest:
     - buffer.json # ef-tests #50
     - bufferSrcOffset.json # ef-tests #51
