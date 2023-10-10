@@ -13,6 +13,7 @@ bytes = { workspace = true }
 
 # Eth deps
 ef-tests = { workspace = true }
+ethers-signers = { workspace = true }
 reth-primitives = { workspace = true }
 revm-primitives = { workspace = true }
 reth-rlp = { workspace = true }
@@ -33,13 +34,13 @@ chrono = { workspace = true, optional = true }
 dotenvy = { workspace = true, optional = true }
 eyre = { workspace = true }
 lazy_static = { workspace = true }
-thiserror = { workspace = true }
-serde = { workspace = true }
-serde_json = { workspace = true }
-serde_yaml = { workspace = true }
 regex = { workspace = true }
 reqwest = { workspace = true, optional = true }
 rstest = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+serde_yaml = { workspace = true }
+thiserror = { workspace = true }
 tokio = { workspace = true }
 tracing = { workspace = true }
 walkdir = { workspace = true }

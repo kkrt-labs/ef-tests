@@ -17,7 +17,7 @@ use starknet_api::{
 use crate::commit::Committer;
 
 /// Generic state structure for the sequencer.
-/// The use of FxHashMap allows for a better performance.
+/// The use of `FxHashMap` allows for a better performance.
 /// This hash map is used by rustc. It uses a non cryptographic hash function
 /// which is faster than the default hash function. Think about changing
 /// if the test sequencer is used for tests outside of ef-tests.
@@ -55,7 +55,7 @@ impl BlockifierState for &mut State {
         let current_nonce = self
             .nonces
             .get(&contract_address)
-            .cloned()
+            .copied()
             .unwrap_or_default();
 
         let mut current_nonce: u64 = current_nonce.0.try_into()?;
@@ -75,12 +75,11 @@ impl BlockifierState for &mut State {
         contract_address: ContractAddress,
         class_hash: ClassHash,
     ) -> StateResult<()> {
-        match self.contracts.get(&contract_address) {
-            Some(_) => Err(StateError::UnavailableContractAddress(contract_address)),
-            None => {
-                self.contracts.insert(contract_address, class_hash);
-                Ok(())
-            }
+        if self.contracts.get(&contract_address).is_some() {
+            Err(StateError::UnavailableContractAddress(contract_address))
+        } else {
+            self.contracts.insert(contract_address, class_hash);
+            Ok(())
         }
     }
 
@@ -89,7 +88,7 @@ impl BlockifierState for &mut State {
         class_hash: &ClassHash,
         contract_class: ContractClass,
     ) -> StateResult<()> {
-        self.classes.insert(class_hash.to_owned(), contract_class);
+        self.classes.insert(*class_hash, contract_class);
         Ok(())
     }
 
@@ -117,7 +116,7 @@ impl BlockifierStateReader for &mut State {
         Ok(self
             .storage
             .get(&(contract_address, key))
-            .cloned()
+            .copied()
             .unwrap_or_default())
     }
 
@@ -125,7 +124,7 @@ impl BlockifierStateReader for &mut State {
         Ok(self
             .nonces
             .get(&contract_address)
-            .cloned()
+            .copied()
             .unwrap_or_default())
     }
 
@@ -133,7 +132,7 @@ impl BlockifierStateReader for &mut State {
         Ok(self
             .contracts
             .get(&contract_address)
-            .cloned()
+            .copied()
             .unwrap_or_default())
     }
 
@@ -147,7 +146,7 @@ impl BlockifierStateReader for &mut State {
         self.classes
             .get(class_hash)
             .cloned()
-            .ok_or_else(|| StateError::UndeclaredClassHash(class_hash.to_owned()))
+            .ok_or_else(|| StateError::UndeclaredClassHash(*class_hash))
     }
 
     /// # Errors
@@ -156,7 +155,7 @@ impl BlockifierStateReader for &mut State {
     fn get_compiled_class_hash(&mut self, class_hash: ClassHash) -> StateResult<CompiledClassHash> {
         self.compiled_class_hashes
             .get(&class_hash)
-            .cloned()
+            .copied()
             .ok_or_else(|| StateError::UndeclaredClassHash(class_hash))
     }
 }

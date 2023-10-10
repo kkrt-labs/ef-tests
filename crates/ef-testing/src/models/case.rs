@@ -8,12 +8,13 @@ use crate::{
     },
     get_signed_rlp_encoded_transaction,
     traits::Case,
-    utils::{deserialize_into, load_file},
+    utils::{deserialize_into, load_file, update_post_state},
 };
 use async_trait::async_trait;
 use ef_tests::models::BlockchainTest;
 use ef_tests::models::{ForkSpec, RootOrState};
 
+use ethers_signers::{LocalWallet, Signer};
 use regex::Regex;
 use sequencer::{
     execution::Execution, state::State as SequencerState, transaction::StarknetTransaction,
@@ -49,8 +50,8 @@ lazy_static::lazy_static! {
 }
 
 // Division of logic:
-//// 'handle' methods attempt to abstract the data coming from BlockChainTestCase
-//// from more general logic that can be used across tests
+// 'handle' methods attempt to abstract the data coming from BlockChainTestCase
+// from more general logic that can be used across tests
 impl BlockchainTestCase {
     /// Returns whether a given test should be skipped
     /// # Panics
@@ -67,15 +68,15 @@ impl BlockchainTestCase {
             .unwrap();
         let name = path.file_name().unwrap().to_str().unwrap();
 
-        let mut should_skip = false;
-        if SKIP.filename.contains_key(dir) {
-            should_skip = SKIP
-                .filename
+        let mut should_skip = if SKIP.filename.contains_key(dir) {
+            SKIP.filename
                 .get(dir)
                 .unwrap()
                 .iter()
-                .any(|filename| filename == name);
-        }
+                .any(|filename| filename == name)
+        } else {
+            false
+        };
 
         if !should_skip && SKIP.regex.contains_key(dir) {
             should_skip = SKIP
@@ -127,8 +128,7 @@ impl BlockchainTestCase {
         let block = test
             .blocks
             .first()
-            .ok_or_else(|| RunnerError::Other("test has no blocks".to_string()))?
-            .clone();
+            .ok_or_else(|| RunnerError::Other("test has no blocks".to_string()))?;
         // we adjust the rlp to correspond with our currently hardcoded CHAIN_ID
         let tx_encoded = get_signed_rlp_encoded_transaction(
             &block.rlp,
@@ -153,8 +153,12 @@ impl BlockchainTestCase {
         test_case_name: &str,
     ) -> Result<(), RunnerError> {
         let test = self.test(test_case_name)?;
+        let sk = self.transaction.transaction.secret_key;
+        let wallet =
+            LocalWallet::from_bytes(&sk.0).map_err(|err| RunnerError::Other(err.to_string()))?;
+        let sender_address = wallet.address().to_fixed_bytes();
 
-        let post_state = match test.post_state.as_ref().ok_or_else(|| {
+        let post_state = match test.post_state.clone().ok_or_else(|| {
             RunnerError::Other(format!("missing post state for {}", test_case_name))
         })? {
             RootOrState::Root(_) => {
@@ -162,10 +166,10 @@ impl BlockchainTestCase {
             }
             RootOrState::State(state) => state,
         };
+        let post_state = update_post_state(post_state, test.pre.clone());
 
-        // TODO we should assert on contract code in order to be sure that created contracts are created with the correct code
-        // TODO we should assert that the balance of all accounts but the sender is correct
         for (address, expected_state) in post_state.iter() {
+            // Storage
             for (k, v) in expected_state.storage.iter() {
                 let actual = sequencer.get_storage_at(address, k.0)?;
                 if actual != v.0 {
@@ -175,11 +179,32 @@ impl BlockchainTestCase {
                     )));
                 }
             }
-            let actual = sequencer.get_nonce(address)?;
+            // Nonce
+            let actual = sequencer.get_nonce_at(address)?;
             if actual != expected_state.nonce.0 {
                 return Err(RunnerError::Other(format!(
                     "nonce mismatch for {:#20x}: expected {:#32x}, got {:#32x}",
                     address, expected_state.nonce.0, actual
+                )));
+            }
+            // Bytecode
+            let actual = sequencer.get_code_at(address)?;
+            if actual != expected_state.code {
+                return Err(RunnerError::Other(format!(
+                    "code mismatch for {:#20x}: expected {:#x}, got {:#x}",
+                    address, expected_state.code, actual
+                )));
+            }
+            // Skip sender address because of the difference in gas cost
+            if address.0 == sender_address {
+                continue;
+            }
+            // Balance
+            let actual = sequencer.get_balance_at(address)?;
+            if actual != expected_state.balance.0 {
+                return Err(RunnerError::Other(format!(
+                    "balance mismatch for {:#20x}: expected {:#32x}, got {:#32x}",
+                    address, expected_state.balance.0, actual
                 )));
             }
         }
@@ -332,23 +357,6 @@ mod tests {
         // Given
         let path = Path::new(
             "ethereum-tests/BlockchainTests/GeneralStateTests/VMTests/vmArithmeticTest/add.json",
-        );
-
-        // When
-        let case = BlockchainTestCase::load(path).unwrap();
-
-        // Then
-        assert!(!case.tests.is_empty());
-        assert!(case.transaction.transaction.secret_key != B256::zero());
-
-        case.run().await.unwrap();
-    }
-
-    #[tokio::test(flavor = "multi_thread")]
-    async fn test_run_mul() {
-        // Given
-        let path = Path::new(
-            "ethereum-tests/BlockchainTests/GeneralStateTests/VMTests/vmArithmeticTest/mul.json",
         );
 
         // When

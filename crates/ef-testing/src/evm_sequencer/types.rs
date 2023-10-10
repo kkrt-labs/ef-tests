@@ -30,7 +30,7 @@ impl From<Address> for FeltSequencer {
 
 impl From<FeltSequencer> for StarkFelt {
     fn from(felt: FeltSequencer) -> Self {
-        StarkFelt::from(felt.0)
+        Self::from(felt.0)
     }
 }
 
@@ -39,7 +39,7 @@ impl TryFrom<FeltSequencer> for ContractAddress {
 
     fn try_from(felt: FeltSequencer) -> Result<Self, Self::Error> {
         let felt: StarkFelt = felt.into();
-        let contract_address = ContractAddress(TryInto::<PatriciaKey>::try_into(felt)?);
+        let contract_address = Self(TryInto::<PatriciaKey>::try_into(felt)?);
         Ok(contract_address)
     }
 }

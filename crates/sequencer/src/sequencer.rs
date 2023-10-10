@@ -10,18 +10,19 @@ use blockifier::{
         transactions::ExecutableTransaction,
     },
 };
+use starknet_api::core::ContractAddress;
 use tracing::{trace, warn};
 
 /// Sequencer is the main struct of the sequencer crate.
 /// Using a trait bound for the state allows for better
 /// speed, as the type of the state is known at compile time.
 /// We bound S such that a mutable reference to S (&'a mut S)
-/// must implement State and StateReader. The `for` keyword
+/// must implement State and `StateReader`. The `for` keyword
 /// indicates that the bound must hold for any lifetime 'a.
-/// For more details, check out https://doc.rust-lang.org/nomicon/hrtb.html
+/// For more details, check out [rust-lang docs](https://doc.rust-lang.org/nomicon/hrtb.html)
 pub struct Sequencer<S>
 where
-    for<'a> &'a mut S: State + StateReader,
+    for<'any> &'any mut S: State + StateReader,
 {
     pub block_context: BlockContext,
     pub state: S,
@@ -29,10 +30,12 @@ where
 
 impl<S> Sequencer<S>
 where
-    for<'a> &'a mut S: State + StateReader,
+    for<'any> &'any mut S: State + StateReader,
 {
     /// Creates a new Sequencer instance.
-    pub fn new(block_context: BlockContext, state: S) -> Self {
+    #[inline]
+    #[must_use]
+    pub const fn new(block_context: BlockContext, state: S) -> Self {
         Self {
             block_context,
             state,
@@ -42,9 +45,24 @@ where
 
 impl<S> Execution for Sequencer<S>
 where
-    for<'a> &'a mut S: State + StateReader + Committer<S>,
+    for<'any> &'any mut S: State + StateReader + Committer<S>,
 {
     fn execute(&mut self, transaction: Transaction) -> Result<(), TransactionExecutionError> {
+        let sender_address = match &transaction {
+            Transaction::AccountTransaction(tx) => match tx {
+                blockifier::transaction::account_transaction::AccountTransaction::Invoke(tx) => {
+                    tx.tx.sender_address()
+                }
+                blockifier::transaction::account_transaction::AccountTransaction::Declare(tx) => {
+                    tx.tx().sender_address()
+                }
+                blockifier::transaction::account_transaction::AccountTransaction::DeployAccount(
+                    tx,
+                ) => tx.contract_address,
+            },
+            Transaction::L1HandlerTransaction(_) => ContractAddress::from(0u8),
+        };
+
         let mut cached_state = CachedState::new(&mut self.state, GlobalContractCache::default());
         let charge_fee = false;
         let validate = true;
@@ -56,17 +74,17 @@ where
                 return Err(err);
             }
             Ok(execution_information) => {
-                <&mut S>::commit(&mut cached_state)?;
-                match execution_information.revert_error {
-                    Some(err) => {
-                        warn!(
-                            "Transaction execution reverted: {}",
-                            err.replace("\\n", "\n")
-                        )
-                    }
-                    None => {
-                        trace!("Transaction execution succeeded {execution_information:?}")
-                    }
+                if let Some(err) = execution_information.revert_error {
+                    // If the transaction reverted, we increment the nonce.
+                    (&mut self.state).increment_nonce(sender_address)?;
+                    warn!(
+                        "Transaction execution reverted: {}",
+                        err.replace("\\n", "\n")
+                    )
+                } else {
+                    // If the transaction succeeded, we commit the state.
+                    <&mut S>::commit(&mut cached_state)?;
+                    trace!("Transaction execution succeeded {execution_information:?}");
                 }
             }
         }

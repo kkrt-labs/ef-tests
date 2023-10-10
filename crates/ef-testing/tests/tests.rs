@@ -2,8 +2,8 @@
 
 use ef_testing::models::suite::BlockchainTestSuite;
 use ef_testing::traits::Suite;
+use std::format;
 use std::sync::Once;
-use std::{format, fs};
 use tracing_subscriber::{filter, FmtSubscriber};
 
 static INIT: Once = Once::new();
@@ -15,36 +15,7 @@ fn setup() {
         let subscriber = FmtSubscriber::builder().with_env_filter(filter).finish();
         tracing::subscriber::set_global_default(subscriber)
             .expect("setting tracing default failed");
-
-        match verify_kakarot_sha() {
-            Ok(sha) => {
-                tracing::info!("Using Kakarot sha {}", sha);
-            }
-            Err(e) => {
-                tracing::error!(
-                    "Failed to verify Kakarot sha: {}. Pull latest dump with `make fetch-dump`",
-                    e
-                );
-            }
-        };
     })
-}
-
-pub fn verify_kakarot_sha() -> Result<String, eyre::Error> {
-    // This is the SHA hash of the latest Kakarot submodule commit, inside Kakarot-RPC
-    let remote_sha = fs::read_to_string("../../.katana/remote_kakarot_sha")?;
-    // This is your local SHA hash of the Kakarot commit currently used in the dump.
-    let local_sha = fs::read_to_string("../../.katana/kakarot_sha")?;
-
-    // Helper check to remind you to locally run `make fetch-dump` often
-    if remote_sha != local_sha {
-        return Err(eyre::eyre!(format!(
-            "Kakarot commit hash mismatch: local: {}, remote (kakarot submodule in kakarot-rpc repository): {}",
-            local_sha, remote_sha
-        )));
-    }
-
-    Ok(remote_sha)
 }
 
 macro_rules! blockchain_tests {
@@ -73,7 +44,7 @@ mod blockchain_tests {
     blockchain_tests!(st_bad_opcode, stBadOpcode);
     blockchain_tests!(st_bugs, stBugs);
     blockchain_tests!(st_call_codes, stCallCodes);
-    // blockchain_tests!(st_call_create_call_code_test, stCallCreateCallCodeTest); // ef-tests #257
+    blockchain_tests!(st_call_create_call_code_test, stCallCreateCallCodeTest);
     blockchain_tests!(
         st_call_delegate_codes_call_code_homestead,
         stCallDelegateCodesCallCodeHomestead
@@ -91,10 +62,10 @@ mod blockchain_tests {
     blockchain_tests!(st_eip150single_code_gas_prices, stEIP150singleCodeGasPrices);
     blockchain_tests!(st_eip150_specific, stEIP150Specific);
     blockchain_tests!(st_eip158_specific, stEIP158Specific);
-    // blockchain_tests!(st_eip1559, stEIP1559); // ef-tests #455 - failing due to missing field gasPrice, cannot measure number of failing tests
-    // blockchain_tests!(st_eip2930, stEIP2930); // ef-tests #455 - failing due to missing field gasPrice, cannot measure number of failing tests
+    blockchain_tests!(st_eip1559, stEIP1559);
+    blockchain_tests!(st_eip2930, stEIP2930);
     blockchain_tests!(st_eip3607, stEIP3607);
-    // blockchain_tests!(st_example, stExample); // ef-tests #455 - failing due to missing field gasPrice, cannot measure number of failing tests
+    blockchain_tests!(st_example, stExample);
     blockchain_tests!(st_ext_code_hash, stExtCodeHash);
     blockchain_tests!(st_homestead_specific, stHomesteadSpecific);
     blockchain_tests!(st_init_code_test, stInitCodeTest);
@@ -123,7 +94,7 @@ mod blockchain_tests {
     blockchain_tests!(st_static_flag_enabled, stStaticFlagEnabled);
     blockchain_tests!(st_system_operations_test, stSystemOperationsTest);
     blockchain_tests!(st_time_consuming, stTimeConsuming);
-    // blockchain_tests!(st_transaction_test, stTransactionTest); // failing due to: invalid length 62, expected a (both 0x-prefixed or not) hex string or byte array containing betwee
+    blockchain_tests!(st_transaction_test, stTransactionTest); // failing due to: invalid length 62, expected a (both 0x-prefixed or not) hex string or byte array containing between
     blockchain_tests!(st_transition_test, stTransitionTest);
     blockchain_tests!(st_wallet_test, stWalletTest);
     blockchain_tests!(st_zero_calls_revert, stZeroCallsRevert);
