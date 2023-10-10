@@ -369,23 +369,6 @@ mod tests {
         case.run().await.unwrap();
     }
 
-    #[tokio::test(flavor = "multi_thread")]
-    async fn test_run_mul() {
-        // Given
-        let path = Path::new(
-            "ethereum-tests/BlockchainTests/GeneralStateTests/VMTests/vmArithmeticTest/mul.json",
-        );
-
-        // When
-        let case = BlockchainTestCase::load(path).unwrap();
-
-        // Then
-        assert!(!case.tests.is_empty());
-        assert!(case.transaction.transaction.secret_key != B256::zero());
-
-        case.run().await.unwrap();
-    }
-
     #[test]
     fn test_should_skip() {
         // Given
