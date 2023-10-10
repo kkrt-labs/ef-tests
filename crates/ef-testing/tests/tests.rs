@@ -77,8 +77,8 @@ mod blockchain_tests {
     blockchain_tests!(st_pre_compiled_contracts, stPreCompiledContracts);
     blockchain_tests!(st_pre_compiled_contracts2, stPreCompiledContracts2);
     blockchain_tests!(st_quadratic_complexity_test, stQuadraticComplexityTest);
-    // blockchain_tests!(st_random, stRandom); // 79 failing tests
-    // blockchain_tests!(st_random2, stRandom2); // 40 failing tests
+    blockchain_tests!(st_random, stRandom);
+    blockchain_tests!(st_random2, stRandom2);
     blockchain_tests!(st_recursive_create, stRecursiveCreate);
     blockchain_tests!(st_refund_test, stRefundTest);
     blockchain_tests!(st_return_data_test, stReturnDataTest);
