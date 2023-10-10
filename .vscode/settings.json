@@ -1,3 +1,14 @@
 {
-  "cSpell.words": ["delegatecall", "revm", "sload", "sstore"]
+  "cSpell.words": [
+    "addmod",
+    "calldatacopy",
+    "delegatecall",
+    "jumpi",
+    "mload",
+    "mulmod",
+    "revm",
+    "signextend",
+    "sload",
+    "sstore"
+  ]
 }
