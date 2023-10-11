@@ -16,12 +16,6 @@ jobs:
     timeout-minutes: 45
     steps:
       - uses: actions/checkout@v3
-      - name: Load compiled kakarot contracts
-        id: cached-contracts
-        uses: actions/cache/restore@v3
-        with:
-          path: ./lib/kakarot/build
-          key: ${{ runner.os }}-contracts
       - name: Setup rust env
         uses: actions-rs/toolchain@v1
         with:
@@ -32,6 +26,10 @@ jobs:
         uses: Swatinem/rust-cache@v2
       - name: fetch ef tests
         run: make setup
+      - name: fetch Kakarot
+        run: make setup-kakarot
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
       - uses: taiki-e/install-action@nextest
       - name: run tests
         run: make tests

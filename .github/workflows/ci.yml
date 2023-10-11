@@ -18,11 +18,11 @@ jobs:
       checks: write
       contents: read
 
-  submodules:
-    name: Compile Kakarot contracts
-    uses: ./.github/workflows/kakarot.yml
+  # submodules:
+  #   name: Compile Kakarot contracts
+  #   uses: ./.github/workflows/kakarot.yml
 
   tests:
     name: Rust tests
     uses: ./.github/workflows/test.yml
-    needs: submodules
+    # needs: submodules
