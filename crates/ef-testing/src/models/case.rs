@@ -159,33 +159,22 @@ impl BlockchainTestCase {
         let sender_address = wallet.address().to_fixed_bytes();
 
         // Get gas used from block header
-        let block = test.blocks.first().ok_or_else(|| {
-            RunnerError::Other(format!("Missing block field for {}", test_case_name))
-        })?;
-        let header = block.block_header.as_ref().ok_or_else(|| {
-            RunnerError::Other(format!("Missing block header field for {}", test_case_name))
-        })?;
-        let gas_used = header.gas_used.0;
+        let maybe_block = test.blocks.first();
+        let maybe_block_header = maybe_block.and_then(|block| block.block_header.as_ref());
+        let gas_used = maybe_block_header
+            .map(|block_header| block_header.gas_used.0)
+            .unwrap_or_default();
 
         // Get gas price from transaction
-        let transations = block.transactions.as_ref().ok_or_else(|| {
-            RunnerError::Other(format!(
-                "Missing transactions field in block for {}",
-                test_case_name
-            ))
-        })?;
-        let transaction = transations
-            .first()
-            .ok_or_else(|| RunnerError::Other(format!("No transactions for {}", test_case_name)))?;
-        let gas_price = transaction
-            .gas_price
-            .ok_or_else(|| {
-                RunnerError::Other(format!(
-                    "Missing gas price for transaction in {}",
-                    test_case_name
-                ))
-            })?
-            .0;
+        let maybe_transaction = maybe_block.and_then(|block| {
+            block
+                .transactions
+                .as_ref()
+                .and_then(|transactions| transactions.first())
+        });
+        let gas_price = maybe_transaction
+            .and_then(|transaction| transaction.gas_price.map(|gas_price| gas_price.0))
+            .unwrap_or_default();
         let transaction_cost = gas_price * gas_used;
 
         let post_state = match test.post_state.clone().ok_or_else(|| {
@@ -204,8 +193,8 @@ impl BlockchainTestCase {
                 let actual = sequencer.get_storage_at(address, k.0)?;
                 if actual != v.0 {
                     return Err(RunnerError::Other(format!(
-                        "storage mismatch for {:#20x} at {:#32x}: expected {:#32x}, got {:#32x}",
-                        address, k.0, v.0, actual
+                        "{} storage mismatch for {:#20x} at {:#32x}: expected {:#32x}, got {:#32x}",
+                        test_case_name, address, k.0, v.0, actual
                     )));
                 }
             }
@@ -213,16 +202,16 @@ impl BlockchainTestCase {
             let actual = sequencer.get_nonce_at(address)?;
             if actual != expected_state.nonce.0 {
                 return Err(RunnerError::Other(format!(
-                    "nonce mismatch for {:#20x}: expected {:#32x}, got {:#32x}",
-                    address, expected_state.nonce.0, actual
+                    "{} nonce mismatch for {:#20x}: expected {:#32x}, got {:#32x}",
+                    test_case_name, address, expected_state.nonce.0, actual
                 )));
             }
             // Bytecode
             let actual = sequencer.get_code_at(address)?;
             if actual != expected_state.code {
                 return Err(RunnerError::Other(format!(
-                    "code mismatch for {:#20x}: expected {:#x}, got {:#x}",
-                    address, expected_state.code, actual
+                    "{} code mismatch for {:#20x}: expected {:#x}, got {:#x}",
+                    test_case_name, address, expected_state.code, actual
                 )));
             }
             // Balance
@@ -233,8 +222,8 @@ impl BlockchainTestCase {
             }
             if actual != expected_state.balance.0 {
                 return Err(RunnerError::Other(format!(
-                    "balance mismatch for {:#20x}: expected {:#32x}, got {:#32x}",
-                    address, expected_state.balance.0, actual
+                    "{} balance mismatch for {:#20x}: expected {:#32x}, got {:#32x}",
+                    test_case_name, address, expected_state.balance.0, actual
                 )));
             }
         }
