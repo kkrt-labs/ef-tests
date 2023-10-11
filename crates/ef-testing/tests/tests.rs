@@ -1,5 +1,3 @@
-#![cfg(feature = "ef-tests")]
-
 use ef_testing::models::suite::BlockchainTestSuite;
 use ef_testing::traits::Suite;
 use std::format;
