@@ -158,6 +158,36 @@ impl BlockchainTestCase {
             LocalWallet::from_bytes(&sk.0).map_err(|err| RunnerError::Other(err.to_string()))?;
         let sender_address = wallet.address().to_fixed_bytes();
 
+        // Get gas used from block header
+        let block = test.blocks.first().ok_or_else(|| {
+            RunnerError::Other(format!("Missing block field for {}", test_case_name))
+        })?;
+        let header = block.block_header.as_ref().ok_or_else(|| {
+            RunnerError::Other(format!("Missing block header field for {}", test_case_name))
+        })?;
+        let gas_used = header.gas_used.0;
+
+        // Get gas price from transaction
+        let transations = block.transactions.as_ref().ok_or_else(|| {
+            RunnerError::Other(format!(
+                "Missing transactions field in block for {}",
+                test_case_name
+            ))
+        })?;
+        let transaction = transations
+            .first()
+            .ok_or_else(|| RunnerError::Other(format!("No transactions for {}", test_case_name)))?;
+        let gas_price = transaction
+            .gas_price
+            .ok_or_else(|| {
+                RunnerError::Other(format!(
+                    "Missing gas price for transaction in {}",
+                    test_case_name
+                ))
+            })?
+            .0;
+        let transaction_cost = gas_price * gas_used;
+
         let post_state = match test.post_state.clone().ok_or_else(|| {
             RunnerError::Other(format!("missing post state for {}", test_case_name))
         })? {
@@ -195,12 +225,12 @@ impl BlockchainTestCase {
                     address, expected_state.code, actual
                 )));
             }
-            // Skip sender address because of the difference in gas cost
-            if address.0 == sender_address {
-                continue;
-            }
             // Balance
-            let actual = sequencer.get_balance_at(address)?;
+            let mut actual = sequencer.get_balance_at(address)?;
+            // Subtract transaction cost to sender balance
+            if address.0 == sender_address {
+                actual -= transaction_cost;
+            }
             if actual != expected_state.balance.0 {
                 return Err(RunnerError::Other(format!(
                     "balance mismatch for {:#20x}: expected {:#32x}, got {:#32x}",
