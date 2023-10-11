@@ -323,6 +323,7 @@ filename:
     - call_then_create2_successful_then_returndatasize.json # ef-tests #336
     - Create2OOGafterInitCodeReturndata.json # ef-tests #336
     - Create2OOGafterInitCodeReturndata2.json # ef-tests #336
+    - Create2OOGafterInitCodeReturndata3.json # ef-tests #523
     - Create2OOGafterInitCodeRevert.json # ef-tests #336
     - Create2OOGafterInitCodeRevert2.json # ef-tests #336
     - Create2OOGafterInitCodeRevert3.json # ef-tests #523
