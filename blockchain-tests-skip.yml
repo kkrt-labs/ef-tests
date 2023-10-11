@@ -140,6 +140,7 @@ filename:
     - callcodecallcodecallcode_111_SuicideMiddle.json # ef-tests #485
     - callcodecallcodecall_110_SuicideMiddle.json # ef-tests #485
     - callcodecallcode_11_SuicideEnd.json # ef-tests #485
+    - touchAndGo.json # ef-tests #527
   stCallCreateCallCodeTest:
     - Call1024BalanceTooLow.json # ef-tests #493
     - CallcodeLoseGasOOG.json # ef-tests #493
@@ -173,6 +174,7 @@ filename:
     - createInitFailUndefinedInstruction.json # ef-tests #493
     - createInitFail_OOGduringInit2.json # ef-tests #497
     - callOutput3partialFail.json # ef-tests #493
+    - createNameRegistratorPerTxsNotEnoughGas.json # ef-tests #529
   stCallDelegateCodesCallCodeHomestead:
     - callcallcallcode_001.json # ef-tests #330
     - callcallcallcode_001_OOGE.json # ef-tests #330
@@ -298,6 +300,7 @@ filename:
     - codesizeValid.json # ef-tests #263
     - create2CodeSizeLimit.json # ef-tests #264
     - createCodeSizeLimit.json # ef-tests #265
+    - codesizeOOGInvalidSize.json # ef-tests #528
   stCreate2:
     - RevertDepthCreate2OOG.json # ef-tests #334
     - RevertDepthCreate2OOGBerlin.json # ef-tests #334
@@ -772,6 +775,7 @@ filename:
     - randomStatetest628.json # ef-tests #395
     - randomStatetest636.json # ef-tests #395
     - randomStatetest506.json # ef-tests #395
+    - randomStatetest642.json # TODO
   stRefundTest:
     - refundFF.json # ef-tests #405
     - refundMax.json # ef-tests #405
@@ -1207,6 +1211,9 @@ filename:
     - CallToNameRegistratorNotMuchMemory0.json # ef-test #490
     - CallToNameRegistratorAddressTooBigLeft.json # ef-test #490
     - CallToNameRegistratorTooMuchMemory2.json # ef-test #523
+    - suicideCaller.json # ef-test #530
+    - suicideCallerAddresTooBigLeft.json # ef-test #530
+    - suicideOrigin.json # ef-test #530
   stStaticFlagEnabled:
     - CallcodeToPrecompileFromCalledContract.json # ef-test #443
     - CallcodeToPrecompileFromContractInitialization.json # ef-test #443
@@ -1227,6 +1234,10 @@ filename:
     - walletExecuteOverDailyLimitOnlyOneOwner.json # ef-test #430
     - walletExecuteOverDailyLimitOnlyOneOwnerNew.json # ef-test #430
     - walletExecuteUnderDailyLimit.json # ef-test #430
+    - dayLimitConstructionOOG.json # ef-test #531
+    - walletConstructionOOG.json # ef-test #531
+    - multiOwnedConstructionNotEnoughGasPartial.json # ef-test #531
+    - walletKill.json # ef-test #531
   stStaticCall:
     - StaticcallToPrecompileFromContractInitialization.json # ef-tests #421
     - static_CallContractToCreateContractAndCallItOOG.json # ef-tests #421
