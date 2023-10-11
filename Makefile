@@ -1,7 +1,10 @@
 # Heavily inspired by Reth: https://github.com/paradigmxyz/reth/blob/main/Makefile
 
 # Include .env file to get GITHUB_TOKEN
-include .env
+ifneq ("$(wildcard .env)","")
+	include .env
+	export
+endif
 
 # The release tag of https://github.com/ethereum/tests to use for EF tests
 EF_TESTS_TAG := v12.3
