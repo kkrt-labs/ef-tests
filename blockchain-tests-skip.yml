@@ -539,13 +539,10 @@ filename:
     - CallContractToCreateContractAndCallItOOG.json # ef-test #117
     - CallContractToCreateContractNoCash.json # ef-tests #269
   stMemExpandingEIP150Calls:
-    - CallAndCallcodeConsumeMoreGasThenTransactionHasWithMemExpandingCalls.json # ef-tests #356
-    - CallAskMoreGasOnDepth2ThenTransactionHasWithMemExpandingCalls.json # ef-tests #356
-    - CallGoesOOGOnSecondLevelWithMemExpandingCalls.json # ef-tests #356
-    - DelegateCallOnEIPWithMemExpandingCalls.json # ef-tests #356
-    - ExecuteCallThatAskMoreGasThenTransactionHasWithMemExpandingCalls.json # ef-tests #356
-    - NewGasPriceForCodesWithMemExpandingCalls.json # ef-tests #356
-    - CreateAndGasInsideCreateWithMemExpandingCalls.json # ef-tests #357
+    - CallAskMoreGasOnDepth2ThenTransactionHasWithMemExpandingCalls.json # ef-tests #523
+    - CallGoesOOGOnSecondLevelWithMemExpandingCalls.json # ef-tests #523
+    - NewGasPriceForCodesWithMemExpandingCalls.json # ef-tests #523
+    - CreateAndGasInsideCreateWithMemExpandingCalls.json # ef-tests #523
   stMemoryStressTest:
     - RETURN_Bounds.json # ef-tests #366
     - FillStack.json # ef-tests #367
