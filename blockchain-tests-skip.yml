@@ -325,6 +325,7 @@ filename:
     - Create2OOGafterInitCodeReturndata2.json # ef-tests #336
     - Create2OOGafterInitCodeRevert.json # ef-tests #336
     - Create2OOGafterInitCodeRevert2.json # ef-tests #336
+    - Create2OOGafterInitCodeRevert3.json # ef-tests #523
     - CREATE2_HighNonce.json # ef-tests #336
     - CREATE2_HighNonceDelegatecall.json # ef-tests #336
     - CreateMessageReverted.json # ef-tests #336
@@ -364,6 +365,7 @@ filename:
     - createLargeResult.json # ef-tests #339
     - CreateOOGafterInitCodeRevert.json # ef-tests #339
     - CreateOOGafterInitCodeRevert2.json # ef-tests #339
+    - CreateOOGafterInitCodeReturndata3.json # ef-tests #523
     - CreateOOGafterMaxCodesize.json # ef-tests #339
     - CREATE_ContractSuicideDuringInit.json # ef-tests #339
     - CREATE_ContractSuicideDuringInit_ThenStoreThenReturn.json # ef-tests #339
@@ -539,13 +541,10 @@ filename:
     - CallContractToCreateContractAndCallItOOG.json # ef-test #117
     - CallContractToCreateContractNoCash.json # ef-tests #269
   stMemExpandingEIP150Calls:
-    - CallAndCallcodeConsumeMoreGasThenTransactionHasWithMemExpandingCalls.json # ef-tests #356
-    - CallAskMoreGasOnDepth2ThenTransactionHasWithMemExpandingCalls.json # ef-tests #356
-    - CallGoesOOGOnSecondLevelWithMemExpandingCalls.json # ef-tests #356
-    - DelegateCallOnEIPWithMemExpandingCalls.json # ef-tests #356
-    - ExecuteCallThatAskMoreGasThenTransactionHasWithMemExpandingCalls.json # ef-tests #356
-    - NewGasPriceForCodesWithMemExpandingCalls.json # ef-tests #356
-    - CreateAndGasInsideCreateWithMemExpandingCalls.json # ef-tests #357
+    - CallAskMoreGasOnDepth2ThenTransactionHasWithMemExpandingCalls.json # ef-tests #523
+    - CallGoesOOGOnSecondLevelWithMemExpandingCalls.json # ef-tests #523
+    - NewGasPriceForCodesWithMemExpandingCalls.json # ef-tests #523
+    - CreateAndGasInsideCreateWithMemExpandingCalls.json # ef-tests #523
   stMemoryStressTest:
     - RETURN_Bounds.json # ef-tests #366
     - FillStack.json # ef-tests #367
@@ -1206,6 +1205,7 @@ filename:
     - CallToReturn1ForDynamicJump0.json # ef-test #490
     - CallToNameRegistratorNotMuchMemory0.json # ef-test #490
     - CallToNameRegistratorAddressTooBigLeft.json # ef-test #490
+    - CallToNameRegistratorTooMuchMemory2.json # ef-test #523
   stStaticFlagEnabled:
     - CallcodeToPrecompileFromCalledContract.json # ef-test #443
     - CallcodeToPrecompileFromContractInitialization.json # ef-test #443
