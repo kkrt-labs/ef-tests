@@ -3,7 +3,6 @@
 # Include .env file to get GITHUB_TOKEN
 ifneq ("$(wildcard .env)","")
 	include .env
-	export
 endif
 
 # The release tag of https://github.com/ethereum/tests to use for EF tests
