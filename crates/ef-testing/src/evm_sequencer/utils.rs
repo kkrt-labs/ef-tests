@@ -14,6 +14,7 @@ use starknet::{
 };
 use starknet_api::hash::StarkFelt;
 
+/// Computes the Starknet address of a contract given its EVM address.
 pub fn compute_starknet_address(evm_address: &Address) -> FeltSequencer {
     let evm_address: FeltSequencer = (*evm_address).into();
     let starknet_address = get_contract_address(
@@ -25,6 +26,7 @@ pub fn compute_starknet_address(evm_address: &Address) -> FeltSequencer {
     starknet_address.into()
 }
 
+/// Splits a byte array into 16-byte chunks and converts each chunk to a StarkFelt.
 pub(crate) fn split_bytecode_to_starkfelt(bytecode: &Bytes) -> Vec<StarkFelt> {
     bytecode
         .chunks(16)
@@ -36,6 +38,7 @@ pub(crate) fn split_bytecode_to_starkfelt(bytecode: &Bytes) -> Vec<StarkFelt> {
         .collect()
 }
 
+/// Split a U256 into low and high u128.
 pub(crate) fn split_u256(value: U256) -> [u128; 2] {
     [
         (value & U256::from(u128::MAX)).try_into().unwrap(), // safe unwrap <= U128::MAX.
@@ -43,15 +46,17 @@ pub(crate) fn split_u256(value: U256) -> [u128; 2] {
     ]
 }
 
+/// Converts a byte array to a vector of FieldElement.
 pub fn bytes_to_felt_vec(bytes: &Bytes) -> Vec<FieldElement> {
     bytes.to_vec().into_iter().map(FieldElement::from).collect()
 }
 
-pub fn felt_to_bytes(felt: &FieldElement, len: usize) -> Bytes {
+/// Converts the high 16 bytes of a FieldElement to a byte array.
+pub fn high_16_bytes_of_felt_to_bytes(felt: &FieldElement, len: usize) -> Bytes {
     Bytes::from(&felt.to_bytes_be()[16..len + 16])
 }
 
-#[allow(dead_code)]
+/// Converts an rlp encoding of an evm signed transaction to a Starknet transaction.
 pub(crate) fn to_broadcasted_starknet_transaction(
     bytes: &Bytes,
 ) -> Result<BroadcastedInvokeTransaction, eyre::Error> {
@@ -100,7 +105,7 @@ mod tests {
         let felt = FieldElement::from_hex_be("0x1234567890abcdef1234567890abcdef").unwrap();
 
         // When
-        let bytes = felt_to_bytes(&felt, 16);
+        let bytes = high_16_bytes_of_felt_to_bytes(&felt, 16);
 
         // Then
         let expected = Bytes::from(vec![
@@ -116,7 +121,7 @@ mod tests {
         let felt = FieldElement::from_hex_be("0x12345678900000000000000000000000").unwrap();
 
         // When
-        let bytes = felt_to_bytes(&felt, 5);
+        let bytes = high_16_bytes_of_felt_to_bytes(&felt, 5);
 
         // Then
         let expected = Bytes::from(vec![0x12, 0x34, 0x56, 0x78, 0x90]);
@@ -129,7 +134,7 @@ mod tests {
         let felt = FieldElement::from_hex_be("0x12345678900000000000000000000000").unwrap();
 
         // When
-        let bytes = felt_to_bytes(&felt, 0);
+        let bytes = high_16_bytes_of_felt_to_bytes(&felt, 0);
 
         // Then
         assert_eq!(bytes, Bytes::default());

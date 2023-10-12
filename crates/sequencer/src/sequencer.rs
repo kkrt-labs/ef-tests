@@ -18,7 +18,7 @@ use tracing::{trace, warn};
 /// speed, as the type of the state is known at compile time.
 /// We bound S such that a mutable reference to S (&'a mut S)
 /// must implement State and `StateReader`. The `for` keyword
-/// indicates that the bound must hold for any lifetime 'a.
+/// indicates that the bound must hold for any lifetime 'any.
 /// For more details, check out [rust-lang docs](https://doc.rust-lang.org/nomicon/hrtb.html)
 pub struct Sequencer<S>
 where
@@ -47,6 +47,9 @@ impl<S> Execution for Sequencer<S>
 where
     for<'any> &'any mut S: State + StateReader + Committer<S>,
 {
+    /// Executes the provided transaction on the current state and leads to a commitment of the
+    /// cached state in the case of success. Reversion of the transaction leads to a discarding
+    /// of the cached state but still increments the nonce of the sender.
     fn execute(&mut self, transaction: Transaction) -> Result<(), TransactionExecutionError> {
         let sender_address = match &transaction {
             Transaction::AccountTransaction(tx) => match tx {
@@ -80,7 +83,7 @@ where
                     warn!(
                         "Transaction execution reverted: {}",
                         err.replace("\\n", "\n")
-                    )
+                    );
                 } else {
                     // If the transaction succeeded, we commit the state.
                     <&mut S>::commit(&mut cached_state)?;

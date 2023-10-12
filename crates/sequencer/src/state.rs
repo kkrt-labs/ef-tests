@@ -32,6 +32,7 @@ pub struct State {
 }
 
 impl State {
+    /// Helper function allowing to set the nonce of a contract.
     pub fn set_nonce(&mut self, contract_address: ContractAddress, nonce: Nonce) {
         self.nonces.insert(contract_address, nonce);
     }
@@ -51,6 +52,9 @@ impl BlockifierState for &mut State {
         self.storage.insert((contract_address, key), value);
     }
 
+    /// # Errors
+    ///
+    /// If the nonce overflows.
     fn increment_nonce(&mut self, contract_address: ContractAddress) -> StateResult<()> {
         let current_nonce = self
             .nonces
@@ -70,6 +74,9 @@ impl BlockifierState for &mut State {
         Ok(())
     }
 
+    /// # Errors
+    ///
+    /// If the contract address is linked to a class hash.
     fn set_class_hash_at(
         &mut self,
         contract_address: ContractAddress,

@@ -16,10 +16,13 @@ use super::constants::{
 };
 use super::types::FeltSequencer;
 use super::utils::{
-    compute_starknet_address, felt_to_bytes, split_bytecode_to_starkfelt, split_u256,
+    compute_starknet_address, high_16_bytes_of_felt_to_bytes, split_bytecode_to_starkfelt,
+    split_u256,
 };
 use super::KakarotSequencer;
 
+/// EVM state interface. Used to setup EOA and contract accounts,
+/// fund them and get their state (balance, nonce, code, storage).
 pub trait EvmState {
     fn setup_account(
         &mut self,
@@ -41,6 +44,7 @@ pub trait EvmState {
 }
 
 impl EvmState for KakarotSequencer {
+    /// Sets up an EOA or contract account. Writes nonce, code and storage to the sequencer storage.
     fn setup_account(
         &mut self,
         evm_address: &Address,
@@ -122,6 +126,7 @@ impl EvmState for KakarotSequencer {
         Ok(())
     }
 
+    /// Funds an EOA or contract account. Also gives allowance to the Kakarot contract.
     fn fund(&mut self, evm_address: &Address, balance: U256) -> StateResult<()> {
         let starknet_address = compute_starknet_address(evm_address);
         let balance_values = split_u256(balance);
@@ -156,6 +161,7 @@ impl EvmState for KakarotSequencer {
         Ok(())
     }
 
+    /// Returns the storage value at the given key evm storage key.
     fn get_storage_at(&mut self, evm_address: &Address, key: U256) -> StateResult<U256> {
         let keys = split_u256(key).map(Into::into);
         let keys = get_uint256_storage_var_addresses("storage_", &keys).unwrap(); // safe unwrap: all vars are ASCII
@@ -171,6 +177,8 @@ impl EvmState for KakarotSequencer {
         Ok(high << 128 | low)
     }
 
+    /// Returns the nonce of the given address. For an EOA, uses the protocol level nonce.
+    /// For a contract account, uses the Kakarot managed nonce stored in the contract account's storage.
     fn get_nonce_at(&mut self, evm_address: &Address) -> StateResult<U256> {
         let starknet_address = compute_starknet_address(evm_address);
 
@@ -198,6 +206,9 @@ impl EvmState for KakarotSequencer {
         ))
     }
 
+    /// Returns the bytecode of the given address. For an EOA, the bytecode_len_ storage variable will return 0,
+    /// and the function will return an empty vector. For a contract account, the function will return the bytecode
+    /// stored in the bytecode_ storage variables. The function assumes that the bytecode is stored in 16 byte big-endian chunks.
     fn get_code_at(&mut self, evm_address: &Address) -> StateResult<Bytes> {
         let starknet_address = compute_starknet_address(evm_address);
 
@@ -217,18 +228,20 @@ impl EvmState for KakarotSequencer {
         for chunk_index in 0..num_chunks {
             let key = get_storage_var_address("bytecode_", &[StarkFelt::from(chunk_index)])?;
             let code = (&mut self.0.state).get_storage_at(starknet_address.try_into()?, key)?;
-            bytecode.append(&mut felt_to_bytes(&code.into(), 16).to_vec());
+            bytecode.append(&mut high_16_bytes_of_felt_to_bytes(&code.into(), 16).to_vec());
         }
 
         let remainder = bytecode_len % 16;
         let key = get_storage_var_address("bytecode_", &[StarkFelt::from(num_chunks)])?;
         let code = (&mut self.0.state).get_storage_at(starknet_address.try_into()?, key)?;
-        bytecode.append(&mut felt_to_bytes(&code.into(), remainder as usize).to_vec());
+        bytecode
+            .append(&mut high_16_bytes_of_felt_to_bytes(&code.into(), remainder as usize).to_vec());
 
         Ok(Bytes::from(bytecode))
     }
 
     /// Returns the balance of native tokens at the given address.
+    /// Makes use of the default StateReader implementation from Blockifier.
     fn get_balance_at(&mut self, evm_address: &Address) -> StateResult<U256> {
         let starknet_address = compute_starknet_address(evm_address);
         let (low, high) = (&mut self.0.state)

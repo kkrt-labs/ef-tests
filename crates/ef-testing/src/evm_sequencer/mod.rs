@@ -20,6 +20,7 @@ use self::constants::{
     KAKAROT_CLASS_HASH, KAKAROT_OWNER_ADDRESS, PROXY_CLASS, PROXY_CLASS_HASH,
 };
 
+/// Kakarot wrapper around a sequencer.
 pub(crate) struct KakarotSequencer(Sequencer<State>);
 
 #[allow(dead_code)]
@@ -29,6 +30,8 @@ impl KakarotSequencer {
         Self(sequencer)
     }
 
+    /// Initializes the sequencer state with the Kakarot contract, its storage,
+    /// declares all necessary classes and deploys the fee token contract.
     pub fn initialize(mut self) -> StateResult<Self> {
         let storage = vec![
             ("Ownable_owner", *KAKAROT_OWNER_ADDRESS.0.key()),
