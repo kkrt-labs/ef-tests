@@ -1,9 +1,18 @@
 # Heavily inspired by Reth: https://github.com/paradigmxyz/reth/blob/main/Makefile
 
+# Include .env file to get GITHUB_TOKEN
+ifneq ("$(wildcard .env)","")
+	include .env
+endif
+
 # The release tag of https://github.com/ethereum/tests to use for EF tests
 EF_TESTS_TAG := v12.3
 EF_TESTS_URL := https://github.com/ethereum/tests/archive/refs/tags/$(EF_TESTS_TAG).tar.gz
 EF_TESTS_DIR := ./crates/ef-testing/ethereum-tests
+
+# Kakarot artifacts
+KKRT_ARTIFACTS_URL = $(shell curl -sL -H "Authorization: token $(GITHUB_TOKEN)" "https://api.github.com/repos/kkrt-labs/kakarot/actions/workflows/ci.yml/runs?per_page=1&branch=main&event=push&status=success" | jq -r '.workflow_runs[0].artifacts_url')
+KKRT_BUILD_ARTIFACT_URL = $(shell curl -sL -H "Authorization: token $(GITHUB_TOKEN)" "$(KKRT_ARTIFACTS_URL)" | jq -r '.artifacts[] | select(.name=="kakarot-build").url')/zip
 
 # Downloads and unpacks Ethereum Foundation tests in the `$(EF_TESTS_DIR)` directory.
 # Requires `wget` and `tar`
@@ -17,11 +26,14 @@ $(EF_TESTS_DIR):
 .PHONY: $(EF_TESTS_DIR)
 setup: $(EF_TESTS_DIR)
 
-setup-kakarot: pull-kakarot
-	cd lib/kakarot && make setup && make build
+setup-kakarot: clean-kakarot
+	@curl -sL -o kakarot-build.zip -H "Authorization: token $(GITHUB_TOKEN)" "$(KKRT_BUILD_ARTIFACT_URL)"
+	unzip -o kakarot-build.zip -d lib/kakarot/build
+	rm -f kakarot-build.zip
 
-pull-kakarot:
-	git submodule update --init --recursive
+clean-kakarot:
+	rm -rf lib/kakarot
+	mkdir -p lib/kakarot/build
 
 # Runs the repo tests
 tests:
