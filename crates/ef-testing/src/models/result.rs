@@ -29,10 +29,10 @@ impl CaseResult {
 }
 
 /// Assert that all the given tests passed and print the results to stdout.
-pub(crate) fn assert_tests_pass(suite_name: &str, results: &[CaseResult]) {
+pub(crate) fn assert_tests_pass(results: &[CaseResult]) {
     let failed = categorize_results(results);
 
-    print_results(suite_name, &failed);
+    print_results(&failed);
 
     assert!(failed.is_empty(), "Some tests failed (see above)");
 }
@@ -53,16 +53,11 @@ pub(crate) fn categorize_results(results: &[CaseResult]) -> Vec<&CaseResult> {
 }
 
 /// Display the given test results to stdout.
-pub(crate) fn print_results(suite_name: &str, failed: &[&CaseResult]) {
+pub(crate) fn print_results(failed: &[&CaseResult]) {
     for case in failed {
         match &case.result {
             Ok(_) => unreachable!(),
-            Err(err) => println!(
-                "[!] Suite {} Case {} failed:\n{}",
-                suite_name,
-                case.path.display(),
-                err,
-            ),
+            Err(err) => println!("[!] Case {} failed:\n{}", case.path.display(), err,),
         }
     }
 }

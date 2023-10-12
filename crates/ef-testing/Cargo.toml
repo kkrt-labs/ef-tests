@@ -48,6 +48,3 @@ zip = { workspace = true, optional = true }
 
 [dev-dependencies]
 tracing-subscriber = { workspace = true }
-
-[features]
-ef-tests = []

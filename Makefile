@@ -35,10 +35,14 @@ clean-kakarot:
 	rm -rf lib/kakarot
 	mkdir -p lib/kakarot/build
 
+# Runs all tests but integration tests
+unit:
+	cargo test --lib
+
 # Runs the repo tests
 tests:
-	cargo nextest run --all-features
+	cargo nextest run
 
 # Runs ef tests only
 ef-test:
-	cargo nextest run --package ef-testing --test tests --features ef-tests
+	cargo nextest run --package ef-testing --test tests
