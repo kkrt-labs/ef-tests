@@ -18,4 +18,4 @@ broadcast
 /crates/ef-testing/ethereum-tests
 
 # Ignore compiled Kakarot contracts
-lib
+lib/kakarot
