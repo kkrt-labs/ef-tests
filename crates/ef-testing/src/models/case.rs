@@ -31,7 +31,6 @@ pub struct BlockchainTestCase {
     pub name: String,
     pub tests: BTreeMap<String, BlockchainTest>,
     pub transaction: BlockchainTestTransaction,
-    skip: bool,
 }
 
 #[derive(Deserialize)]
@@ -242,6 +241,10 @@ impl Case for BlockchainTestCase {
     /// Load a test case from a path. This is a path to a directory containing
     /// the BlockChainTest
     fn load(path: &Path) -> Result<Self, RunnerError> {
+        if Self::should_skip(path) {
+            return Err(RunnerError::Skipped);
+        }
+
         let general_state_tests_path = path
             .components()
             .filter(|x| !x.as_os_str().eq_ignore_ascii_case("BlockchainTests"))
@@ -281,15 +284,10 @@ impl Case for BlockchainTestCase {
                 deserialize_into(&case.to_string(), general_state_tests_path)?
             },
             name: test_name.to_string(),
-            skip: Self::should_skip(path),
         })
     }
 
     async fn run(&self) -> Result<(), RunnerError> {
-        if self.skip {
-            return Err(RunnerError::Skipped);
-        }
-
         let test_regexp: Option<String> = std::env::var("TARGET").ok();
         let test_regexp = match test_regexp {
             Some(x) => Some(Regex::new(x.as_str())?),
