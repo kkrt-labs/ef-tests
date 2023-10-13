@@ -6,6 +6,7 @@ use starknet_api::{
     StarknetApiError,
 };
 
+/// A wrapper around a FieldElement in order to facilitate conversion.
 #[derive(Debug, Clone, Copy)]
 pub struct FeltSequencer(FieldElement);
 

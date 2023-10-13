@@ -3,6 +3,9 @@ use blockifier::state::{
     state_api::{State as BlockifierState, StateReader as BlockifierStateReader, StateResult},
 };
 
+/// Generic trait for committing changes from a cached state to a state.
+/// The default implementation allows for any type S for which a mutable reference
+/// implements the `BlockifierState` and `BlockifierStateReader` traits to be used.
 pub trait Committer<S>
 where
     for<'any> &'any mut S: BlockifierState + BlockifierStateReader,

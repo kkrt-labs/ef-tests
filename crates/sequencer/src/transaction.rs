@@ -14,6 +14,9 @@ use starknet_api::transaction::{
     Calldata, Fee, InvokeTransactionV1, TransactionHash, TransactionSignature,
 };
 
+/// Wrapper around a Starknet-rs transaction.
+/// Allows for conversion from a Starknet-rs
+/// transaction to a Blockifier-rs transaction.
 #[derive(Debug)]
 pub struct StarknetTransaction(BroadcastedTransaction);
 
