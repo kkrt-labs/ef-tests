@@ -41,8 +41,8 @@ unit:
 
 # Runs the repo tests
 tests:
-	cargo nextest run
+	cargo nextest run --failure-output final
 
 # Runs ef tests only
 ef-test:
-	cargo nextest run --package ef-testing --test tests
+	cargo nextest run --package ef-testing --test tests --failure-output final
