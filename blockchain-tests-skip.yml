@@ -977,6 +977,12 @@ filename:
     - LoopCallsDepthThenRevert3.json # ef-tests #324
     - RevertRemoteSubCallStorageOOG.json # ef-tests #324
     - RevertInCallCode.json # ef-tests #492
+    - RevertOpcodeInInit.json # ef-tests #538
+    - RevertSubCallStorageOOG.json # ef-tests #538
+    - RevertOpcode.json # ef-tests #538
+    - RevertOpcodeWithBigOutputInInit.json # ef-tests #538
+    - PythonRevertTestTue201814-1430 # ef-tests #538
+    - RevertSubCallStorageOOG2.json # ef-tests #538
   stShift:
     - shiftCombinations.json # ef-tests #383
     - shiftSignedCombinations.json # ef-tests #383
