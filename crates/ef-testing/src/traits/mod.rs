@@ -53,7 +53,13 @@ pub trait Suite {
         let mut test_cases = Vec::new();
 
         for test_case_path in test_cases_paths {
-            let case = Self::Case::load(&test_case_path).expect("test case should load");
+            let case = match Self::Case::load(&test_case_path) {
+                Ok(case) => case,
+                Err(e) => match e {
+                    RunnerError::Skipped => continue,
+                    _ => panic!("Failed to load test case: {:?}", e),
+                },
+            };
             test_cases.push((test_case_path, case));
         }
 

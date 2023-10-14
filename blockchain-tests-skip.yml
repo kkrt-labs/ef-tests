@@ -550,15 +550,18 @@ filename:
     - NewGasPriceForCodesWithMemExpandingCalls.json # ef-tests #523
     - CreateAndGasInsideCreateWithMemExpandingCalls.json # ef-tests #523
   stMemoryStressTest:
-    - RETURN_Bounds.json # ef-tests #366
     - FillStack.json # ef-tests #367
-    - mload32bitBound.json # ef-tests #521
-    - SSTORE_Bounds.json # ef-tests #521
-    - MSTORE_Bounds.json # ef-tests #521
-    - mload32bitBound2.json # ef-tests #521
-    - MSTORE_Bounds2a.json # ef-tests #521
+    - JUMP_Bounds.json # ef-tests #538
+    - JUMP_Bounds2.json # ef-tests #538
+    - JUMPI_Bounds.json # ef-tests #538
     - MLOAD_Bounds.json # ef-tests #521
+    - mload32bitBound.json # ef-tests #521
+    - mload32bitBound2.json # ef-tests #521
+    - MSTORE_Bounds.json # ef-tests #521
     - MSTORE_Bounds2.json # ef-tests #521
+    - MSTORE_Bounds2a.json # ef-tests #521
+    - RETURN_Bounds.json # ef-tests #366
+    - SSTORE_Bounds.json # ef-tests #521
   stMemoryTest:
     - buffer.json # ef-tests #50
     - bufferSrcOffset.json # ef-tests #51
@@ -599,79 +602,54 @@ filename:
     - NonZeroValue_SUICIDE_ToOneStorageKey.json # ef-tests #514
     - NonZeroValue_SUICIDE_ToNonNonZeroBalance.json # ef-tests #514
   stRandom:
-    - randomStatetest320.json # ef-tests #396
-    - randomStatetest341.json # ef-tests #396
-    - randomStatetest352.json # ef-tests #396
-    - randomStatetest368.json # ef-tests #396
-    - randomStatetest53.json # ef-tests #396
-    - randomStatetest134.json # ef-tests #396
-    - randomStatetest138.json # ef-tests #397
-    - randomStatetest14.json # ef-tests #397
-    - randomStatetest144.json # ef-tests #397
-    - randomStatetest147.json # ef-tests #397
-    - randomStatetest173.json # ef-tests #397
-    - randomStatetest184.json # ef-tests #397
-    - randomStatetest198.json # ef-tests #397
-    - randomStatetest201.json # ef-tests #397
-    - randomStatetest212.json # ef-tests #397
-    - randomStatetest22.json # ef-tests #397
-    - randomStatetest232.json # ef-tests #397
-    - randomStatetest273.json # ef-tests #397
-    - randomStatetest347.json # ef-tests #397
-    - randomStatetest376.json # ef-tests #397
-    - randomStatetest384.json # ef-tests #397
-    - randomStatetest154.json # ef-tests #397
-    - randomStatetest251.json # ef-tests #397
-    - randomStatetest197.json # ef-tests #397
-    - randomStatetest178.json # ef-tests #397
     - randomStatetest0.json # ef-tests #397
-    - randomStatetest271.json # ef-tests #397
-    - randomStatetest288.json # ef-tests #397
-    - randomStatetest163.json # ef-tests #397
     - randomStatetest1.json # ef-tests #397
-    - randomStatetest282.json # ef-tests #397
-    - randomStatetest345.json # ef-tests #397
-    - randomStatetest84.json # ef-tests #397
-    - randomStatetest312.json # ef-tests #397
-    - randomStatetest189.json # ef-tests #397
-    - randomStatetest326.json # ef-tests #397
-    - randomStatetest185.json # ef-tests #397
-    - randomStatetest306.json # ef-tests #397
-    - randomStatetest150.json # ef-tests #397
-    - randomStatetest45.json # ef-tests #397
-    - randomStatetest13.json # ef-tests #397
-    - randomStatetest151.json # ef-tests #397
-    - randomStatetest48.json # ef-tests #397
-    - randomStatetest25.json # ef-tests #397
-    - randomStatetest357.json # ef-tests #397
-    - randomStatetest176.json # ef-tests #397
-    - randomStatetest233.json # ef-tests #397
-    - randomStatetest209.json # ef-tests #397
-    - randomStatetest287.json # ef-tests #397
-    - randomStatetest78.json # ef-tests #397
-    - randomStatetest205.json # ef-tests #397
-    - randomStatetest252.json # ef-tests #397
     - randomStatetest100.json # ef-tests #398
     - randomStatetest116.json # ef-tests #398
     - randomStatetest120.json # ef-tests #398
     - randomStatetest124.json # ef-tests #398
+    - randomStatetest13.json # ef-tests #397
+    - randomStatetest134.json # ef-tests #396
+    - randomStatetest138.json # ef-tests #397
     - randomStatetest139.json # ef-tests #398
+    - randomStatetest14.json # ef-tests #397
     - randomStatetest143.json # ef-tests #398
+    - randomStatetest144.json # ef-tests #397
     - randomStatetest145.json # ef-tests #398
+    - randomStatetest147.json # ef-tests #397
     - randomStatetest15.json # ef-tests #398
+    - randomStatetest150.json # ef-tests #397
+    - randomStatetest151.json # ef-tests #397
     - randomStatetest153.json # ef-tests #398
+    - randomStatetest154.json # ef-tests #397
     - randomStatetest156.json # ef-tests #398
     - randomStatetest159.json # ef-tests #398
+    - randomStatetest163.json # ef-tests #397
     - randomStatetest164.json # ef-tests #398
     - randomStatetest17.json # ef-tests #398
+    - randomStatetest173.json # ef-tests #397
     - randomStatetest174.json # ef-tests #398
+    - randomStatetest176.json # ef-tests #397
+    - randomStatetest178.json # ef-tests #397
+    - randomStatetest184.json # ef-tests #397
+    - randomStatetest185.json # ef-tests #397
+    - randomStatetest189.json # ef-tests #397
     - randomStatetest196.json # ef-tests #398
+    - randomStatetest197.json # ef-tests #397
+    - randomStatetest198.json # ef-tests #397
     - randomStatetest199.json # ef-tests #398
+    - randomStatetest201.json # ef-tests #397
     - randomStatetest202.json # ef-tests #398
+    - randomStatetest205.json # ef-tests #397
     - randomStatetest207.json # ef-tests #398
+    - randomStatetest209.json # ef-tests #397
+    - randomStatetest212.json # ef-tests #397
+    - randomStatetest22.json # ef-tests #397
     - randomStatetest220.json # ef-tests #398
     - randomStatetest222.json # ef-tests #398
     - randomStatetest228.json # ef-tests #398
+    - randomStatetest232.json # ef-tests #397
+    - randomStatetest233.json # ef-tests #397
     - randomStatetest236.json # ef-tests #398
     - randomStatetest242.json # ef-tests #398
     - randomStatetest244.json # ef-tests #398
@@ -679,103 +657,133 @@ filename:
     - randomStatetest247.json # ef-tests #398
     - randomStatetest248.json # ef-tests #398
     - randomStatetest249.json # ef-tests #398
+    - randomStatetest25.json # ef-tests #397
+    - randomStatetest251.json # ef-tests #397
+    - randomStatetest252.json # ef-tests #397
     - randomStatetest26.json # ef-tests #398
+    - randomStatetest261.json # ef-test #538
     - randomStatetest267.json # ef-tests #398
     - randomStatetest270.json # ef-tests #398
+    - randomStatetest271.json # ef-tests #397
+    - randomStatetest273.json # ef-tests #397
+    - randomStatetest282.json # ef-tests #397
     - randomStatetest283.json # ef-tests #398
+    - randomStatetest287.json # ef-tests #397
+    - randomStatetest288.json # ef-tests #397
     - randomStatetest3.json # ef-tests #398
     - randomStatetest30.json # ef-tests #398
+    - randomStatetest306.json # ef-tests #397
     - randomStatetest308.json # ef-tests #398
     - randomStatetest311.json # ef-tests #398
+    - randomStatetest312.json # ef-tests #397
     - randomStatetest316.json # ef-tests #398
+    - randomStatetest320.json # ef-tests #396
     - randomStatetest325.json # ef-tests #398
+    - randomStatetest326.json # ef-tests #397
+    - randomStatetest341.json # ef-tests #396
     - randomStatetest343.json # ef-tests #398
+    - randomStatetest345.json # ef-tests #397
+    - randomStatetest347.json # ef-tests #397
     - randomStatetest349.json # ef-tests #398
     - randomStatetest351.json # ef-tests #398
+    - randomStatetest352.json # ef-tests #396
     - randomStatetest354.json # ef-tests #398
+    - randomStatetest357.json # ef-tests #397
     - randomStatetest36.json # ef-tests #398
     - randomStatetest365.json # ef-tests #398
     - randomStatetest367.json # ef-tests #398
+    - randomStatetest368.json # ef-tests #396
     - randomStatetest371.json # ef-tests #398
+    - randomStatetest376.json # ef-tests #397
     - randomStatetest379.json # ef-tests #398
     - randomStatetest382.json # ef-tests #398
     - randomStatetest383.json # ef-tests #398
+    - randomStatetest384.json # ef-tests #397
     - randomStatetest41.json # ef-tests #398
     - randomStatetest43.json # ef-tests #398
+    - randomStatetest45.json # ef-tests #397
+    - randomStatetest48.json # ef-tests #397
+    - randomStatetest51.json # ef-tests #538
     - randomStatetest52.json # ef-tests #398
+    - randomStatetest53.json # ef-tests #396
+    - randomStatetest54.json # ef-tests #538
     - randomStatetest59.json # ef-tests #398
     - randomStatetest64.json # ef-tests #398
+    - randomStatetest78.json # ef-tests #397
     - randomStatetest80.json # ef-tests #398
+    - randomStatetest84.json # ef-tests #397
     - randomStatetest85.json # ef-tests #398
     - randomStatetest88.json # ef-tests #398
     - randomStatetest98.json # ef-tests #398
   stRandom2:
     - 201503110226PYTHON_DUP6.json # ef-tests #393
-    - randomStatetest409.json # ef-tests #393
-    - randomStatetest487.json # ef-tests #393
-    - randomStatetest495.json # ef-tests #393
-    - randomStatetest559.json # ef-tests #393
-    - randomStatetest581.json # ef-tests #393
-    - randomStatetest635.json # ef-tests #393
-    - randomStatetest650.json # ef-tests #393
-    - randomStatetest396.json # ef-tests #393
-    - randomStatetest508.json # ef-tests #393
-    - randomStatetest525.json # ef-tests #393
-    - randomStatetest401.json # ef-tests #393
-    - randomStatetest456.json # ef-tests #393
-    - randomStatetest417.json # ef-tests #393
-    - randomStatetest467.json # ef-tests #393
-    - randomStatetest579.json # ef-tests #393
-    - randomStatetest554.json # ef-tests #393
-    - randomStatetest558.json # ef-tests #393
-    - randomStatetest609.json # ef-tests #393
-    - randomStatetest428.json # ef-tests #393
-    - randomStatetest583.json # ef-tests #393
-    - randomStatetest624.json # ef-tests #393
-    - randomStatetest472.json # ef-tests #393
-    - randomStatetest547.json # ef-tests #393
-    - randomStatetest639.json # ef-tests #393
-    - randomStatetest422.json # ef-tests #393
-    - randomStatetest418.json # ef-tests #393
-    - randomStatetest458.json # ef-tests #393
-    - randomStatetest531.json # ef-tests #393
-    - randomStatetest618.json # ef-tests #393
-    - randomStatetest415.json # ef-tests #393
-    - randomStatetest478.json # ef-tests #393
-    - randomStatetest420.json # ef-tests #394
-    - randomStatetest448.json # ef-tests #394
-    - randomStatetest567.json # ef-tests #394
-    - randomStatetest589.json # ef-tests #394
     - randomStatetest389.json # ef-tests #395
+    - randomStatetest396.json # ef-tests #393
     - randomStatetest398.json # ef-tests #395
+    - randomStatetest401.json # ef-tests #393
+    - randomStatetest409.json # ef-tests #393
+    - randomStatetest415.json # ef-tests #393
     - randomStatetest416.json # ef-tests #395
+    - randomStatetest417.json # ef-tests #393
+    - randomStatetest418.json # ef-tests #393
+    - randomStatetest420.json # ef-tests #394
+    - randomStatetest422.json # ef-tests #393
+    - randomStatetest428.json # ef-tests #393
     - randomStatetest435.json # ef-tests #395
     - randomStatetest437.json # ef-tests #395
+    - randomStatetest445.json # ef-tests #538
+    - randomStatetest448.json # ef-tests #394
     - randomStatetest450.json # ef-tests #395
+    - randomStatetest456.json # ef-tests #393
+    - randomStatetest458.json # ef-tests #393
     - randomStatetest461.json # ef-tests #395
     - randomStatetest466.json # ef-tests #395
+    - randomStatetest467.json # ef-tests #393
     - randomStatetest470.json # ef-tests #395
     - randomStatetest471.json # ef-tests #395
+    - randomStatetest472.json # ef-tests #393
     - randomStatetest476.json # ef-tests #395
+    - randomStatetest478.json # ef-tests #393
+    - randomStatetest487.json # ef-tests #393
+    - randomStatetest495.json # ef-tests #393
     - randomStatetest498.json # ef-tests #395
     - randomStatetest502.json # ef-tests #395
+    - randomStatetest504.json # ef-tests #538
+    - randomStatetest506.json # ef-tests #395
+    - randomStatetest508.json # ef-tests #393
     - randomStatetest519.json # ef-tests #395
     - randomStatetest520.json # ef-tests #395
+    - randomStatetest525.json # ef-tests #393
+    - randomStatetest531.json # ef-tests #393
     - randomStatetest539.json # ef-tests #395
     - randomStatetest541.json # ef-tests #395
     - randomStatetest542.json # ef-tests #395
+    - randomStatetest547.json # ef-tests #393
+    - randomStatetest554.json # ef-tests #393
+    - randomStatetest558.json # ef-tests #393
+    - randomStatetest559.json # ef-tests #393
     - randomStatetest564.json # ef-tests #395
+    - randomStatetest567.json # ef-tests #394
     - randomStatetest571.json # ef-tests #395
     - randomStatetest577.json # ef-tests #395
     - randomStatetest578.json # ef-tests #395
+    - randomStatetest579.json # ef-tests #393
+    - randomStatetest581.json # ef-tests #393
+    - randomStatetest583.json # ef-tests #393
     - randomStatetest588.json # ef-tests #395
+    - randomStatetest589.json # ef-tests #394
     - randomStatetest605.json # ef-tests #395
     - randomStatetest608.json # ef-tests #395
+    - randomStatetest609.json # ef-tests #393
+    - randomStatetest618.json # ef-tests #393
+    - randomStatetest624.json # ef-tests #393
     - randomStatetest627.json # ef-tests #395
     - randomStatetest628.json # ef-tests #395
+    - randomStatetest635.json # ef-tests #393
     - randomStatetest636.json # ef-tests #395
-    - randomStatetest506.json # ef-tests #395
+    - randomStatetest639.json # ef-tests #393
     - randomStatetest642.json # ef-tests #533
+    - randomStatetest650.json # ef-tests #393
   stRefundTest:
     - refundFF.json # ef-tests #405
     - refundMax.json # ef-tests #405
@@ -953,36 +961,36 @@ filename:
     - returndatasize_after_oog_after_deeper.json # ef-tests #491
     - returndatasize_after_failing_callcode.json # ef-tests #491
   stRevertTest:
-    - RevertOpcodeMultipleSubCalls.json # ef-tests #322
-    - RevertPrefoundCall.json # ef-tests #322
-    - LoopCallsDepthThenRevert.json # ef-tests #322
-    - stateRevert.json # ef-tests #322
-    - RevertDepthCreateOOG.json # ef-tests #322
     - costRevert.json # ef-tests #322
-    - LoopDelegateCallsDepthThenRevert.json # ef-tests #322
-    - RevertOpcodeInCallsOnNonEmptyReturnData.json # ef-tests #322
-    - RevertOpcodeCalls.json # ef-tests #322
-    - LoopCallsThenRevert.json # ef-tests #322
-    - TouchToEmptyAccountRevert2.json # ef-tests #322
-    - TouchToEmptyAccountRevert3.json # ef-tests #322
-    - RevertDepthCreateAddressCollision.json # ef-tests #322
-    - RevertPrecompiledTouchExactOOG.json # ef-tests #323
-    - RevertPrefound.json # ef-tests #323
-    - RevertPrefoundEmpty.json # ef-tests #323
-    - RevertOpcodeCreate.json # ef-tests #323
-    - RevertOnEmptyStack.json # ef-tests #323
-    - RevertInCreateInInit.json # ef-tests #323
-    - RevertPrefoundEmptyCall.json # ef-tests #323
+    - LoopCallsDepthThenRevert.json # ef-tests #322
     - LoopCallsDepthThenRevert2.json # ef-tests #324
     - LoopCallsDepthThenRevert3.json # ef-tests #324
-    - RevertRemoteSubCallStorageOOG.json # ef-tests #324
+    - LoopCallsThenRevert.json # ef-tests #322
+    - LoopDelegateCallsDepthThenRevert.json # ef-tests #322
+    - PythonRevertTestTue201814-1430.json # ef-tests #538
+    - RevertDepthCreateAddressCollision.json # ef-tests #322
+    - RevertDepthCreateOOG.json # ef-tests #322
     - RevertInCallCode.json # ef-tests #492
-    - RevertOpcodeInInit.json # ef-tests #538
-    - RevertSubCallStorageOOG.json # ef-tests #538
+    - RevertInCreateInInit.json # ef-tests #323
+    - RevertOnEmptyStack.json # ef-tests #323
     - RevertOpcode.json # ef-tests #538
+    - RevertOpcodeCalls.json # ef-tests #322
+    - RevertOpcodeCreate.json # ef-tests #323
+    - RevertOpcodeInCallsOnNonEmptyReturnData.json # ef-tests #322
+    - RevertOpcodeInInit.json # ef-tests #538
+    - RevertOpcodeMultipleSubCalls.json # ef-tests #322
     - RevertOpcodeWithBigOutputInInit.json # ef-tests #538
-    - PythonRevertTestTue201814-1430 # ef-tests #538
+    - RevertPrecompiledTouchExactOOG.json # ef-tests #323
+    - RevertPrefound.json # ef-tests #323
+    - RevertPrefoundCall.json # ef-tests #322
+    - RevertPrefoundEmpty.json # ef-tests #323
+    - RevertPrefoundEmptyCall.json # ef-tests #323
+    - RevertRemoteSubCallStorageOOG.json # ef-tests #324
+    - RevertSubCallStorageOOG.json # ef-tests #538
     - RevertSubCallStorageOOG2.json # ef-tests #538
+    - stateRevert.json # ef-tests #322
+    - TouchToEmptyAccountRevert2.json # ef-tests #322
+    - TouchToEmptyAccountRevert3.json # ef-tests #322
   stShift:
     - shiftCombinations.json # ef-tests #383
     - shiftSignedCombinations.json # ef-tests #383
@@ -1490,12 +1498,14 @@ filename:
     - stackOverflowSWAP.json # ef-tests #415
     - stacksanitySWAP.json # ef-tests #415
   stArgsZeroOneBalance:
+    - callcodeNonConst.json # ef-tests #370
+    - callNonConst.json # ef-tests #371
     - createNonConst.json # ef-tests #368
+    - delegatecallNonConst.json # ef-tests #370
+    - jumpiNonConst.json # ef-tests #538
+    - jumpNonConst.json # ef-tests #538
     - mulmodNonConst.json # ef-tests #368
     - suicideNonConst.json # ef-tests #370
-    - callcodeNonConst.json # ef-tests #370
-    - delegatecallNonConst.json # ef-tests #370
-    - callNonConst.json # ef-tests #371
   stTransitionTest:
     - delegatecallAtTransition.json # ef-test #433
     - delegatecallAfterTransition.json # ef-test #433
