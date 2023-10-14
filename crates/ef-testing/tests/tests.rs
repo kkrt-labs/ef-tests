@@ -13,6 +13,9 @@ fn setup() {
         let subscriber = FmtSubscriber::builder().with_env_filter(filter).finish();
         tracing::subscriber::set_global_default(subscriber)
             .expect("setting tracing default failed");
+
+        // Set-up log4rs
+        log4rs::init_file("../../log4rs.yml", Default::default()).unwrap();
     })
 }
 

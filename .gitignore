@@ -19,3 +19,6 @@ broadcast
 
 # Ignore compiled Kakarot contracts
 lib/kakarot
+
+# Ignore failing tests log
+failing_tests.log

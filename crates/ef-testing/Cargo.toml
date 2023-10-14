@@ -27,6 +27,10 @@ cairo-vm = { workspace = true }
 starknet_api = { workspace = true }
 starknet = { workspace = true }
 
+# Log
+log = { workspace = true }
+log4rs = { workspace = true }
+
 # Other
 async-trait = { workspace = true }
 ctor = { workspace = true }
@@ -34,8 +38,6 @@ chrono = { workspace = true, optional = true }
 dotenvy = { workspace = true, optional = true }
 eyre = { workspace = true }
 lazy_static = { workspace = true }
-log = { workspace = true }
-env_logger = { workspace = true }
 regex = { workspace = true }
 reqwest = { workspace = true, optional = true }
 rstest = { workspace = true }
