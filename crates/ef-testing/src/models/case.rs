@@ -1,6 +1,6 @@
 // Inspired by https://github.com/paradigmxyz/reth/tree/main/testing/ef-tests
 
-use super::{error::RunnerError, result::CaseResult, BlockchainTestTransaction};
+use super::error::RunnerError;
 use crate::{
     evm_sequencer::{
         constants::CHAIN_ID, evm_state::EvmState, utils::to_broadcasted_starknet_transaction,
@@ -8,29 +8,27 @@ use crate::{
     },
     get_signed_rlp_encoded_transaction,
     traits::Case,
-    utils::{deserialize_into, load_file, update_post_state},
+    utils::{load_file, update_post_state},
 };
 use async_trait::async_trait;
 use ef_tests::models::BlockchainTest;
-use ef_tests::models::{ForkSpec, RootOrState};
+use ef_tests::models::RootOrState;
 
 use ethers_signers::{LocalWallet, Signer};
 use regex::Regex;
+use revm_primitives::B256;
 use sequencer::{
     execution::Execution, state::State as SequencerState, transaction::StarknetTransaction,
 };
 use serde::Deserialize;
 use starknet::core::types::{BroadcastedTransaction, FieldElement};
-use std::{
-    collections::BTreeMap,
-    path::{Path, PathBuf},
-};
+use std::{collections::BTreeMap, path::Path};
 
 #[derive(Debug)]
 pub struct BlockchainTestCase {
     pub name: String,
-    pub tests: BTreeMap<String, BlockchainTest>,
-    pub transaction: BlockchainTestTransaction,
+    pub test: BlockchainTest,
+    pub secret_key: B256,
 }
 
 #[derive(Deserialize)]
@@ -89,21 +87,8 @@ impl BlockchainTestCase {
         should_skip
     }
 
-    fn test(&self, test_name: &str) -> Result<&BlockchainTest, RunnerError> {
-        let test = self.tests.get(test_name).ok_or_else(|| {
-            RunnerError::Other(format!("case {} doesn't exist in test file", test_name))
-        })?;
-        Ok(test)
-    }
-
-    async fn handle_pre_state(
-        &self,
-        sequencer: &mut KakarotSequencer,
-        test_case_name: &str,
-    ) -> Result<(), RunnerError> {
-        let test = self.test(test_case_name)?;
-
-        for (address, account) in test.pre.iter() {
+    async fn handle_pre_state(&self, sequencer: &mut KakarotSequencer) -> Result<(), RunnerError> {
+        for (address, account) in self.test.pre.iter() {
             sequencer.setup_account(
                 address,
                 &account.code,
@@ -119,20 +104,15 @@ impl BlockchainTestCase {
     async fn handle_transaction(
         &self,
         sequencer: &mut KakarotSequencer,
-        test_case_name: &str,
     ) -> Result<(), RunnerError> {
-        let test = self.test(test_case_name)?;
-
         // we extract the transaction from the block
-        let block = test
+        let block = self
+            .test
             .blocks
             .first()
             .ok_or_else(|| RunnerError::Other("test has no blocks".to_string()))?;
         // we adjust the rlp to correspond with our currently hardcoded CHAIN_ID
-        let tx_encoded = get_signed_rlp_encoded_transaction(
-            &block.rlp,
-            self.transaction.transaction.secret_key,
-        )?;
+        let tx_encoded = get_signed_rlp_encoded_transaction(&block.rlp, self.secret_key)?;
 
         let starknet_transaction = StarknetTransaction::new(BroadcastedTransaction::Invoke(
             to_broadcasted_starknet_transaction(&tx_encoded)?,
@@ -146,20 +126,13 @@ impl BlockchainTestCase {
         Ok(())
     }
 
-    async fn handle_post_state(
-        &self,
-        sequencer: &mut KakarotSequencer,
-        test_case_name: &str,
-    ) -> Result<(), RunnerError> {
-        // Get sender address
-        let test = self.test(test_case_name)?;
-        let sk = self.transaction.transaction.secret_key;
-        let wallet =
-            LocalWallet::from_bytes(&sk.0).map_err(|err| RunnerError::Other(err.to_string()))?;
+    async fn handle_post_state(&self, sequencer: &mut KakarotSequencer) -> Result<(), RunnerError> {
+        let wallet = LocalWallet::from_bytes(&self.secret_key.0)
+            .map_err(|err| RunnerError::Other(err.to_string()))?;
         let sender_address = wallet.address().to_fixed_bytes();
 
         // Get gas used from block header
-        let maybe_block = test.blocks.first();
+        let maybe_block = self.test.blocks.first();
         let maybe_block_header = maybe_block.and_then(|block| block.block_header.as_ref());
         let gas_used = maybe_block_header
             .map(|block_header| block_header.gas_used.0)
@@ -190,15 +163,16 @@ impl BlockchainTestCase {
             base_fee_per_gas
         } * gas_used;
 
-        let post_state = match test.post_state.clone().ok_or_else(|| {
-            RunnerError::Other(format!("missing post state for {}", test_case_name))
-        })? {
-            RootOrState::Root(_) => {
-                panic!("RootOrState::Root(_) not supported, for {}", test_case_name)
-            }
-            RootOrState::State(state) => state,
-        };
-        let post_state = update_post_state(post_state, test.pre.clone());
+        let post_state =
+            match self.test.post_state.clone().ok_or_else(|| {
+                RunnerError::Other(format!("missing post state for {}", self.name))
+            })? {
+                RootOrState::Root(_) => {
+                    panic!("RootOrState::Root(_) not supported, for {}", self.name)
+                }
+                RootOrState::State(state) => state,
+            };
+        let post_state = update_post_state(post_state, self.test.pre.clone());
 
         for (address, expected_state) in post_state.iter() {
             // Storage
@@ -207,7 +181,7 @@ impl BlockchainTestCase {
                 if actual != v.0 {
                     return Err(RunnerError::Other(format!(
                         "{} storage mismatch for {:#20x} at {:#32x}: expected {:#32x}, got {:#32x}",
-                        test_case_name, address, k.0, v.0, actual
+                        self.name, address, k.0, v.0, actual
                     )));
                 }
             }
@@ -216,7 +190,7 @@ impl BlockchainTestCase {
             if actual != expected_state.nonce.0 {
                 return Err(RunnerError::Other(format!(
                     "{} nonce mismatch for {:#20x}: expected {:#32x}, got {:#32x}",
-                    test_case_name, address, expected_state.nonce.0, actual
+                    self.name, address, expected_state.nonce.0, actual
                 )));
             }
             // Bytecode
@@ -224,7 +198,7 @@ impl BlockchainTestCase {
             if actual != expected_state.code {
                 return Err(RunnerError::Other(format!(
                     "{} code mismatch for {:#20x}: expected {:#x}, got {:#x}",
-                    test_case_name, address, expected_state.code, actual
+                    self.name, address, expected_state.code, actual
                 )));
             }
             // Balance
@@ -236,7 +210,7 @@ impl BlockchainTestCase {
             if actual != expected_state.balance.0 {
                 return Err(RunnerError::Other(format!(
                     "{} balance mismatch for {:#20x}: expected {:#32x}, got {:#32x}",
-                    test_case_name, address, expected_state.balance.0, actual
+                    self.name, address, expected_state.balance.0, actual
                 )));
             }
         }
@@ -252,103 +226,20 @@ impl Case for BlockchainTestCase {
         self.name.clone()
     }
 
-    /// Load a test case from a path. This is a path to a directory containing
-    /// the BlockChainTest
-    fn load(path: &Path) -> Result<Self, RunnerError> {
-        if Self::should_skip(path) {
-            return Err(RunnerError::Skipped);
-        }
-
-        let general_state_tests_path = path
-            .components()
-            .filter(|x| !x.as_os_str().eq_ignore_ascii_case("BlockchainTests"))
-            .collect::<PathBuf>();
-        let test_name = general_state_tests_path
-            .file_stem()
-            .ok_or(RunnerError::Io {
-                path: path.into(),
-                error: "expected file".into(),
-            })?
-            .to_str()
-            .ok_or_else(|| RunnerError::Io {
-                path: path.into(),
-                error: format!("expected valid utf8 path, got {:?}", path),
-            })?;
-
-        let general_state_tests_path = general_state_tests_path.as_path();
-        Ok(Self {
-            tests: {
-                let file = load_file(path)?;
-                deserialize_into(&file, path)?
-            },
-            transaction: {
-                let file = load_file(general_state_tests_path)?;
-                let test: BTreeMap<String, serde_json::Value> =
-                    deserialize_into(&file, general_state_tests_path)?;
-
-                let case = test
-                    .into_values()
-                    .collect::<Vec<_>>()
-                    .first()
-                    .ok_or_else(|| {
-                        RunnerError::Other(format!("Missing transaction for {}", test_name))
-                    })?
-                    .clone();
-
-                deserialize_into(&case.to_string(), general_state_tests_path)?
-            },
-            name: test_name.to_string(),
-        })
-    }
-
     async fn run(&self) -> Result<(), RunnerError> {
-        let test_regexp: Option<String> = std::env::var("TARGET").ok();
-        let test_regexp = match test_regexp {
-            Some(x) => Some(Regex::new(x.as_str())?),
-            None => None,
-        };
+        let sequencer = KakarotSequencer::new(SequencerState::default());
+        let mut sequencer = sequencer.initialize()?;
 
-        for (test_name, case) in &self.tests {
-            if matches!(case.network, ForkSpec::Shanghai) {
-                if let Some(ref test_regexp) = test_regexp {
-                    if !test_regexp.is_match(test_name) {
-                        continue;
-                    }
-                }
+        tracing::info!("Running test {}", self.name);
 
-                let sequencer = KakarotSequencer::new(SequencerState::default());
-                let mut sequencer = sequencer.initialize()?;
+        self.handle_pre_state(&mut sequencer).await?;
 
-                tracing::info!("Running test {}", test_name);
+        // handle transaction
+        self.handle_transaction(&mut sequencer).await?;
 
-                self.handle_pre_state(&mut sequencer, test_name).await?;
-
-                // handle transaction
-                self.handle_transaction(&mut sequencer, test_name).await?;
-
-                // handle post state
-                self.handle_post_state(&mut sequencer, test_name).await?;
-            }
-        }
+        // handle post state
+        self.handle_post_state(&mut sequencer).await?;
         Ok(())
-    }
-}
-
-/// A container for multiple test cases.
-#[derive(Debug)]
-pub struct Cases<T> {
-    /// The contained test cases and the path to each test.
-    pub test_cases: Vec<(PathBuf, T)>,
-}
-
-impl<T: Case> Cases<T> {
-    /// Run the contained test cases.
-    pub async fn run(&self) -> Vec<CaseResult> {
-        let mut results: Vec<CaseResult> = Vec::new();
-        for (path, case) in &self.test_cases {
-            results.push(CaseResult::new(path, case, case.run().await));
-        }
-        results
     }
 }
 
@@ -356,7 +247,6 @@ impl<T: Case> Cases<T> {
 mod tests {
     use super::*;
     use ctor::ctor;
-    use revm_primitives::B256;
     use tracing_subscriber::{filter, FmtSubscriber};
 
     #[ctor]
@@ -366,38 +256,6 @@ mod tests {
         let subscriber = FmtSubscriber::builder().with_env_filter(filter).finish();
         tracing::subscriber::set_global_default(subscriber)
             .expect("setting tracing default failed");
-    }
-
-    #[tokio::test(flavor = "multi_thread")]
-    async fn test_load_case() {
-        // Given
-        let path = Path::new(
-            "ethereum-tests/BlockchainTests/GeneralStateTests/VMTests/vmArithmeticTest/add.json",
-        );
-
-        // When
-        let case = BlockchainTestCase::load(path).unwrap();
-
-        // Then
-        assert!(!case.tests.is_empty());
-        assert!(case.transaction.transaction.secret_key != B256::zero());
-    }
-
-    #[tokio::test(flavor = "multi_thread")]
-    async fn test_run_add() {
-        // Given
-        let path = Path::new(
-            "ethereum-tests/BlockchainTests/GeneralStateTests/VMTests/vmArithmeticTest/add.json",
-        );
-
-        // When
-        let case = BlockchainTestCase::load(path).unwrap();
-
-        // Then
-        assert!(!case.tests.is_empty());
-        assert!(case.transaction.transaction.secret_key != B256::zero());
-
-        case.run().await.unwrap();
     }
 
     #[test]
