@@ -52,3 +52,4 @@ zip = { workspace = true, optional = true }
 
 [dev-dependencies]
 tracing-subscriber = { workspace = true }
+ef-testing-proc-macro = { path = "../ef-testing-proc-macro" }

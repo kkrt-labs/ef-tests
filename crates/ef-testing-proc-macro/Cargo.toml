@@ -1,0 +1,29 @@
+[package]
+name = "ef-testing-proc-macro"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+description.workspace = true
+homepage.workspace = true
+repository.workspace = true
+readme.workspace = true
+license.workspace = true
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[lib]
+proc-macro = true
+
+[dependencies]
+ef-tests = { workspace = true }
+eyre = { workspace = true }
+lazy_static = { workspace = true }
+proc-macro2 = { workspace = true }
+quote = { workspace = true }
+rayon = { workspace = true }
+regex = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+serde_yaml = { workspace = true }
+syn = { workspace = true }
+walkdir = { workspace = true }
