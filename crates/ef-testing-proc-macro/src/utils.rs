@@ -1,5 +1,17 @@
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
+use crate::dir_reader::PathWrapper;
+
+/// Converts the path to a string and removes the "BlockchainTests" folder
+pub(crate) fn blockchain_tests_to_general_state_tests_path(path: PathWrapper) -> PathWrapper {
+    Into::<PathBuf>::into(path)
+        .components()
+        .filter(|x| !x.as_os_str().eq_ignore_ascii_case("BlockchainTests"))
+        .collect::<PathBuf>()
+        .into()
+}
+
+/// Converts the path to a Vector of Strings
 pub(crate) fn path_to_vec_string(path: &Path) -> Result<Vec<String>, eyre::Error> {
     path.iter()
         .map(|os_str| {
@@ -11,6 +23,7 @@ pub(crate) fn path_to_vec_string(path: &Path) -> Result<Vec<String>, eyre::Error
         .collect()
 }
 
+/// Trims the path at the given folder, returning only the path after the folder
 pub(crate) fn trim_path_at_folder(path: Vec<String>, folder: &str) -> Vec<String> {
     path.into_iter()
         .skip_while(|x| x != folder)

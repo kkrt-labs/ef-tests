@@ -15,10 +15,12 @@ use crate::utils::trim_path_at_folder;
 /// files in the given directory and stores them
 /// by using a recursive structure (structure that
 /// contains itself).
-#[derive(Debug)]
 pub struct DirReader {
+    /// Mapping containing the sub directories
     pub(crate) sub_dirs: BTreeMap<String, DirReader>,
+    /// Vector containing the files and wether they should be skipped
     pub(crate) files: Vec<(PathWrapper, bool)>,
+    /// Filter to be applied on the files
     filter: Arc<Filter>,
 }
 
@@ -27,12 +29,13 @@ impl DirReader {
         Self {
             sub_dirs: BTreeMap::default(),
             files: Vec::default(),
-            filter: Arc::new(Filter::new(&TEST_FILTER_PATH)),
+            filter: Arc::new(Filter::new(TEST_FILTER_PATH.clone())),
         }
     }
 
-    pub fn walk_directory(mut self, directory_path: PathBuf) -> Result<Self, eyre::Error> {
-        for entry in WalkDir::new(directory_path)
+    /// Walks the given directory and stores all files
+    pub fn walk_directory(mut self, directory_path: PathWrapper) -> Result<Self, eyre::Error> {
+        for entry in WalkDir::new(Into::<PathBuf>::into(directory_path))
             .into_iter()
             .filter_map(Result::ok)
             .filter(|f| f.file_type().is_file())
@@ -47,6 +50,8 @@ impl DirReader {
         Ok(self)
     }
 
+    /// Inserts a file into the DirReader by recursively navigating the file's
+    /// path and inserting the file into the correct sub directory.
     fn insert_file(&mut self, current_path: Vec<String>, full_path: PathWrapper) {
         if current_path.len() > 1 {
             let root_name = current_path.first().cloned().unwrap(); // safe unwrap
@@ -69,6 +74,12 @@ pub struct PathWrapper(PathBuf);
 impl From<PathBuf> for PathWrapper {
     fn from(path: PathBuf) -> Self {
         Self(path)
+    }
+}
+
+impl From<PathWrapper> for PathBuf {
+    fn from(path: PathWrapper) -> Self {
+        path.0
     }
 }
 
