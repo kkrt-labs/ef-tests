@@ -1,0 +1,30 @@
+refresh_rate: 30 seconds
+
+appenders:
+  stdout:
+    kind: console
+
+  failing_tests:
+    kind: rolling_file
+    path: ../../failing_tests.log
+    append: true
+    encoder:
+      pattern: "{m}{n}"
+    policy:
+      kind: compound
+      trigger:
+        kind: size
+        limit: 10 mb
+      roller:
+        kind: delete
+
+root:
+  level: info
+  appenders:
+    - stdout
+
+loggers:
+  ef_testing::models::result:
+    level: error
+    appenders:
+      - failing_tests

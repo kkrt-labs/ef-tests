@@ -57,7 +57,7 @@ pub(crate) fn print_results(failed: &[&CaseResult]) {
     for case in failed {
         match &case.result {
             Ok(_) => unreachable!(),
-            Err(err) => println!("[!] Case {} failed:\n{}", case.path.display(), err,),
+            Err(err) => log::error!("[!] Case {} failed:\n{}", case.path.display(), err,),
         }
     }
 }
