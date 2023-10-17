@@ -31,7 +31,6 @@ impl TestConverter {
                 |acc, (folder_name, node)| {
                     let mut s = String::new();
                     s += &Self::format_to_module(folder_name);
-                    s += &Self::secret_key(node)?;
                     s += &Self::convert_folders(node)?;
                     s += "}";
                     Ok(acc? + &s)
@@ -45,7 +44,6 @@ impl TestConverter {
         let mut acc = String::new();
         for (dir_name, sub_node) in &node.sub_dirs {
             acc += &TestConverter::format_to_module(dir_name);
-            acc += &Self::secret_key(sub_node)?;
             acc += &Self::convert_folders(sub_node)?;
             acc += "}";
         }
@@ -59,15 +57,18 @@ impl TestConverter {
         for (file_path, is_skipped) in files {
             let content = file_path.read_file_to_string()?;
             let cases: BTreeMap<String, serde_json::Value> = serde_json::from_str(&content)?;
-            acc += &cases.into_iter().fold(
-                Ok(String::new()),
-                |acc: Result<String, eyre::Error>, (case_name, content)| {
-                    if !case_name.contains(FORK) {
-                        return acc;
-                    }
-                    Ok(acc? + &TestConverter::format_to_test(&case_name, content, *is_skipped)?)
-                },
-            )?
+            acc +=
+                &cases.into_iter().fold(
+                    Ok(String::new()),
+                    |acc: Result<String, eyre::Error>, (case_name, content)| {
+                        if !case_name.contains(FORK) {
+                            return acc;
+                        }
+                        let sk = ContentReader::secret_key(file_path.clone())?;
+                        Ok(acc?
+                            + &TestConverter::format_to_test(&case_name, sk, content, *is_skipped)?)
+                    },
+                )?
         }
         Ok(acc)
     }
@@ -82,18 +83,10 @@ impl TestConverter {
         )
     }
 
-    /// Formats the secret key into a rust constant.
-    fn secret_key(node: &DirReader) -> Result<String, eyre::Error> {
-        if node.files.is_empty() {
-            return Ok(String::default());
-        }
-        let sk = ContentReader::secret_key(node.files.first().unwrap().0.clone())?;
-        Ok(format!(r#"pub const SK: &str = {};"#, &sk))
-    }
-
     /// Formats the given test case into a rust test.
     fn format_to_test(
         case_name: &str,
+        sk: Value,
         content: Value,
         is_skipped: bool,
     ) -> Result<String, eyre::Error> {
@@ -106,13 +99,14 @@ impl TestConverter {
             }}"#,
             if is_skipped { "#[ignore]" } else { "" },
             TestConverter::format_into_identifier(case_name),
-            Self::format_test_content(case_name, &content, is_skipped)?,
+            Self::format_test_content(case_name, sk, &content, is_skipped)?,
         ))
     }
 
     /// Formats the given test content into a rust test.
     fn format_test_content(
         case_name: &str,
+        sk: Value,
         content: &Value,
         is_skipped: bool,
     ) -> Result<String, eyre::Error> {
@@ -128,10 +122,10 @@ impl TestConverter {
             let block: Block = serde_json::from_str(r#"{}"#).expect("Error while reading the block");
             let pre: State = serde_json::from_str(r#"{}"#).expect("Error while reading the pre state");
             let post: RootOrState = serde_json::from_str(r#"{}"#).expect("Error while reading the post state");
-            let case = BlockchainTestCase::new("{}".to_string(), block, pre, post, B256::from_str(SK).expect("Error while reading  secret key"));
+            let case = BlockchainTestCase::new("{}".to_string(), block, pre, post, B256::from_str({}).expect("Error while reading  secret key"));
             case.run().expect("Error while running the test");
         "##,
-            block, pre, post, case_name
+            block, pre, post, case_name, sk
         ))
     }
 
