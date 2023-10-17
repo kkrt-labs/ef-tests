@@ -15,7 +15,7 @@ license.workspace = true
 proc-macro = true
 
 [dependencies]
-ef-tests = { workspace = true }
+# Others
 eyre = { workspace = true }
 lazy_static = { workspace = true }
 proc-macro2 = { workspace = true }

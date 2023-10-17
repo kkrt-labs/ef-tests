@@ -40,10 +40,8 @@ eyre = { workspace = true }
 lazy_static = { workspace = true }
 regex = { workspace = true }
 reqwest = { workspace = true, optional = true }
-rstest = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
-serde_yaml = { workspace = true }
 thiserror = { workspace = true }
 tokio = { workspace = true }
 tracing = { workspace = true }
