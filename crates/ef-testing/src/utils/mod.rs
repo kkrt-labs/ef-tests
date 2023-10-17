@@ -1,17 +1,8 @@
-use std::{collections::BTreeMap, fs, path::Path};
+use std::collections::BTreeMap;
 
 use ef_tests::models::{Account, State};
 use reth_primitives::{Bytes, JsonU256};
 use revm_primitives::{B160, U256};
-
-use crate::models::error::RunnerError;
-
-pub(crate) fn load_file(path: &Path) -> Result<String, RunnerError> {
-    fs::read_to_string(path).map_err(|error| RunnerError::Io {
-        path: path.into(),
-        error: error.to_string(),
-    })
-}
 
 pub(crate) fn update_post_state(
     mut post_state: BTreeMap<B160, Account>,

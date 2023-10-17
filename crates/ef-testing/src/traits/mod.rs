@@ -7,11 +7,6 @@ use std::fmt::Debug;
 /// A single test case, capable of loading a JSON description of itself and running it.
 #[async_trait]
 pub trait Case: Debug + Sync + Send + Sized {
-    /// A description of the test.
-    fn description(&self) -> String {
-        "no description".to_string()
-    }
-
-    /// Run the test on the Katana test context.
-    async fn run(&self) -> Result<(), RunnerError>;
+    /// Run the test on the Kakarot test sequencer.
+    fn run(&self) -> Result<(), RunnerError>;
 }
