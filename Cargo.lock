@@ -2039,7 +2039,7 @@ dependencies = [
  "chrono",
  "ctor",
  "dotenvy",
- "ef-testing-proc-macro",
+ "ef-testing-proc-macros",
  "ef-tests",
  "ethers-signers",
  "eyre",
@@ -2065,7 +2065,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "ef-testing-proc-macro"
+name = "ef-testing-proc-macros"
 version = "0.1.0"
 dependencies = [
  "eyre",

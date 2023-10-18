@@ -1,5 +1,5 @@
 [package]
-name = "ef-testing-proc-macro"
+name = "ef-testing-proc-macros"
 version.workspace = true
 edition.workspace = true
 authors.workspace = true
