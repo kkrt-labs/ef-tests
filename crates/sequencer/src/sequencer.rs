@@ -263,10 +263,7 @@ mod tests {
         // Then
         let expected = StarkFelt::from(1u8);
         let actual = (&mut sequencer.state)
-            .get_storage_at(
-                *TEST_CONTRACT,
-                get_storage_var_address("counter", &[]),
-            )
+            .get_storage_at(*TEST_CONTRACT, get_storage_var_address("counter", &[]))
             .unwrap();
         assert_eq!(expected, actual);
     }
@@ -303,10 +300,7 @@ mod tests {
         // Then
         let expected = StarkFelt::from(1u8);
         let actual = (&mut sequencer.state)
-            .get_storage_at(
-                *TEST_CONTRACT,
-                get_storage_var_address("counter", &[]),
-            )
+            .get_storage_at(*TEST_CONTRACT, get_storage_var_address("counter", &[]))
             .unwrap();
         assert_eq!(expected, actual);
     }
