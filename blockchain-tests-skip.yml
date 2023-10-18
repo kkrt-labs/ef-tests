@@ -140,7 +140,6 @@ filename:
     - callcodecallcodecallcode_111_SuicideMiddle.json # ef-tests #485
     - callcodecallcodecall_110_SuicideMiddle.json # ef-tests #485
     - callcodecallcode_11_SuicideEnd.json # ef-tests #485
-    - touchAndGo.json # ef-tests #527
   stCallCreateCallCodeTest:
     - Call1024BalanceTooLow.json # ef-tests #493
     - CallcodeLoseGasOOG.json # ef-tests #493
