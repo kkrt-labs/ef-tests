@@ -6,7 +6,7 @@ use std::sync::Arc;
 use walkdir::WalkDir;
 
 use crate::constants::ROOT;
-use crate::constants::TEST_FILTER_PATH;
+use crate::constants::SKIPPED_TESTS_PATH;
 use crate::filter::Filter;
 use crate::utils::path_to_vec_string;
 use crate::utils::trim_path_at_folder;
@@ -29,12 +29,15 @@ impl DirReader {
         Self {
             sub_dirs: BTreeMap::default(),
             files: Vec::default(),
-            filter: Arc::new(Filter::new(TEST_FILTER_PATH.clone())),
+            filter: Arc::new(Filter::new(SKIPPED_TESTS_PATH.clone())),
         }
     }
 
     /// Walks the given directory and stores all files
-    pub fn walk_directory(mut self, directory_path: PathWrapper) -> Result<Self, eyre::Error> {
+    pub fn walk_dir_and_store_files(
+        mut self,
+        directory_path: PathWrapper,
+    ) -> Result<Self, eyre::Error> {
         for entry in WalkDir::new(Into::<PathBuf>::into(directory_path))
             .into_iter()
             .filter_map(Result::ok)

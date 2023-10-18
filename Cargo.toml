@@ -1,9 +1,5 @@
 [workspace]
-members = [
-  "crates/ef-testing",
-  "crates/sequencer",
-  "crates/ef-testing-proc-macro",
-]
+members = ["crates/*"]
 resolver = "2"
 
 [workspace.package]

@@ -4,13 +4,43 @@ use rayon::prelude::*;
 use serde_json::Value;
 
 use crate::{
-    constants::{FORK, REGEX},
+    constants::{FORK, UNSUPPORTED_IDENTIFIER_CHAR},
     content_reader::ContentReader,
     dir_reader::{DirReader, PathWrapper},
 };
 
-/// The TestConverter is used to convert all the
-/// tests files in to rust tests.
+/// The TestConverter is used to convert the directory structure
+/// into a String containing all the rust tests to be ran.
+///
+/// # Example
+///
+/// Test location: BlockchainTests/GeneralStateTests/stRandom/
+/// List of tests: [randomStatetest0.json, randomStatetest1.json, ...]
+/// Inner tests: [randomStatetest0_d0g0v0_Shanghai, randomStatetest0_d1g0v0_Shanghai,
+/// ..., randomStatetest1_d0g0v0_Shanghai, randomStatetest1_d1g0v0_Shanghai, ...]
+/// Generated String:
+/// r#"
+/// mod randomStatetest0 {
+///   use super::*;
+///   #[test]
+///   fn test_randomStatetest0_d0g0v0_Shanghai() {
+///     ...
+///   }
+///   #[test]
+///   fn test_randomStatetest0_d1g0v0_Shanghai() {
+///     ...
+///   }
+///   #[test]
+///   fn test_randomStatetest1_d0g0v0_Shanghai() {
+///     ...
+///   }
+///   #[test]
+///   fn test_randomStatetest1_d1g0v0_Shanghai() {
+///     ...
+///   }
+///   ...
+/// }
+/// "#
 pub struct TestConverter {
     directory: DirReader,
 }
@@ -92,9 +122,9 @@ impl TestConverter {
     ) -> Result<String, eyre::Error> {
         Ok(format!(
             r#"
-            #[tokio::test(flavor = "multi_thread")]
+            #[test]
             {}
-            async fn test_{}() {{
+            fn test_{}() {{
                 {}
             }}"#,
             if is_skipped { "#[ignore]" } else { "" },
@@ -131,7 +161,7 @@ impl TestConverter {
 
     /// Formats the given string into a valid rust identifier.
     fn format_into_identifier(s: &str) -> String {
-        REGEX
+        UNSUPPORTED_IDENTIFIER_CHAR
             .replace_all(s, "_")
             .replace('-', "_minus_")
             .replace('+', "_plus_")

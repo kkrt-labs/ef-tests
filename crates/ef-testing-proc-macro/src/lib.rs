@@ -24,7 +24,7 @@ fn read_tests_to_stream() -> TokenStream2 {
     let suite_path: PathBuf = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
         .join("../ef-testing/ethereum-tests/BlockchainTests/GeneralStateTests");
     let root_node = root_node
-        .walk_directory(suite_path.into())
+        .walk_dir_and_store_files(suite_path.into())
         .expect("Error while walking directory");
 
     // First level should only contain folders

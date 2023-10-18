@@ -3,6 +3,11 @@ use std::path::{Path, PathBuf};
 use crate::dir_reader::PathWrapper;
 
 /// Converts the path to a string and removes the "BlockchainTests" folder
+///
+/// # Example
+///
+/// Input: BlockchainTests/GeneralStateTests/stCallCreateCallCodeTest/Call1024PreCalls.json
+/// Output: GeneralStateTests/stCallCreateCallCodeTest/Call1024PreCalls.json
 pub(crate) fn blockchain_tests_to_general_state_tests_path(path: PathWrapper) -> PathWrapper {
     Into::<PathBuf>::into(path)
         .components()
