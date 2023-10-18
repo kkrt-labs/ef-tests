@@ -109,7 +109,7 @@ impl EvmState for KakarotSequencer {
         for ((var, keys), v) in storage {
             (&mut self.0.state).set_storage_at(
                 starknet_address,
-                get_storage_var_address(var, &keys), // safe unwrap: all vars are ASCII
+                get_storage_var_address(var, &keys),
                 v,
             );
         }
