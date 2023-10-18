@@ -6,8 +6,6 @@ license.workspace = true
 homepage.workspace = true
 repository.workspace = true
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
 [dependencies]
 bytes = { workspace = true }
 
@@ -40,10 +38,8 @@ eyre = { workspace = true }
 lazy_static = { workspace = true }
 regex = { workspace = true }
 reqwest = { workspace = true, optional = true }
-rstest = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
-serde_yaml = { workspace = true }
 thiserror = { workspace = true }
 tokio = { workspace = true }
 tracing = { workspace = true }
@@ -52,3 +48,4 @@ zip = { workspace = true, optional = true }
 
 [dev-dependencies]
 tracing-subscriber = { workspace = true }
+ef-testing-proc-macros = { path = "../ef-testing-proc-macros" }

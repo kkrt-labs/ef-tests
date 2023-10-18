@@ -9,8 +9,6 @@ repository.workspace = true
 readme.workspace = true
 license.workspace = true
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
 [dependencies]
 # Starknet
 # TODO: remove the blockifier patch on the workspace once we can remove Katana.

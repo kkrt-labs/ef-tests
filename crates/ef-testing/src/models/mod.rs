@@ -1,7 +1,5 @@
 pub mod case;
 pub mod error;
-pub mod result;
-pub mod suite;
 
 use std::str::FromStr;
 
