@@ -1,15 +1,15 @@
 use std::collections::BTreeMap;
-use std::io::Read;
 use std::path::PathBuf;
 use std::sync::Arc;
 
 use walkdir::WalkDir;
 
 use crate::constants::ROOT;
-use crate::constants::SKIPPED_TESTS_PATH;
+use crate::constants::SKIPPED_TESTS;
 use crate::filter::Filter;
+use crate::path::PathWrapper;
+use crate::utils::path_relative_to;
 use crate::utils::path_to_vec_string;
-use crate::utils::trim_path_at_folder;
 
 /// The DirReader will iterate all folders and
 /// files in the given directory and stores them
@@ -29,7 +29,7 @@ impl DirReader {
         Self {
             sub_dirs: BTreeMap::default(),
             files: Vec::default(),
-            filter: Arc::new(Filter::new(SKIPPED_TESTS_PATH.clone())),
+            filter: Arc::new(Filter::new(SKIPPED_TESTS.to_string())),
         }
     }
 
@@ -45,10 +45,7 @@ impl DirReader {
         {
             let full_path = entry.path();
             let path = path_to_vec_string(full_path)?;
-            self.insert_file(
-                trim_path_at_folder(path, ROOT),
-                full_path.to_path_buf().into(),
-            );
+            self.insert_file(path_relative_to(path, ROOT), full_path.to_path_buf().into());
         }
         Ok(self)
     }
@@ -68,45 +65,5 @@ impl DirReader {
             let skip = self.filter.is_skipped(&full_path);
             self.files.push((full_path, skip));
         }
-    }
-}
-
-#[derive(Clone, Debug, Default)]
-pub struct PathWrapper(PathBuf);
-
-impl From<PathBuf> for PathWrapper {
-    fn from(path: PathBuf) -> Self {
-        Self(path)
-    }
-}
-
-impl From<PathWrapper> for PathBuf {
-    fn from(path: PathWrapper) -> Self {
-        path.0
-    }
-}
-
-impl PathWrapper {
-    pub fn read_file_to_string(&self) -> std::io::Result<String> {
-        let mut content = String::new();
-        std::fs::File::open(&self.0)?.read_to_string(&mut content)?;
-        Ok(content)
-    }
-
-    pub fn parent(&self) -> Self {
-        Self(
-            self.0
-                .parent()
-                .expect("Error getting path's parent")
-                .to_path_buf(),
-        )
-    }
-
-    pub fn file_stem_to_string(&self) -> String {
-        self.0
-            .file_stem()
-            .expect("Error getting path's file name")
-            .to_string_lossy()
-            .to_string()
     }
 }

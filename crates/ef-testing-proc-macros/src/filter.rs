@@ -1,8 +1,8 @@
 use regex::Regex;
 use serde::Deserialize;
-use std::{collections::BTreeMap, fs, path::PathBuf};
+use std::collections::BTreeMap;
 
-use crate::dir_reader::PathWrapper;
+use crate::path::PathWrapper;
 
 /// Filter to be applied on the tests files
 #[derive(Deserialize)]
@@ -14,9 +14,8 @@ pub struct Filter {
 }
 
 impl Filter {
-    pub fn new(path: PathBuf) -> Self {
-        let skip_str = fs::read_to_string(path).expect("Error while reading the skip file");
-        serde_yaml::from_str(&skip_str).expect("Error while deserializing into Filter struct")
+    pub fn new(filter: String) -> Self {
+        serde_yaml::from_str(&filter).expect("Error while deserializing into Filter struct")
     }
 
     /// Checks if the given path should be skipped
@@ -52,7 +51,7 @@ mod tests {
 
     #[test]
     fn test_filter_file() {
-        let filter = Filter::new(Path::new("../../blockchain-tests-skip.yml").to_path_buf());
+        let filter = Filter::new(include_str!("../../../blockchain-tests-skip.yml").to_string());
         let path = PathWrapper::from(Path::new(
             "../../ef-testing/ethereum-tests/BlockchainTests/GeneralStateTests/stCallCreateCallCodeTest/Call1024PreCalls.json",
         ).to_path_buf());
@@ -61,7 +60,7 @@ mod tests {
 
     #[test]
     fn test_filter_regex() {
-        let filter = Filter::new(Path::new("../../blockchain-tests-skip.yml").to_path_buf());
+        let filter = Filter::new(include_str!("../../../blockchain-tests-skip.yml").to_string());
         let path = PathWrapper::from(Path::new(
             "../../ef-testing/ethereum-tests/BlockchainTests/GeneralStateTests/stBadOpcode/opc4DDiffPlaces.json",
         ).to_path_buf());
