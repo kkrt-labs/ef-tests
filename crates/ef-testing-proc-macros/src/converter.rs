@@ -6,7 +6,8 @@ use serde_json::Value;
 use crate::{
     constants::{FORK, UNSUPPORTED_IDENTIFIER_CHAR},
     content_reader::ContentReader,
-    dir_reader::{DirReader, PathWrapper},
+    dir_reader::DirReader,
+    path::PathWrapper,
 };
 
 /// The TestConverter is used to convert the directory structure
@@ -87,18 +88,22 @@ impl TestConverter {
         for (file_path, is_skipped) in files {
             let content = file_path.read_file_to_string()?;
             let cases: BTreeMap<String, serde_json::Value> = serde_json::from_str(&content)?;
-            acc +=
-                &cases.into_iter().fold(
-                    Ok(String::new()),
-                    |acc: Result<String, eyre::Error>, (case_name, content)| {
-                        if !case_name.contains(FORK) {
-                            return acc;
-                        }
-                        let sk = ContentReader::secret_key(file_path.clone())?;
-                        Ok(acc?
-                            + &TestConverter::format_to_test(&case_name, sk, content, *is_skipped)?)
-                    },
-                )?
+            acc += &cases.into_iter().fold(
+                Ok(String::new()),
+                |acc: Result<String, eyre::Error>, (case_name, content)| {
+                    if !case_name.contains(FORK) {
+                        return acc;
+                    }
+                    let secret_key = ContentReader::secret_key(file_path.clone())?;
+                    Ok(acc?
+                        + &TestConverter::format_to_test(
+                            &case_name,
+                            secret_key,
+                            content,
+                            *is_skipped,
+                        )?)
+                },
+            )?
         }
         Ok(acc)
     }
@@ -116,7 +121,7 @@ impl TestConverter {
     /// Formats the given test case into a rust test.
     fn format_to_test(
         case_name: &str,
-        sk: Value,
+        secret_key: Value,
         content: Value,
         is_skipped: bool,
     ) -> Result<String, eyre::Error> {
@@ -129,14 +134,14 @@ impl TestConverter {
             }}"#,
             if is_skipped { "#[ignore]" } else { "" },
             TestConverter::format_into_identifier(case_name),
-            Self::format_test_content(case_name, sk, &content, is_skipped)?,
+            Self::format_test_content(case_name, secret_key, &content, is_skipped)?,
         ))
     }
 
     /// Formats the given test content into a rust test.
     fn format_test_content(
         case_name: &str,
-        sk: Value,
+        secret_key: Value,
         content: &Value,
         is_skipped: bool,
     ) -> Result<String, eyre::Error> {
@@ -155,7 +160,7 @@ impl TestConverter {
             let case = BlockchainTestCase::new("{}".to_string(), block, pre, post, B256::from_str({}).expect("Error while reading  secret key"));
             case.run().expect("Error while running the test");
         "##,
-            block, pre, post, case_name, sk
+            block, pre, post, case_name, secret_key
         ))
     }
 

@@ -5,6 +5,7 @@ mod content_reader;
 mod converter;
 mod dir_reader;
 mod filter;
+mod path;
 mod utils;
 
 use proc_macro::TokenStream;

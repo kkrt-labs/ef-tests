@@ -2,7 +2,7 @@ use std::collections::BTreeMap;
 
 use serde_json::Value;
 
-use crate::{dir_reader::PathWrapper, utils::blockchain_tests_to_general_state_tests_path};
+use crate::{path::PathWrapper, utils::blockchain_tests_to_general_state_tests_path};
 
 /// The ContentReader is used to read the content of the ef-test tests files.
 /// The tests files are located in the BlockchainTests folder and contain
