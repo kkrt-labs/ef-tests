@@ -31,7 +31,7 @@ revm-primitives = "1.1"
 reth-rlp = { git = "https://github.com/paradigmxyz/reth.git", tag = "v0.1.0-alpha.7" }
 
 # Starknet deps
-cairo-vm = "0.8.2"
+cairo-vm = "=0.8.2"
 blockifier = { package = "blockifier", git = "https://github.com/starkware-libs/blockifier.git", tag = "v0.3.0-rc0" }
 starknet = "0.6.0"
 starknet_api = "0.5.0-rc1"
@@ -70,6 +70,12 @@ log4rs = "1.2.0"
 [patch."https://github.com/ethereum/c-kzg-4844"]
 c-kzg = { git = "https://github.com/rjected/c-kzg-4844", branch = "dan/add-serde-feature" }
 
+[patch."https://github.com/starkware-libs/blockifier.git"]
+blockifier = { package = "blockifier", git = "https://github.com/kkrt-labs/blockifier.git", branch = "v0.3.0-rc0" }
+
+
 [patch.crates-io]
 revm = { git = "https://github.com/bluealloy/revm/", branch = "release/v25" }
 revm-primitives = { git = "https://github.com/bluealloy/revm/", branch = "release/v25" }
+cairo-felt = { git = "https://github.com/kkrt-labs/cairo-vm.git", branch = "v0.8.2" }
+cairo-vm = { git = "https://github.com/kkrt-labs/cairo-vm.git", branch = "v0.8.2" }

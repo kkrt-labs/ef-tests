@@ -109,7 +109,7 @@ impl EvmState for KakarotSequencer {
         for ((var, keys), v) in storage {
             (&mut self.0.state).set_storage_at(
                 starknet_address,
-                get_storage_var_address(var, &keys).unwrap(), // safe unwrap: all vars are ASCII
+                get_storage_var_address(var, &keys),
                 v,
             );
         }
@@ -120,7 +120,7 @@ impl EvmState for KakarotSequencer {
         // Add the address to the Kakarot evm to starknet mapping
         (&mut self.0.state).set_storage_at(
             *KAKAROT_ADDRESS,
-            get_storage_var_address("evm_to_starknet_address", &[evm_address]).unwrap(),
+            get_storage_var_address("evm_to_starknet_address", &[evm_address]),
             *starknet_address.0.key(),
         );
         Ok(())
@@ -185,7 +185,7 @@ impl EvmState for KakarotSequencer {
         let implementation = (&mut self.0.state)
             .get_storage_at(
                 starknet_address.try_into()?,
-                get_storage_var_address("_implementation", &[])?,
+                get_storage_var_address("_implementation", &[]),
             )
             .unwrap();
 
@@ -194,7 +194,7 @@ impl EvmState for KakarotSequencer {
                 .get_nonce_at(starknet_address.try_into()?)?
                 .0
         } else if implementation == CONTRACT_ACCOUNT_CLASS_HASH.0 {
-            let key = get_storage_var_address("nonce", &[])?;
+            let key = get_storage_var_address("nonce", &[]);
             (&mut self.0.state).get_storage_at(starknet_address.try_into()?, key)?
         } else {
             // We can't throw an error here, because it could just be an uninitialized account.
@@ -214,7 +214,7 @@ impl EvmState for KakarotSequencer {
 
         let bytecode_len = (&mut self.0.state).get_storage_at(
             starknet_address.try_into()?,
-            get_storage_var_address("bytecode_len_", &[])?,
+            get_storage_var_address("bytecode_len_", &[]),
         )?;
         let bytecode_len: u64 = bytecode_len.try_into()?;
         if bytecode_len == 0 {
@@ -226,13 +226,13 @@ impl EvmState for KakarotSequencer {
         let mut bytecode: Vec<u8> = Vec::new();
 
         for chunk_index in 0..num_chunks {
-            let key = get_storage_var_address("bytecode_", &[StarkFelt::from(chunk_index)])?;
+            let key = get_storage_var_address("bytecode_", &[StarkFelt::from(chunk_index)]);
             let code = (&mut self.0.state).get_storage_at(starknet_address.try_into()?, key)?;
             bytecode.append(&mut high_16_bytes_of_felt_to_bytes(&code.into(), 16).to_vec());
         }
 
         let remainder = bytecode_len % 16;
-        let key = get_storage_var_address("bytecode_", &[StarkFelt::from(num_chunks)])?;
+        let key = get_storage_var_address("bytecode_", &[StarkFelt::from(num_chunks)]);
         let code = (&mut self.0.state).get_storage_at(starknet_address.try_into()?, key)?;
         bytecode
             .append(&mut high_16_bytes_of_felt_to_bytes(&code.into(), remainder as usize).to_vec());
@@ -324,8 +324,7 @@ mod tests {
         let storage = (&mut sequencer.0.state)
             .get_storage_at(
                 contract_starknet_address,
-                get_storage_var_address("storage_", &[StarkFelt::from(0u8), StarkFelt::from(0u8)])
-                    .unwrap(),
+                get_storage_var_address("storage_", &[StarkFelt::from(0u8), StarkFelt::from(0u8)]),
             )
             .unwrap();
         assert_eq!(storage, StarkFelt::from(1u8));

@@ -45,7 +45,7 @@ impl KakarotSequencer {
         for (k, v) in storage {
             (&mut self.0.state).set_storage_at(
                 *KAKAROT_ADDRESS,
-                get_storage_var_address(k, &[]).unwrap(), // safe unwrap: all vars are ASCII
+                get_storage_var_address(k, &[]),
                 v,
             );
         }
