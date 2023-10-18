@@ -164,7 +164,7 @@ mod tests {
     fn fund(address: StarkFelt, mut state: &mut State) {
         state.set_storage_at(
             *ETH_FEE_TOKEN_ADDRESS,
-            get_storage_var_address("ERC20_balances", &[address]).unwrap(),
+            get_storage_var_address("ERC20_balances", &[address]),
             StarkFelt::from(u128::MAX),
         );
     }
@@ -265,7 +265,7 @@ mod tests {
         let actual = (&mut sequencer.state)
             .get_storage_at(
                 *TEST_CONTRACT,
-                get_storage_var_address("counter", &[]).unwrap(),
+                get_storage_var_address("counter", &[]),
             )
             .unwrap();
         assert_eq!(expected, actual);
@@ -305,7 +305,7 @@ mod tests {
         let actual = (&mut sequencer.state)
             .get_storage_at(
                 *TEST_CONTRACT,
-                get_storage_var_address("counter", &[]).unwrap(),
+                get_storage_var_address("counter", &[]),
             )
             .unwrap();
         assert_eq!(expected, actual);
