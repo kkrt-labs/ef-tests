@@ -87,11 +87,9 @@ impl BlockchainTestCase {
             .map_err(|err| RunnerError::Other(err.to_string()))?;
         let sender_address = wallet.address().to_fixed_bytes();
 
+        let maybe_block_header = self.block.block_header.as_ref();
         // Get gas used from block header
-        let gas_used = self
-            .block
-            .block_header
-            .as_ref()
+        let gas_used = maybe_block_header
             .map(|block_header| block_header.gas_used.0)
             .unwrap_or_default();
 
