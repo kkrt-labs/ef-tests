@@ -23,7 +23,7 @@ use starknet::core::types::{BroadcastedTransaction, FieldElement};
 
 #[derive(Debug)]
 pub struct BlockchainTestCase {
-    name: String,
+    case_name: String,
     block: Block,
     pre: State,
     post: RootOrState,
@@ -42,7 +42,7 @@ impl BlockchainTestCase {
         secret_key: B256,
     ) -> Self {
         Self {
-            name: case_name,
+            case_name,
             block,
             pre,
             post,
@@ -181,7 +181,7 @@ impl Case for BlockchainTestCase {
         let sequencer = KakarotSequencer::new(SequencerState::default());
         let mut sequencer = sequencer.initialize()?;
 
-        tracing::info!("Running test {}", self.name);
+        tracing::info!("Running test {}", self.case_name);
 
         self.handle_pre_state(&mut sequencer)?;
 
