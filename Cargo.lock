@@ -501,8 +501,7 @@ dependencies = [
 [[package]]
 name = "bincode"
 version = "2.0.0-rc.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f11ea1a0346b94ef188834a65c068a03aec181c94896d481d7a0a40d85b0ce95"
+source = "git+https://github.com/bincode-org/bincode.git?tag=v2.0.0-rc.3#aada4bb4cb457677a4b8e47572ae7ca8dd44927c"
 dependencies = [
  "serde",
 ]
@@ -650,7 +649,7 @@ dependencies = [
 [[package]]
 name = "blockifier"
 version = "0.3.0-rc0"
-source = "git+https://github.com/starkware-libs/blockifier.git?tag=v0.3.0-rc0#72087fe729a950f284189fa74304824e7c1c99ee"
+source = "git+https://github.com/kkrt-labs/blockifier.git?branch=v0.3.0-rc0#5115a78272e31ea5db4423179dda8330f1986dff"
 dependencies = [
  "ark-ec",
  "ark-ff 0.4.2",
@@ -919,9 +918,8 @@ checksum = "3a4f925191b4367301851c6d99b09890311d74b0d43f274c0b34c86d308a3663"
 
 [[package]]
 name = "cairo-felt"
-version = "0.8.7"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5972097b8800ca5dffb458040e74c724a2ac4fa4b5b480b50f5b96c7e67d6427"
+version = "0.8.2"
+source = "git+https://github.com/kkrt-labs/cairo-vm.git?branch=v0.8.2#2105b7c2f6c37d003ae7a4e0c531e8a3233eb5f2"
 dependencies = [
  "lazy_static",
  "num-bigint",
@@ -1389,9 +1387,8 @@ dependencies = [
 
 [[package]]
 name = "cairo-vm"
-version = "0.8.7"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "00d9bf139b0fe845627cf09d11af43eec9575dba702033bf6b08050c776b8553"
+version = "0.8.2"
+source = "git+https://github.com/kkrt-labs/cairo-vm.git?branch=v0.8.2#2105b7c2f6c37d003ae7a4e0c531e8a3233eb5f2"
 dependencies = [
  "anyhow",
  "bincode 2.0.0-rc.3",
