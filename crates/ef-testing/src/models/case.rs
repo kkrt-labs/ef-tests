@@ -151,6 +151,7 @@ impl BlockchainTestCase {
         sequencer: &mut KakarotSequencer,
         test_case_name: &str,
     ) -> Result<(), RunnerError> {
+        // Get sender address
         let test = self.test(test_case_name)?;
         let sk = self.transaction.transaction.secret_key;
         let wallet =
@@ -164,17 +165,30 @@ impl BlockchainTestCase {
             .map(|block_header| block_header.gas_used.0)
             .unwrap_or_default();
 
-        // Get gas price from transaction
-        let maybe_transaction = maybe_block.and_then(|block| {
-            block
-                .transactions
-                .as_ref()
-                .and_then(|transactions| transactions.first())
-        });
-        let gas_price = maybe_transaction
-            .and_then(|transaction| transaction.gas_price.map(|gas_price| gas_price.0))
+        // Get coinbase address
+        let coinbase = maybe_block_header
+            .map(|block_header| block_header.coinbase)
             .unwrap_or_default();
-        let transaction_cost = gas_price * gas_used;
+
+        // Get baseFeePerGas
+        let base_fee_per_gas = maybe_block_header
+            .and_then(|block_header| block_header.base_fee_per_gas)
+            .map(|base_fee| base_fee.0)
+            .unwrap_or_default();
+
+        // Get gas price from transaction
+        let maybe_transaction = maybe_block
+            .and_then(|block| block.transactions.as_ref())
+            .and_then(|transactions| transactions.first());
+        let gas_price = maybe_transaction
+            .and_then(|transaction| transaction.gas_price)
+            .map(|gas_price| gas_price.0)
+            .unwrap_or_default();
+        let transaction_cost = if coinbase.0 != sender_address {
+            gas_price
+        } else {
+            base_fee_per_gas
+        } * gas_used;
 
         let post_state = match test.post_state.clone().ok_or_else(|| {
             RunnerError::Other(format!("missing post state for {}", test_case_name))
