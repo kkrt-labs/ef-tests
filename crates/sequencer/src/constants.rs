@@ -9,7 +9,6 @@ pub mod test_constants {
     };
 
     lazy_static::lazy_static! {
-        pub static ref TEST_CONTRACT_ADDRESS: ContractAddress = ContractAddress(*ONE_PATRICIA);
         pub static ref TEST_CONTRACT: ContractAddress = ContractAddress(*ONE_PATRICIA);
         pub static ref TEST_ACCOUNT: ContractAddress = ContractAddress(*TWO_PATRICIA);
         pub static ref TEST_STORAGE_KEY: StorageKey =  StorageKey(*ONE_PATRICIA);

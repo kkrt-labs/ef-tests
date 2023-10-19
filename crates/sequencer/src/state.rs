@@ -220,12 +220,9 @@ mod tests {
 
     use blockifier::execution::contract_class::ContractClassV0;
 
-    use crate::{
-        constants::test_constants::{
-            ONE_CLASS_HASH, ONE_COMPILED_CLASS_HASH, ONE_FELT, ONE_PATRICIA, TEST_CONTRACT,
-            TEST_CONTRACT_ADDRESS, TEST_NONCE, TEST_STORAGE_KEY,
-        },
-        serde::SerializableState,
+    use crate::constants::test_constants::{
+        ONE_CLASS_HASH, ONE_COMPILED_CLASS_HASH, ONE_FELT, ONE_PATRICIA, TEST_CONTRACT, TEST_NONCE,
+        TEST_STORAGE_KEY,
     };
 
     use super::*;
@@ -342,7 +339,7 @@ mod tests {
         let contract_class = ContractClass::V0(contract_class);
 
         let compiled_class_hash = *ONE_COMPILED_CLASS_HASH;
-        let contract_address = *TEST_CONTRACT_ADDRESS;
+        let contract_address = *TEST_CONTRACT;
         let contract_storage_key: ContractStorageKey = (contract_address, *TEST_STORAGE_KEY);
         let storage_value = *ONE_FELT;
         let nonce = *TEST_NONCE;
