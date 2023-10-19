@@ -1,4 +1,4 @@
-use std::fs::{self, File};
+use std::fs;
 use std::path::PathBuf;
 
 use blockifier::state::cached_state::CommitmentStateDiff;
@@ -18,10 +18,9 @@ use starknet_api::{
 };
 
 use serde::{Deserialize, Serialize};
-use thiserror::Error;
 
 use crate::commit::Committer;
-use crate::serde::SerializableState;
+use crate::serde::{SerializableState, SerializationError};
 
 /// Generic state structure for the sequencer.
 /// The use of `FxHashMap` allows for a better performance.
@@ -42,6 +41,33 @@ impl State {
     /// Helper function allowing to set the nonce of a contract.
     pub fn set_nonce(&mut self, contract_address: ContractAddress, nonce: Nonce) {
         self.nonces.insert(contract_address, nonce);
+    }
+
+    /// This will serialize the current state, and will save it to a path
+    pub fn dump_state_to_file(&self, path: &PathBuf) -> Result<(), SerializationError> {
+        let serializable_state: SerializableState = self.into();
+
+        let dump = serde_json::to_string(&serializable_state).map_err(|error| {
+            SerializationError::SerdeJsonError {
+                reason: format!("failed to serialize state to path {:?}", path),
+                context: error,
+            }
+        })?;
+
+        fs::write(path, dump).map_err(|error| SerializationError::IoError {
+            reason: format!("failed to write to file at path {:?}", path),
+            context: error,
+        })?;
+
+        Ok(())
+    }
+
+    /// This will read a dump from a file and initialize the state from it
+    pub fn load_state_from_file(path: &PathBuf) -> Result<Self, SerializationError> {
+        let dump = fs::read(path).unwrap();
+        let serialiable_state: SerializableState = serde_json::from_slice(&dump).unwrap();
+
+        Ok(serialiable_state.into())
     }
 }
 
@@ -171,52 +197,6 @@ impl BlockifierStateReader for &mut State {
             .get(&class_hash)
             .copied()
             .ok_or_else(|| StateError::UndeclaredClassHash(class_hash))
-    }
-}
-
-#[derive(Error, Debug)]
-pub enum SerializationError {
-    #[error("{reason:?}")]
-    IoError {
-        reason: String,
-        context: std::io::Error,
-    },
-    #[error("{reason:?}")]
-    SerdeJsonError {
-        reason: String,
-        context: serde_json::Error,
-    },
-}
-
-impl State {
-    /// This will serialize the current state, and will save it to a path
-    pub fn dump_state_to_file(&self, path: &PathBuf) -> Result<(), SerializationError> {
-        let serializable_state: SerializableState = self.into();
-        let dump_file = File::options()
-            .create(true)
-            .read(true)
-            .write(true)
-            .append(false)
-            .open(&path)
-            .map_err(|error| SerializationError::IoError {
-                reason: format!("failed to open file at path {:?}", &path),
-                context: error,
-            })?;
-
-        serde_json::to_writer_pretty(dump_file, &serializable_state).map_err(|error| {
-            SerializationError::SerdeJsonError {
-                reason: format!("failed to serialize state to path {:?}", path),
-                context: error,
-            }
-        })
-    }
-
-    /// This will read a dump from a file and initialize the state from it
-    pub fn load_state_from_file(path: &PathBuf) -> Result<Self, SerializationError> {
-        let dump = fs::read(path).unwrap();
-        let serialiable_state: SerializableState = serde_json::from_slice(&dump).unwrap();
-
-        Ok(serialiable_state.into())
     }
 }
 
@@ -392,9 +372,6 @@ mod tests {
                 dump_file_path, error
             )
         });
-
-        let s1: SerializableState = SerializableState::from(&state);
-        let s2: SerializableState = SerializableState::from(&loaded_state);
 
         assert_eq!(state, loaded_state);
 

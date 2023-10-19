@@ -9,6 +9,21 @@ use starknet_api::{
 };
 
 use crate::state::State;
+use thiserror::Error;
+
+#[derive(Error, Debug)]
+pub enum SerializationError {
+    #[error("{reason:?}")]
+    IoError {
+        reason: String,
+        context: std::io::Error,
+    },
+    #[error("{reason:?}")]
+    SerdeJsonError {
+        reason: String,
+        context: serde_json::Error,
+    },
+}
 
 #[derive(Clone, Debug, Serialize, Deserialize, Default)]
 pub struct SerializableState {
