@@ -5373,9 +5373,11 @@ dependencies = [
  "eyre",
  "lazy_static",
  "rustc-hash",
+ "serde",
  "serde_json",
  "starknet",
  "starknet_api",
+ "thiserror",
  "tracing",
 ]
 

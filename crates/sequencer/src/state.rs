@@ -1,3 +1,6 @@
+use std::fs::{self, File};
+use std::path::PathBuf;
+
 use blockifier::state::cached_state::CommitmentStateDiff;
 use blockifier::state::errors::StateError;
 use blockifier::state::state_api::{
@@ -14,7 +17,11 @@ use starknet_api::{
     hash::StarkFelt,
 };
 
+use serde::{Deserialize, Serialize};
+use thiserror::Error;
+
 use crate::commit::Committer;
+use crate::serde::SerializableState;
 
 /// Generic state structure for the sequencer.
 /// The use of `FxHashMap` allows for a better performance.
@@ -22,13 +29,13 @@ use crate::commit::Committer;
 /// which is faster than the default hash function. Think about changing
 /// if the test sequencer is used for tests outside of ef-tests.
 /// See [rustc-hash](https://crates.io/crates/rustc-hash) for more information.
-#[derive(Default)]
+#[derive(Default, Debug, Serialize, Deserialize, PartialEq)]
 pub struct State {
-    classes: FxHashMap<ClassHash, ContractClass>,
-    compiled_class_hashes: FxHashMap<ClassHash, CompiledClassHash>,
-    contracts: FxHashMap<ContractAddress, ClassHash>,
-    storage: FxHashMap<ContractStorageKey, StarkFelt>,
-    nonces: FxHashMap<ContractAddress, Nonce>,
+    pub classes: FxHashMap<ClassHash, ContractClass>,
+    pub compiled_class_hashes: FxHashMap<ClassHash, CompiledClassHash>,
+    pub contracts: FxHashMap<ContractAddress, ClassHash>,
+    pub storage: FxHashMap<ContractStorageKey, StarkFelt>,
+    pub nonces: FxHashMap<ContractAddress, Nonce>,
 }
 
 impl State {
@@ -167,12 +174,78 @@ impl BlockifierStateReader for &mut State {
     }
 }
 
+#[derive(Error, Debug)]
+pub enum SerializationError {
+    #[error("{reason:?}")]
+    IoError {
+        reason: String,
+        context: std::io::Error,
+    },
+    #[error("{reason:?}")]
+    SerdeJsonError {
+        reason: String,
+        context: serde_json::Error,
+    },
+}
+
+impl State {
+    /// This will serialize the current state, and will save it to a path
+    pub fn dump_state_to_file(&self, path: &PathBuf) -> Result<(), SerializationError> {
+        let serializable_state: SerializableState = self.into();
+        let dump_file = File::options()
+            .create(true)
+            .read(true)
+            .write(true)
+            .append(false)
+            .open(&path)
+            .map_err(|error| SerializationError::IoError {
+                reason: format!("failed to open file at path {:?}", &path),
+                context: error,
+            })?;
+
+        serde_json::to_writer_pretty(dump_file, &serializable_state).map_err(|error| {
+            SerializationError::SerdeJsonError {
+                reason: format!("failed to serialize state to path {:?}", path),
+                context: error,
+            }
+        })
+    }
+
+    /// This will read a dump from a file and initialize the state from it
+    pub fn load_state_from_file(path: &PathBuf) -> Result<Self, SerializationError> {
+        let dump = fs::read(path).unwrap();
+        let serialiable_state: SerializableState = serde_json::from_slice(&dump).unwrap();
+
+        Ok(serialiable_state.into())
+    }
+}
+
+impl From<SerializableState> for State {
+    fn from(serializable_state: SerializableState) -> Self {
+        let state = Self {
+            classes: serializable_state.classes.clone(),
+            compiled_class_hashes: serializable_state.compiled_classes_hash.clone(),
+            contracts: serializable_state.contracts.clone(),
+            storage: serializable_state.storage.clone(),
+            nonces: serializable_state.nonces.clone(),
+        };
+
+        state
+    }
+}
+
 #[cfg(test)]
 mod tests {
+    use std::{fs, path::PathBuf};
+
     use blockifier::execution::contract_class::ContractClassV0;
 
-    use crate::constants::test_constants::{
-        ONE_CLASS_HASH, ONE_COMPILED_CLASS_HASH, ONE_FELT, ONE_PATRICIA, TEST_CONTRACT,
+    use crate::{
+        constants::test_constants::{
+            ONE_CLASS_HASH, ONE_COMPILED_CLASS_HASH, ONE_FELT, ONE_PATRICIA, TEST_CONTRACT,
+            TEST_CONTRACT_ADDRESS, TEST_NONCE, TEST_STORAGE_KEY,
+        },
+        serde::SerializableState,
     };
 
     use super::*;
@@ -276,5 +349,60 @@ mod tests {
 
         // When
         state.get_compiled_class_hash(*ONE_CLASS_HASH).unwrap();
+    }
+
+    #[test]
+    pub fn dump_and_load_state() {
+        let mut state = State::default();
+
+        // setting up entry for state.classes
+        let class_hash = *ONE_CLASS_HASH;
+        let contract_class = include_str!("./test_data/cairo_0/compiled_classes/counter.json");
+        let contract_class: ContractClassV0 =  serde_json::from_str(contract_class).expect("failed to deserialize ContractClass from ./crates/sequencer/test_data/cairo_1/compiled_classes/account.json");
+        let contract_class = ContractClass::V0(contract_class);
+
+        let compiled_class_hash = *ONE_COMPILED_CLASS_HASH;
+        let contract_address = *TEST_CONTRACT_ADDRESS;
+        let contract_storage_key: ContractStorageKey = (contract_address, *TEST_STORAGE_KEY);
+        let storage_value = *ONE_FELT;
+        let nonce = *TEST_NONCE;
+
+        state.classes.insert(class_hash, contract_class);
+        state
+            .compiled_class_hashes
+            .insert(class_hash, compiled_class_hash);
+        state.contracts.insert(contract_address, class_hash);
+        state.storage.insert(contract_storage_key, storage_value);
+        state.nonces.insert(contract_address, nonce);
+
+        let dump_file_path = PathBuf::from("./src/test_data/katana_dump.json");
+
+        state
+            .dump_state_to_file(&dump_file_path)
+            .unwrap_or_else(|error| {
+                panic!(
+                    "failed to save state to path {:?},\n error {:?}",
+                    dump_file_path, error
+                )
+            });
+
+        let loaded_state = State::load_state_from_file(&dump_file_path).unwrap_or_else(|error| {
+            panic!(
+                "failed loading state from path {:?},\n error {}",
+                dump_file_path, error
+            )
+        });
+
+        let s1: SerializableState = SerializableState::from(&state);
+        let s2: SerializableState = SerializableState::from(&loaded_state);
+
+        assert_eq!(state, loaded_state);
+
+        fs::remove_file(&dump_file_path).unwrap_or_else(|error| {
+            panic!(
+                "error in removing file from path {:?},\n error {}",
+                dump_file_path, error
+            )
+        });
     }
 }

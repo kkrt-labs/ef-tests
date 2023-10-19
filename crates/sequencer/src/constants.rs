@@ -3,13 +3,17 @@ pub mod test_constants {
     use starknet::core::types::FieldElement;
     use starknet_api::{
         block::{BlockNumber, BlockTimestamp},
-        core::{ClassHash, CompiledClassHash, ContractAddress, PatriciaKey},
+        core::{ClassHash, CompiledClassHash, ContractAddress, Nonce, PatriciaKey},
         hash::StarkFelt,
+        state::StorageKey,
     };
 
     lazy_static::lazy_static! {
+        pub static ref TEST_CONTRACT_ADDRESS: ContractAddress = ContractAddress(*ONE_PATRICIA);
         pub static ref TEST_CONTRACT: ContractAddress = ContractAddress(*ONE_PATRICIA);
         pub static ref TEST_ACCOUNT: ContractAddress = ContractAddress(*TWO_PATRICIA);
+        pub static ref TEST_STORAGE_KEY: StorageKey =  StorageKey(*ONE_PATRICIA);
+        pub static ref TEST_NONCE: Nonce =  Nonce(*ONE_FELT);
         pub static ref SENDER_ADDRESS: FieldElement = FieldElement::from(2u8);
         pub static ref SEQUENCER_ADDRESS: ContractAddress = ContractAddress(TryInto::<PatriciaKey>::try_into(StarkFelt::from(1234u16)).unwrap());
         pub static ref ETH_FEE_TOKEN_ADDRESS: ContractAddress = ContractAddress(TryInto::<PatriciaKey>::try_into(StarkFelt::from(12345u16)).unwrap());
