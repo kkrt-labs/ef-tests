@@ -36,15 +36,13 @@ pub struct SerializableState {
 }
 impl From<&State> for SerializableState {
     fn from(state: &State) -> Self {
-        let serializable_state = Self {
+        Self {
             classes: state.classes.clone(),
             compiled_classes_hash: state.compiled_class_hashes.clone(),
             contracts: state.contracts.clone(),
             storage: state.storage.clone(),
             nonces: state.nonces.clone(),
-        };
-
-        serializable_state
+        }
     }
 }
 
