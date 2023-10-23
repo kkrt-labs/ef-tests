@@ -37,11 +37,15 @@ jobs:
       - uses: taiki-e/install-action@nextest
       - name: run tests
         run: |
-          OUTPUT=$(make tests)
-          echo "test-output=$OUTPUT" >> $GITHUB_OUTPUT
+          echo "$(make tests 2>&1)" >> output
+          echo "$output"
+          exit_code=$?
+          if [ $exit_code -ne 0 ]; then
+            exit $exit_code
+          fi
+          echo "$(echo "$output" | base64)" >> output_base_64
+          echo "test-output=$output_base_64" >> $GITHUB_OUTPUT
         id: run_tests
-      - name: display test output
-        run: echo "${{join(steps.run_tests.outputs.test-output, '\n')}}"
       - name: get resources
         run: python scripts/compute_resources.py
         env:
