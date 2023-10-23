@@ -16,6 +16,10 @@ jobs:
     timeout-minutes: 45
     steps:
       - uses: actions/checkout@v3
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.x
       - name: Setup rust env
         uses: actions-rs/toolchain@v1
         with:
@@ -32,4 +36,17 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
       - uses: taiki-e/install-action@nextest
       - name: run tests
-        run: make tests
+        run: echo "test-output=$(make tests)" >> $GITHUB_OUTPUT
+        id: run_tests
+      - name: display test output
+        run: echo "${{join(steps.run_tests.outputs.test-output, '\n')}}"
+      - name: get resources
+        run: python scripts/compute_resources.py
+        env:
+          OUTPUT: ${{join(steps.run_tests.outputs.test-output, '\n')}}
+      # upload artifacts
+      - name: upload resources
+        uses: actions/upload-artifact@v3
+        with:
+          path: ./resources.csv
+          name: resources-usage
