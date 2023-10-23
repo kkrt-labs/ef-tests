@@ -36,8 +36,12 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
       - uses: taiki-e/install-action@nextest
       - name: run tests
-        run: echo "test-output=$(make tests)" >> $GITHUB_OUTPUT
+        run: |
+          OUTPUT=$(make tests)
+          echo "test-output=$OUTPUT" >> $GITHUB_OUTPUT
         id: run_tests
+      - name: display test output
+        run: echo "${{join(steps.run_tests.outputs.test-output, '\n')}}"
       - name: get resources
         run: python scripts/compute_resources.py
         env:
