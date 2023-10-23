@@ -87,7 +87,13 @@ where
                 } else {
                     // If the transaction succeeded, we commit the state.
                     <&mut S>::commit(&mut cached_state)?;
+                    // trace the execution information
                     trace!("Transaction execution succeeded {execution_information:?}");
+                    // warn the execution costs
+                    warn!(
+                        "Transaction execution costs {:?}",
+                        execution_information.actual_resources
+                    );
                 }
             }
         }
