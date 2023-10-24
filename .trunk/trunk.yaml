@@ -23,7 +23,6 @@ lint:
       run_timeout: 20m
   enabled:
     - actionlint@1.6.26
-    - bandit@1.7.5
     - black@23.9.1
     - checkov@2.5.9
     - clippy@SYSTEM

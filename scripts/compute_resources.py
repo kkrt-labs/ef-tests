@@ -25,8 +25,7 @@ def get_resource_usage():
         raise RuntimeError("Error while running ef-tests") from e
     matches = re.findall("Running test (.*)\n.*ResourcesMapping\((.*)\)", result.stdout)
     tests_resources = [
-        dict(json.loads(resources), **{"test": test_name})
-        for test_name, resources in matches
+        {**json.loads(resources), "test": test_name} for test_name, resources in matches
     ]
     return tests_resources
 
