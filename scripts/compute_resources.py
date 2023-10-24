@@ -1,15 +1,20 @@
 import csv
 import json
+import logging
 import re
 import subprocess
+
+logging.basicConfig()
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 
 def get_resource_usage():
     try:
         result = subprocess.run("make tests", stdout= subprocess.PIPE, stderr=subprocess.STDOUT, text=True, shell=True, check=True)
-        print(result.stdout)
+        logger.info(result.stdout)
     except subprocess.CalledProcessError as e:
-        print(e.stdout)
+        logger.error(e.stdout)
         raise RuntimeError("Error while running ef-tests") from e
     matches = re.findall("Running test (.*)\n.*ResourcesMapping\((.*)\)", result.stdout)
     tests_resources = [dict(json.loads(resources), ** {"test": test_name}) for test_name, resources in matches]
