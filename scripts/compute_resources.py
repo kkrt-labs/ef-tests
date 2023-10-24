@@ -1,3 +1,4 @@
+import base64
 import csv
 import json
 import os
@@ -25,7 +26,8 @@ def write_resources_to_csv(tests_resources: list, output_file: str = "resources.
             writer.writerow(row)
 
 def main():
-    std_output = os.getenv("OUTPUT")
+    std_output_base_64 = os.getenv("OUTPUT")
+    std_output = base64.b64decode(std_output_base_64).decode("utf-8")
     test_resources = get_resource_usage(std_output)
     write_resources_to_csv(test_resources, output_file="resources.csv")
 

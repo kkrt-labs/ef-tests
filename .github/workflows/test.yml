@@ -37,19 +37,19 @@ jobs:
       - uses: taiki-e/install-action@nextest
       - name: run tests
         run: |
-          echo "$(make tests 2>&1)" >> output
-          echo "$output"
+          output=$(make tests 2>&1)
           exit_code=$?
+          echo "$output"
           if [ $exit_code -ne 0 ]; then
             exit $exit_code
           fi
-          echo "$(echo "$output" | base64)" >> output_base_64
-          echo "test-output=$output_base_64" >> $GITHUB_OUTPUT
+          output_base64=$(echo "$output" | base64 -w 0)
+          echo "test-output=$output_base64" >> $GITHUB_OUTPUT
         id: run_tests
       - name: get resources
         run: python scripts/compute_resources.py
         env:
-          OUTPUT: ${{ steps.run_tests.outputs.test-output }} | base64 -d
+          OUTPUT: ${{ steps.run_tests.outputs.test-output }}
       # upload artifacts
       - name: upload resources
         uses: actions/upload-artifact@v3
