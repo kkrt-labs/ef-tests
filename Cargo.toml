@@ -65,7 +65,6 @@ serde_yaml = "0.9.25"
 
 # Log
 log = "0.4.20"
-log4rs = "1.2.0"
 
 [patch."https://github.com/ethereum/c-kzg-4844"]
 c-kzg = { git = "https://github.com/rjected/c-kzg-4844", branch = "dan/add-serde-feature" }

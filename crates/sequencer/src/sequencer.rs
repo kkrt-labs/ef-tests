@@ -11,7 +11,7 @@ use blockifier::{
     },
 };
 use starknet_api::core::ContractAddress;
-use tracing::{trace, warn};
+use tracing::{info, trace, warn};
 
 /// Sequencer is the main struct of the sequencer crate.
 /// Using a trait bound for the state allows for better
@@ -87,7 +87,13 @@ where
                 } else {
                     // If the transaction succeeded, we commit the state.
                     <&mut S>::commit(&mut cached_state)?;
+                    // trace the execution information
                     trace!("Transaction execution succeeded {execution_information:?}");
+                    // info the execution costs
+                    info!(
+                        "Transaction execution costs {:?}",
+                        execution_information.actual_resources
+                    );
                 }
             }
         }

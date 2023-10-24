@@ -27,7 +27,6 @@ starknet = { workspace = true }
 
 # Log
 log = { workspace = true }
-log4rs = { workspace = true }
 
 # Other
 async-trait = { workspace = true }
