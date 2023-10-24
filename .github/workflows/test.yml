@@ -49,7 +49,7 @@ jobs:
       - name: get resources
         run: python scripts/compute_resources.py
         env:
-          OUTPUT: ${{join(steps.run_tests.outputs.test-output, '\n')}}
+          OUTPUT: ${{ steps.run_tests.outputs.test-output }} | base64 -d
       # upload artifacts
       - name: upload resources
         uses: actions/upload-artifact@v3
