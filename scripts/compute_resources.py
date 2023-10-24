@@ -11,18 +11,34 @@ logger.setLevel(logging.INFO)
 
 def get_resource_usage():
     try:
-        result = subprocess.run("make tests", stdout= subprocess.PIPE, stderr=subprocess.STDOUT, text=True, shell=True, check=True)
+        result = subprocess.run(
+            "make tests",
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            text=True,
+            shell=True,
+            check=True,
+        )
         logger.info(result.stdout)
     except subprocess.CalledProcessError as e:
         logger.error(e.stdout)
         raise RuntimeError("Error while running ef-tests") from e
     matches = re.findall("Running test (.*)\n.*ResourcesMapping\((.*)\)", result.stdout)
-    tests_resources = [dict(json.loads(resources), ** {"test": test_name}) for test_name, resources in matches]
+    tests_resources = [
+        dict(json.loads(resources), **{"test": test_name})
+        for test_name, resources in matches
+    ]
     return tests_resources
+
 
 def write_resources_to_csv(tests_resources: list, output_file: str = "resources.csv"):
     # Get all keys and skip "test" key
-    keys = {key for resources in tests_resources for key in resources.keys() if key != "test"}
+    keys = {
+        key
+        for resources in tests_resources
+        for key in resources.keys()
+        if key != "test"
+    }
     # Re-add "test" key, in order to be sure its first
     keys = ["test"] + sorted(keys)
 
@@ -30,10 +46,11 @@ def write_resources_to_csv(tests_resources: list, output_file: str = "resources.
         writer = csv.DictWriter(f, fieldnames=keys)
 
         writer.writeheader()
-        
+
         # Write data to CSV
         for row in tests_resources:
             writer.writerow(row)
+
 
 def main():
     test_resources = get_resource_usage()
