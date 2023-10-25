@@ -30,11 +30,11 @@ use crate::serde::{SerializableState, SerializationError};
 /// See [rustc-hash](https://crates.io/crates/rustc-hash) for more information.
 #[derive(Clone, Default, Debug, Serialize, Deserialize, PartialEq)]
 pub struct State {
-    pub classes: FxHashMap<ClassHash, ContractClass>,
-    pub compiled_class_hashes: FxHashMap<ClassHash, CompiledClassHash>,
-    pub contracts: FxHashMap<ContractAddress, ClassHash>,
-    pub storage: FxHashMap<ContractStorageKey, StarkFelt>,
-    pub nonces: FxHashMap<ContractAddress, Nonce>,
+    pub(crate) classes: FxHashMap<ClassHash, ContractClass>,
+    pub(crate) compiled_class_hashes: FxHashMap<ClassHash, CompiledClassHash>,
+    pub(crate) contracts: FxHashMap<ContractAddress, ClassHash>,
+    pub(crate) storage: FxHashMap<ContractStorageKey, StarkFelt>,
+    pub(crate) nonces: FxHashMap<ContractAddress, Nonce>,
 }
 
 impl State {
