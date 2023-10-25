@@ -7,7 +7,7 @@ use blockifier::abi::abi_utils::get_storage_var_address;
 use blockifier::execution::contract_class::{ContractClass, ContractClassV0};
 use blockifier::state::errors::StateError;
 use blockifier::state::state_api::{State as BlockifierState, StateResult};
-use blockifier::transaction::errors::TransactionExecutionError;
+use blockifier::transaction::objects::{TransactionExecutionInfo, TransactionExecutionResult};
 use blockifier::transaction::transaction_execution::Transaction;
 use cairo_vm::types::errors::program_errors::ProgramError;
 use sequencer::execution::Execution;
@@ -96,9 +96,11 @@ impl KakarotSequencer {
 }
 
 impl Execution for KakarotSequencer {
-    fn execute(&mut self, transaction: Transaction) -> Result<(), TransactionExecutionError> {
-        let _ = self.0.execute(transaction);
-        Ok(())
+    fn execute(
+        &mut self,
+        transaction: Transaction,
+    ) -> TransactionExecutionResult<TransactionExecutionInfo> {
+        self.0.execute(transaction)
     }
 }
 

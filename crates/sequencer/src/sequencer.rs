@@ -6,12 +6,12 @@ use blockifier::{
         state_api::{State, StateReader},
     },
     transaction::{
-        errors::TransactionExecutionError, transaction_execution::Transaction,
+        objects::{TransactionExecutionInfo, TransactionExecutionResult},
+        transaction_execution::Transaction,
         transactions::ExecutableTransaction,
     },
 };
 use starknet_api::core::ContractAddress;
-use tracing::{info, trace, warn};
 
 /// Sequencer is the main struct of the sequencer crate.
 /// Using a trait bound for the state allows for better
@@ -50,7 +50,10 @@ where
     /// Executes the provided transaction on the current state and leads to a commitment of the
     /// cached state in the case of success. Reversion of the transaction leads to a discarding
     /// of the cached state but still increments the nonce of the sender.
-    fn execute(&mut self, transaction: Transaction) -> Result<(), TransactionExecutionError> {
+    fn execute(
+        &mut self,
+        transaction: Transaction,
+    ) -> TransactionExecutionResult<TransactionExecutionInfo> {
         let sender_address = match &transaction {
             Transaction::AccountTransaction(tx) => match tx {
                 blockifier::transaction::account_transaction::AccountTransaction::Invoke(tx) => {
@@ -71,34 +74,23 @@ where
         let validate = true;
         let res = transaction.execute(&mut cached_state, &self.block_context, charge_fee, validate);
 
-        match res {
+        let execution_information = match res {
             Err(err) => {
-                warn!("Transaction execution failed: {:?}", err);
                 return Err(err);
             }
             Ok(execution_information) => {
-                if let Some(err) = execution_information.revert_error {
+                if execution_information.revert_error.is_some() {
                     // If the transaction reverted, we increment the nonce.
                     (&mut self.state).increment_nonce(sender_address)?;
-                    warn!(
-                        "Transaction execution reverted: {}",
-                        err.replace("\\n", "\n")
-                    );
                 } else {
                     // If the transaction succeeded, we commit the state.
                     <&mut S>::commit(&mut cached_state)?;
-                    // trace the execution information
-                    trace!("Transaction execution succeeded {execution_information:?}");
-                    // info the execution costs
-                    info!(
-                        "Transaction execution costs {:?}",
-                        execution_information.actual_resources
-                    );
                 }
+                execution_information
             }
-        }
+        };
 
-        Ok(())
+        Ok(execution_information)
     }
 }
 
