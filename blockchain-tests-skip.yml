@@ -63,6 +63,7 @@ filename:
     - randomStatetestDEFAULT-Tue_07_58_41-15153-575192_london # ef-tests #483
     - staticcall_createfails # ef-tests #484
   stCallCodes:
+    - call_OOG_additionalGasCosts2 # ef-test #550
     - callcallcall_000 # ef-tests #327
     - callcallcall_000_OOGE # ef-tests #327
     - callcallcall_000_OOGMAfter # ef-tests #327
@@ -141,6 +142,7 @@ filename:
     - callcodecallcodecall_110_SuicideMiddle # ef-tests #485
     - callcodecallcode_11_SuicideEnd # ef-tests #485
   stCallCreateCallCodeTest:
+    - createInitFail_OOGduringInit # ef-test #550
     - Call1024BalanceTooLow # ef-tests #493
     - CallcodeLoseGasOOG # ef-tests #493
     - createInitFailUndefinedInstruction2 # ef-tests #495
@@ -295,6 +297,7 @@ filename:
   stChainId:
     - chainId # ef-tests #299
   stCodeSizeLimit:
+    - create2collisionSelfdestructedOOG # ef-test #550
     - codesizeInit # ef-tests #262
     - codesizeValid # ef-tests #263
     - create2CodeSizeLimit # ef-tests #264
@@ -533,6 +536,8 @@ filename:
     - createContractViaContractOOGInitCode # ef-tests #354
     - createContractViaTransactionCost53000 # ef-tests #354
   stInitCodeTest:
+    - CallContractToCreateContractOOG # et-test #550
+    - TransactionCreateSuicideInInitcode # ef-test #562
     - TransactionCreateStopInInitcode # ef-tests #108
     - CallRecursiveContract # ef-tests #109
     - CallContractToCreateContractWhichWouldCreateContractInInitCode # ef-tests #110
@@ -601,6 +606,7 @@ filename:
     - NonZeroValue_SUICIDE_ToOneStorageKey # ef-tests #514
     - NonZeroValue_SUICIDE_ToNonNonZeroBalance # ef-tests #514
   stRandom:
+    - randomStatetest307 # ef-test #550
     - randomStatetest0 # ef-tests #397
     - randomStatetest1 # ef-tests #397
     - randomStatetest100 # ef-tests #398
@@ -715,6 +721,7 @@ filename:
     - randomStatetest88 # ef-tests #398
     - randomStatetest98 # ef-tests #398
   stRandom2:
+    - randomStatetest646 # ef-test #550
     - 201503110226PYTHON_DUP6 # ef-tests #393
     - randomStatetest389 # ef-tests #395
     - randomStatetest396 # ef-tests #393
@@ -784,6 +791,8 @@ filename:
     - randomStatetest642 # ef-tests #533
     - randomStatetest650 # ef-tests #393
   stRefundTest:
+    - refund_multimpleSuicide # ef-test #550
+    - refund_singleSuicide # ef-test #550
     - refundFF # ef-tests #405
     - refundMax # ef-tests #405
     - refundSSTORE # ef-tests #405
@@ -1175,6 +1184,8 @@ filename:
     - ecmul_0-0_340282366920938463463374607431768211456_28000_128 # ef-test #462
     - ecmul_0-3_0_21000_80 # ef-test #462
   stSystemOperationsTest:
+    - CallToNameRegistratorTooMuchMemory0 # ef-test #550
+    - createNameRegistratorOutOfMemoryBonds0 # ef-test #550
     - ABAcalls0 # ef-test #450
     - ABAcalls1 # ef-test #450
     - ABAcalls2 # ef-test #450
@@ -1251,6 +1262,7 @@ filename:
     - walletConstructionOOG # ef-test #531
     - multiOwnedConstructionNotEnoughGasPartial # ef-test #531
     - walletKill # ef-test #531
+    - walletKillToWallet # ef-test #550
   stStaticCall:
     - StaticcallToPrecompileFromContractInitialization # ef-tests #421
     - static_CallContractToCreateContractAndCallItOOG # ef-tests #421
@@ -1525,6 +1537,9 @@ filename:
     - sstore_combinations_initial21_2 # ef-test #440
     - static_Call50000_sha256 # ef-test #440
   stTransactionTest:
+    - CreateMessageReverted # ef-test #550
+    - InternalCallHittingGasLimit # ef-test #550
+    - SuicidesAndInternlCallSuicidesOOG # ef-test #550
     - CreateMessageSuccess # ef-test #508
     - SuicidesAndInternlCallSuicidesBonusGasAtCallFailed # ef-test #506
     - OverflowGasRequire2 # ef-test #506
