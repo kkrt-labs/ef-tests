@@ -47,17 +47,10 @@ impl State {
     pub fn dump_state_to_file(&self, path: &PathBuf) -> Result<(), SerializationError> {
         let serializable_state: SerializableState = self.into();
 
-        let dump = serde_json::to_string(&serializable_state).map_err(|error| {
-            SerializationError::SerdeJsonError {
-                reason: format!("failed to serialize state to path {:?}", path),
-                context: error,
-            }
-        })?;
+        let dump = serde_json::to_string(&serializable_state)
+            .map_err(SerializationError::SerdeJsonError)?;
 
-        fs::write(path, dump).map_err(|error| SerializationError::IoError {
-            reason: format!("failed to write to file at path {:?}", path),
-            context: error,
-        })?;
+        fs::write(path, dump).map_err(SerializationError::IoError)?;
 
         Ok(())
     }
@@ -65,9 +58,10 @@ impl State {
     /// This will read a dump from a file and initialize the state from it
     pub fn load_state_from_file(path: &PathBuf) -> Result<Self, SerializationError> {
         let dump = fs::read(path).unwrap();
-        let serialiable_state: SerializableState = serde_json::from_slice(&dump).unwrap();
+        let serializable_state: SerializableState =
+            serde_json::from_slice(&dump).map_err(SerializationError::SerdeJsonError)?;
 
-        Ok(serialiable_state.into())
+        Ok(serializable_state.into())
     }
 }
 
