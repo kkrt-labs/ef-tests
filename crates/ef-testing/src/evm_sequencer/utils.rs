@@ -17,25 +17,29 @@ pub fn compute_starknet_address(evm_address: &Address) -> FeltSequencer {
     let evm_address: FeltSequencer = (*evm_address).try_into().unwrap(); // infallible
     let starknet_address = get_contract_address(
         evm_address.into(),
-        get_class_hash_for_csa().0.into(),
+        class_hash_for_csa().0.into(),
         &[],
         (*KAKAROT_ADDRESS.0.key()).into(),
     );
     starknet_address.into()
 }
 
-fn get_class_hash_for_csa() -> ClassHash {
+fn class_hash_for_csa() -> ClassHash {
     #[cfg(not(any(feature = "v0", feature = "v1")))]
-    return ClassHash::default();
-
-    #[cfg_attr(feature = "v0", allow(unreachable_code))]
     {
-        return *crate::evm_sequencer::constants::kkrt_constants_v0::PROXY_CLASS_HASH;
+        ClassHash::default()
     }
 
-    #[cfg_attr(feature = "v1", allow(unreachable_code))]
-    return *crate::evm_sequencer::constants::kkrt_constants_v0::EOA_CLASS_HASH;
-    // TODO change to v1
+    #[cfg(feature = "v0")]
+    {
+        // trunk-ignore(clippy/E0308)
+        *crate::evm_sequencer::constants::kkrt_constants_v0::PROXY_CLASS_HASH
+    }
+
+    #[cfg(feature = "v1")]
+    {
+        *crate::evm_sequencer::constants::kkrt_constants_v0::EOA_CLASS_HASH // TODO change to v1
+    }
 }
 
 /// Splits a byte array into 16-byte chunks and converts each chunk to a StarkFelt.

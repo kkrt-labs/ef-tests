@@ -24,9 +24,6 @@ use crate::evm_sequencer::{
 use super::{InitializationResult, InitializeSequencer, KakarotSequencer};
 
 impl InitializeSequencer for KakarotSequencer {
-    /// Initializes the sequencer state for the v0 version of Kakarot.
-    /// Sets contract, its storage, declares all necessary classes and
-    /// deploys the fee token contract.
     fn initialize(mut self) -> InitializationResult<Self> {
         let storage = vec![
             ("Ownable_owner", *KAKAROT_OWNER_ADDRESS.0.key()),

@@ -12,6 +12,10 @@ pub mod v0;
 #[cfg(feature = "v1")]
 pub mod v1;
 
+/// Sequencer initialization interface. Initializes the sequencer state
+/// by setting contract, its storage, declares all necessary classes and
+/// deploys the fee token contract.
+/// Default implementation is used when no feature flag is enabled.
 pub trait InitializeSequencer {
     fn initialize(self) -> InitializationResult<Self>
     where

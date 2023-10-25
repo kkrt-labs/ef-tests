@@ -7,6 +7,7 @@ use revm_primitives::U256;
 
 /// EVM state interface. Used to setup EOA and contract accounts,
 /// fund them and get their state (balance, nonce, code, storage).
+/// Default implementation is used when no feature flag is enabled.
 pub trait EvmState {
     fn setup_account(
         &mut self,
