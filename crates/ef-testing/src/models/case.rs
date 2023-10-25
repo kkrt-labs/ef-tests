@@ -1,6 +1,6 @@
 // Inspired by https://github.com/paradigmxyz/reth/tree/main/testing/ef-tests
 
-use super::error::RunnerError;
+use super::{error::RunnerError, result::log_execution_result};
 use crate::{
     evm_sequencer::{
         constants::CHAIN_ID, evm_state::EvmState, utils::to_broadcasted_starknet_transaction,
@@ -73,11 +73,13 @@ impl BlockchainTestCase {
         let starknet_transaction = StarknetTransaction::new(BroadcastedTransaction::Invoke(
             to_broadcasted_starknet_transaction(&tx_encoded)?,
         ));
-        sequencer.execute(
+
+        let execution_result = sequencer.execute(
             starknet_transaction
                 .try_into_execution_transaction(FieldElement::from(*CHAIN_ID))
                 .unwrap(),
-        )?;
+        );
+        log_execution_result(execution_result, &self.case_name);
 
         Ok(())
     }
@@ -178,8 +180,6 @@ impl Case for BlockchainTestCase {
     fn run(&self) -> Result<(), RunnerError> {
         let sequencer = KakarotSequencer::new(SequencerState::default());
         let mut sequencer = sequencer.initialize()?;
-
-        tracing::info!("Running test {}", self.case_name);
 
         self.handle_pre_state(&mut sequencer)?;
 

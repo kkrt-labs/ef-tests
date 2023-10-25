@@ -19,11 +19,17 @@ def get_resource_usage():
             shell=True,
             check=True,
         )
-        logger.info(result.stdout)
+        logger.info("\n" + result.stdout)
     except subprocess.CalledProcessError as e:
         logger.error(e.stdout)
         raise RuntimeError("Error while running ef-tests") from e
-    matches = re.findall("Running test (.*)\n.*ResourcesMapping\((.*)\)", result.stdout)
+
+    # Remove ANSI escape sequences
+    cleaned_output = re.sub(r"\x1b\[[0-9;]*[a-zA-Z]", "", result.stdout)
+    matches = re.findall(
+        "ef_testing::models::result: (.*) passed: .?ResourcesMapping\((.*)\)",
+        cleaned_output,
+    )
     tests_resources = [
         {**json.loads(resources), "test": test_name} for test_name, resources in matches
     ]
