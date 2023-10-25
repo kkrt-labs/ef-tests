@@ -132,31 +132,35 @@ impl BlockchainTestCase {
         let post_state = update_post_state(post_state, self.pre.clone());
 
         for (address, expected_state) in post_state.iter() {
+            let mut diff: Vec<String> = vec![];
             // Storage
             for (k, v) in expected_state.storage.iter() {
                 let actual = sequencer.get_storage_at(address, k.0)?;
                 if actual != v.0 {
-                    return Err(RunnerError::Other(format!(
+                    let storage_diff = format!(
                         "storage mismatch for {:#20x} at {:#32x}: expected {:#32x}, got {:#32x}",
                         address, k.0, v.0, actual
-                    )));
+                    );
+                    diff.push(storage_diff);
                 }
             }
             // Nonce
             let actual = sequencer.get_nonce_at(address)?;
             if actual != expected_state.nonce.0 {
-                return Err(RunnerError::Other(format!(
+                let nonce_diff = format!(
                     "nonce mismatch for {:#20x}: expected {:#32x}, got {:#32x}",
                     address, expected_state.nonce.0, actual
-                )));
+                );
+                diff.push(nonce_diff);
             }
             // Bytecode
             let actual = sequencer.get_code_at(address)?;
             if actual != expected_state.code {
-                return Err(RunnerError::Other(format!(
+                let bytecode_diff = format!(
                     "code mismatch for {:#20x}: expected {:#x}, got {:#x}",
                     address, expected_state.code, actual
-                )));
+                );
+                diff.push(bytecode_diff);
             }
             // Balance
             let mut actual = sequencer.get_balance_at(address)?;
@@ -165,10 +169,15 @@ impl BlockchainTestCase {
                 actual -= transaction_cost;
             }
             if actual != expected_state.balance.0 {
-                return Err(RunnerError::Other(format!(
+                let balance_diff = format!(
                     "balance mismatch for {:#20x}: expected {:#32x}, got {:#32x}",
                     address, expected_state.balance.0, actual
-                )));
+                );
+                diff.push(balance_diff);
+            }
+
+            if !diff.is_empty() {
+                return Err(RunnerError::Other(diff.join("\\n")));
             }
         }
 
