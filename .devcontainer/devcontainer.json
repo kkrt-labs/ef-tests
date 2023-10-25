@@ -2,7 +2,6 @@
   "name": "Kakarot-ef-tests",
   "image": "mcr.microsoft.com/devcontainers/base:jammy",
   "features": {
-    "ghcr.io/lee-orr/rusty-dev-containers/cargo-nextest:0": {},
     "ghcr.io/devcontainers-contrib/features/apt-get-packages:1": {
       "packages": "clang"
     },
