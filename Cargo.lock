@@ -5377,6 +5377,7 @@ dependencies = [
  "serde_json",
  "starknet",
  "starknet_api",
+ "tempfile",
  "thiserror",
  "tracing",
 ]

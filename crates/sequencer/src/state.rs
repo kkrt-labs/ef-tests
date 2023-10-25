@@ -208,8 +208,6 @@ impl From<SerializableState> for State {
 
 #[cfg(test)]
 mod tests {
-    use std::{fs, path::PathBuf};
-
     use blockifier::execution::contract_class::ContractClassV0;
 
     use crate::constants::test_constants::{
@@ -344,32 +342,18 @@ mod tests {
         state.storage.insert(contract_storage_key, storage_value);
         state.nonces.insert(contract_address, nonce);
 
-        let dump_file_path = PathBuf::from("./src/test_data/katana_dump.json");
+        let temp_file = tempfile::NamedTempFile::new().expect("failed open named temp file");
+        let dump_file_path = temp_file.into_temp_path();
 
         state
             .clone()
-            .dump_state_to_file(&dump_file_path)
-            .unwrap_or_else(|error| {
-                panic!(
-                    "failed to save state to path {:?},\n error {:?}",
-                    dump_file_path, error
-                )
-            });
+            .dump_state_to_file(&dump_file_path.to_path_buf())
+            .expect("failed to save dump to file");
 
-        let loaded_state = State::load_state_from_file(&dump_file_path).unwrap_or_else(|error| {
-            panic!(
-                "failed loading state from path {:?},\n error {}",
-                dump_file_path, error
-            )
-        });
-
+        let loaded_state = State::load_state_from_file(&dump_file_path.to_path_buf())
+            .expect("failed to load state from file");
         assert_eq!(state, loaded_state);
 
-        fs::remove_file(&dump_file_path).unwrap_or_else(|error| {
-            panic!(
-                "error in removing file from path {:?},\n error {}",
-                dump_file_path, error
-            )
-        });
+        dump_file_path.close().expect("failed to close temp file");
     }
 }
