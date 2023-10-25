@@ -41,7 +41,7 @@ unit:
 
 # Runs the repo tests
 tests:
-	cargo test --lib --no-fail-fast --quiet
+	cargo test --no-fail-fast --quiet
 
 # Runs ef tests only
 ef-test:
