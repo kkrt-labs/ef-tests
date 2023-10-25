@@ -1,7 +1,11 @@
 use blockifier::transaction::{
-    errors::TransactionExecutionError, transaction_execution::Transaction,
+    objects::{TransactionExecutionInfo, TransactionExecutionResult},
+    transaction_execution::Transaction,
 };
 
 pub trait Execution {
-    fn execute(&mut self, transaction: Transaction) -> Result<(), TransactionExecutionError>;
+    fn execute(
+        &mut self,
+        transaction: Transaction,
+    ) -> TransactionExecutionResult<TransactionExecutionInfo>;
 }

@@ -17,8 +17,6 @@ our own simplified test runner based on Reth's ef-tests runner.
 
 ## Requirements
 
-- nextest: to install [nextest](https://nexte.st/index.html), run
-  `cargo install cargo-nextest --locked`
 - A GitHub token in your `.env` file:
   - Copy the `.env.example` file to a `.env` file
   - Create a
