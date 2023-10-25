@@ -58,7 +58,9 @@ impl EvmState for KakarotSequencer {
             }
         })?);
         let starknet_address = compute_starknet_address(evm_address);
-        let evm_address = Into::<FeltSequencer>::into(*evm_address).into();
+        let evm_address = TryInto::<FeltSequencer>::try_into(*evm_address)
+            .unwrap()
+            .into(); // infallible
 
         let mut storage = vec![
             (("evm_address", vec![]), evm_address),
@@ -134,7 +136,7 @@ impl EvmState for KakarotSequencer {
 
         // Initialize the balance storage var.
         let balance_keys = get_erc20_balance_var_addresses(&starknet_address.try_into()?)?;
-        let balance_keys = [balance_keys.0, balance_keys.1];
+        let balance_keys: [StorageKey; 2] = balance_keys.into();
         let balance_storage = &mut balance_keys
             .into_iter()
             .zip(balance_values)
@@ -147,7 +149,7 @@ impl EvmState for KakarotSequencer {
             "ERC20_allowances",
             &[starknet_address.into(), *KAKAROT_ADDRESS.0.key()],
         )?;
-        let allowance_keys = [allowance_keys.0, allowance_keys.1];
+        let allowance_keys: [StorageKey; 2] = allowance_keys.into();
         let allowance_storage = &mut allowance_keys
             .into_iter()
             .map(|k| (k, StarkFelt::from(u128::MAX)))
@@ -270,7 +272,8 @@ mod tests {
     use reth_primitives::{sign_message, AccessList, Signature, TransactionSigned, TxEip1559};
     use revm_primitives::B256;
     use sequencer::{
-        execution::Execution, state::State as SequencerState, transaction::StarknetTransaction,
+        execution::Execution, state::State as SequencerState,
+        transaction::BroadcastedTransactionWrapper,
     };
     use starknet::core::types::{BroadcastedTransaction, FieldElement};
 
@@ -302,7 +305,7 @@ mod tests {
         let transaction = BroadcastedTransaction::Invoke(
             to_broadcasted_starknet_transaction(&output.to_vec().into()).unwrap(),
         );
-        let transaction = StarknetTransaction::new(transaction)
+        let transaction = BroadcastedTransactionWrapper::new(transaction)
             .try_into_execution_transaction(FieldElement::from(*CHAIN_ID))
             .unwrap();
 

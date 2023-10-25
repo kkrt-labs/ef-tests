@@ -2,13 +2,13 @@ use std::path::{Path, PathBuf};
 
 use crate::path::PathWrapper;
 
-/// Converts the path to a string and removes the "BlockchainTests" folder
+/// Converts the path to a string and removes the `BlockchainTests` folder
 ///
 /// # Example
 ///
 /// Input: BlockchainTests/GeneralStateTests/stCallCreateCallCodeTest/Call1024PreCalls.json
 /// Output: GeneralStateTests/stCallCreateCallCodeTest/Call1024PreCalls.json
-pub(crate) fn blockchain_tests_to_general_state_tests_path(path: PathWrapper) -> PathWrapper {
+pub fn blockchain_tests_to_general_state_tests_path(path: PathWrapper) -> PathWrapper {
     Into::<PathBuf>::into(path)
         .components()
         .filter(|x| !x.as_os_str().eq_ignore_ascii_case("BlockchainTests"))
@@ -17,7 +17,7 @@ pub(crate) fn blockchain_tests_to_general_state_tests_path(path: PathWrapper) ->
 }
 
 /// Converts the path to a Vector of Strings
-pub(crate) fn path_to_vec_string(path: &Path) -> Result<Vec<String>, eyre::Error> {
+pub fn path_to_vec_string(path: &Path) -> Result<Vec<String>, eyre::Error> {
     path.iter()
         .map(|os_str| {
             Ok(os_str
@@ -29,7 +29,7 @@ pub(crate) fn path_to_vec_string(path: &Path) -> Result<Vec<String>, eyre::Error
 }
 
 /// Returns the path relative to the given folder
-pub(crate) fn path_relative_to(path: Vec<String>, folder: &str) -> Vec<String> {
+pub fn path_relative_to(path: Vec<String>, folder: &str) -> Vec<String> {
     path.into_iter()
         .skip_while(|x| x != folder)
         .skip(1)

@@ -14,8 +14,8 @@ pub struct Filter {
 }
 
 impl Filter {
-    pub fn new(filter: String) -> Self {
-        serde_yaml::from_str(&filter).expect("Error while deserializing into Filter struct")
+    pub fn new(filter: &str) -> Self {
+        serde_yaml::from_str(filter).expect("Error while deserializing into Filter struct")
     }
 
     /// Checks if the given path should be skipped
@@ -51,7 +51,7 @@ mod tests {
 
     #[test]
     fn test_filter_file() {
-        let filter = Filter::new(include_str!("../../../blockchain-tests-skip.yml").to_string());
+        let filter = Filter::new(include_str!("../../../blockchain-tests-skip.yml"));
         let path = PathWrapper::from(Path::new(
             "../../ef-testing/ethereum-tests/BlockchainTests/GeneralStateTests/stCallCreateCallCodeTest/Call1024PreCalls.json",
         ).to_path_buf());
@@ -60,7 +60,7 @@ mod tests {
 
     #[test]
     fn test_filter_regex() {
-        let filter = Filter::new(include_str!("../../../blockchain-tests-skip.yml").to_string());
+        let filter = Filter::new(include_str!("../../../blockchain-tests-skip.yml"));
         let path = PathWrapper::from(Path::new(
             "../../ef-testing/ethereum-tests/BlockchainTests/GeneralStateTests/stBadOpcode/opc4DDiffPlaces.json",
         ).to_path_buf());

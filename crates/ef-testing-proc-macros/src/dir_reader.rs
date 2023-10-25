@@ -11,7 +11,7 @@ use crate::path::PathWrapper;
 use crate::utils::path_relative_to;
 use crate::utils::path_to_vec_string;
 
-/// The DirReader will iterate all folders and
+/// The `DirReader` will iterate all folders and
 /// files in the given directory and stores them
 /// by using a recursive structure (structure that
 /// contains itself).
@@ -29,7 +29,7 @@ impl DirReader {
         Self {
             sub_dirs: BTreeMap::default(),
             files: Vec::default(),
-            filter: Arc::new(Filter::new(SKIPPED_TESTS.to_string())),
+            filter: Arc::new(Filter::new(SKIPPED_TESTS)),
         }
     }
 
@@ -50,12 +50,12 @@ impl DirReader {
         Ok(self)
     }
 
-    /// Inserts a file into the DirReader by recursively navigating the file's
+    /// Inserts a file into the `DirReader` by recursively navigating the file's
     /// path and inserting the file into the correct sub directory.
     fn insert_file(&mut self, current_path: Vec<String>, full_path: PathWrapper) {
         if current_path.len() > 1 {
             let root_name = current_path.first().cloned().unwrap(); // safe unwrap
-            let sub_node = self.sub_dirs.entry(root_name).or_insert_with(|| DirReader {
+            let sub_node = self.sub_dirs.entry(root_name).or_insert_with(|| Self {
                 sub_dirs: BTreeMap::default(),
                 files: Vec::default(),
                 filter: self.filter.clone(),

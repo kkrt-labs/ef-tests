@@ -18,9 +18,9 @@ use starknet_api::transaction::{
 /// Allows for conversion from a Starknet-rs
 /// transaction to a Blockifier-rs transaction.
 #[derive(Debug)]
-pub struct StarknetTransaction(BroadcastedTransaction);
+pub struct BroadcastedTransactionWrapper(BroadcastedTransaction);
 
-impl StarknetTransaction {
+impl BroadcastedTransactionWrapper {
     #[must_use]
     #[inline]
     pub const fn new(transaction: BroadcastedTransaction) -> Self {

@@ -4,19 +4,19 @@ use serde_json::Value;
 
 use crate::{path::PathWrapper, utils::blockchain_tests_to_general_state_tests_path};
 
-/// The ContentReader is used to read the content of the ef-test tests files.
-/// The tests files are located in the BlockchainTests folder and contain
+/// The `ContentReader` is used to read the content of the ef-test tests files.
+/// The tests files are located in the `BlockchainTests` folder and contain
 /// the target block, the pre state, the transaction and the post state.
 ///
-/// The tests are doubled and located in the GeneralStateTests folder, but
+/// The tests are doubled and located in the `GeneralStateTests` folder, but
 /// in a lighter version. The secret key for the transaction is only located
-/// in the GeneralStateTests folder.
+/// in the `GeneralStateTests` folder.
 pub struct ContentReader;
 
 impl ContentReader {
-    /// Reads the secret key from the given path for the GeneralStateTests.
-    /// All tests are taken from the BlockchainTests folder,
-    /// but the secret key is taken from the GeneralStateTests folder.
+    /// Reads the secret key from the given path for the `GeneralStateTests`.
+    /// All tests are taken from the `BlockchainTests` folder,
+    /// but the secret key is taken from the `GeneralStateTests` folder.
     ///
     /// # Example
     ///
@@ -30,8 +30,7 @@ impl ContentReader {
         let case = cases
             .into_values()
             .next()
-            .ok_or_else(|| eyre::eyre!("No case found"))?
-            .clone();
+            .ok_or_else(|| eyre::eyre!("No case found"))?;
 
         Ok(case
             .get("transaction")

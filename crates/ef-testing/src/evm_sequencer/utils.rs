@@ -16,7 +16,7 @@ use starknet_api::hash::StarkFelt;
 
 /// Computes the Starknet address of a contract given its EVM address.
 pub fn compute_starknet_address(evm_address: &Address) -> FeltSequencer {
-    let evm_address: FeltSequencer = (*evm_address).into();
+    let evm_address: FeltSequencer = (*evm_address).try_into().unwrap(); // infallible
     let starknet_address = get_contract_address(
         evm_address.into(),
         PROXY_CLASS_HASH.0.into(),
