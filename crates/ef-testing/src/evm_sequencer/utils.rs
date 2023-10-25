@@ -1,7 +1,5 @@
-use super::{
-    constants::kkrt_constants::{KAKAROT_ADDRESS, PROXY_CLASS_HASH},
-    types::FeltSequencer,
-};
+use super::constants::KAKAROT_ADDRESS;
+use super::types::felt::FeltSequencer;
 use reth_primitives::{Address, Bytes, TransactionSigned};
 use reth_rlp::Decodable;
 use revm_primitives::U256;
@@ -12,22 +10,36 @@ use starknet::{
     },
     macros::selector,
 };
-use starknet_api::hash::StarkFelt;
+use starknet_api::{core::ClassHash, hash::StarkFelt};
 
 /// Computes the Starknet address of a contract given its EVM address.
 pub fn compute_starknet_address(evm_address: &Address) -> FeltSequencer {
     let evm_address: FeltSequencer = (*evm_address).try_into().unwrap(); // infallible
     let starknet_address = get_contract_address(
         evm_address.into(),
-        PROXY_CLASS_HASH.0.into(),
+        get_class_hash_for_csa().0.into(),
         &[],
         (*KAKAROT_ADDRESS.0.key()).into(),
     );
     starknet_address.into()
 }
 
+fn get_class_hash_for_csa() -> ClassHash {
+    #[cfg(not(any(feature = "v0", feature = "v1")))]
+    return ClassHash::default();
+
+    #[cfg_attr(feature = "v0", allow(unreachable_code))]
+    {
+        return *crate::evm_sequencer::constants::kkrt_constants_v0::PROXY_CLASS_HASH;
+    }
+
+    #[cfg_attr(feature = "v1", allow(unreachable_code))]
+    return *crate::evm_sequencer::constants::kkrt_constants_v0::EOA_CLASS_HASH;
+    // TODO change to v1
+}
+
 /// Splits a byte array into 16-byte chunks and converts each chunk to a StarkFelt.
-pub(crate) fn split_bytecode_to_starkfelt(bytecode: &Bytes) -> Vec<StarkFelt> {
+pub fn split_bytecode_to_starkfelt(bytecode: &Bytes) -> Vec<StarkFelt> {
     bytecode
         .chunks(16)
         .map(|x| {
@@ -39,7 +51,7 @@ pub(crate) fn split_bytecode_to_starkfelt(bytecode: &Bytes) -> Vec<StarkFelt> {
 }
 
 /// Split a U256 into low and high u128.
-pub(crate) fn split_u256(value: U256) -> [u128; 2] {
+pub fn split_u256(value: U256) -> [u128; 2] {
     [
         (value & U256::from(u128::MAX)).try_into().unwrap(), // safe unwrap <= U128::MAX.
         (value >> 128).try_into().unwrap(),                  // safe unwrap <= U128::MAX.

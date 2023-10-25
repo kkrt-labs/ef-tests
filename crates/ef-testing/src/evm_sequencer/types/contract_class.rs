@@ -108,17 +108,16 @@ fn compiled_class_entrypoint_to_casm_entrypoint(
 }
 
 #[cfg(test)]
-#[cfg(feature = "v1")]
 mod tests {
-    use std::fs;
-
     use super::*;
-    use crate::evm_sequencer::constants::kkrt_constants::KAKAROT_CLASS;
+    use std::fs;
 
     #[test]
     fn test_casm_contract_class_from_compiled_contract_class() {
         // When
-        let casm: CasmContractClassWrapper = (&*KAKAROT_CLASS).try_into().unwrap();
+        let content = fs::read_to_string("../../build/v1/kakarot.json").unwrap();
+        let casm: CompiledClass = serde_json::from_str(&content).unwrap();
+        let casm: CasmContractClassWrapper = (&casm).try_into().unwrap();
 
         // Then
         let content = fs::read_to_string("../../build/v1/kakarot.json").unwrap();

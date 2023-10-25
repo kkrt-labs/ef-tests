@@ -2,7 +2,7 @@ use std::{collections::HashMap, sync::Arc};
 
 use blockifier::block_context::{BlockContext, FeeTokenAddresses, GasPrices};
 use lazy_static::lazy_static;
-use starknet::core::types::contract::{legacy::LegacyContractClass, CompiledClass};
+use starknet::core::types::contract::legacy::LegacyContractClass;
 use starknet_api::{
     block::{BlockNumber, BlockTimestamp},
     contract_address,
@@ -10,13 +10,6 @@ use starknet_api::{
     hash::{StarkFelt, StarkHash},
     patricia_key,
 };
-
-#[cfg(feature = "v1")]
-fn load_contract_class(path: &str) -> Result<CompiledClass, eyre::Error> {
-    let content = std::fs::read_to_string(path)?;
-    let class = serde_json::from_str::<CompiledClass>(&content)?;
-    Ok(class)
-}
 
 fn load_legacy_contract_class(path: &str) -> Result<LegacyContractClass, eyre::Error> {
     let content = std::fs::read_to_string(path)?;
@@ -62,31 +55,20 @@ lazy_static! {
     pub static ref SEQUENCER_ADDRESS: ContractAddress = contract_address!("0x01176a1bd84444c89232ec27754698e5d2e7e1a7f1539f12027f28b23ec9f3d8");
     pub static ref ETH_FEE_TOKEN_ADDRESS: ContractAddress = contract_address!("0x049D36570D4e46f48e99674bd3fcc84644DdD6b96F7C741B1562B82f9e004dC7");
     pub static ref STRK_FEE_TOKEN_ADDRESS: ContractAddress = contract_address!("0xCa14007Eff0dB1f8135f4C25B34De49AB0d42766");
+    pub static ref KAKAROT_ADDRESS: ContractAddress =
+        ContractAddress(TryInto::<PatriciaKey>::try_into(StarkFelt::from(1_u8)).unwrap());
     pub static ref KAKAROT_OWNER_ADDRESS: ContractAddress =
         ContractAddress(TryInto::<PatriciaKey>::try_into(StarkFelt::from(2_u8)).unwrap());
-    pub static ref KAKAROT_ADDRESS_V1: ContractAddress =
-        ContractAddress(TryInto::<PatriciaKey>::try_into(StarkFelt::from(3_u8)).unwrap());
 
     pub static ref FEE_TOKEN_CLASS: LegacyContractClass = load_legacy_contract_class("../../build/common/ERC20.json").expect("Failed to load FeeToken contract class");
     pub static ref FEE_TOKEN_CLASS_HASH: ClassHash = ClassHash(FEE_TOKEN_CLASS.class_hash().unwrap().into());
 
 }
 
-pub mod kkrt_constants {
+pub mod kkrt_constants_v0 {
     use super::*;
 
-    #[cfg(feature = "v1")]
     lazy_static! {
-        // Main contract classes v1
-        pub static ref KAKAROT_CLASS: CompiledClass = load_contract_class("../../build/v1/kakarot.json").expect("Failed to load Kakarot contract class");
-        pub static ref KAKAROT_CLASS_HASH: ClassHash = ClassHash(KAKAROT_CLASS.class_hash().unwrap().into());
-    }
-
-    #[cfg(feature = "v0")]
-    lazy_static! {
-        pub static ref KAKAROT_ADDRESS: ContractAddress =
-            ContractAddress(TryInto::<PatriciaKey>::try_into(StarkFelt::from(1_u8)).unwrap());
-
         // Main contract classes v0
         pub static ref KAKAROT_CLASS: LegacyContractClass = load_legacy_contract_class("../../build/v0/kakarot.json").expect("Failed to load Kakarot contract class");
         pub static ref CONTRACT_ACCOUNT_CLASS: LegacyContractClass = load_legacy_contract_class("../../build/v0/contract_account.json").expect("Failed to load ContractAccount contract class");
@@ -98,6 +80,23 @@ pub mod kkrt_constants {
         pub static ref CONTRACT_ACCOUNT_CLASS_HASH: ClassHash = ClassHash(CONTRACT_ACCOUNT_CLASS.class_hash().unwrap().into());
         pub static ref EOA_CLASS_HASH: ClassHash = ClassHash(EOA_CLASS.class_hash().unwrap().into());
         pub static ref PROXY_CLASS_HASH: ClassHash = ClassHash(PROXY_CLASS.class_hash().unwrap().into());
+    }
+}
+
+pub mod kkrt_constants_v1 {
+    use super::*;
+    use starknet::core::types::contract::CompiledClass;
+
+    fn load_contract_class(path: &str) -> Result<CompiledClass, eyre::Error> {
+        let content = std::fs::read_to_string(path)?;
+        let class = serde_json::from_str::<CompiledClass>(&content)?;
+        Ok(class)
+    }
+
+    lazy_static! {
+        // Main contract classes v1
+        pub static ref KAKAROT_CLASS: CompiledClass = load_contract_class("../../build/v1/kakarot.json").expect("Failed to load Kakarot contract class");
+        pub static ref KAKAROT_CLASS_HASH: ClassHash = ClassHash(KAKAROT_CLASS.class_hash().unwrap().into());
     }
 }
 
