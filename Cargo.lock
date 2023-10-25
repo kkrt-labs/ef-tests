@@ -2054,7 +2054,6 @@ dependencies = [
  "eyre",
  "lazy_static",
  "log",
- "log4rs",
  "num-bigint",
  "num-traits 0.2.16",
  "regex",

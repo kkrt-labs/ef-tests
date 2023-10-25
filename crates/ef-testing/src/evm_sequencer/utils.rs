@@ -1,5 +1,5 @@
 use super::{
-    constants::{KAKAROT_ADDRESS, PROXY_CLASS_HASH},
+    constants::kkrt_constants::{KAKAROT_ADDRESS, PROXY_CLASS_HASH},
     types::FeltSequencer,
 };
 use reth_primitives::{Address, Bytes, TransactionSigned};

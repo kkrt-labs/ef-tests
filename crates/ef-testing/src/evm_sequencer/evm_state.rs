@@ -9,11 +9,15 @@ use starknet_api::hash::StarkFelt;
 use starknet_api::state::StorageKey;
 
 use super::account::{AccountType, KakarotAccount};
-use super::constants::{
-    CONTRACT_ACCOUNT_CLASS_HASH, EOA_CLASS_HASH, ETH_FEE_TOKEN_ADDRESS, KAKAROT_ADDRESS,
-    PROXY_CLASS_HASH,
+use super::constants::kkrt_constants::{
+    CONTRACT_ACCOUNT_CLASS_HASH, EOA_CLASS_HASH, KAKAROT_ADDRESS, PROXY_CLASS_HASH,
 };
-use super::utils::{compute_starknet_address, high_16_bytes_of_felt_to_bytes, split_u256};
+use super::constants::ETH_FEE_TOKEN_ADDRESS;
+use super::types::FeltSequencer;
+use super::utils::{
+    compute_starknet_address, high_16_bytes_of_felt_to_bytes, split_bytecode_to_starkfelt,
+    split_u256,
+};
 use super::KakarotSequencer;
 
 pub struct KakarotConfig {
