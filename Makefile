@@ -28,7 +28,7 @@ setup: $(EF_TESTS_DIR)
 
 setup-kakarot: clean-kakarot
 	@curl -sL -o kakarot-build.zip -H "Authorization: token $(GITHUB_TOKEN)" "$(KKRT_BUILD_ARTIFACT_URL)"
-	unzip -o kakarot-build.zip -d lib/kakarot/build
+	unzip -o kakarot-build.zip -d build/v0
 	rm -f kakarot-build.zip
 
 clean-kakarot:
