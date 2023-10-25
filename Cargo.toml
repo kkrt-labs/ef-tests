@@ -34,6 +34,9 @@ revm-primitives = "1.1"
 reth-rlp = { git = "https://github.com/paradigmxyz/reth.git", tag = "v0.1.0-alpha.7" }
 
 # Starknet deps
+cairo-lang-casm = "2.1.0"
+cairo-lang-starknet = "2.1.0"
+cairo-lang-utils = "2.1.0"
 cairo-vm = "=0.8.2"
 blockifier = { package = "blockifier", git = "https://github.com/starkware-libs/blockifier.git", tag = "v0.3.0-rc0" }
 starknet = "0.6.0"
@@ -47,6 +50,8 @@ ctor = "0.2.4"
 dotenvy = "0.15.7"
 eyre = "0.6.8"
 lazy_static = "1.4.0"
+num-bigint = { version = "0.4", features = ["serde"] }
+num-traits = "0.2"
 proc-macro2 = "1.0.69"
 quote = "1.0"
 rayon = "1.8.0"
