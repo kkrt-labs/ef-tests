@@ -44,10 +44,8 @@ impl State {
     }
 
     /// This will serialize the current state, and will save it to a path
-    pub fn dump_state_to_file(&self, path: &PathBuf) -> Result<(), SerializationError> {
-        let state = (*self).clone();
-
-        let serializable_state: SerializableState = state.into();
+    pub fn dump_state_to_file(self, path: &PathBuf) -> Result<(), SerializationError> {
+        let serializable_state: SerializableState = self.into();
 
         let dump = serde_json::to_string(&serializable_state)
             .map_err(SerializationError::SerdeJsonError)?;
@@ -349,6 +347,7 @@ mod tests {
         let dump_file_path = PathBuf::from("./src/test_data/katana_dump.json");
 
         state
+            .clone()
             .dump_state_to_file(&dump_file_path)
             .unwrap_or_else(|error| {
                 panic!(
