@@ -30,14 +30,14 @@ pub struct SerializableState {
     pub storage: FxHashMap<ContractStorageKey, StarkFelt>,
     pub nonces: FxHashMap<ContractAddress, Nonce>,
 }
-impl From<&State> for SerializableState {
-    fn from(state: &State) -> Self {
+impl From<State> for SerializableState {
+    fn from(state: State) -> Self {
         Self {
-            classes: state.classes.clone(),
-            compiled_classes_hash: state.compiled_class_hashes.clone(),
-            contracts: state.contracts.clone(),
-            storage: state.storage.clone(),
-            nonces: state.nonces.clone(),
+            classes: state.classes,
+            compiled_classes_hash: state.compiled_class_hashes,
+            contracts: state.contracts,
+            storage: state.storage,
+            nonces: state.nonces,
         }
     }
 }

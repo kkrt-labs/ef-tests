@@ -28,7 +28,7 @@ use crate::serde::{SerializableState, SerializationError};
 /// which is faster than the default hash function. Think about changing
 /// if the test sequencer is used for tests outside of ef-tests.
 /// See [rustc-hash](https://crates.io/crates/rustc-hash) for more information.
-#[derive(Default, Debug, Serialize, Deserialize, PartialEq)]
+#[derive(Clone, Default, Debug, Serialize, Deserialize, PartialEq)]
 pub struct State {
     pub classes: FxHashMap<ClassHash, ContractClass>,
     pub compiled_class_hashes: FxHashMap<ClassHash, CompiledClassHash>,
@@ -45,7 +45,9 @@ impl State {
 
     /// This will serialize the current state, and will save it to a path
     pub fn dump_state_to_file(&self, path: &PathBuf) -> Result<(), SerializationError> {
-        let serializable_state: SerializableState = self.into();
+        let state = (*self).clone();
+
+        let serializable_state: SerializableState = state.into();
 
         let dump = serde_json::to_string(&serializable_state)
             .map_err(SerializationError::SerdeJsonError)?;
