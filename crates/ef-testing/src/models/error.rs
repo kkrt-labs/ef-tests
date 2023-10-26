@@ -1,4 +1,7 @@
-use std::{fmt::Debug, path::PathBuf};
+use std::{
+    fmt::{Debug, Display},
+    path::PathBuf,
+};
 
 use blockifier::{state::errors::StateError, transaction::errors::TransactionExecutionError};
 use starknet::{
@@ -34,42 +37,64 @@ pub enum RunnerError {
     #[error("test skipped")]
     Skipped,
     /// Other
-    #[error("{0}")]
-    Other(String),
+    #[error(transparent)]
+    Other(Messages),
+}
+
+pub struct Messages(Vec<String>);
+
+impl std::error::Error for Messages {}
+
+impl From<Vec<String>> for Messages {
+    fn from(messages: Vec<String>) -> Self {
+        Self(messages)
+    }
+}
+
+impl Debug for Messages {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "\n{}\n", self.0.join("\n"))
+    }
+}
+
+impl Display for Messages {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "\n{}\n", self.0.join("\n"))
+    }
 }
 
 impl From<eyre::Error> for RunnerError {
     fn from(err: eyre::Error) -> Self {
-        Self::Other(err.to_string())
+        Self::Other(vec![err.to_string()].into())
     }
 }
 
 impl<E: std::error::Error> From<ProviderError<E>> for RunnerError {
     fn from(err: ProviderError<E>) -> Self {
-        Self::Other(err.to_string())
+        Self::Other(vec![err.to_string()].into())
     }
 }
 
 impl From<regex::Error> for RunnerError {
     fn from(err: regex::Error) -> Self {
-        Self::Other(err.to_string())
+        Self::Other(vec![err.to_string()].into())
     }
 }
 
 impl From<FromByteArrayError> for RunnerError {
     fn from(err: FromByteArrayError) -> Self {
-        Self::Other(err.to_string())
+        Self::Other(vec![err.to_string()].into())
     }
 }
 
 impl From<StarknetApiError> for RunnerError {
     fn from(err: StarknetApiError) -> Self {
-        Self::Other(err.to_string())
+        Self::Other(vec![err.to_string()].into())
     }
 }
 
 impl From<NonAsciiNameError> for RunnerError {
     fn from(err: NonAsciiNameError) -> Self {
-        Self::Other(err.to_string())
+        Self::Other(vec![err.to_string()].into())
     }
 }

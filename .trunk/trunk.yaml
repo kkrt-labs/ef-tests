@@ -22,9 +22,8 @@ lint:
             --cap-lints=warn --no-deps -D warnings
       run_timeout: 20m
   ignore:
-    - linters: [clippy]
+    - linters: [ALL]
       paths:
-        # ignore clippy errors from include_str! macro
         - crates/ef-testing/src/evm_sequencer/constants.rs
   enabled:
     - actionlint@1.6.26

@@ -22,11 +22,9 @@ pub fn get_signed_rlp_encoded_transaction(block: &Bytes, pk: B256) -> Result<Byt
 
     // Encode body as transaction
     let mut out = BytesMut::new();
-    let mut tx_signed = block
-        .body
-        .first()
-        .cloned()
-        .ok_or_else(|| RunnerError::Other("No transaction in pre state block".to_string()))?;
+    let mut tx_signed = block.body.first().cloned().ok_or_else(|| {
+        RunnerError::Other(vec!["No transaction in pre state block".into()].into())
+    })?;
 
     tx_signed.transaction.set_chain_id(*CHAIN_ID);
     let signature = sign_tx(&tx_signed.transaction, &pk)?;

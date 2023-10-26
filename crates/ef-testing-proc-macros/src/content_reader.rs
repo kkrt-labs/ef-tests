@@ -22,29 +22,25 @@ impl ContentReader {
     ///
     /// Test location: BlockchainTests/GeneralStateTests/stRandom/randomStatetest0.json
     /// Secret key location: GeneralStateTests/stRandom/randomStatetest0.json
-    pub fn secret_key(path: PathWrapper) -> Result<Value, eyre::Error> {
+    pub fn secret_key(path: PathWrapper) -> Result<Option<Value>, eyre::Error> {
         let path = blockchain_tests_to_general_state_tests_path(path);
         let content = path.read_file_to_string()?;
 
         let cases: BTreeMap<String, Value> = serde_json::from_str(&content)?;
-        let case = cases
-            .into_values()
-            .next()
-            .ok_or_else(|| eyre::eyre!("No case found"))?;
+        let case = cases.into_values().next();
 
         Ok(case
-            .get("transaction")
-            .ok_or_else(|| eyre::eyre!("No transaction found"))?
-            .get("secretKey")
-            .ok_or_else(|| eyre::eyre!("No secret key found"))?
-            .clone())
+            .as_ref()
+            .and_then(|value| value.get("transaction"))
+            .and_then(|value| value.get("secretKey"))
+            .cloned())
     }
 
     pub fn pre_state(test_case: &Value) -> Result<Value, eyre::Error> {
         Ok(serde_json::from_value(
             test_case
                 .get("pre")
-                .ok_or_else(|| eyre::eyre!("No pre state found"))?
+                .ok_or_else(|| eyre::eyre!("key 'preState' is empty"))?
                 .clone(),
         )?)
     }
@@ -52,7 +48,7 @@ impl ContentReader {
     pub fn post_state(test_case: &Value) -> Result<Value, eyre::Error> {
         Ok(test_case
             .get("postState")
-            .ok_or_else(|| eyre::eyre!("No post state found"))?
+            .ok_or_else(|| eyre::eyre!("key 'postState' is empty"))?
             .clone())
     }
 
@@ -60,7 +56,7 @@ impl ContentReader {
         // Attempt to get the "blocks" value
         let blocks = test_case
             .get("blocks")
-            .ok_or_else(|| eyre::eyre!("Key 'blocks' not found"))?;
+            .ok_or_else(|| eyre::eyre!("key 'blocks' not found"))?;
 
         // Ensure it's an array
         let blocks_array = blocks
