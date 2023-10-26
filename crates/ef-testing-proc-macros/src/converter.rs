@@ -1,4 +1,4 @@
-use std::collections::BTreeMap;
+use std::{collections::BTreeMap, sync::Arc};
 
 use rayon::prelude::*;
 use serde_json::Value;
@@ -7,6 +7,7 @@ use crate::{
     constants::{FORK, UNSUPPORTED_IDENTIFIER_CHAR},
     content_reader::ContentReader,
     dir_reader::DirReader,
+    filter::Filter,
     path::PathWrapper,
 };
 
@@ -44,11 +45,12 @@ use crate::{
 /// "#
 pub struct EfTests {
     directory: DirReader,
+    filter: Arc<Filter>,
 }
 
 impl EfTests {
-    pub const fn new(directory: DirReader) -> Self {
-        Self { directory }
+    pub const fn new(directory: DirReader, filter: Arc<Filter>) -> Self {
+        Self { directory, filter }
     }
 
     /// Converts the given directory into a String containing all
@@ -62,7 +64,7 @@ impl EfTests {
                 |acc, (folder_name, node)| {
                     let mut s = String::new();
                     s += &Self::format_to_module(folder_name);
-                    s += &Self::convert_folders(node)?;
+                    s += &self.convert_folders(node)?;
                     s += "}";
                     Ok(acc? + &s)
                 },
@@ -71,19 +73,19 @@ impl EfTests {
     }
 
     /// Converts the given directory into a String.
-    fn convert_folders(node: &DirReader) -> Result<String, eyre::Error> {
+    fn convert_folders(&self, node: &DirReader) -> Result<String, eyre::Error> {
         let mut acc = String::new();
         for (dir_name, sub_node) in &node.sub_dirs {
             acc += &Self::format_to_module(dir_name);
-            acc += &Self::convert_folders(sub_node)?;
+            acc += &self.convert_folders(sub_node)?;
             acc += "}";
         }
-        Ok(acc + &Self::convert_files(&node.files)?)
+        Ok(acc + &self.convert_files(&node.files)?)
     }
 
     #[allow(clippy::manual_try_fold)]
     /// Converts the given files into a String.
-    fn convert_files(files: &[(PathWrapper, bool)]) -> Result<String, eyre::Error> {
+    fn convert_files(&self, files: &[(PathWrapper, bool)]) -> Result<String, eyre::Error> {
         let mut acc = String::new();
         for (file_path, is_skipped) in files {
             let content = file_path.read_file_to_string()?;
@@ -91,7 +93,7 @@ impl EfTests {
             acc += &cases.into_iter().fold(
                 Ok(String::new()),
                 |acc: Result<String, eyre::Error>, (case_name, content)| {
-                    if !case_name.contains(FORK) {
+                    if !case_name.contains(FORK) || self.filter.is_test_skipped(&case_name) {
                         return acc;
                     }
                     let secret_key = ContentReader::secret_key(file_path.clone())?;
