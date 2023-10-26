@@ -1,5 +1,5 @@
 use std::fs;
-use std::path::PathBuf;
+use std::path::Path;
 
 use blockifier::state::cached_state::CommitmentStateDiff;
 use blockifier::state::errors::StateError;
@@ -20,7 +20,7 @@ use starknet_api::{
 use serde::{Deserialize, Serialize};
 
 use crate::commit::Committer;
-use crate::serde::{SerializableState, SerializationError};
+use crate::serde::{DumpLoad, SerializableState, SerializationError};
 
 /// Generic state structure for the sequencer.
 /// The use of `FxHashMap` allows for a better performance.
@@ -42,9 +42,11 @@ impl State {
     pub fn set_nonce(&mut self, contract_address: ContractAddress, nonce: Nonce) {
         self.nonces.insert(contract_address, nonce);
     }
+}
 
+impl DumpLoad for State {
     /// This will serialize the current state, and will save it to a path
-    pub fn dump_state_to_file(self, path: &PathBuf) -> Result<(), SerializationError> {
+    fn dump_state_to_file(self, path: &Path) -> Result<(), SerializationError> {
         let serializable_state: SerializableState = self.into();
 
         let dump = serde_json::to_string(&serializable_state)
@@ -56,7 +58,7 @@ impl State {
     }
 
     /// This will read a dump from a file and initialize the state from it
-    pub fn load_state_from_file(path: &PathBuf) -> Result<Self, SerializationError> {
+    fn load_state_from_file(path: &Path) -> Result<Self, SerializationError> {
         let dump = fs::read(path).unwrap();
         let serializable_state: SerializableState =
             serde_json::from_slice(&dump).map_err(SerializationError::SerdeJsonError)?;
@@ -347,11 +349,11 @@ mod tests {
 
         state
             .clone()
-            .dump_state_to_file(&dump_file_path.to_path_buf())
+            .dump_state_to_file(&dump_file_path)
             .expect("failed to save dump to file");
 
-        let loaded_state = State::load_state_from_file(&dump_file_path.to_path_buf())
-            .expect("failed to load state from file");
+        let loaded_state =
+            State::load_state_from_file(&dump_file_path).expect("failed to load state from file");
         assert_eq!(state, loaded_state);
 
         dump_file_path.close().expect("failed to close temp file");

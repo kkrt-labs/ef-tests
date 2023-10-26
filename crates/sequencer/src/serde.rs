@@ -1,5 +1,6 @@
-use std::io;
+use std::{io, path::Path};
 
+use crate::state::State;
 use blockifier::{
     execution::contract_class::ContractClass, state::cached_state::ContractStorageKey,
 };
@@ -10,8 +11,15 @@ use starknet_api::{
     hash::StarkFelt,
 };
 
-use crate::state::State;
 use thiserror::Error;
+
+pub trait DumpLoad {
+    fn dump_state_to_file(self, file_path: &Path) -> Result<(), SerializationError>;
+
+    fn load_state_from_file(file_path: &Path) -> Result<Self, SerializationError>
+    where
+        Self: Sized;
+}
 
 #[derive(Error, Debug)]
 pub enum SerializationError {
@@ -30,6 +38,7 @@ pub struct SerializableState {
     pub storage: FxHashMap<ContractStorageKey, StarkFelt>,
     pub nonces: FxHashMap<ContractAddress, Nonce>,
 }
+
 impl From<State> for SerializableState {
     fn from(state: State) -> Self {
         Self {

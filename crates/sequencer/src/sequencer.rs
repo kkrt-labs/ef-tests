@@ -1,4 +1,10 @@
-use crate::{commit::Committer, execution::Execution};
+use std::path::Path;
+
+use crate::{
+    commit::Committer,
+    execution::Execution,
+    serde::{DumpLoad, SerializationError},
+};
 use blockifier::{
     block_context::BlockContext,
     state::{
@@ -23,6 +29,7 @@ use starknet_api::core::ContractAddress;
 pub struct Sequencer<S>
 where
     for<'any> &'any mut S: State + StateReader,
+    S: DumpLoad + Clone,
 {
     pub block_context: BlockContext,
     pub state: S,
@@ -31,6 +38,7 @@ where
 impl<S> Sequencer<S>
 where
     for<'any> &'any mut S: State + StateReader,
+    S: DumpLoad + Clone,
 {
     /// Creates a new Sequencer instance.
     #[inline]
@@ -41,11 +49,24 @@ where
             state,
         }
     }
+
+    pub fn dump_state_to_file(&self, file_path: &Path) -> Result<(), SerializationError> {
+        self.state.clone().dump_state_to_file(file_path)
+    }
+
+    pub fn load_state_from_file(
+        block_context: BlockContext,
+        file_path: &Path,
+    ) -> Result<Self, SerializationError> {
+        let state = S::load_state_from_file(file_path)?;
+        Ok(Self::new(block_context, state))
+    }
 }
 
 impl<S> Execution for Sequencer<S>
 where
     for<'any> &'any mut S: State + StateReader + Committer<S>,
+    S: DumpLoad + Clone,
 {
     /// Executes the provided transaction on the current state and leads to a commitment of the
     /// cached state in the case of success. Reversion of the transaction leads to a discarding
