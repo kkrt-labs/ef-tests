@@ -87,7 +87,7 @@ impl BlockchainTestCase {
 
     fn handle_post_state(&self, sequencer: &mut KakarotSequencer) -> Result<(), RunnerError> {
         let wallet = LocalWallet::from_bytes(&self.secret_key.0)
-            .map_err(|err| RunnerError::Other(err.to_string()))?;
+            .map_err(|err| RunnerError::Other(vec![err.to_string()].into()))?;
         let sender_address = wallet.address().to_fixed_bytes();
 
         let maybe_block_header = self.block.block_header.as_ref();
@@ -177,7 +177,7 @@ impl BlockchainTestCase {
             }
 
             if !diff.is_empty() {
-                return Err(RunnerError::Other(diff.join("\\n")));
+                return Err(RunnerError::Other(diff.into()));
             }
         }
 
