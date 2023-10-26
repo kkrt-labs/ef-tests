@@ -18,8 +18,8 @@ lint:
       commands:
         - run:
             cargo clippy --message-format json --locked --workspace
-            --all-features --all-targets -- --cap-lints=warn --no-deps -D
-            warnings
+            --all-features --all-targets -- -W clippy::all -W clippy::nursery
+            --cap-lints=warn --no-deps -D warnings
       run_timeout: 20m
   enabled:
     - actionlint@1.6.26

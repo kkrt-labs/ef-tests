@@ -17,7 +17,8 @@ use ef_tests::models::{RootOrState, State};
 use ethers_signers::{LocalWallet, Signer};
 use revm_primitives::B256;
 use sequencer::{
-    execution::Execution, state::State as SequencerState, transaction::StarknetTransaction,
+    execution::Execution, state::State as SequencerState,
+    transaction::BroadcastedTransactionWrapper,
 };
 use starknet::core::types::{BroadcastedTransaction, FieldElement};
 
@@ -34,7 +35,7 @@ pub struct BlockchainTestCase {
 // 'handle' methods attempt to abstract the data coming from BlockChainTestCase
 // from more general logic that can be used across tests
 impl BlockchainTestCase {
-    pub fn new(
+    pub const fn new(
         case_name: String,
         block: Block,
         pre: State,
@@ -70,9 +71,9 @@ impl BlockchainTestCase {
         // we adjust the rlp to correspond with our currently hardcoded CHAIN_ID
         let tx_encoded = get_signed_rlp_encoded_transaction(&block.rlp, self.secret_key)?;
 
-        let starknet_transaction = StarknetTransaction::new(BroadcastedTransaction::Invoke(
-            to_broadcasted_starknet_transaction(&tx_encoded)?,
-        ));
+        let starknet_transaction = BroadcastedTransactionWrapper::new(
+            BroadcastedTransaction::Invoke(to_broadcasted_starknet_transaction(&tx_encoded)?),
+        );
 
         let execution_result = sequencer.execute(
             starknet_transaction

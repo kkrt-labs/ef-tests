@@ -1,3 +1,5 @@
+use std::convert::Infallible;
+
 use reth_primitives::Address;
 use starknet::core::types::FieldElement;
 use starknet_api::{
@@ -22,10 +24,12 @@ impl From<FeltSequencer> for FieldElement {
     }
 }
 
-impl From<Address> for FeltSequencer {
-    fn from(address: Address) -> Self {
+impl TryFrom<Address> for FeltSequencer {
+    type Error = Infallible;
+
+    fn try_from(address: Address) -> Result<Self, Self::Error> {
         let address = FieldElement::from_byte_slice_be(&address.0[..]).unwrap(); // safe unwrap since Address is 20 bytes
-        Self(address)
+        Ok(Self(address))
     }
 }
 

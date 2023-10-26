@@ -13,7 +13,7 @@ use proc_macro2::TokenStream as TokenStream2;
 use quote::quote;
 use std::path::PathBuf;
 
-use crate::{converter::TestConverter, dir_reader::DirReader};
+use crate::{converter::EfTests, dir_reader::DirReader};
 
 #[proc_macro]
 pub fn generate_blockchain_tests(_input: TokenStream) -> TokenStream {
@@ -31,7 +31,7 @@ fn read_tests_to_stream() -> TokenStream2 {
     // First level should only contain folders
     assert!(root_node.files.is_empty());
 
-    let converter = TestConverter::new(root_node);
+    let converter = EfTests::new(root_node);
     let tests = converter
         .convert()
         .expect("Error while converting the tests");

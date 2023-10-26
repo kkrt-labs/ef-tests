@@ -10,15 +10,15 @@ use crate::{
     path::PathWrapper,
 };
 
-/// The TestConverter is used to convert the directory structure
+/// The `TestConverter` is used to convert the directory structure
 /// into a String containing all the rust tests to be ran.
 ///
 /// # Example
 ///
 /// Test location: BlockchainTests/GeneralStateTests/stRandom/
 /// List of tests: [randomStatetest0.json, randomStatetest1.json, ...]
-/// Inner tests: [randomStatetest0_d0g0v0_Shanghai, randomStatetest0_d1g0v0_Shanghai,
-/// ..., randomStatetest1_d0g0v0_Shanghai, randomStatetest1_d1g0v0_Shanghai, ...]
+/// Inner tests: [`randomStatetest0_d0g0v0_Shanghai`, `randomStatetest0_d1g0v0_Shanghai`,
+/// ..., `randomStatetest1_d0g0v0_Shanghai`, `randomStatetest1_d1g0v0_Shanghai`, ...]
 /// Generated String:
 /// r#"
 /// mod randomStatetest0 {
@@ -42,12 +42,12 @@ use crate::{
 ///   ...
 /// }
 /// "#
-pub struct TestConverter {
+pub struct EfTests {
     directory: DirReader,
 }
 
-impl TestConverter {
-    pub fn new(directory: DirReader) -> Self {
+impl EfTests {
+    pub const fn new(directory: DirReader) -> Self {
         Self { directory }
     }
 
@@ -74,7 +74,7 @@ impl TestConverter {
     fn convert_folders(node: &DirReader) -> Result<String, eyre::Error> {
         let mut acc = String::new();
         for (dir_name, sub_node) in &node.sub_dirs {
-            acc += &TestConverter::format_to_module(dir_name);
+            acc += &Self::format_to_module(dir_name);
             acc += &Self::convert_folders(sub_node)?;
             acc += "}";
         }
@@ -96,14 +96,9 @@ impl TestConverter {
                     }
                     let secret_key = ContentReader::secret_key(file_path.clone())?;
                     Ok(acc?
-                        + &TestConverter::format_to_test(
-                            &case_name,
-                            secret_key,
-                            content,
-                            *is_skipped,
-                        )?)
+                        + &Self::format_to_test(&case_name, &secret_key, &content, *is_skipped)?)
                 },
-            )?
+            )?;
         }
         Ok(acc)
     }
@@ -114,15 +109,15 @@ impl TestConverter {
             r#"mod {} {{
             use super::*;
             "#,
-            TestConverter::format_into_identifier(folder_name)
+            Self::format_into_identifier(folder_name)
         )
     }
 
     /// Formats the given test case into a rust test.
     fn format_to_test(
         case_name: &str,
-        secret_key: Value,
-        content: Value,
+        secret_key: &Value,
+        content: &Value,
         is_skipped: bool,
     ) -> Result<String, eyre::Error> {
         Ok(format!(
@@ -133,15 +128,15 @@ impl TestConverter {
                 {}
             }}"#,
             if is_skipped { "#[ignore]" } else { "" },
-            TestConverter::format_into_identifier(case_name),
-            Self::format_test_content(case_name, secret_key, &content, is_skipped)?,
+            Self::format_into_identifier(case_name),
+            Self::format_test_content(case_name, secret_key, content, is_skipped)?,
         ))
     }
 
     /// Formats the given test content into a rust test.
     fn format_test_content(
         case_name: &str,
-        secret_key: Value,
+        secret_key: &Value,
         content: &Value,
         is_skipped: bool,
     ) -> Result<String, eyre::Error> {
@@ -154,13 +149,12 @@ impl TestConverter {
         Ok(format!(
             r##"
             setup();
-            let block: Block = serde_json::from_str(r#"{}"#).expect("Error while reading the block");
-            let pre: State = serde_json::from_str(r#"{}"#).expect("Error while reading the pre state");
-            let post: RootOrState = serde_json::from_str(r#"{}"#).expect("Error while reading the post state");
-            let case = BlockchainTestCase::new("{}".to_string(), block, pre, post, B256::from_str({}).expect("Error while reading  secret key"));
+            let block: Block = serde_json::from_str(r#"{block}"#).expect("Error while reading the block");
+            let pre: State = serde_json::from_str(r#"{pre}"#).expect("Error while reading the pre state");
+            let post: RootOrState = serde_json::from_str(r#"{post}"#).expect("Error while reading the post state");
+            let case = BlockchainTestCase::new("{case_name}".to_string(), block, pre, post, B256::from_str({secret_key}).expect("Error while reading  secret key"));
             case.run().expect("Error while running the test");
-        "##,
-            block, pre, post, case_name, secret_key
+        "##
         ))
     }
 
