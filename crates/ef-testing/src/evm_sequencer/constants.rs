@@ -60,11 +60,13 @@ lazy_static! {
         ContractAddress(TryInto::<PatriciaKey>::try_into(StarkFelt::from(2_u8)).unwrap());
 
     // Main contract classes
+    // trunk-ignore-begin(clippy/compiler)
     pub static ref KAKAROT_CLASS: LegacyContractClass = load_legacy_contract_class(include_str!("../../../../lib/kakarot/build/kakarot.json")).expect("Failed to load Kakarot contract class");
     pub static ref CONTRACT_ACCOUNT_CLASS: LegacyContractClass = load_legacy_contract_class(include_str!("../../../../lib/kakarot/build/contract_account.json")).expect("Failed to load ContractAccount contract class");
     pub static ref EOA_CLASS: LegacyContractClass = load_legacy_contract_class(include_str!("../../../../lib/kakarot/build/externally_owned_account.json")).expect("Failed to load EOA contract class");
     pub static ref PROXY_CLASS: LegacyContractClass = load_legacy_contract_class(include_str!("../../../../lib/kakarot/build/proxy.json")).expect("Failed to load Proxy contract class");
     pub static ref FEE_TOKEN_CLASS: LegacyContractClass = load_legacy_contract_class(include_str!("../../../../lib/kakarot/build/fixtures/ERC20.json")).expect("Failed to load FeeToken contract class");
+    // trunk-ignore-end(clippy/compiler)
 
     // Main class hashes
     pub static ref KAKAROT_CLASS_HASH: ClassHash = ClassHash(KAKAROT_CLASS.class_hash().unwrap().into());
