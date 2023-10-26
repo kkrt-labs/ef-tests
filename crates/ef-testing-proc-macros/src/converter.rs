@@ -96,7 +96,8 @@ impl EfTests {
                     if !case_name.contains(FORK) || self.filter.is_test_skipped(&case_name) {
                         return acc;
                     }
-                    let secret_key = ContentReader::secret_key(file_path.clone())?;
+                    let secret_key = ContentReader::secret_key(file_path.clone())?
+                        .ok_or_else(|| eyre::eyre!("Missing secret key"))?;
                     Ok(acc?
                         + &Self::format_to_test(&case_name, &secret_key, &content, *is_skipped)?)
                 },
@@ -122,16 +123,19 @@ impl EfTests {
         content: &Value,
         is_skipped: bool,
     ) -> Result<String, eyre::Error> {
+        let test_content = Self::format_test_content(case_name, secret_key, content);
+        let test_content_err = test_content.as_ref().map_err(|err| err.to_string());
+
+        let test_header = Self::format_test_header(is_skipped, test_content_err.err());
+        let test_content = test_content.unwrap_or_default();
+        let test_name = Self::format_into_identifier(case_name);
         Ok(format!(
             r#"
             #[test]
-            {}
-            fn test_{}() {{
-                {}
+            {test_header}
+            fn test_{test_name}() {{
+                {test_content}
             }}"#,
-            if is_skipped { "#[ignore]" } else { "" },
-            Self::format_into_identifier(case_name),
-            Self::format_test_content(case_name, secret_key, content, is_skipped)?,
         ))
     }
 
@@ -140,11 +144,7 @@ impl EfTests {
         case_name: &str,
         secret_key: &Value,
         content: &Value,
-        is_skipped: bool,
     ) -> Result<String, eyre::Error> {
-        if is_skipped {
-            return Ok(String::default());
-        }
         let block = ContentReader::block(content)?;
         let pre = ContentReader::pre_state(content)?;
         let post = ContentReader::post_state(content)?;
@@ -158,6 +158,15 @@ impl EfTests {
             case.run().expect("Error while running the test");
         "##
         ))
+    }
+
+    fn format_test_header(is_skipped: bool, content_err: Option<String>) -> String {
+        if is_skipped {
+            return String::from("#[ignore = \"skipped in config file\"]");
+        } else if content_err.is_some() {
+            return format!("#[ignore = \"{}\"]", content_err.unwrap());
+        }
+        String::default()
     }
 
     /// Formats the given string into a valid rust identifier.
