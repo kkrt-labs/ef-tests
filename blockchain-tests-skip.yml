@@ -1540,7 +1540,6 @@ filename:
     - CreateMessageReverted # ef-test #550
     - InternalCallHittingGasLimit # ef-test #550
     - SuicidesAndInternlCallSuicidesOOG # ef-test #550
-    - CreateMessageSuccess # ef-test #508
     - SuicidesAndInternlCallSuicidesBonusGasAtCallFailed # ef-test #506
     - OverflowGasRequire2 # ef-test #506
     - ContractStoreClearsOOG # ef-test #507
@@ -1556,6 +1555,10 @@ filename:
     - PointAtInfinityECRecover # ef-test #507
     - SuicidesStopAfterSuicide # ef-test #506
     - TransactionSendingToZero # ef-test #506
+
+# List of specific tests names to be skipped
+testname:
+  - CreateMessageSuccess_d0g0v0_Shanghai # ef-test #508
 
 # List of file names regex to be skipped
 # The first level corresponds to the directory, the second to the list of file names regex to ignore.

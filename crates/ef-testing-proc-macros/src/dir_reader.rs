@@ -5,7 +5,6 @@ use std::sync::Arc;
 use walkdir::WalkDir;
 
 use crate::constants::ROOT;
-use crate::constants::SKIPPED_TESTS;
 use crate::filter::Filter;
 use crate::path::PathWrapper;
 use crate::utils::path_relative_to;
@@ -25,11 +24,11 @@ pub struct DirReader {
 }
 
 impl DirReader {
-    pub fn new() -> Self {
+    pub fn new(filter: Arc<Filter>) -> Self {
         Self {
             sub_dirs: BTreeMap::default(),
             files: Vec::default(),
-            filter: Arc::new(Filter::new(SKIPPED_TESTS)),
+            filter,
         }
     }
 

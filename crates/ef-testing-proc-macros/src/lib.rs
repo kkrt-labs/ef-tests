@@ -11,9 +11,9 @@ mod utils;
 use proc_macro::TokenStream;
 use proc_macro2::TokenStream as TokenStream2;
 use quote::quote;
-use std::path::PathBuf;
+use std::{path::PathBuf, sync::Arc};
 
-use crate::{converter::EfTests, dir_reader::DirReader};
+use crate::{constants::SKIPPED_TESTS, converter::EfTests, dir_reader::DirReader, filter::Filter};
 
 #[proc_macro]
 pub fn generate_blockchain_tests(_input: TokenStream) -> TokenStream {
@@ -21,7 +21,8 @@ pub fn generate_blockchain_tests(_input: TokenStream) -> TokenStream {
 }
 
 fn read_tests_to_stream() -> TokenStream2 {
-    let root_node = DirReader::new();
+    let filter = Arc::new(Filter::new(SKIPPED_TESTS));
+    let root_node = DirReader::new(filter.clone());
     let suite_path: PathBuf = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
         .join("../ef-testing/ethereum-tests/BlockchainTests/GeneralStateTests");
     let root_node = root_node
@@ -31,7 +32,7 @@ fn read_tests_to_stream() -> TokenStream2 {
     // First level should only contain folders
     assert!(root_node.files.is_empty());
 
-    let converter = EfTests::new(root_node);
+    let converter = EfTests::new(root_node, filter);
     let tests = converter
         .convert()
         .expect("Error while converting the tests");

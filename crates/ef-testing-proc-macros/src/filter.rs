@@ -11,6 +11,8 @@ pub struct Filter {
     filename: BTreeMap<String, Vec<String>>,
     /// Mapping containing the directories and the regex patterns that should be skipped
     regex: BTreeMap<String, Vec<String>>,
+    /// Vector containing the specific tests that should be skipped
+    testname: Vec<String>,
 }
 
 impl Filter {
@@ -42,6 +44,11 @@ impl Filter {
         }
         should_skip
     }
+
+    /// Checks if the given test should be skipped
+    pub fn is_test_skipped(&self, test_name: &str) -> bool {
+        self.testname.contains(&test_name.to_string())
+    }
 }
 
 #[cfg(test)]
@@ -65,5 +72,11 @@ mod tests {
             "../../ef-testing/ethereum-tests/BlockchainTests/GeneralStateTests/stBadOpcode/opc4DDiffPlaces.json",
         ).to_path_buf());
         assert!(filter.is_skipped(&path));
+    }
+
+    #[test]
+    fn test_filter_test() {
+        let filter = Filter::new(include_str!("../../../blockchain-tests-skip.yml"));
+        assert!(filter.is_test_skipped("CreateMessageSuccess_d0g0v0_Shanghai"));
     }
 }
