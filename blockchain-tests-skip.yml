@@ -348,6 +348,11 @@ filename:
     - create2collisionSelfdestructed2 # ef-tests #337
     - create2SmartInitCode # ef-tests #337
     - CREATE2_ContractSuicideDuringInit_ThenStoreThenReturn # ef-tests #337
+    - CREATE2_Bounds2 # ef-tests #565
+    - CREATE2_Bounds3 # ef-tests #566
+    - create2collisionSelfdestructedOOG # ef-tests #566
+    - create2collisionSelfdestructedRevert # ef-tests #566
+    - CREATE2_Bounds # ef-tests #566
   stCreateTest:
     - CreateAddressWarmAfterFail # ef-tests #338
     - CreateCollisionToEmpty # ef-tests #338
@@ -566,6 +571,7 @@ filename:
     - MSTORE_Bounds2a # ef-tests #521
     - RETURN_Bounds # ef-tests #366
     - SSTORE_Bounds # ef-tests #521
+    - MLOAD_Bounds2 # ef-tests #565
   stMemoryTest:
     - buffer # ef-tests #50
     - bufferSrcOffset # ef-tests #51
@@ -1564,4 +1570,11 @@ testname:
 # The first level corresponds to the directory, the second to the list of file names regex to ignore.
 regex:
   stBadOpcode:
-    - ^opc.* # ef-test #120
+    - ^opc.* # ef-tests #120
+  stMemoryStressTest:
+    - CALLCODE_Bounds.* # ef-tests #565
+    - CREATE_Bounds.* # ef-tests #565
+    - mload32bitBound_return.* # ef-tests #565
+    - CALL_Bounds.* # ef-tests #565
+    - DELEGATECALL_Bounds.* # ef-tests #565
+    - static_CALL_Bounds.* # ef-tests #565
