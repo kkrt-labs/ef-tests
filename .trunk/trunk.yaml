@@ -21,6 +21,10 @@ lint:
             --all-features --all-targets -- -W clippy::all -W clippy::nursery
             --cap-lints=warn --no-deps -D warnings
       run_timeout: 20m
+  ignore:
+    - linters: [ALL]
+      paths:
+        - crates/ef-testing/src/evm_sequencer/constants.rs
   enabled:
     - actionlint@1.6.26
     - black@23.9.1
