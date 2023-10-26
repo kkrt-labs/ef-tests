@@ -3,6 +3,7 @@
     "addmod",
     "calldatacopy",
     "delegatecall",
+    "ethereum",
     "jumpi",
     "mload",
     "mulmod",

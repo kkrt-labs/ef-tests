@@ -22,3 +22,6 @@ lib/kakarot
 
 # Ignore failing tests log
 failing_tests.log
+
+# Ignore everything starting with tmp
+tmp*
