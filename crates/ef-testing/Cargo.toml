@@ -43,12 +43,13 @@ serde_json = { workspace = true }
 thiserror = { workspace = true }
 tokio = { workspace = true }
 tracing = { workspace = true }
+tracing-subscriber = { workspace = true }
 walkdir = { workspace = true }
 zip = { workspace = true, optional = true }
 
 [dev-dependencies]
-tracing-subscriber = { workspace = true }
 
 [build-dependencies]
 build-utils = { path = "../build-utils" }
 lazy_static = { workspace = true }
+serde_yaml = { workspace = true }

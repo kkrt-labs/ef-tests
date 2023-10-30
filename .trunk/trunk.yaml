@@ -25,6 +25,7 @@ lint:
     - linters: [ALL]
       paths:
         - crates/ef-testing/src/evm_sequencer/constants.rs
+        - crates/ef-testing/tests/**/*.rs
   enabled:
     - actionlint@1.6.26
     - black@23.9.1

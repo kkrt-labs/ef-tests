@@ -2052,6 +2052,7 @@ dependencies = [
  "sequencer",
  "serde",
  "serde_json",
+ "serde_yaml",
  "starknet",
  "starknet_api",
  "thiserror",
