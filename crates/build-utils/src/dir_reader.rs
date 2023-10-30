@@ -16,7 +16,7 @@ use crate::utils::path_to_vec_string;
 pub struct DirReader<'a> {
     /// Mapping containing the sub directories
     pub(crate) sub_dirs: BTreeMap<String, DirReader<'a>>,
-    /// Vector containing the files and wether they should be skipped
+    /// Vector containing the files
     pub(crate) files: Vec<PathWrapper>,
     /// List of folders that should be considered by the `DirReader`
     target: &'a Option<Vec<String>>,
@@ -31,6 +31,7 @@ impl<'a> DirReader<'a> {
         }
     }
 
+    /// Returns the test files paths
     pub fn files(&self) -> &[PathWrapper] {
         &self.files
     }
@@ -44,15 +45,14 @@ impl<'a> DirReader<'a> {
     }
 
     /// Walks the given directory and stores files. If self.target is Some, it will
-    /// only store files that are in a sub directory of the target.
+    /// only store files that are in a directory from target.
     pub fn walk_dir_and_store_files(
         mut self,
         directory_path: PathWrapper,
     ) -> Result<Self, eyre::Error> {
         for entry in Self::walk_dir(directory_path) {
             let full_path = entry.path();
-            let parent = full_path.parent();
-            if let (Some(target), Some(parent)) = (&self.target, parent) {
+            if let (Some(target), Some(parent)) = (&self.target, full_path.parent()) {
                 if !target.contains(&parent.to_string_lossy().to_string()) {
                     continue;
                 }
