@@ -49,6 +49,8 @@ fn main() {
         .convert()
         .expect("Error while converting the tests");
 
+    fs::create_dir_all(INTEGRATION_TESTS_PATH.clone())
+        .expect("Unable to create dir integration tests folder");
     // Write all tests to the integration tests folder
     for (folder_name, content) in tests {
         let mut path = INTEGRATION_TESTS_PATH.join(folder_name);
@@ -59,9 +61,9 @@ fn main() {
     // Cache the filter
     let filter_content =
         serde_yaml::to_string(filter.as_ref()).expect("Unable to serialize filter");
-    let dir = Path::new(CACHED_SKIPPED_TESTS)
+    let cached_skipped_tests_path = Path::new(CACHED_SKIPPED_TESTS)
         .parent()
         .expect("Unable to get parent dir");
-    fs::create_dir_all(dir).expect("Unable to create dir");
+    fs::create_dir_all(cached_skipped_tests_path).expect("Unable to create tmp folder");
     fs::write(CACHED_SKIPPED_TESTS, filter_content).expect("Unable to write file");
 }
