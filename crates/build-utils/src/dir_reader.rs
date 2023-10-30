@@ -32,6 +32,10 @@ impl DirReader {
         }
     }
 
+    pub fn files(&self) -> &[(PathWrapper, bool)] {
+        &self.files
+    }
+
     /// Walks the given directory and stores all files
     pub fn walk_dir_and_store_files(
         mut self,

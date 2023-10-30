@@ -55,20 +55,15 @@ impl EfTests {
 
     /// Converts the given directory into a String containing all
     /// the rust tests to be ran.
-    pub fn convert(&self) -> Result<String, eyre::Error> {
+    pub fn convert(&self) -> Result<Vec<(String, String)>, eyre::Error> {
         self.directory
             .sub_dirs
-            .par_iter()
-            .fold(
-                || Ok(String::new()),
-                |acc, (folder_name, node)| {
-                    let mut s = String::new();
-                    s += &Self::format_to_module(folder_name);
-                    s += &self.convert_folders(node)?;
-                    s += "}";
-                    Ok(acc? + &s)
-                },
-            )
+            .iter()
+            .map(|(folder_name, node)| {
+                let mut acc = String::new();
+                acc += &self.convert_folders(node)?;
+                Ok((folder_name.clone(), acc))
+            })
             .collect()
     }
 
@@ -78,9 +73,10 @@ impl EfTests {
         for (dir_name, sub_node) in &node.sub_dirs {
             acc += &Self::format_to_module(dir_name);
             acc += &self.convert_folders(sub_node)?;
-            acc += "}";
+            acc += "{";
         }
-        Ok(acc + &self.convert_files(&node.files)?)
+        acc += &self.convert_files(&node.files)?.as_str();
+        Ok(acc)
     }
 
     #[allow(clippy::manual_try_fold)]
@@ -90,18 +86,21 @@ impl EfTests {
         for (file_path, is_skipped) in files {
             let content = file_path.read_file_to_string()?;
             let cases: BTreeMap<String, serde_json::Value> = serde_json::from_str(&content)?;
-            acc += &cases.into_iter().fold(
-                Ok(String::new()),
-                |acc: Result<String, eyre::Error>, (case_name, content)| {
-                    if !case_name.contains(FORK) || self.filter.is_test_skipped(&case_name) {
-                        return acc;
+            let file_contents = cases
+                .par_iter()
+                .map(|(case_name, content)| {
+                    if !case_name.contains(FORK) || self.filter.is_test_skipped(case_name) {
+                        return Ok(String::new());
                     }
                     let secret_key = ContentReader::secret_key(file_path.clone())?
                         .ok_or_else(|| eyre::eyre!("Missing secret key"))?;
-                    Ok(acc?
-                        + &Self::format_to_test(&case_name, &secret_key, &content, *is_skipped)?)
-                },
-            )?;
+                    Self::format_to_test(case_name, &secret_key, content, *is_skipped)
+                })
+                .collect::<Result<Vec<String>, eyre::Error>>()?;
+            acc += &file_contents.into_iter().fold(String::new(), |mut acc, s| {
+                acc += &s;
+                acc
+            });
         }
         Ok(acc)
     }
@@ -129,6 +128,7 @@ impl EfTests {
         let test_header = Self::format_test_header(is_skipped, test_content_err.err());
         let test_content = test_content.unwrap_or_default();
         let test_name = Self::format_into_identifier(case_name);
+
         Ok(format!(
             r#"
             #[test]

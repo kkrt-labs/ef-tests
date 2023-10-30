@@ -70,6 +70,7 @@ impl BlockchainTestCase {
         let block = &self.block;
         // we adjust the rlp to correspond with our currently hardcoded CHAIN_ID
         let tx_encoded = get_signed_rlp_encoded_transaction(&block.rlp, self.secret_key)?;
+        dbg!(tx_encoded.clone());
 
         let starknet_transaction = BroadcastedTransactionWrapper::new(
             BroadcastedTransaction::Invoke(to_broadcasted_starknet_transaction(&tx_encoded)?),

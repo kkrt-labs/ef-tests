@@ -20,6 +20,9 @@ repository = "https://github.com/kkrt-labs/ef-tests"
 readme = "./README.md"
 license = "MIT"
 
+[profile.dev]
+incremental = true
+
 [workspace.dependencies]
 # Eth deps
 ef-tests = { git = "https://github.com/paradigmxyz/reth.git", tag = "v0.1.0-alpha.7", features = [
