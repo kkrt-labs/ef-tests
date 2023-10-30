@@ -28,7 +28,7 @@ pub fn get_signed_rlp_encoded_transaction(block: &Bytes, pk: B256) -> Result<Byt
 
     tx_signed.transaction.set_chain_id(*CHAIN_ID);
     let signature = sign_tx(&tx_signed.transaction, &pk)?;
-    tx_signed.encode_with_signature(&signature, &mut out, true);
+    tx_signed.encode_with_signature(&signature, &mut out, false);
 
     Ok(out.to_vec().into())
 }

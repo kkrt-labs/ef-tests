@@ -483,6 +483,9 @@ filename:
     - lowGasPriceOldTypes # ef-tests #500
     - valCausesOOF # ef-tests #500
     - gasPriceDiffPlaces # ef-tests #499
+    - lowFeeCap # ef-tests 500
+    - tipTooHigh # ef-tests 500
+    - transactionIntinsicBug # ef-tests 500
   stEIP2930:
     - addressOpcodes # ef-tests #502
     - manualCreate # ef-tests #501
