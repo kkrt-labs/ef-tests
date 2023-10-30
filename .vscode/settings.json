@@ -12,5 +12,6 @@
     "sload",
     "sstore"
   ],
-  "search.useIgnoreFiles": false
+  "search.useIgnoreFiles": false,
+  "rust-analyzer.files.excludeDirs": ["tests"]
 }

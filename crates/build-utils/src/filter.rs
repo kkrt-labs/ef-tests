@@ -1,21 +1,22 @@
 use regex::Regex;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use std::{collections::BTreeMap, fs};
 
 use crate::path::PathWrapper;
 
-type FilterMap = BTreeMap<String, Vec<String>>;
+type Folder = String;
+type FilterMap = BTreeMap<Folder, Vec<String>>;
 
 /// Filter to be applied on the tests files
-#[derive(Deserialize, Default)]
+#[derive(Deserialize, Default, Serialize)]
 pub struct Filter {
     /// Mapping containing the directories and the files that should be skipped
     filename: FilterMap,
     /// Mapping containing the directories and the regex patterns that should be skipped
     regex: FilterMap,
-    /// Vector containing the specific tests that should be skipped
+    /// Mapping containing the directories and the specific tests that should be skipped
     #[serde(rename = "testname")]
-    test_name: Vec<String>,
+    test_name: FilterMap,
 }
 
 impl Filter {
@@ -24,90 +25,72 @@ impl Filter {
         Ok(serde_yaml::from_str(&filter)?)
     }
 
-    /// Returns the difference between the two filters
-    pub fn diff(self, rhs: Self) -> Self {
-        let filename = map_diff(self.filename, rhs.filename);
-        let regex = map_diff(self.regex, rhs.regex);
-        let mut test_name = Vec::new();
-
-        for test in &self.test_name {
-            if !rhs.test_name.contains(test) {
-                test_name.push(test.clone());
-            }
-        }
-        for test in rhs.test_name {
-            if !self.test_name.contains(&test) {
-                test_name.push(test);
-            }
-        }
-
-        Self {
-            filename,
-            regex,
-            test_name,
-        }
-    }
-
-    /// Checks if the given path should be skipped
-    pub fn is_skipped(&self, path: &PathWrapper) -> bool {
+    /// Checks if the given path is inside the filter object
+    pub fn is_skipped(&self, path: &PathWrapper, case_name: Option<String>) -> bool {
         let dir_name = path.parent().file_stem_to_string();
         let file_name = path.file_stem_to_string();
 
-        let mut should_skip = if self.filename.contains_key(&dir_name) {
-            self.filename
-                .get(&dir_name)
-                .unwrap() // safe unwrap
-                .iter()
-                .any(|filename| filename == &file_name)
-        } else {
-            false
-        };
+        let mut should_skip = self
+            .filename
+            .get(&dir_name)
+            .map(|filtered_files| filtered_files.iter().any(|filename| filename == &file_name))
+            .unwrap_or_default();
 
-        if !should_skip && self.regex.contains_key(&dir_name) {
-            should_skip = self.regex.get(&dir_name).unwrap().iter().any(|regex| {
-                Regex::new(regex.as_str())
-                    .expect("Error with regex pattern")
-                    .is_match(&file_name)
-            });
+        should_skip |= self
+            .regex
+            .get(&dir_name)
+            .map(|regexes| {
+                regexes.iter().any(|regex| {
+                    Regex::new(regex.as_str())
+                        .expect("Error with regex pattern")
+                        .is_match(&file_name)
+                })
+            })
+            .unwrap_or_default();
+
+        if let Some(case_name) = case_name {
+            should_skip |= self
+                .test_name
+                .get(&dir_name)
+                .map(|tests| tests.iter().any(|test| test == &case_name))
+                .unwrap_or_default();
         }
+
         should_skip
     }
 
-    /// Checks if the given test should be skipped
-    pub fn is_test_skipped(&self, test_name: &str) -> bool {
-        self.test_name.contains(&test_name.to_string())
+    /// Returns the difference in keys (folders) between the two filters
+    pub fn diff(&self, rhs: &Self) -> Vec<Folder> {
+        let mut diff = Vec::new();
+        diff.append(&mut map_diff(&self.filename, &rhs.filename));
+        diff.append(&mut map_diff(&self.regex, &rhs.regex));
+        diff.append(&mut map_diff(&self.test_name, &rhs.test_name));
+        diff
     }
 }
 
-fn map_diff(lhs: FilterMap, rhs: FilterMap) -> FilterMap {
-    let mut top = BTreeMap::new();
-    for (key, value) in lhs.iter() {
-        let mut diff = Vec::new();
-        if !rhs.contains_key(key) {
-            top.insert(key.clone(), value.clone());
-            continue;
-        }
-        for v in value {
-            if !rhs.get(key).unwrap().contains(v) {
-                diff.push(v.to_string());
+fn map_diff(lhs: &FilterMap, rhs: &FilterMap) -> Vec<Folder> {
+    let mut top = Vec::new();
+    let diff = |top: &mut Vec<String>, lhs: &FilterMap, rhs: &FilterMap| {
+        for (key, _) in lhs.iter() {
+            if !rhs.contains_key(key) && !top.contains(key) {
+                top.push(key.clone());
+                continue;
+            }
+            let same = lhs
+                .get(key)
+                .unwrap()
+                .iter()
+                .zip(rhs.get(key).unwrap().iter())
+                .all(|(lhs, rhs)| lhs == rhs);
+            if !same && !top.contains(key) {
+                top.push(key.clone());
             }
         }
-        top.insert(key.clone(), diff);
-    }
+    };
 
-    for (key, value) in rhs.iter() {
-        let mut diff = Vec::new();
-        if !lhs.contains_key(key) {
-            top.insert(key.clone(), diff.clone());
-            continue;
-        }
-        for v in value {
-            if !lhs.get(key).unwrap().contains(v) {
-                diff.push(v.to_string());
-            }
-        }
-        top.insert(key.clone(), diff);
-    }
+    diff(&mut top, lhs, rhs);
+    diff(&mut top, rhs, lhs);
 
     top
 }
@@ -123,7 +106,7 @@ mod tests {
         let path = PathWrapper::from(Path::new(
             "../../ef-testing/ethereum-tests/BlockchainTests/GeneralStateTests/stCallCreateCallCodeTest/Call1024PreCalls.json",
         ).to_path_buf());
-        assert!(filter.is_skipped(&path));
+        assert!(filter.is_skipped(&path, None));
     }
 
     #[test]
@@ -132,13 +115,19 @@ mod tests {
         let path = PathWrapper::from(Path::new(
             "../../ef-testing/ethereum-tests/BlockchainTests/GeneralStateTests/stBadOpcode/opc4DDiffPlaces.json",
         ).to_path_buf());
-        assert!(filter.is_skipped(&path));
+        assert!(filter.is_skipped(&path, None));
     }
 
     #[test]
     fn test_filter_test() {
         let filter = Filter::load_file("../../blockchain-tests-skip.yml").unwrap();
-        assert!(filter.is_test_skipped("CreateMessageSuccess_d0g0v0_Shanghai"));
+        let path = PathWrapper::from(Path::new(
+            "../../ef-testing/ethereum-tests/BlockchainTests/GeneralStateTests/stTransactionTest/CreateMessageSuccess.json",
+        ).to_path_buf());
+        assert!(filter.is_skipped(
+            &path,
+            Some("CreateMessageSuccess_d0g0v0_Shanghai".to_string())
+        ));
     }
 
     #[test]
@@ -174,24 +163,13 @@ mod tests {
         .collect();
 
         // When
-        let diff = map_diff(lhs, rhs);
+        let mut diff = map_diff(&lhs, &rhs);
+        diff.sort();
 
         // Then
-        let expected: FilterMap = vec![
-            ("a".to_string(), vec![]),
-            ("b".to_string(), vec!["d".to_string()]),
-            ("c".to_string(), vec![]),
-            (
-                "d".to_string(),
-                vec!["e".to_string(), "f".to_string(), "g".to_string()],
-            ),
-            (
-                "e".to_string(),
-                vec!["e".to_string(), "f".to_string(), "g".to_string()],
-            ),
-        ]
-        .into_iter()
-        .collect();
+        let expected: Vec<Folder> = vec!["b".to_string(), "d".to_string(), "e".to_string()]
+            .into_iter()
+            .collect();
 
         assert_eq!(diff, expected)
     }

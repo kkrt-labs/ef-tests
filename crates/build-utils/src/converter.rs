@@ -43,13 +43,13 @@ use crate::{
 ///   ...
 /// }
 /// "#
-pub struct EfTests {
-    directory: DirReader,
+pub struct EfTests<'a> {
+    directory: DirReader<'a>,
     filter: Arc<Filter>,
 }
 
-impl EfTests {
-    pub const fn new(directory: DirReader, filter: Arc<Filter>) -> Self {
+impl<'a> EfTests<'a> {
+    pub const fn new(directory: DirReader<'a>, filter: Arc<Filter>) -> Self {
         Self { directory, filter }
     }
 
@@ -61,7 +61,10 @@ impl EfTests {
             .iter()
             .map(|(folder_name, node)| {
                 let mut acc = String::new();
+                acc += &Self::format_to_folder();
+                acc += &Self::format_to_module(folder_name);
                 acc += &self.convert_folders(node)?;
+                acc += "}";
                 Ok((folder_name.clone(), acc))
             })
             .collect()
@@ -73,7 +76,7 @@ impl EfTests {
         for (dir_name, sub_node) in &node.sub_dirs {
             acc += &Self::format_to_module(dir_name);
             acc += &self.convert_folders(sub_node)?;
-            acc += "{";
+            acc += "}";
         }
         acc += &self.convert_files(&node.files)?.as_str();
         Ok(acc)
@@ -81,20 +84,21 @@ impl EfTests {
 
     #[allow(clippy::manual_try_fold)]
     /// Converts the given files into a String.
-    fn convert_files(&self, files: &[(PathWrapper, bool)]) -> Result<String, eyre::Error> {
+    fn convert_files(&self, files: &[PathWrapper]) -> Result<String, eyre::Error> {
         let mut acc = String::new();
-        for (file_path, is_skipped) in files {
+        for file_path in files {
             let content = file_path.read_file_to_string()?;
             let cases: BTreeMap<String, serde_json::Value> = serde_json::from_str(&content)?;
             let file_contents = cases
                 .par_iter()
                 .map(|(case_name, content)| {
-                    if !case_name.contains(FORK) || self.filter.is_test_skipped(case_name) {
+                    if !case_name.contains(FORK) {
                         return Ok(String::new());
                     }
                     let secret_key = ContentReader::secret_key(file_path.clone())?
                         .ok_or_else(|| eyre::eyre!("Missing secret key"))?;
-                    Self::format_to_test(case_name, &secret_key, content, *is_skipped)
+                    let is_skipped = self.filter.is_skipped(file_path, Some(case_name.clone()));
+                    Self::format_to_test(case_name, &secret_key, content, is_skipped)
                 })
                 .collect::<Result<Vec<String>, eyre::Error>>()?;
             acc += &file_contents.into_iter().fold(String::new(), |mut acc, s| {
@@ -103,6 +107,21 @@ impl EfTests {
             });
         }
         Ok(acc)
+    }
+
+    /// Formats the given folder name into a rust module.
+    fn format_to_folder() -> String {
+        r"
+        #![allow(warnings)]
+        use std::{str::FromStr};
+
+        use ef_testing::models::case::BlockchainTestCase;
+        use ef_testing::test_utils::setup;
+        use ef_testing::traits::Case;
+        use ef_tests::models::{Block, RootOrState, State};
+        use revm_primitives::B256;
+        "
+        .to_string()
     }
 
     /// Formats the given folder name into a rust module.
@@ -122,7 +141,7 @@ impl EfTests {
         content: &Value,
         is_skipped: bool,
     ) -> Result<String, eyre::Error> {
-        let test_content = Self::format_test_content(case_name, secret_key, content);
+        let test_content = Self::format_test_content(case_name, secret_key, content, is_skipped);
         let test_content_err = test_content.as_ref().map_err(|err| err.to_string());
 
         let test_header = Self::format_test_header(is_skipped, test_content_err.err());
@@ -144,7 +163,11 @@ impl EfTests {
         case_name: &str,
         secret_key: &Value,
         content: &Value,
+        is_skipped: bool,
     ) -> Result<String, eyre::Error> {
+        if is_skipped {
+            return Ok(String::default());
+        }
         let block = ContentReader::block(content)?;
         let pre = ContentReader::pre_state(content)?;
         let post = ContentReader::post_state(content)?;

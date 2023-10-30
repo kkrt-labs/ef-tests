@@ -1,11 +1,10 @@
 use std::collections::BTreeMap;
 use std::path::PathBuf;
-use std::sync::Arc;
 
+use walkdir::DirEntry;
 use walkdir::WalkDir;
 
 use crate::constants::ROOT;
-use crate::filter::Filter;
 use crate::path::PathWrapper;
 use crate::utils::path_relative_to;
 use crate::utils::path_to_vec_string;
@@ -14,39 +13,50 @@ use crate::utils::path_to_vec_string;
 /// files in the given directory and stores them
 /// by using a recursive structure (structure that
 /// contains itself).
-pub struct DirReader {
+pub struct DirReader<'a> {
     /// Mapping containing the sub directories
-    pub(crate) sub_dirs: BTreeMap<String, DirReader>,
+    pub(crate) sub_dirs: BTreeMap<String, DirReader<'a>>,
     /// Vector containing the files and wether they should be skipped
-    pub(crate) files: Vec<(PathWrapper, bool)>,
-    /// Filter to be applied on the files
-    filter: Arc<Filter>,
+    pub(crate) files: Vec<PathWrapper>,
+    /// List of folders that should be considered by the `DirReader`
+    target: &'a Option<Vec<String>>,
 }
 
-impl DirReader {
-    pub fn new(filter: Arc<Filter>) -> Self {
+impl<'a> DirReader<'a> {
+    pub fn new(target: &'a Option<Vec<String>>) -> Self {
         Self {
             sub_dirs: BTreeMap::default(),
             files: Vec::default(),
-            filter,
+            target,
         }
     }
 
-    pub fn files(&self) -> &[(PathWrapper, bool)] {
+    pub fn files(&self) -> &[PathWrapper] {
         &self.files
     }
 
-    /// Walks the given directory and stores all files
+    /// Walks the given directory
+    pub fn walk_dir(directory_path: PathWrapper) -> impl Iterator<Item = DirEntry> {
+        WalkDir::new(Into::<PathBuf>::into(directory_path))
+            .into_iter()
+            .filter_map(Result::ok)
+            .filter(|f| f.file_type().is_file())
+    }
+
+    /// Walks the given directory and stores files. If self.target is Some, it will
+    /// only store files that are in a sub directory of the target.
     pub fn walk_dir_and_store_files(
         mut self,
         directory_path: PathWrapper,
     ) -> Result<Self, eyre::Error> {
-        for entry in WalkDir::new(Into::<PathBuf>::into(directory_path))
-            .into_iter()
-            .filter_map(Result::ok)
-            .filter(|f| f.file_type().is_file())
-        {
+        for entry in Self::walk_dir(directory_path) {
             let full_path = entry.path();
+            let parent = full_path.parent();
+            if let (Some(target), Some(parent)) = (&self.target, parent) {
+                if !target.contains(&parent.to_string_lossy().to_string()) {
+                    continue;
+                }
+            }
             let path = path_to_vec_string(full_path)?;
             self.insert_file(path_relative_to(path, ROOT), full_path.to_path_buf().into());
         }
@@ -61,12 +71,11 @@ impl DirReader {
             let sub_node = self.sub_dirs.entry(root_name).or_insert_with(|| Self {
                 sub_dirs: BTreeMap::default(),
                 files: Vec::default(),
-                filter: self.filter.clone(),
+                target: self.target,
             });
             sub_node.insert_file(current_path.into_iter().skip(1).collect(), full_path);
         } else {
-            let skip = self.filter.is_skipped(&full_path);
-            self.files.push((full_path, skip));
+            self.files.push(full_path);
         }
     }
 }
