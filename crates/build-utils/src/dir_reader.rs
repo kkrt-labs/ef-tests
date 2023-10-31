@@ -52,8 +52,12 @@ impl<'a> DirReader<'a> {
     ) -> Result<Self, eyre::Error> {
         for entry in Self::walk_dir(directory_path) {
             let full_path = entry.path();
-            if let (Some(target), Some(parent)) = (&self.target, full_path.parent()) {
-                if !target.contains(&parent.to_string_lossy().to_string()) {
+            if let Some(target) = &self.target {
+                if target.iter().any(|t| {
+                    full_path
+                        .ancestors()
+                        .any(|a| a.to_str().map(|s| s == t).unwrap_or_default())
+                }) {
                     continue;
                 }
             }
