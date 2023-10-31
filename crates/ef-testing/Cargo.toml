@@ -51,5 +51,6 @@ zip = { workspace = true, optional = true }
 
 [build-dependencies]
 build-utils = { path = "../build-utils" }
+cargo-emit = "0.2.1"
 lazy_static = { workspace = true }
 serde_yaml = { workspace = true }

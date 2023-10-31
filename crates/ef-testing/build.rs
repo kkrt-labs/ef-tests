@@ -19,7 +19,7 @@ lazy_static! {
 
 fn main() {
     // Tell Cargo that if the given file changes -> to rerun this build script.
-    println!("cargo:rerun-if-changed={SKIPPED_TESTS}");
+    cargo_emit::rerun_if_changed!(SKIPPED_TESTS);
     let filter = Filter::load_file(SKIPPED_TESTS).expect("Unable to load test filter file");
     let maybe_cached_filter = Filter::load_file(CACHED_SKIPPED_TESTS).ok();
 
