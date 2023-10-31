@@ -11,5 +11,6 @@
     "signextend",
     "sload",
     "sstore"
-  ]
+  ],
+  "search.useIgnoreFiles": false
 }
