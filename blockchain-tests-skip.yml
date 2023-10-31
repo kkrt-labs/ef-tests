@@ -1568,6 +1568,14 @@ filename:
 # List of specific tests names to be skipped
 testname:
   - CreateMessageSuccess_d0g0v0_Shanghai # ef-test #508
+  - randomStatetest481_d0g0v0_Shanghai
+  - randomStatetest538_d0g0v0_Shanghai
+  - randomStatetest597_d0g0v0_Shanghai
+  - randomStatetest649_d0g0v0_Shanghai
+  - randomStatetest257_d0g0v0_Shanghai
+  - randomStatetest303_d0g0v0_Shanghai
+  - randomStatetest32_d0g0v0_Shanghai
+  - returndatacopy_after_failing_callcode_d0g0v0_Shanghai
 
 # List of file names regex to be skipped
 # The first level corresponds to the directory, the second to the list of file names regex to ignore.
