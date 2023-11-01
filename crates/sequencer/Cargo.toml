@@ -26,4 +26,4 @@ thiserror = { workspace = true }
 
 [dev-dependencies]
 lazy_static = { workspace = true }
-tempfile = "3"
+tempfile = "3.8.0"
