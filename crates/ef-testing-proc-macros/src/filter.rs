@@ -77,6 +77,6 @@ mod tests {
     #[test]
     fn test_filter_test() {
         let filter = Filter::new(include_str!("../../../blockchain-tests-skip.yml"));
-        assert!(filter.is_test_skipped("CreateMessageSuccess_d0g0v0_Shanghai"));
+        assert!(filter.is_test_skipped("randomStatetest303_d0g0v0_Shanghai"));
     }
 }

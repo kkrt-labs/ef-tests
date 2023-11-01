@@ -131,8 +131,8 @@ impl BlockchainTestCase {
         };
         let post_state = update_post_state(post_state, self.pre.clone());
 
+        let mut diff: Vec<String> = vec![];
         for (address, expected_state) in post_state.iter() {
-            let mut diff: Vec<String> = vec![];
             // Storage
             for (k, v) in expected_state.storage.iter() {
                 let actual = sequencer.get_storage_at(address, k.0)?;
@@ -175,10 +175,10 @@ impl BlockchainTestCase {
                 );
                 diff.push(balance_diff);
             }
+        }
 
-            if !diff.is_empty() {
-                return Err(RunnerError::Other(diff.into()));
-            }
+        if !diff.is_empty() {
+            return Err(RunnerError::Other(diff.into()));
         }
 
         Ok(())
