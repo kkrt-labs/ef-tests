@@ -55,7 +55,7 @@ mod serialize_contract_storage {
     use blockifier::state::cached_state::ContractStorageKey;
     use rustc_hash::FxHashMap;
     use serde::de::{Deserialize, Deserializer};
-    use serde::ser::{Serialize, Serializer};
+    use serde::ser::{Serialize, SerializeMap, Serializer};
     use starknet_api::hash::StarkFelt;
     use std::collections::HashMap;
 
@@ -66,13 +66,18 @@ mod serialize_contract_storage {
     where
         S: Serializer,
     {
-        let mut transformed: HashMap<String, String> = HashMap::new();
-        for (contract_storage_key, storage_value) in map.iter() {
-            let key_str = serde_json::to_string(&contract_storage_key).unwrap();
-            let value_str = serde_json::to_string(&storage_value).unwrap();
-            transformed.insert(key_str, value_str);
+        let mut serialized_map = serializer.serialize_map(Some(map.len()))?;
+        for (k, v) in map {
+            let key = serde_json::to_string(k).map_err(|error| {
+                serde::ser::Error::custom(format!(
+                    "failed to deserialize contract_storage_key {:?},\n error {}",
+                    k, error
+                ))
+            })?;
+
+            serialized_map.serialize_entry(&key, &v)?;
         }
-        transformed.serialize(serializer)
+        serialized_map.end()
     }
 
     pub fn deserialize<'de, D>(
@@ -81,8 +86,8 @@ mod serialize_contract_storage {
     where
         D: Deserializer<'de>,
     {
-        let transformed = HashMap::<String, String>::deserialize(deserializer)?;
-        let mut map = FxHashMap::default();
+        let transformed = HashMap::<String, StarkFelt>::deserialize(deserializer)?;
+        let mut map: FxHashMap<ContractStorageKey, StarkFelt> = FxHashMap::default();
         for (key_str, value_str) in transformed.iter() {
             let contract_storage_key: ContractStorageKey =
                 serde_json::from_str(key_str).map_err(|error| {
@@ -92,14 +97,7 @@ mod serialize_contract_storage {
                     ))
                 })?;
 
-            let storage_value: StarkFelt = serde_json::from_str(value_str).map_err(|error| {
-                serde::de::Error::custom(format!(
-                    "failed to deserialize storage_value {},\n error {}",
-                    value_str, error
-                ))
-            })?;
-
-            map.insert(contract_storage_key, storage_value);
+            map.insert(contract_storage_key, value_str.to_owned());
         }
         Ok(map)
     }
