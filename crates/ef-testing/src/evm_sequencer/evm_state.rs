@@ -75,7 +75,8 @@ impl EvmState for KakarotSequencer {
 
         let starknet_address = starknet_address.try_into()?;
         // Initialize the implementation and nonce based on account type.
-        if bytecode.is_empty() && evm_storage.is_empty() {
+        // The account is an EOA if it has no bytecode and no storage (or all storage is zero).
+        if bytecode.is_empty() && evm_storage.iter().all(|x| x.1 == U256::ZERO) {
             storage.push((("_implementation", vec![]), EOA_CLASS_HASH.0));
             self.0.state.set_nonce(starknet_address, Nonce(nonce));
         } else {
