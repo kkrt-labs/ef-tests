@@ -12,18 +12,6 @@ use starknet::{
 };
 use starknet_api::{core::ClassHash, hash::StarkFelt};
 
-/// Computes the Starknet address of a contract given its EVM address.
-pub fn compute_starknet_address(evm_address: &Address) -> FeltSequencer {
-    let evm_address: FeltSequencer = (*evm_address).try_into().unwrap(); // infallible
-    let starknet_address = get_contract_address(
-        evm_address.into(),
-        class_hash_for_csa().0.into(),
-        &[],
-        (*KAKAROT_ADDRESS.0.key()).into(),
-    );
-    starknet_address.into()
-}
-
 fn class_hash_for_csa() -> ClassHash {
     #[cfg(not(any(feature = "v0", feature = "v1")))]
     {

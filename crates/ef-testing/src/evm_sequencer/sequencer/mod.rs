@@ -1,7 +1,8 @@
 use std::ops::{Deref, DerefMut};
 
 use blockifier::transaction::{
-    errors::TransactionExecutionError, transaction_execution::Transaction,
+    objects::{TransactionExecutionInfo, TransactionExecutionResult},
+    transaction_execution::Transaction,
 };
 use sequencer::{execution::Execution, sequencer::Sequencer, state::State};
 
@@ -53,8 +54,10 @@ impl DerefMut for KakarotSequencer {
 }
 
 impl Execution for KakarotSequencer {
-    fn execute(&mut self, transaction: Transaction) -> Result<(), TransactionExecutionError> {
-        let _ = self.0.execute(transaction);
-        Ok(())
+    fn execute(
+        &mut self,
+        transaction: Transaction,
+    ) -> TransactionExecutionResult<TransactionExecutionInfo> {
+        self.0.execute(transaction)
     }
 }

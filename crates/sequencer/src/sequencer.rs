@@ -74,9 +74,7 @@ where
         let validate = true;
         let res = transaction.execute(&mut cached_state, &self.block_context, charge_fee, validate);
 
-        dbg!(&res);
-
-        match res {
+        let execution_information = match res {
             Err(err) => {
                 return Err(err);
             }

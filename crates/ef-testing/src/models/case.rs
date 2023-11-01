@@ -1,6 +1,7 @@
 // Inspired by https://github.com/paradigmxyz/reth/tree/main/testing/ef-tests
 
 use super::error::RunnerError;
+use super::result::log_execution_result;
 use crate::evm_sequencer::constants::CHAIN_ID;
 use crate::evm_sequencer::evm_state::EvmState;
 use crate::evm_sequencer::sequencer::{InitializeSequencer, KakarotSequencer};

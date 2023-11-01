@@ -25,7 +25,7 @@ use super::{InitializationResult, InitializeSequencer, KakarotSequencer};
 
 impl InitializeSequencer for KakarotSequencer {
     fn initialize(mut self) -> InitializationResult<Self> {
-        let storage = vec![
+        let storage = [
             ("Ownable_owner", *KAKAROT_OWNER_ADDRESS.0.key()),
             ("native_token_address", *ETH_FEE_TOKEN_ADDRESS.0.key()),
             ("contract_account_class_hash", CONTRACT_ACCOUNT_CLASS_HASH.0),

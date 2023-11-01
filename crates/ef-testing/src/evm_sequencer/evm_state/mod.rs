@@ -1,5 +1,7 @@
 #[cfg(feature = "v0")]
 pub mod v0;
+// #[cfg(feature = "v1")]
+pub mod v1;
 
 use blockifier::state::state_api::StateResult;
 use reth_primitives::{Address, Bytes};
@@ -40,5 +42,5 @@ pub trait EvmState {
     }
 }
 
-#[cfg(not(any(feature = "v0", feature = "v1")))]
-impl EvmState for super::sequencer::KakarotSequencer {}
+// #[cfg(not(any(feature = "v0", feature = "v1")))]
+// impl EvmState for super::sequencer::KakarotSequencer {}

@@ -5,6 +5,8 @@ use blockifier::state::state_api::{State, StateReader, StateResult};
 use reth_primitives::{Address, Bytes};
 use revm_primitives::U256;
 use starknet::core::types::FieldElement;
+use starknet::utils::get_contract_address;
+use starknet_api::core::Nonce;
 use starknet_api::hash::StarkFelt;
 use starknet_api::state::StorageKey;
 
@@ -18,8 +20,7 @@ use crate::evm_sequencer::constants::KAKAROT_ADDRESS;
 use crate::evm_sequencer::sequencer::KakarotSequencer;
 use crate::evm_sequencer::types::felt::FeltSequencer;
 use crate::evm_sequencer::utils::{
-    compute_starknet_address, high_16_bytes_of_felt_to_bytes, split_bytecode_to_starkfelt,
-    split_u256,
+    high_16_bytes_of_felt_to_bytes, split_bytecode_to_starkfelt, split_u256,
 };
 
 pub struct KakarotConfig {
@@ -58,14 +59,14 @@ impl EvmState for KakarotSequencer {
             .into(); // infallible
 
         let mut storage = vec![
-            (("evm_address", vec![]), evm_address),
-            (("is_initialized_", vec![]), StarkFelt::from(1u8)),
-            (("Ownable_owner", vec![]), *KAKAROT_ADDRESS.0.key()),
+            (("evm_address", []), evm_address),
+            (("is_initialized_", []), StarkFelt::from(1u8)),
+            (("Ownable_owner", []), *KAKAROT_ADDRESS.0.key()),
             (
-                ("bytecode_len_", vec![]),
+                ("bytecode_len_", []),
                 StarkFelt::from(bytecode.len() as u32),
             ),
-            (("kakarot_address", vec![]), *KAKAROT_ADDRESS.0.key()),
+            (("kakarot_address", []), *KAKAROT_ADDRESS.0.key()),
         ];
 
         let starknet_address = starknet_address.try_into()?;
@@ -76,8 +77,8 @@ impl EvmState for KakarotSequencer {
             self.state.set_nonce(starknet_address, Nonce(nonce));
         } else {
             storage.append(&mut vec![
-                (("nonce", vec![]), nonce),
-                (("_implementation", vec![]), CONTRACT_ACCOUNT_CLASS_HASH.0),
+                (("nonce", []), nonce),
+                (("_implementation", []), CONTRACT_ACCOUNT_CLASS_HASH.0),
             ]);
         }
 
@@ -252,6 +253,18 @@ impl EvmState for KakarotSequencer {
     }
 }
 
+/// Computes the Starknet address of a contract given its EVM address.
+fn compute_starknet_address(evm_address: &Address) -> FeltSequencer {
+    let evm_address: FeltSequencer = (*evm_address).try_into().unwrap(); // infallible
+    let starknet_address = get_contract_address(
+        evm_address.into(),
+        PROXY_CLASS_HASH.0.into(),
+        &[],
+        (*KAKAROT_ADDRESS.0.key()).into(),
+    );
+    starknet_address.into()
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -261,7 +274,7 @@ mod tests {
             CHAIN_ID,
         },
         sequencer::InitializeSequencer,
-        utils::{compute_starknet_address, to_broadcasted_starknet_transaction},
+        utils::to_broadcasted_starknet_transaction,
     };
     use blockifier::{abi::abi_utils::get_storage_var_address, state::state_api::StateReader};
     use bytes::BytesMut;
