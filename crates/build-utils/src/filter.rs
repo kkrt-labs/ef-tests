@@ -122,11 +122,11 @@ mod tests {
     fn test_filter_test() {
         let filter = Filter::load_file("../../blockchain-tests-skip.yml").unwrap();
         let path = PathWrapper::from(Path::new(
-            "../../ef-testing/ethereum-tests/BlockchainTests/GeneralStateTests/stTransactionTest/CreateMessageSuccess.json",
+            "../../ef-testing/ethereum-tests/BlockchainTests/GeneralStateTests/stTransactionTest/Opcodes_TransactionInit.json",
         ).to_path_buf());
         assert!(filter.is_skipped(
             &path,
-            Some("CreateMessageSuccess_d0g0v0_Shanghai".to_string())
+            Some("Opcodes_TransactionInit_d111g0v0_Shanghai".to_string())
         ));
     }
 
