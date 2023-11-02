@@ -88,11 +88,12 @@ impl From<SerializableState> for State {
 
 mod serialize_contract_storage {
     use blockifier::state::cached_state::ContractStorageKey;
-    use rustc_hash::FxHashMap;
-    use serde::de::{Deserialize, Deserializer};
-    use serde::ser::{Serialize, SerializeMap, Serializer};
+    use rustc_hash::{FxHashMap, FxHasher};
+    use serde::de::{Deserializer, MapAccess, Visitor};
+    use serde::ser::{SerializeMap, Serializer};
     use starknet_api::hash::StarkFelt;
-    use std::collections::HashMap;
+    use std::fmt;
+    use std::hash::BuildHasherDefault;
 
     pub fn serialize<S>(
         map: &FxHashMap<ContractStorageKey, StarkFelt>,
@@ -121,16 +122,49 @@ mod serialize_contract_storage {
     where
         D: Deserializer<'de>,
     {
-        let transformed = HashMap::<String, StarkFelt>::deserialize(deserializer)?;
-        let mut map: FxHashMap<ContractStorageKey, StarkFelt> = FxHashMap::default();
-        for (key_str, value_str) in transformed.iter() {
-            let contract_storage_key: ContractStorageKey =
-                serde_json::from_str(key_str).map_err(|error| {
+        deserializer.deserialize_map(MapContractStorageKeyVisitor)
+    }
+
+    struct MapContractStorageKeyVisitor;
+
+    impl<'de> Visitor<'de> for MapContractStorageKeyVisitor {
+        // The type that our Visitor is going to produce.
+        type Value = FxHashMap<ContractStorageKey, StarkFelt>;
+
+        // Format a message stating what data this Visitor expects to receive.
+        fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+            formatter.write_str("ContractStorageKey to Value map")
+        }
+
+        // Deserialize Map from an abstract "map" provided by the
+        // Deserializer. The MapAccess input is a callback provided by
+        // the Deserializer to let us see each entry in the map.
+        fn visit_map<M>(self, mut access: M) -> Result<Self::Value, M::Error>
+        where
+            M: MapAccess<'de>,
+        {
+            let mut map = FxHashMap::with_capacity_and_hasher(
+                access.size_hint().unwrap_or(0),
+                BuildHasherDefault::<FxHasher>::default(),
+            );
+
+            // While there are entries remaining in the input, add them
+            // into our map.
+            while let Some((key, value)) = access.next_entry::<String, StarkFelt>()? {
+                let key: ContractStorageKey = serde_json::from_str(&key).map_err(|error| {
                     serde::de::Error::custom(format!(
-                        "failed to deserialize contract_storage_key {},\n error {}",
-                        key_str, error
+                        "failed to deserialize contract_storage_key {:?},\n error {}",
+                        key, error
                     ))
                 })?;
+                map.insert(key, value);
+            }
+
+            Ok(map)
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
