@@ -26,19 +26,17 @@ impl DumpLoad for State {
     fn dump_state_to_file(self, path: &Path) -> Result<(), SerializationError> {
         let serializable_state: SerializableState = self.into();
 
-        let dump = serde_json::to_string(&serializable_state)
-            .map_err(SerializationError::SerdeJsonError)?;
+        let dump = serde_json::to_string(&serializable_state)?;
 
-        fs::write(path, dump).map_err(SerializationError::IoError)?;
+        fs::write(path, dump)?;
 
         Ok(())
     }
 
     /// This will read a dump from a file and initialize the state from it
     fn load_state_from_file(path: &Path) -> Result<Self, SerializationError> {
-        let dump = fs::read(path).unwrap();
-        let serializable_state: SerializableState =
-            serde_json::from_slice(&dump).map_err(SerializationError::SerdeJsonError)?;
+        let dump = fs::read(path)?;
+        let serializable_state: SerializableState = serde_json::from_slice(&dump)?;
 
         Ok(serializable_state.into())
     }
@@ -60,30 +58,6 @@ pub struct SerializableState {
     #[serde(with = "serialize_contract_storage")]
     pub storage: FxHashMap<ContractStorageKey, StarkFelt>,
     pub nonces: FxHashMap<ContractAddress, Nonce>,
-}
-
-impl From<State> for SerializableState {
-    fn from(state: State) -> Self {
-        Self {
-            classes: state.classes,
-            compiled_classes_hash: state.compiled_class_hashes,
-            contracts: state.contracts,
-            storage: state.storage,
-            nonces: state.nonces,
-        }
-    }
-}
-
-impl From<SerializableState> for State {
-    fn from(serializable_state: SerializableState) -> Self {
-        Self {
-            classes: serializable_state.classes,
-            compiled_class_hashes: serializable_state.compiled_classes_hash,
-            contracts: serializable_state.contracts,
-            storage: serializable_state.storage,
-            nonces: serializable_state.nonces,
-        }
-    }
 }
 
 mod serialize_contract_storage {
@@ -170,7 +144,7 @@ mod tests {
     use super::*;
     use blockifier::{
         execution::contract_class::{ContractClass, ContractClassV0},
-        state::cached_state::ContractStorageKey,
+        state::state_api::State as _,
     };
 
     use crate::{
@@ -193,17 +167,20 @@ mod tests {
 
         let compiled_class_hash = *ONE_COMPILED_CLASS_HASH;
         let contract_address = *TEST_CONTRACT;
-        let contract_storage_key: ContractStorageKey = (contract_address, *TEST_STORAGE_KEY);
         let storage_value = *ONE_FELT;
         let nonce = *TEST_NONCE;
 
-        state.classes.insert(class_hash, contract_class);
-        state
-            .compiled_class_hashes
-            .insert(class_hash, compiled_class_hash);
-        state.contracts.insert(contract_address, class_hash);
-        state.storage.insert(contract_storage_key, storage_value);
-        state.nonces.insert(contract_address, nonce);
+        (&mut state)
+            .set_contract_class(&class_hash, contract_class)
+            .expect("failed to set contract class");
+        (&mut state)
+            .set_compiled_class_hash(class_hash, compiled_class_hash)
+            .expect("failed to set compiled class hash");
+        (&mut state)
+            .set_class_hash_at(contract_address, class_hash)
+            .expect("failed to set class hash");
+        (&mut state).set_storage_at(contract_address, *TEST_STORAGE_KEY, storage_value);
+        state.set_nonce(contract_address, nonce);
 
         let temp_file = tempfile::NamedTempFile::new().expect("failed open named temp file");
         let dump_file_path = temp_file.into_temp_path();
@@ -218,5 +195,7 @@ mod tests {
         assert_eq!(state, loaded_state);
 
         dump_file_path.close().expect("failed to close temp file");
+
+        assert_eq!(loaded_state, state);
     }
 }
