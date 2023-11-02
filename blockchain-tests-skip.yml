@@ -1505,6 +1505,8 @@ filename:
     - static_log1_logMemStartTooHigh # ef-tests #480
     - static_log_Caller # ef-tests #480
     - static_callcodecallcodecall_110_SuicideEnd # ef-tests #480
+    - static_InternalCallHittingGasLimit # ef-tests #577
+    - static_InternalCallHittingGasLimit2 # ef-tests #577
   stStackTests:
     - underflowTest # ef-tests #414
     - shallowStack # ef-tests #415
