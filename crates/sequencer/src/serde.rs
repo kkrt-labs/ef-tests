@@ -77,10 +77,10 @@ impl From<State> for SerializableState {
 impl From<SerializableState> for State {
     fn from(serializable_state: SerializableState) -> Self {
         Self {
-            classes: serializable_state.classes.clone(),
-            compiled_class_hashes: serializable_state.compiled_classes_hash.clone(),
-            contracts: serializable_state.contracts.clone(),
-            storage: serializable_state.storage.clone(),
+            classes: serializable_state.classes,
+            compiled_class_hashes: serializable_state.compiled_classes_hash,
+            contracts: serializable_state.contracts,
+            storage: serializable_state.storage,
             nonces: serializable_state.nonces,
         }
     }
