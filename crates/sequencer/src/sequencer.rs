@@ -54,8 +54,8 @@ where
     S: DumpLoad + Clone,
     for<'any> &'any mut S: State + StateReader,
 {
-    pub fn dump_state_to_file(&self, file_path: &Path) -> Result<(), SerializationError> {
-        self.state.clone().dump_state_to_file(file_path)
+    pub fn dump_state_to_file(self, file_path: &Path) -> Result<(), SerializationError> {
+        self.state.dump_state_to_file(file_path)
     }
 
     pub fn load_state_from_file(
