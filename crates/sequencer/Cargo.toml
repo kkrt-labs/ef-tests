@@ -13,6 +13,8 @@ license.workspace = true
 # Starknet
 # TODO: remove the blockifier patch on the workspace once we can remove Katana.
 blockifier = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
 starknet_api = { workspace = true }
 starknet = { workspace = true }
 
@@ -20,7 +22,8 @@ starknet = { workspace = true }
 eyre = { workspace = true }
 tracing = { workspace = true }
 rustc-hash = "1.1.0"
+thiserror = { workspace = true }
 
 [dev-dependencies]
 lazy_static = { workspace = true }
-serde_json = { workspace = true }
+tempfile = "3.8.0"

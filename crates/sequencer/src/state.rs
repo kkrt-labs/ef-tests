@@ -14,7 +14,10 @@ use starknet_api::{
     hash::StarkFelt,
 };
 
+use serde::{Deserialize, Serialize};
+
 use crate::commit::Committer;
+use crate::serde::SerializableState;
 
 /// Generic state structure for the sequencer.
 /// The use of `FxHashMap` allows for a better performance.
@@ -22,13 +25,37 @@ use crate::commit::Committer;
 /// which is faster than the default hash function. Think about changing
 /// if the test sequencer is used for tests outside of ef-tests.
 /// See [rustc-hash](https://crates.io/crates/rustc-hash) for more information.
-#[derive(Default)]
+#[derive(Clone, Default, Debug, Serialize, Deserialize, PartialEq, Eq)]
 pub struct State {
     classes: FxHashMap<ClassHash, ContractClass>,
     compiled_class_hashes: FxHashMap<ClassHash, CompiledClassHash>,
     contracts: FxHashMap<ContractAddress, ClassHash>,
     storage: FxHashMap<ContractStorageKey, StarkFelt>,
     nonces: FxHashMap<ContractAddress, Nonce>,
+}
+
+impl From<State> for SerializableState {
+    fn from(state: State) -> Self {
+        Self {
+            classes: state.classes,
+            compiled_classes_hash: state.compiled_class_hashes,
+            contracts: state.contracts,
+            storage: state.storage,
+            nonces: state.nonces,
+        }
+    }
+}
+
+impl From<SerializableState> for State {
+    fn from(serializable_state: SerializableState) -> Self {
+        Self {
+            classes: serializable_state.classes,
+            compiled_class_hashes: serializable_state.compiled_classes_hash,
+            contracts: serializable_state.contracts,
+            storage: serializable_state.storage,
+            nonces: serializable_state.nonces,
+        }
+    }
 }
 
 impl State {
