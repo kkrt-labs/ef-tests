@@ -610,10 +610,6 @@ filename:
     - NonZeroValue_DELEGATECALL_ToEmpty # ef-tests #360
     - NonZeroValue_DELEGATECALL_ToNonNonZeroBalance # ef-tests #360
     - NonZeroValue_DELEGATECALL_ToOneStorageKey # ef-tests #360
-    - NonZeroValue_SUICIDE # ef-tests #361
-    - NonZeroValue_SUICIDE_ToEmpty # ef-tests #514
-    - NonZeroValue_SUICIDE_ToOneStorageKey # ef-tests #514
-    - NonZeroValue_SUICIDE_ToNonNonZeroBalance # ef-tests #514
   stRandom:
     - randomStatetest307 # ef-test #550
     - randomStatetest0 # ef-tests #397
