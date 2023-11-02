@@ -1,10 +1,4 @@
-use std::path::Path;
-
-use crate::{
-    commit::Committer,
-    execution::Execution,
-    serde::{DumpLoad, SerializationError},
-};
+use crate::{commit::Committer, execution::Execution};
 use blockifier::{
     block_context::BlockContext,
     state::{
@@ -46,24 +40,6 @@ where
             block_context,
             state,
         }
-    }
-}
-
-impl<S> Sequencer<S>
-where
-    S: DumpLoad + Clone,
-    for<'any> &'any mut S: State + StateReader,
-{
-    pub fn dump_state_to_file(self, file_path: &Path) -> Result<(), SerializationError> {
-        self.state.dump_state_to_file(file_path)
-    }
-
-    pub fn load_state_from_file(
-        block_context: BlockContext,
-        file_path: &Path,
-    ) -> Result<Self, SerializationError> {
-        let state = S::load_state_from_file(file_path)?;
-        Ok(Self::new(block_context, state))
     }
 }
 
