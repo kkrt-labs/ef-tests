@@ -6,7 +6,7 @@ ifneq ("$(wildcard .env)","")
 endif
 
 # The release tag of https://github.com/ethereum/tests to use for EF tests
-EF_TESTS_TAG := v12.3
+EF_TESTS_TAG := v12.4
 EF_TESTS_URL := https://github.com/ethereum/tests/archive/refs/tags/$(EF_TESTS_TAG).tar.gz
 EF_TESTS_DIR := ./crates/ef-testing/ethereum-tests
 
@@ -23,7 +23,7 @@ $(EF_TESTS_DIR):
 	rm ethereum-tests.tar.gz
 
 # Ensures the commands for $(EF_TESTS_DIR) always run on `make setup`, regardless if the directory exists
-.PHONY: $(EF_TESTS_DIR)
+.PHONY: $(EF_TESTS_DIR) build
 setup: $(EF_TESTS_DIR)
 
 setup-kakarot: clean-kakarot
@@ -40,9 +40,13 @@ unit:
 	cargo test --lib
 
 # Runs the repo tests
-tests:
+tests: build
 	cargo test --no-fail-fast --quiet
 
 # Runs ef tests only
-ef-test:
-	cargo test --test tests --no-fail-fast --quiet
+ef-test: build
+	cargo test --tests --no-fail-fast --quiet
+
+# Build the rust crates
+build:
+	cargo build --release

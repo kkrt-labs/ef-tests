@@ -25,3 +25,6 @@ failing_tests.log
 
 # Ignore everything starting with tmp
 tmp*
+
+# Ignore the generated tests
+/crates/ef-testing/tests/*

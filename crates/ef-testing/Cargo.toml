@@ -5,6 +5,7 @@ edition.workspace = true
 license.workspace = true
 homepage.workspace = true
 repository.workspace = true
+build = "build.rs"
 
 [dependencies]
 bytes = { workspace = true }
@@ -42,9 +43,14 @@ serde_json = { workspace = true }
 thiserror = { workspace = true }
 tokio = { workspace = true }
 tracing = { workspace = true }
+tracing-subscriber = { workspace = true }
 walkdir = { workspace = true }
 zip = { workspace = true, optional = true }
 
 [dev-dependencies]
-tracing-subscriber = { workspace = true }
-ef-testing-proc-macros = { path = "../ef-testing-proc-macros" }
+
+[build-dependencies]
+build-utils = { path = "../build-utils" }
+cargo-emit = "0.2.1"
+lazy_static = { workspace = true }
+serde_yaml = { workspace = true }

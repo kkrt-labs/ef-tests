@@ -808,6 +808,20 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "771fe0050b883fcc3ea2359b1a96bcfbc090b7116eae7c3c512c7a083fdf23d3"
 
 [[package]]
+name = "build-utils"
+version = "0.1.0"
+dependencies = [
+ "eyre",
+ "lazy_static",
+ "rayon",
+ "regex",
+ "serde",
+ "serde_json",
+ "serde_yaml",
+ "walkdir",
+]
+
+[[package]]
 name = "bumpalo"
 version = "3.14.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1407,6 +1421,12 @@ dependencies = [
  "starknet-crypto 0.5.1",
  "thiserror-no-std",
 ]
+
+[[package]]
+name = "cargo-emit"
+version = "0.2.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1582e1c9e755dd6ad6b224dcffb135d199399a4568d454bd89fe515ca8425695"
 
 [[package]]
 name = "cc"
@@ -2019,12 +2039,13 @@ version = "0.1.0"
 dependencies = [
  "async-trait",
  "blockifier",
+ "build-utils",
  "bytes",
  "cairo-vm",
+ "cargo-emit",
  "chrono",
  "ctor",
  "dotenvy",
- "ef-testing-proc-macros",
  "ef-tests",
  "ethers-signers",
  "eyre",
@@ -2038,6 +2059,7 @@ dependencies = [
  "sequencer",
  "serde",
  "serde_json",
+ "serde_yaml",
  "starknet",
  "starknet_api",
  "thiserror",
@@ -2046,23 +2068,6 @@ dependencies = [
  "tracing-subscriber",
  "walkdir",
  "zip",
-]
-
-[[package]]
-name = "ef-testing-proc-macros"
-version = "0.1.0"
-dependencies = [
- "eyre",
- "lazy_static",
- "proc-macro2 1.0.69",
- "quote 1.0.33",
- "rayon",
- "regex",
- "serde",
- "serde_json",
- "serde_yaml",
- "syn 2.0.37",
- "walkdir",
 ]
 
 [[package]]

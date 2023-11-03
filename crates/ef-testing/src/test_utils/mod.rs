@@ -1,15 +1,10 @@
-use std::{str::FromStr, sync::Once};
+use std::sync::Once;
 
-use ef_testing::models::case::BlockchainTestCase;
-use ef_testing::traits::Case;
-use ef_testing_proc_macros::generate_blockchain_tests;
-use ef_tests::models::{Block, RootOrState, State};
-use revm_primitives::B256;
 use tracing_subscriber::{filter, FmtSubscriber};
 
 static INIT: Once = Once::new();
 
-fn setup() {
+pub fn setup() {
     INIT.call_once(|| {
         // Set-up tracing filter
         let filter = filter::EnvFilter::new("ef_testing=info,sequencer=info");
@@ -21,5 +16,3 @@ fn setup() {
             .expect("setting tracing default failed");
     })
 }
-
-generate_blockchain_tests!();

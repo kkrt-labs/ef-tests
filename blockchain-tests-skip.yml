@@ -1562,19 +1562,23 @@ filename:
     - SuicidesStopAfterSuicide # ef-test #506
     - TransactionSendingToZero # ef-test #506
 
-# List of specific tests names to be skipped
+# List of specific tests names to be skipped with folder
 testname:
-  - randomStatetest481_d0g0v0_Shanghai # ef-test #572
-  - randomStatetest538_d0g0v0_Shanghai # ef-test #572
-  - randomStatetest597_d0g0v0_Shanghai # ef-test #572
-  - randomStatetest649_d0g0v0_Shanghai # ef-test #572
-  - randomStatetest257_d0g0v0_Shanghai # ef-test #572
-  - randomStatetest303_d0g0v0_Shanghai # ef-test #572
-  - randomStatetest32_d0g0v0_Shanghai # ef-test #572
-  - returndatacopy_after_failing_callcode_d0g0v0_Shanghai # ef-test #572
-  - Opcodes_TransactionInit_d111g0v0_Shanghai # ef-test #573
-  - Opcodes_TransactionInit_d120g0v0_Shanghai # ef-test #574
-  - Opcodes_TransactionInit_d131g0v0_Shanghai # ef-test #550
+  stRandom:
+    - randomStatetest257_d0g0v0_Shanghai # ef-test #572
+    - randomStatetest303_d0g0v0_Shanghai # ef-test #572
+    - randomStatetest32_d0g0v0_Shanghai # ef-test #572
+  stRandom2:
+    - randomStatetest481_d0g0v0_Shanghai # ef-test #572
+    - randomStatetest538_d0g0v0_Shanghai # ef-test #572
+    - randomStatetest597_d0g0v0_Shanghai # ef-test #572
+    - randomStatetest649_d0g0v0_Shanghai # ef-test #572
+  stReturnDataTest:
+    - returndatacopy_after_failing_callcode_d0g0v0_Shanghai # ef-test #572
+  stTransactionTest:
+    - Opcodes_TransactionInit_d111g0v0_Shanghai # ef-test #573
+    - Opcodes_TransactionInit_d120g0v0_Shanghai # ef-test #574
+    - Opcodes_TransactionInit_d131g0v0_Shanghai # ef-test #550
 
 # List of file names regex to be skipped
 # The first level corresponds to the directory, the second to the list of file names regex to ignore.
