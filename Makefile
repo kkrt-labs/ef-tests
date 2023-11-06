@@ -40,13 +40,17 @@ unit:
 	cargo test --lib
 
 # Runs the repo tests
-tests: build
-	cargo test --no-fail-fast --quiet
+tests: build-ci
+	cargo test --test tests --lib --no-fail-fast --quiet
 
 # Runs ef tests only
-ef-test: build
-	cargo test --tests --no-fail-fast --quiet
+ef-test: build-ci
+	cargo test --test tests --no-fail-fast --quiet
 
 # Build the rust crates
 build:
 	cargo build --release
+
+# Build the rust crates for ci
+build-ci:
+	cargo build --release --features ci
