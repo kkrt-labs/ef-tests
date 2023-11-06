@@ -81,5 +81,4 @@ fn main() {
         .expect("Unable to get parent dir");
     fs::create_dir_all(cached_skipped_tests_path).expect("Unable to create tmp folder");
     fs::write(CACHED_SKIPPED_TESTS, filter_content).expect("Unable to write file");
-    dbg!("test");
 }
