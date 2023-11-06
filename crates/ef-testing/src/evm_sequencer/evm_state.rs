@@ -290,7 +290,7 @@ mod tests {
             transaction: reth_primitives::Transaction::Eip1559(TxEip1559 {
                 chain_id: *CHAIN_ID,
                 nonce: 0,
-                gas_limit: 0,
+                gas_limit: 1_000_000,
                 max_fee_per_gas: 0,
                 max_priority_fee_per_gas: 0,
                 to: reth_primitives::TransactionKind::Call(*TEST_CONTRACT_ADDRESS),
