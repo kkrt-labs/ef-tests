@@ -444,7 +444,6 @@ testname:
     - returndatacopy_following_create_d1g0v0_Shanghai
     - returndatacopy_following_successful_create_d0g0v0_Shanghai
     - returndatasize_following_successful_create_d0g0v0_Shanghai
-
   stDelegatecallTestHomestead:
     - Call1024BalanceTooLow_d0g0v0_Shanghai # ef-tests #493
     - Call1024OOG_d0g0v0_Shanghai # ef-tests #493
@@ -5354,16 +5353,7 @@ testname:
     - ZeroValue_SUICIDE_ToEmpty_OOGRevert_d0g0v0_Shanghai # ef-tests #494
     - ZeroValue_SUICIDE_ToNonZeroBalance_OOGRevert_d0g0v0_Shanghai # ef-tests #494
     - ZeroValue_SUICIDE_ToOneStorageKey_OOGRevert_d0g0v0_Shanghai # ef-tests #494
-    - ecpairing_empty_data_d0g0v0_Shanghai # ef-tests #459
-    - ecpairing_empty_data_d0g3v0_Shanghai # ef-tests #459
-    - ecpairing_empty_data_insufficient_gas_d0g2v0_Shanghai # ef-tests #36
-    - ecpairing_one_point_fail_d0g0v0_Shanghai # ef-tests #459
-    - ecpairing_one_point_with_g1_zero_d0g0v0_Shanghai # ef-tests #459
-    - ecpairing_three_point_fail_1_d0g0v0_Shanghai # ef-tests #459
-    - ecpairing_two_point_fail_1_d0g0v0_Shanghai # ef-tests #459
-    - ecpairing_two_point_fail_2_d0g0v0_Shanghai # ef-tests #459
-    - ecpairing_two_point_match_1_d0g0v0_Shanghai # ef-tests #459
-    - ecpairing_two_point_match_5_d0g0v0_Shanghai # ef-tests #459
+  stZeroKnowledge:
     - pairingTest_d0g0v0_Shanghai # ef-tests #459
     - pairingTest_d1g0v0_Shanghai # ef-tests #459
     - pairingTest_d2g0v0_Shanghai # ef-tests #459
@@ -5484,6 +5474,16 @@ testname:
     - pointMulAdd_d7g3v0_Shanghai # ef-tests #459
     - pointMulAdd_d8g0v0_Shanghai # ef-tests #459
     - pointMulAdd_d8g3v0_Shanghai # ef-tests #459
+    - ecpairing_empty_data_d0g0v0_Shanghai # ef-tests #459
+    - ecpairing_empty_data_d0g3v0_Shanghai # ef-tests #459
+    - ecpairing_empty_data_insufficient_gas_d0g2v0_Shanghai # ef-tests #36
+    - ecpairing_one_point_fail_d0g0v0_Shanghai # ef-tests #459
+    - ecpairing_one_point_with_g1_zero_d0g0v0_Shanghai # ef-tests #459
+    - ecpairing_three_point_fail_1_d0g0v0_Shanghai # ef-tests #459
+    - ecpairing_two_point_fail_1_d0g0v0_Shanghai # ef-tests #459
+    - ecpairing_two_point_fail_2_d0g0v0_Shanghai # ef-tests #459
+    - ecpairing_two_point_match_1_d0g0v0_Shanghai # ef-tests #459
+    - ecpairing_two_point_match_5_d0g0v0_Shanghai # ef-tests #459
   vmArithmeticTest:
     - addmod_d10g0v0_Shanghai # ef-tests #695
     - addmod_d11g0v0_Shanghai # ef-tests #695
