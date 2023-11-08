@@ -1,7 +1,13 @@
 # List of file names to be skipped
 # The first level corresponds to the directory, the second to the list of file names to ignore.
-# trunk-ignore(yamllint/empty-values)
 filename:
+  stEIP3860-limitmeterinitcode:
+    - create2InitCodeSizeLimit # ef-tests #155
+    - createInitCodeSizeLimit # ef-tests #156
+    - creationTxInitCodeSizeLimit # ef-tests #157
+  stEIP3855-push0:
+    - push0 # ef-tests #149
+    - push0Gas # ef-tests #150
 
 # List of specific tests names to be skipped with folder
 testname:
@@ -2653,13 +2659,6 @@ testname:
     - variedContext_d7g0v0_Shanghai # ef-tests #502
     - variedContext_d8g0v0_Shanghai # ef-tests #502
     - variedContext_d9g0v0_Shanghai # ef-tests #502
-  stEIP3860-limitmeterinitcode:
-    - create2InitCodeSizeLimit # ef-tests #155
-    - createInitCodeSizeLimit # ef-tests #156
-    - creationTxInitCodeSizeLimit # ef-tests #157
-  stEIP3855-push0:
-    - push0 # ef-tests #149
-    - push0Gas # ef-tests #150
   stExample:
     - basefeeExample_d0g0v0_Shanghai # ef-tests #505
     - eip1559_d0g0v0_Shanghai # ef-tests #504
