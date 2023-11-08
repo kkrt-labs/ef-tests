@@ -71,7 +71,7 @@ testname:
     - operationDiffGas_d8g0v0_Shanghai # ef-tests #124
     - operationDiffGas_d9g0v0_Shanghai # ef-tests #124
   stBugs:
-    - randomStatetestDEFAULT_minus_Tue_07_58_41_minus_15153_minus_575192_d0g0v0_Shanghai # ef-tests #496
+    - randomStatetestDEFAULT-Tue_07_58_41-15153-575192_d0g0v0_Shanghai # ef-tests #496
   stCallCodes:
     - call_OOG_additionalGasCosts2_d0g0v0_Shanghai # ef-tests #550
     - callcall_00_OOGE_d0g0v0_Shanghai # ef-tests #327
@@ -342,6 +342,109 @@ testname:
     - createLargeResult_d7g0v0_Shanghai # ef-tests #339
     - createLargeResult_d8g0v0_Shanghai # ef-tests #339
     - createLargeResult_d9g0v0_Shanghai # ef-tests #339
+  stCreate2:
+    - CREATE2_ContractSuicideDuringInit_ThenStoreThenReturn_d0g0v0_Shanghai
+    - CREATE2_HighNonceDelegatecall_d11g0v0_Shanghai
+    - CREATE2_HighNonceDelegatecall_d17g0v0_Shanghai
+    - CREATE2_HighNonceDelegatecall_d18g0v0_Shanghai
+    - CREATE2_HighNonceDelegatecall_d19g0v0_Shanghai
+    - CREATE2_HighNonceDelegatecall_d20g0v0_Shanghai
+    - CREATE2_HighNonceDelegatecall_d21g0v0_Shanghai
+    - CREATE2_HighNonceDelegatecall_d23g0v0_Shanghai
+    - CREATE2_HighNonceDelegatecall_d5g0v0_Shanghai
+    - CREATE2_HighNonceDelegatecall_d6g0v0_Shanghai
+    - CREATE2_HighNonceDelegatecall_d7g0v0_Shanghai
+    - CREATE2_HighNonceDelegatecall_d8g0v0_Shanghai
+    - CREATE2_HighNonceDelegatecall_d9g0v0_Shanghai
+    - CREATE2_HighNonce_d0g0v0_Shanghai
+    - CREATE2_Suicide_d11g0v0_Shanghai
+    - CREATE2_Suicide_d2g0v0_Shanghai
+    - CREATE2_Suicide_d3g0v0_Shanghai
+    - CREATE2_Suicide_d6g0v0_Shanghai
+    - CREATE2_Suicide_d7g0v0_Shanghai
+    - CREATE2_Suicide_d9g0v0_Shanghai
+    - Create2OOGFromCallRefunds_d10g0v0_Shanghai
+    - Create2OOGFromCallRefunds_d13g0v0_Shanghai
+    - Create2OOGFromCallRefunds_d16g0v0_Shanghai
+    - Create2OOGFromCallRefunds_d19g0v0_Shanghai
+    - Create2OOGFromCallRefunds_d1g0v0_Shanghai
+    - Create2OOGFromCallRefunds_d22g0v0_Shanghai
+    - Create2OOGFromCallRefunds_d4g0v0_Shanghai
+    - Create2OOGFromCallRefunds_d7g0v0_Shanghai
+    - Create2OOGafterInitCodeReturndata2_d0g0v0_Shanghai
+    - Create2OOGafterInitCodeReturndata2_d0g1v0_Shanghai
+    - Create2OOGafterInitCodeReturndata3_d0g0v0_Shanghai
+    - Create2OOGafterInitCodeReturndata_d0g0v0_Shanghai
+    - Create2OOGafterInitCodeReturndata_d0g1v0_Shanghai
+    - Create2OnDepth1023_d0g0v0_Shanghai
+    - Create2OnDepth1024_d0g0v0_Shanghai
+    - RevertDepthCreate2OOGBerlin_d0g0v0_Shanghai
+    - RevertDepthCreate2OOGBerlin_d0g0v1_Shanghai
+    - RevertDepthCreate2OOGBerlin_d0g1v0_Shanghai
+    - RevertDepthCreate2OOGBerlin_d0g1v1_Shanghai
+    - RevertDepthCreate2OOGBerlin_d1g0v0_Shanghai
+    - RevertDepthCreate2OOGBerlin_d1g0v1_Shanghai
+    - RevertDepthCreate2OOG_d0g0v0_Shanghai
+    - RevertDepthCreate2OOG_d0g0v1_Shanghai
+    - RevertDepthCreate2OOG_d0g1v0_Shanghai
+    - RevertDepthCreate2OOG_d0g1v1_Shanghai
+    - RevertDepthCreate2OOG_d1g0v0_Shanghai
+    - RevertDepthCreate2OOG_d1g0v1_Shanghai
+    - RevertDepthCreateAddressCollisionBerlin_d0g0v0_Shanghai
+    - RevertDepthCreateAddressCollisionBerlin_d0g0v1_Shanghai
+    - RevertDepthCreateAddressCollisionBerlin_d0g1v0_Shanghai
+    - RevertDepthCreateAddressCollisionBerlin_d0g1v1_Shanghai
+    - RevertDepthCreateAddressCollisionBerlin_d1g0v0_Shanghai
+    - RevertDepthCreateAddressCollisionBerlin_d1g0v1_Shanghai
+    - RevertDepthCreateAddressCollision_d0g0v0_Shanghai
+    - RevertDepthCreateAddressCollision_d0g0v1_Shanghai
+    - RevertDepthCreateAddressCollision_d0g1v0_Shanghai
+    - RevertDepthCreateAddressCollision_d0g1v1_Shanghai
+    - RevertDepthCreateAddressCollision_d1g0v0_Shanghai
+    - RevertDepthCreateAddressCollision_d1g0v1_Shanghai
+    - RevertInCreateInInitCreate2_d0g0v0_Shanghai
+    - RevertOpcodeCreate_d0g1v0_Shanghai
+    - call_outsize_then_create2_successful_then_returndatasize_d0g0v0_Shanghai
+    - call_then_create2_successful_then_returndatasize_d0g0v0_Shanghai
+    - create2InitCodes_d6g0v0_Shanghai
+    - create2InitCodes_d8g0v0_Shanghai
+    - create2SmartInitCode_d0g0v0_Shanghai
+    - create2SmartInitCode_d1g0v0_Shanghai
+    - create2callPrecompiles_d0g0v0_Shanghai
+    - create2callPrecompiles_d1g0v0_Shanghai
+    - create2callPrecompiles_d2g0v0_Shanghai
+    - create2callPrecompiles_d3g0v0_Shanghai
+    - create2callPrecompiles_d4g0v0_Shanghai
+    - create2callPrecompiles_d5g0v0_Shanghai
+    - create2callPrecompiles_d6g0v0_Shanghai
+    - create2callPrecompiles_d7g0v0_Shanghai
+    - create2collisionBalance_d0g0v0_Shanghai
+    - create2collisionBalance_d1g0v0_Shanghai
+    - create2collisionBalance_d2g0v0_Shanghai
+    - create2collisionBalance_d3g0v0_Shanghai
+    - create2collisionCode2_d0g0v0_Shanghai
+    - create2collisionCode2_d1g0v0_Shanghai
+    - create2collisionCode_d0g0v0_Shanghai
+    - create2collisionCode_d1g0v0_Shanghai
+    - create2collisionCode_d2g0v0_Shanghai
+    - create2collisionNonce_d0g0v0_Shanghai
+    - create2collisionNonce_d1g0v0_Shanghai
+    - create2collisionNonce_d2g0v0_Shanghai
+    - create2collisionSelfdestructed2_d0g0v0_Shanghai
+    - create2collisionSelfdestructed2_d1g0v0_Shanghai
+    - create2collisionSelfdestructed_d0g0v0_Shanghai
+    - create2collisionSelfdestructed_d1g0v0_Shanghai
+    - create2collisionSelfdestructed_d2g0v0_Shanghai
+    - create2collisionStorage_d0g0v0_Shanghai
+    - create2collisionStorage_d1g0v0_Shanghai
+    - create2collisionStorage_d2g0v0_Shanghai
+    - create2noCash_d0g0v0_Shanghai
+    - create2noCash_d1g0v0_Shanghai
+    - returndatacopy_following_create_d0g0v0_Shanghai
+    - returndatacopy_following_create_d1g0v0_Shanghai
+    - returndatacopy_following_successful_create_d0g0v0_Shanghai
+    - returndatasize_following_successful_create_d0g0v0_Shanghai
+
   stDelegatecallTestHomestead:
     - Call1024BalanceTooLow_d0g0v0_Shanghai # ef-tests #493
     - Call1024OOG_d0g0v0_Shanghai # ef-tests #493
@@ -454,7 +557,7 @@ testname:
     - eip2929_d7g0v0_Shanghai # ef-tests #344
     - eip2929_d8g0v0_Shanghai # ef-tests #344
     - eip2929_d9g0v0_Shanghai # ef-tests #344
-    - eip2929_minus_ff_d0g0v0_Shanghai # ef-tests #344
+    - eip2929-ff_d0g0v0_Shanghai # ef-tests #344
     - gasCostBerlin_d23g0v0_Shanghai # ef-tests #36
     - gasCostBerlin_d31g0v0_Shanghai # ef-tests #36
     - gasCostBerlin_d39g0v0_Shanghai # ef-tests #36
@@ -2551,11 +2654,18 @@ testname:
     - variedContext_d7g0v0_Shanghai # ef-tests #502
     - variedContext_d8g0v0_Shanghai # ef-tests #502
     - variedContext_d9g0v0_Shanghai # ef-tests #502
+  stEIP3860-limitmeterinitcode:
+    - create2InitCodeSizeLimit # ef-tests #155
+    - createInitCodeSizeLimit # ef-tests #156
+    - creationTxInitCodeSizeLimit # ef-tests #157
+  stEIP3855-push0:
+    - push0 # ef-tests #149
+    - push0Gas # ef-tests #150
   stExample:
     - basefeeExample_d0g0v0_Shanghai # ef-tests #505
     - eip1559_d0g0v0_Shanghai # ef-tests #504
     - invalidTr_d0g0v0_Shanghai # ef-tests #504
-    - merged0g0v0_Shanghai # ef-tests #504
+    - mergeTest_d0g0v0_Shanghai # ef-tests #504
   stExtCodeHash:
     - callToNonExistent_d0g0v0_Shanghai # ef-tests #288
     - callToNonExistent_d1g0v0_Shanghai # ef-tests #288
@@ -3182,6 +3292,7 @@ testname:
     - modexp_d9g1v0_Shanghai # ef-tests #700
     - modexp_d9g2v0_Shanghai # ef-tests #700
     - modexp_d9g3v0_Shanghai # ef-tests #700
+    - precompsEIP2929_d0g0v0_Shanghai
     - precompsEIP2929_d100g0v0_Shanghai # ef-tests #389
     - precompsEIP2929_d101g0v0_Shanghai # ef-tests #389
     - precompsEIP2929_d102g0v0_Shanghai # ef-tests #389
@@ -3228,6 +3339,7 @@ testname:
     - precompsEIP2929_d176g0v0_Shanghai # ef-tests #389
     - precompsEIP2929_d177g0v0_Shanghai # ef-tests #389
     - precompsEIP2929_d178g0v0_Shanghai # ef-tests #389
+    - precompsEIP2929_d17g0v0_Shanghai
     - precompsEIP2929_d189g0v0_Shanghai # ef-tests #389
     - precompsEIP2929_d18g0v0_Shanghai # ef-tests #389
     - precompsEIP2929_d190g0v0_Shanghai # ef-tests #389
@@ -3238,6 +3350,7 @@ testname:
     - precompsEIP2929_d195g0v0_Shanghai # ef-tests #389
     - precompsEIP2929_d196g0v0_Shanghai # ef-tests #389
     - precompsEIP2929_d19g0v0_Shanghai # ef-tests #389
+    - precompsEIP2929_d1g0v0_Shanghai
     - precompsEIP2929_d207g0v0_Shanghai # ef-tests #389
     - precompsEIP2929_d208g0v0_Shanghai # ef-tests #389
     - precompsEIP2929_d209g0v0_Shanghai # ef-tests #389
@@ -3358,6 +3471,7 @@ testname:
     - precompsEIP2929_d57g0v0_Shanghai # ef-tests #389
     - precompsEIP2929_d58g0v0_Shanghai # ef-tests #389
     - precompsEIP2929_d59g0v0_Shanghai # ef-tests #389
+    - precompsEIP2929_d5g0v0_Shanghai
     - precompsEIP2929_d60g0v0_Shanghai # ef-tests #389
     - precompsEIP2929_d63g0v0_Shanghai # ef-tests #389
     - precompsEIP2929_d64g0v0_Shanghai # ef-tests #389
@@ -3366,6 +3480,7 @@ testname:
     - precompsEIP2929_d67g0v0_Shanghai # ef-tests #389
     - precompsEIP2929_d68g0v0_Shanghai # ef-tests #389
     - precompsEIP2929_d69g0v0_Shanghai # ef-tests #389
+    - precompsEIP2929_d6g0v0_Shanghai
     - precompsEIP2929_d70g0v0_Shanghai # ef-tests #389
     - precompsEIP2929_d74g0v0_Shanghai # ef-tests #389
     - precompsEIP2929_d75g0v0_Shanghai # ef-tests #389
@@ -4222,7 +4337,7 @@ testname:
     - multiSelfdestruct_d2g0v0_Shanghai # ef-tests #496
     - multiSelfdestruct_d3g0v0_Shanghai # ef-tests #496
     - multiSelfdestruct_d4g0v0_Shanghai # ef-tests #496
-    - testRandomd0g0v0_Shanghai # ef-tests #451
+    - testRandomTest_d0g0v0_Shanghai # ef-tests #451
   stTimeConsuming:
     - CALLBlake2f_MaxRounds_d0g0v0_Shanghai # ef-tests #391
     - sstore_combinations_initial00_2_d131g0v0_Shanghai # ef-tests #440
@@ -5239,129 +5354,6 @@ testname:
     - ZeroValue_SUICIDE_ToEmpty_OOGRevert_d0g0v0_Shanghai # ef-tests #494
     - ZeroValue_SUICIDE_ToNonZeroBalance_OOGRevert_d0g0v0_Shanghai # ef-tests #494
     - ZeroValue_SUICIDE_ToOneStorageKey_OOGRevert_d0g0v0_Shanghai # ef-tests #494
-  stZeroKnowledge:
-    - ecmul_1_minus_2_2_28000_96_d0g1v0_Shanghai # ef-tests #496
-    - ecmul_1_minus_2_2_28000_96_d0g2v0_Shanghai # ef-tests #496
-    - ecmul_1_minus_2_2_28000_96_d0g3v0_Shanghai # ef-tests #496
-    - ecmul_1_minus_2_2_28000_96_d0g4v0_Shanghai # ef-tests #496
-    - ecmul_1_minus_2_340282366920938463463374607431768211456_21000_128_d0g1v0_Shanghai # ef-tests #496
-    - ecmul_1_minus_2_340282366920938463463374607431768211456_21000_128_d0g2v0_Shanghai # ef-tests #496
-    - ecmul_1_minus_2_340282366920938463463374607431768211456_21000_128_d0g3v0_Shanghai # ef-tests #496
-    - ecmul_1_minus_2_340282366920938463463374607431768211456_21000_80_d0g1v0_Shanghai # ef-tests #496
-    - ecmul_1_minus_2_340282366920938463463374607431768211456_21000_80_d0g2v0_Shanghai # ef-tests #496
-    - ecmul_1_minus_2_340282366920938463463374607431768211456_21000_80_d0g3v0_Shanghai # ef-tests #496
-    - ecmul_1_minus_2_340282366920938463463374607431768211456_21000_96_d0g1v0_Shanghai # ef-tests #496
-    - ecmul_1_minus_2_340282366920938463463374607431768211456_21000_96_d0g2v0_Shanghai # ef-tests #496
-    - ecmul_1_minus_2_340282366920938463463374607431768211456_21000_96_d0g3v0_Shanghai # ef-tests #496
-    - ecmul_1_minus_2_340282366920938463463374607431768211456_28000_96_d0g1v0_Shanghai # ef-tests #496
-    - ecmul_1_minus_2_340282366920938463463374607431768211456_28000_96_d0g2v0_Shanghai # ef-tests #496
-    - ecmul_1_minus_2_340282366920938463463374607431768211456_28000_96_d0g3v0_Shanghai # ef-tests #496
-    - ecmul_1_minus_2_5616_21000_128_d0g1v0_Shanghai # ef-tests #496
-    - ecmul_1_minus_2_5616_21000_128_d0g2v0_Shanghai # ef-tests #496
-    - ecmul_1_minus_2_5616_21000_128_d0g3v0_Shanghai # ef-tests #496
-    - ecmul_1_minus_2_5616_21000_96_d0g1v0_Shanghai # ef-tests #496
-    - ecmul_1_minus_2_5616_21000_96_d0g2v0_Shanghai # ef-tests #496
-    - ecmul_1_minus_2_5616_21000_96_d0g3v0_Shanghai # ef-tests #496
-    - ecmul_1_minus_2_5617_21000_128_d0g1v0_Shanghai # ef-tests #496
-    - ecmul_1_minus_2_5617_21000_128_d0g2v0_Shanghai # ef-tests #496
-    - ecmul_1_minus_2_5617_21000_128_d0g3v0_Shanghai # ef-tests #496
-    - ecmul_1_minus_2_5617_21000_96_d0g1v0_Shanghai # ef-tests #496
-    - ecmul_1_minus_2_5617_21000_96_d0g2v0_Shanghai # ef-tests #496
-    - ecmul_1_minus_2_5617_21000_96_d0g3v0_Shanghai # ef-tests #496
-    - ecmul_1_minus_2_616_28000_96_d0g1v0_Shanghai # ef-tests #496
-    - ecmul_1_minus_2_616_28000_96_d0g2v0_Shanghai # ef-tests #496
-    - ecmul_1_minus_2_616_28000_96_d0g3v0_Shanghai # ef-tests #496
-    - ecmul_1_minus_2_616_28000_96_d0g4v0_Shanghai # ef-tests #496
-    - ecmul_1_minus_2_9935_21000_128_d0g1v0_Shanghai # ef-tests #496
-    - ecmul_1_minus_2_9935_21000_128_d0g2v0_Shanghai # ef-tests #496
-    - ecmul_1_minus_2_9935_21000_128_d0g3v0_Shanghai # ef-tests #496
-    - ecmul_1_minus_2_9935_21000_96_d0g1v0_Shanghai # ef-tests #496
-    - ecmul_1_minus_2_9935_21000_96_d0g2v0_Shanghai # ef-tests #496
-    - ecmul_1_minus_2_9935_21000_96_d0g3v0_Shanghai # ef-tests #496
-    - ecmul_1_minus_2_9935_28000_96_d0g1v0_Shanghai # ef-tests #496
-    - ecmul_1_minus_2_9935_28000_96_d0g2v0_Shanghai # ef-tests #496
-    - ecmul_1_minus_2_9935_28000_96_d0g3v0_Shanghai # ef-tests #496
-    - ecmul_1_minus_2_9_21000_128_d0g1v0_Shanghai # ef-tests #496
-    - ecmul_1_minus_2_9_21000_128_d0g2v0_Shanghai # ef-tests #496
-    - ecmul_1_minus_2_9_21000_128_d0g3v0_Shanghai # ef-tests #496
-    - ecmul_1_minus_2_9_21000_96_d0g1v0_Shanghai # ef-tests #496
-    - ecmul_1_minus_2_9_21000_96_d0g2v0_Shanghai # ef-tests #496
-    - ecmul_1_minus_2_9_21000_96_d0g3v0_Shanghai # ef-tests #496
-    - ecmul_1_minus_2_9_28000_96_d0g1v0_Shanghai # ef-tests #496
-    - ecmul_1_minus_2_9_28000_96_d0g2v0_Shanghai # ef-tests #496
-    - ecmul_1_minus_2_9_28000_96_d0g3v0_Shanghai # ef-tests #496
-    - ecmul_7827_minus_6598_0_21000_128_d0g1v0_Shanghai # ef-tests #496
-    - ecmul_7827_minus_6598_0_21000_128_d0g2v0_Shanghai # ef-tests #496
-    - ecmul_7827_minus_6598_0_21000_128_d0g3v0_Shanghai # ef-tests #496
-    - ecmul_7827_minus_6598_0_21000_64_d0g1v0_Shanghai # ef-tests #496
-    - ecmul_7827_minus_6598_0_21000_64_d0g2v0_Shanghai # ef-tests #496
-    - ecmul_7827_minus_6598_0_21000_64_d0g3v0_Shanghai # ef-tests #496
-    - ecmul_7827_minus_6598_0_21000_80_d0g1v0_Shanghai # ef-tests #496
-    - ecmul_7827_minus_6598_0_21000_80_d0g2v0_Shanghai # ef-tests #496
-    - ecmul_7827_minus_6598_0_21000_80_d0g3v0_Shanghai # ef-tests #496
-    - ecmul_7827_minus_6598_0_21000_96_d0g1v0_Shanghai # ef-tests #496
-    - ecmul_7827_minus_6598_0_21000_96_d0g2v0_Shanghai # ef-tests #496
-    - ecmul_7827_minus_6598_0_21000_96_d0g3v0_Shanghai # ef-tests #496
-    - ecmul_7827_minus_6598_1456_21000_128_d0g1v0_Shanghai # ef-tests #496
-    - ecmul_7827_minus_6598_1456_21000_128_d0g2v0_Shanghai # ef-tests #496
-    - ecmul_7827_minus_6598_1456_21000_128_d0g3v0_Shanghai # ef-tests #496
-    - ecmul_7827_minus_6598_1456_21000_80_d0g1v0_Shanghai # ef-tests #496
-    - ecmul_7827_minus_6598_1456_21000_80_d0g2v0_Shanghai # ef-tests #496
-    - ecmul_7827_minus_6598_1456_21000_80_d0g3v0_Shanghai # ef-tests #496
-    - ecmul_7827_minus_6598_1456_21000_96_d0g1v0_Shanghai # ef-tests #496
-    - ecmul_7827_minus_6598_1456_21000_96_d0g2v0_Shanghai # ef-tests #496
-    - ecmul_7827_minus_6598_1456_21000_96_d0g3v0_Shanghai # ef-tests #496
-    - ecmul_7827_minus_6598_1456_28000_96_d0g1v0_Shanghai # ef-tests #496
-    - ecmul_7827_minus_6598_1456_28000_96_d0g2v0_Shanghai # ef-tests #496
-    - ecmul_7827_minus_6598_1456_28000_96_d0g3v0_Shanghai # ef-tests #496
-    - ecmul_7827_minus_6598_1_21000_128_d0g1v0_Shanghai # ef-tests #496
-    - ecmul_7827_minus_6598_1_21000_128_d0g2v0_Shanghai # ef-tests #496
-    - ecmul_7827_minus_6598_1_21000_128_d0g3v0_Shanghai # ef-tests #496
-    - ecmul_7827_minus_6598_1_21000_96_d0g1v0_Shanghai # ef-tests #496
-    - ecmul_7827_minus_6598_1_21000_96_d0g2v0_Shanghai # ef-tests #496
-    - ecmul_7827_minus_6598_1_21000_96_d0g3v0_Shanghai # ef-tests #496
-    - ecmul_7827_minus_6598_1_28000_96_d0g1v0_Shanghai # ef-tests #496
-    - ecmul_7827_minus_6598_1_28000_96_d0g2v0_Shanghai # ef-tests #496
-    - ecmul_7827_minus_6598_1_28000_96_d0g3v0_Shanghai # ef-tests #496
-    - ecmul_7827_minus_6598_2_21000_128_d0g1v0_Shanghai # ef-tests #496
-    - ecmul_7827_minus_6598_2_21000_128_d0g2v0_Shanghai # ef-tests #496
-    - ecmul_7827_minus_6598_2_21000_128_d0g3v0_Shanghai # ef-tests #496
-    - ecmul_7827_minus_6598_2_21000_96_d0g1v0_Shanghai # ef-tests #496
-    - ecmul_7827_minus_6598_2_21000_96_d0g2v0_Shanghai # ef-tests #496
-    - ecmul_7827_minus_6598_2_21000_96_d0g3v0_Shanghai # ef-tests #496
-    - ecmul_7827_minus_6598_2_28000_96_d0g1v0_Shanghai # ef-tests #496
-    - ecmul_7827_minus_6598_2_28000_96_d0g2v0_Shanghai # ef-tests #496
-    - ecmul_7827_minus_6598_2_28000_96_d0g3v0_Shanghai # ef-tests #496
-    - ecmul_7827_minus_6598_5616_21000_128_d0g1v0_Shanghai # ef-tests #496
-    - ecmul_7827_minus_6598_5616_21000_128_d0g2v0_Shanghai # ef-tests #496
-    - ecmul_7827_minus_6598_5616_21000_128_d0g3v0_Shanghai # ef-tests #496
-    - ecmul_7827_minus_6598_5616_21000_96_d0g1v0_Shanghai # ef-tests #496
-    - ecmul_7827_minus_6598_5616_21000_96_d0g2v0_Shanghai # ef-tests #496
-    - ecmul_7827_minus_6598_5616_21000_96_d0g3v0_Shanghai # ef-tests #496
-    - ecmul_7827_minus_6598_5616_28000_96_d0g1v0_Shanghai # ef-tests #496
-    - ecmul_7827_minus_6598_5616_28000_96_d0g2v0_Shanghai # ef-tests #496
-    - ecmul_7827_minus_6598_5616_28000_96_d0g3v0_Shanghai # ef-tests #496
-    - ecmul_7827_minus_6598_5617_21000_128_d0g1v0_Shanghai # ef-tests #496
-    - ecmul_7827_minus_6598_5617_21000_128_d0g2v0_Shanghai # ef-tests #496
-    - ecmul_7827_minus_6598_5617_21000_96_d0g1v0_Shanghai # ef-tests #496
-    - ecmul_7827_minus_6598_5617_21000_96_d0g2v0_Shanghai # ef-tests #496
-    - ecmul_7827_minus_6598_5617_21000_96_d0g3v0_Shanghai # ef-tests #496
-    - ecmul_7827_minus_6598_9935_21000_128_d0g2v0_Shanghai # ef-tests #496
-    - ecmul_7827_minus_6598_9935_21000_128_d0g3v0_Shanghai # ef-tests #496
-    - ecmul_7827_minus_6598_9935_21000_96_d0g2v0_Shanghai # ef-tests #496
-    - ecmul_7827_minus_6598_9935_21000_96_d0g3v0_Shanghai # ef-tests #496
-    - ecmul_7827_minus_6598_9935_28000_96_d0g1v0_Shanghai # ef-tests #496
-    - ecmul_7827_minus_6598_9935_28000_96_d0g2v0_Shanghai # ef-tests #496
-    - ecmul_7827_minus_6598_9935_28000_96_d0g3v0_Shanghai # ef-tests #496
-    - ecmul_7827_minus_6598_9_21000_128_d0g1v0_Shanghai # ef-tests #496
-    - ecmul_7827_minus_6598_9_21000_128_d0g2v0_Shanghai # ef-tests #496
-    - ecmul_7827_minus_6598_9_21000_128_d0g3v0_Shanghai # ef-tests #496
-    - ecmul_7827_minus_6598_9_21000_96_d0g1v0_Shanghai # ef-tests #496
-    - ecmul_7827_minus_6598_9_21000_96_d0g2v0_Shanghai # ef-tests #496
-    - ecmul_7827_minus_6598_9_21000_96_d0g3v0_Shanghai # ef-tests #496
-    - ecmul_7827_minus_6598_9_28000_96_d0g1v0_Shanghai # ef-tests #496
-    - ecmul_7827_minus_6598_9_28000_96_d0g2v0_Shanghai # ef-tests #496
-    - ecmul_7827_minus_6598_9_28000_96_d0g3v0_Shanghai # ef-tests #496
     - ecpairing_empty_data_d0g0v0_Shanghai # ef-tests #459
     - ecpairing_empty_data_d0g3v0_Shanghai # ef-tests #459
     - ecpairing_empty_data_insufficient_gas_d0g2v0_Shanghai # ef-tests #36
@@ -5372,12 +5364,12 @@ testname:
     - ecpairing_two_point_fail_2_d0g0v0_Shanghai # ef-tests #459
     - ecpairing_two_point_match_1_d0g0v0_Shanghai # ef-tests #459
     - ecpairing_two_point_match_5_d0g0v0_Shanghai # ef-tests #459
-    - pairingd0g0v0_Shanghai # ef-tests #459
-    - pairingd1g0v0_Shanghai # ef-tests #459
-    - pairingd2g0v0_Shanghai # ef-tests #459
-    - pairingd3g0v0_Shanghai # ef-tests #459
-    - pairingd4g0v0_Shanghai # ef-tests #459
-    - pairingd5g0v0_Shanghai # ef-tests #459
+    - pairingTest_d0g0v0_Shanghai # ef-tests #459
+    - pairingTest_d1g0v0_Shanghai # ef-tests #459
+    - pairingTest_d2g0v0_Shanghai # ef-tests #459
+    - pairingTest_d3g0v0_Shanghai # ef-tests #459
+    - pairingTest_d4g0v0_Shanghai # ef-tests #459
+    - pairingTest_d5g0v0_Shanghai # ef-tests #459
     - pointAddTrunc_d0g0v0_Shanghai # ef-tests #459
     - pointAddTrunc_d0g1v0_Shanghai # ef-tests #459
     - pointAddTrunc_d0g2v0_Shanghai # ef-tests #459
@@ -5492,115 +5484,6 @@ testname:
     - pointMulAdd_d7g3v0_Shanghai # ef-tests #459
     - pointMulAdd_d8g0v0_Shanghai # ef-tests #459
     - pointMulAdd_d8g3v0_Shanghai # ef-tests #459
-  stZeroKnowledge2:
-    - ecmul_0_minus_0_0_21000_0_d0g1v0_Shanghai # ef-tests #496
-    - ecmul_0_minus_0_0_21000_0_d0g2v0_Shanghai # ef-tests #496
-    - ecmul_0_minus_0_0_21000_0_d0g3v0_Shanghai # ef-tests #496
-    - ecmul_0_minus_0_0_21000_128_d0g1v0_Shanghai # ef-tests #496
-    - ecmul_0_minus_0_0_21000_128_d0g2v0_Shanghai # ef-tests #496
-    - ecmul_0_minus_0_0_21000_128_d0g3v0_Shanghai # ef-tests #496
-    - ecmul_0_minus_0_0_21000_40_d0g1v0_Shanghai # ef-tests #496
-    - ecmul_0_minus_0_0_21000_40_d0g2v0_Shanghai # ef-tests #496
-    - ecmul_0_minus_0_0_21000_40_d0g3v0_Shanghai # ef-tests #496
-    - ecmul_0_minus_0_0_21000_64_d0g1v0_Shanghai # ef-tests #496
-    - ecmul_0_minus_0_0_21000_64_d0g2v0_Shanghai # ef-tests #496
-    - ecmul_0_minus_0_0_21000_64_d0g3v0_Shanghai # ef-tests #496
-    - ecmul_0_minus_0_0_21000_80_d0g1v0_Shanghai # ef-tests #496
-    - ecmul_0_minus_0_0_21000_80_d0g2v0_Shanghai # ef-tests #496
-    - ecmul_0_minus_0_0_21000_80_d0g3v0_Shanghai # ef-tests #496
-    - ecmul_0_minus_0_0_21000_96_d0g1v0_Shanghai # ef-tests #496
-    - ecmul_0_minus_0_0_21000_96_d0g2v0_Shanghai # ef-tests #496
-    - ecmul_0_minus_0_0_21000_96_d0g3v0_Shanghai # ef-tests #496
-    - ecmul_0_minus_0_0_28000_96_d0g1v0_Shanghai # ef-tests #496
-    - ecmul_0_minus_0_0_28000_96_d0g2v0_Shanghai # ef-tests #496
-    - ecmul_0_minus_0_0_28000_96_d0g3v0_Shanghai # ef-tests #496
-    - ecmul_0_minus_0_1_21000_128_d0g1v0_Shanghai # ef-tests #496
-    - ecmul_0_minus_0_1_21000_128_d0g2v0_Shanghai # ef-tests #496
-    - ecmul_0_minus_0_1_21000_128_d0g3v0_Shanghai # ef-tests #496
-    - ecmul_0_minus_0_1_21000_96_d0g1v0_Shanghai # ef-tests #496
-    - ecmul_0_minus_0_1_21000_96_d0g2v0_Shanghai # ef-tests #496
-    - ecmul_0_minus_0_1_21000_96_d0g3v0_Shanghai # ef-tests #496
-    - ecmul_0_minus_0_2_21000_128_d0g1v0_Shanghai # ef-tests #496
-    - ecmul_0_minus_0_2_21000_128_d0g2v0_Shanghai # ef-tests #496
-    - ecmul_0_minus_0_2_21000_128_d0g3v0_Shanghai # ef-tests #496
-    - ecmul_0_minus_0_2_21000_96_d0g1v0_Shanghai # ef-tests #496
-    - ecmul_0_minus_0_2_21000_96_d0g2v0_Shanghai # ef-tests #496
-    - ecmul_0_minus_0_2_21000_96_d0g3v0_Shanghai # ef-tests #496
-    - ecmul_0_minus_0_2_28000_96_d0g1v0_Shanghai # ef-tests #496
-    - ecmul_0_minus_0_2_28000_96_d0g2v0_Shanghai # ef-tests #496
-    - ecmul_0_minus_0_2_28000_96_d0g3v0_Shanghai # ef-tests #496
-    - ecmul_0_minus_0_340282366920938463463374607431768211456_21000_128_d0g1v0_Shanghai # ef-tests #496
-    - ecmul_0_minus_0_340282366920938463463374607431768211456_21000_128_d0g2v0_Shanghai # ef-tests #496
-    - ecmul_0_minus_0_340282366920938463463374607431768211456_21000_128_d0g3v0_Shanghai # ef-tests #496
-    - ecmul_0_minus_0_340282366920938463463374607431768211456_21000_80_d0g1v0_Shanghai # ef-tests #496
-    - ecmul_0_minus_0_340282366920938463463374607431768211456_21000_80_d0g2v0_Shanghai # ef-tests #496
-    - ecmul_0_minus_0_340282366920938463463374607431768211456_21000_80_d0g3v0_Shanghai # ef-tests #496
-    - ecmul_0_minus_0_340282366920938463463374607431768211456_21000_96_d0g1v0_Shanghai # ef-tests #496
-    - ecmul_0_minus_0_340282366920938463463374607431768211456_21000_96_d0g2v0_Shanghai # ef-tests #496
-    - ecmul_0_minus_0_340282366920938463463374607431768211456_21000_96_d0g3v0_Shanghai # ef-tests #496
-    - ecmul_0_minus_0_340282366920938463463374607431768211456_28000_96_d0g1v0_Shanghai # ef-tests #496
-    - ecmul_0_minus_0_340282366920938463463374607431768211456_28000_96_d0g2v0_Shanghai # ef-tests #496
-    - ecmul_0_minus_0_340282366920938463463374607431768211456_28000_96_d0g3v0_Shanghai # ef-tests #496
-    - ecmul_0_minus_0_5616_21000_128_d0g1v0_Shanghai # ef-tests #496
-    - ecmul_0_minus_0_5616_21000_128_d0g2v0_Shanghai # ef-tests #496
-    - ecmul_0_minus_0_5616_21000_128_d0g3v0_Shanghai # ef-tests #496
-    - ecmul_0_minus_0_5616_21000_96_d0g1v0_Shanghai # ef-tests #496
-    - ecmul_0_minus_0_5616_21000_96_d0g2v0_Shanghai # ef-tests #496
-    - ecmul_0_minus_0_5616_21000_96_d0g3v0_Shanghai # ef-tests #496
-    - ecmul_0_minus_0_5616_28000_96_d0g1v0_Shanghai # ef-tests #496
-    - ecmul_0_minus_0_5616_28000_96_d0g2v0_Shanghai # ef-tests #496
-    - ecmul_0_minus_0_5616_28000_96_d0g3v0_Shanghai # ef-tests #496
-    - ecmul_0_minus_0_5617_21000_128_d0g1v0_Shanghai # ef-tests #496
-    - ecmul_0_minus_0_5617_21000_128_d0g2v0_Shanghai # ef-tests #496
-    - ecmul_0_minus_0_5617_21000_128_d0g3v0_Shanghai # ef-tests #496
-    - ecmul_0_minus_0_5617_21000_96_d0g1v0_Shanghai # ef-tests #496
-    - ecmul_0_minus_0_5617_21000_96_d0g2v0_Shanghai # ef-tests #496
-    - ecmul_0_minus_0_5617_21000_96_d0g3v0_Shanghai # ef-tests #496
-    - ecmul_0_minus_0_5617_28000_96_d0g1v0_Shanghai # ef-tests #496
-    - ecmul_0_minus_0_5617_28000_96_d0g2v0_Shanghai # ef-tests #496
-    - ecmul_0_minus_0_5617_28000_96_d0g3v0_Shanghai # ef-tests #496
-    - ecmul_0_minus_0_9935_21000_128_d0g1v0_Shanghai # ef-tests #496
-    - ecmul_0_minus_0_9935_21000_128_d0g2v0_Shanghai # ef-tests #496
-    - ecmul_0_minus_0_9935_21000_128_d0g3v0_Shanghai # ef-tests #496
-    - ecmul_0_minus_0_9935_21000_96_d0g1v0_Shanghai # ef-tests #496
-    - ecmul_0_minus_0_9935_21000_96_d0g2v0_Shanghai # ef-tests #496
-    - ecmul_0_minus_0_9935_21000_96_d0g3v0_Shanghai # ef-tests #496
-    - ecmul_0_minus_0_9_21000_128_d0g1v0_Shanghai # ef-tests #496
-    - ecmul_0_minus_0_9_21000_128_d0g2v0_Shanghai # ef-tests #496
-    - ecmul_0_minus_0_9_21000_128_d0g3v0_Shanghai # ef-tests #496
-    - ecmul_0_minus_0_9_21000_96_d0g1v0_Shanghai # ef-tests #496
-    - ecmul_0_minus_0_9_21000_96_d0g2v0_Shanghai # ef-tests #496
-    - ecmul_0_minus_0_9_21000_96_d0g3v0_Shanghai # ef-tests #496
-    - ecmul_0_minus_0_9_28000_96_d0g1v0_Shanghai # ef-tests #496
-    - ecmul_0_minus_0_9_28000_96_d0g2v0_Shanghai # ef-tests #496
-    - ecmul_0_minus_0_9_28000_96_d0g3v0_Shanghai # ef-tests #496
-    - ecmul_1_minus_2_0_21000_128_d0g1v0_Shanghai # ef-tests #496
-    - ecmul_1_minus_2_0_21000_128_d0g2v0_Shanghai # ef-tests #496
-    - ecmul_1_minus_2_0_21000_128_d0g3v0_Shanghai # ef-tests #496
-    - ecmul_1_minus_2_0_21000_64_d0g1v0_Shanghai # ef-tests #496
-    - ecmul_1_minus_2_0_21000_64_d0g2v0_Shanghai # ef-tests #496
-    - ecmul_1_minus_2_0_21000_64_d0g3v0_Shanghai # ef-tests #496
-    - ecmul_1_minus_2_0_21000_80_d0g1v0_Shanghai # ef-tests #496
-    - ecmul_1_minus_2_0_21000_80_d0g2v0_Shanghai # ef-tests #496
-    - ecmul_1_minus_2_0_21000_80_d0g3v0_Shanghai # ef-tests #496
-    - ecmul_1_minus_2_0_21000_96_d0g1v0_Shanghai # ef-tests #496
-    - ecmul_1_minus_2_0_21000_96_d0g2v0_Shanghai # ef-tests #496
-    - ecmul_1_minus_2_0_21000_96_d0g3v0_Shanghai # ef-tests #496
-    - ecmul_1_minus_2_1_21000_128_d0g1v0_Shanghai # ef-tests #496
-    - ecmul_1_minus_2_1_21000_128_d0g2v0_Shanghai # ef-tests #496
-    - ecmul_1_minus_2_1_21000_128_d0g3v0_Shanghai # ef-tests #496
-    - ecmul_1_minus_2_1_21000_96_d0g1v0_Shanghai # ef-tests #496
-    - ecmul_1_minus_2_1_21000_96_d0g2v0_Shanghai # ef-tests #496
-    - ecmul_1_minus_2_1_21000_96_d0g3v0_Shanghai # ef-tests #496
-    - ecmul_1_minus_2_1_28000_96_d0g1v0_Shanghai # ef-tests #496
-    - ecmul_1_minus_2_1_28000_96_d0g2v0_Shanghai # ef-tests #496
-    - ecmul_1_minus_2_1_28000_96_d0g3v0_Shanghai # ef-tests #496
-    - ecmul_1_minus_2_2_21000_128_d0g1v0_Shanghai # ef-tests #496
-    - ecmul_1_minus_2_2_21000_128_d0g2v0_Shanghai # ef-tests #496
-    - ecmul_1_minus_2_2_21000_128_d0g3v0_Shanghai # ef-tests #496
-    - ecmul_1_minus_2_2_21000_96_d0g1v0_Shanghai # ef-tests #496
-    - ecmul_1_minus_2_2_21000_96_d0g2v0_Shanghai # ef-tests #496
-    - ecmul_1_minus_2_2_21000_96_d0g3v0_Shanghai # ef-tests #496
   vmArithmeticTest:
     - addmod_d10g0v0_Shanghai # ef-tests #695
     - addmod_d11g0v0_Shanghai # ef-tests #695
@@ -5690,6 +5573,27 @@ testname:
     - performanceTester_d1g0v0_Shanghai # ef-tests #39
     - performanceTester_d3g0v0_Shanghai # ef-tests #39
     - performanceTester_d4g0v0_Shanghai # ef-tests #39
+  vmTests:
+    - blockInfo_d0g0v0_Shanghai
+    - blockInfo_d1g0v0_Shanghai
+    - blockInfo_d2g0v0_Shanghai
+    - blockInfo_d3g0v0_Shanghai
+    - blockInfo_d4g0v0_Shanghai
+    - calldatacopy_d4g0v0_Shanghai
+    - calldatacopy_d5g0v0_Shanghai
+    - envInfo_d0g0v0_Shanghai
+    - envInfo_d1g0v0_Shanghai
+    - envInfo_d2g0v0_Shanghai
+    - envInfo_d3g0v0_Shanghai
+    - envInfo_d4g0v0_Shanghai
+    - envInfo_d5g0v0_Shanghai
+    - envInfo_d6g0v0_Shanghai
+    - envInfo_d7g0v0_Shanghai
+    - envInfo_d8g0v0_Shanghai
+    - envInfo_d9g0v0_Shanghai
+    - sha3_d3g0v0_Shanghai
+    - sha3_d5g0v0_Shanghai
+    - sha3_d6g0v0_Shanghai
 
 # List of file names regex to be skipped
 # The first level corresponds to the directory, the second to the list of file names regex to ignore.
@@ -5703,4 +5607,8 @@ regex:
     - CALL_Bounds.* # ef-tests #565
     - DELEGATECALL_Bounds.* # ef-tests #565
     - static_CALL_Bounds.* # ef-tests #565
-    - ecadd.*
+  stZeroKnowledge:
+    - .*ecmul.*
+  stZeroKnowledge2:
+    - .*ecadd.*
+    - .*ecmul.*
