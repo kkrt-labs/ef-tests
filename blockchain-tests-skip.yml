@@ -5597,15 +5597,15 @@ testname:
 # List of file names regex to be skipped
 # The first level corresponds to the directory, the second to the list of file names regex to ignore.
 regex:
-  stBadOpcode:
-    - ^opc.* # ef-tests #120
-  stMemoryStressTest:
-    - CALLCODE_Bounds.* # ef-tests #565
-    - CREATE_Bounds.* # ef-tests #565
-    - mload32bitBound_return.* # ef-tests #565
-    - CALL_Bounds.* # ef-tests #565
-    - DELEGATECALL_Bounds.* # ef-tests #565
-    - static_CALL_Bounds.* # ef-tests #565
+  # stBadOpcode:
+  #   - ^opc.* # ef-tests #120
+  # stMemoryStressTest:
+  #   - CALLCODE_Bounds.* # ef-tests #565
+  #   - CREATE_Bounds.* # ef-tests #565
+  #   - mload32bitBound_return.* # ef-tests #565
+  #   - CALL_Bounds.* # ef-tests #565
+  #   - DELEGATECALL_Bounds.* # ef-tests #565
+  #   - static_CALL_Bounds.* # ef-tests #565
   stZeroKnowledge:
     - .*ecmul.*
   stZeroKnowledge2:
