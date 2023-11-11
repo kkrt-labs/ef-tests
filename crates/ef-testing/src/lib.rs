@@ -7,7 +7,9 @@ pub mod utils;
 use bytes::BytesMut;
 use evm_sequencer::constants::CHAIN_ID;
 use models::error::RunnerError;
-use reth_primitives::{sign_message, Bytes, SealedBlock, Signature, Transaction};
+use reth_primitives::{
+    sign_message, AccessList, Bytes, SealedBlock, Signature, Transaction, TxEip2930,
+};
 use reth_rlp::Decodable;
 use revm_primitives::B256;
 
@@ -23,13 +25,27 @@ pub fn get_signed_rlp_encoded_transaction(block: &Bytes, pk: B256) -> Result<Byt
 
     // Encode body as transaction
     let mut out = BytesMut::new();
-    let mut tx_signed = block.body.first().cloned().ok_or_else(|| {
+    let tx_signed = block.body.first().cloned().ok_or_else(|| {
         RunnerError::Other(vec!["No transaction in pre state block".into()].into())
     })?;
 
-    tx_signed.transaction.set_chain_id(*CHAIN_ID);
-    let signature = sign_tx(&tx_signed.transaction, &pk)?;
-    tx_signed.encode_with_signature(&signature, &mut out, false);
+    let mut tx = match &tx_signed.transaction {
+        Transaction::Legacy(tx) => Transaction::Eip2930(TxEip2930 {
+            chain_id: *CHAIN_ID,
+            nonce: tx.nonce,
+            gas_limit: tx.gas_limit,
+            gas_price: tx.gas_price,
+            to: tx.to,
+            value: tx.value,
+            access_list: AccessList::default(),
+            input: tx.input.clone(),
+        }),
+        _ => tx_signed.transaction,
+    };
+
+    tx.set_chain_id(*CHAIN_ID);
+    let signature = sign_tx(&tx, &pk)?;
+    tx.encode_with_signature(&signature, &mut out, false);
 
     Ok(out.to_vec().into())
 }

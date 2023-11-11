@@ -5308,7 +5308,6 @@ testname:
     - Opcodes_TransactionInit_d120g0v0_Shanghai # ef-tests #574
     - Opcodes_TransactionInit_d131g0v0_Shanghai # ef-tests #550
     - OverflowGasRequire2_d0g0v0_Shanghai # ef-tests #506
-    - PointAtInfinityECRecover_d0g0v0_Shanghai # ef-tests #507
     - StoreClearsAndInternlCallStoreClearsOOG_d0g0v0_Shanghai # ef-tests #507
     - StoreGasOnCreate_d0g0v0_Shanghai # ef-tests #508
     - SuicidesAndInternlCallSuicidesOOG_d0g0v0_Shanghai # ef-tests #550
@@ -5324,7 +5323,6 @@ testname:
     - Opcodes_TransactionInit_d120g0v0_Shanghai # ef-tests #574
     - Opcodes_TransactionInit_d131g0v0_Shanghai # ef-tests #550
     - OverflowGasRequire2_d0g0v0_Shanghai # ef-tests #506
-    - PointAtInfinityECRecover_d0g0v0_Shanghai # ef-tests #507
     - StoreClearsAndInternlCallStoreClearsOOG_d0g0v0_Shanghai # ef-tests #507
     - StoreGasOnCreate_d0g0v0_Shanghai # ef-tests #508
     - SuicidesAndInternlCallSuicidesOOG_d0g0v0_Shanghai # ef-tests #550
