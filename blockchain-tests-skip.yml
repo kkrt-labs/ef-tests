@@ -236,9 +236,6 @@ testname:
     - codesizeOOGInvalidSize_d0g0v0_Shanghai # ef-tests #528
     - codesizeOOGInvalidSize_d1g0v0_Shanghai # ef-tests #528
   stCreateTest:
-    - CREATE_ContractSuicideDuringInit_ThenStoreThenReturn_d0g0v0_Shanghai # ef-tests #339
-    - CREATE_ContractSuicideDuringInit_WithValueToItself_d0g0v0_Shanghai # ef-tests #339
-    - CREATE_ContractSuicideDuringInit_WithValue_d0g0v0_Shanghai # ef-tests #339
     - CREATE_EContract_ThenCALLToNonExistentAcc_d0g0v0_Shanghai # ef-tests #338
     - CREATE_EmptyContractAndCallIt_0wei_d0g0v0_Shanghai # ef-tests #338
     - CREATE_EmptyContractAndCallIt_1wei_d0g0v0_Shanghai # ef-tests #338
