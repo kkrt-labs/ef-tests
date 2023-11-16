@@ -5520,7 +5520,6 @@ testname:
     - divByZero_d97g0v0_Shanghai # ef-tests #695
     - expPower256Of256_d0g0v0_Shanghai # ef-tests #700
     - exp_d1g0v0_Shanghai # ef-tests #700
-    - exp_d2g0v0_Shanghai # ef-tests #700
     - exp_d3g0v0_Shanghai # ef-tests #700
     - exp_d9g0v0_Shanghai # ef-tests #700
     - mulmod_d12g0v0_Shanghai # ef-tests #695
