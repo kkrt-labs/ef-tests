@@ -122,9 +122,9 @@ testname:
     - callcodecallcodecallcode_111_OOGMBefore_d0g0v0_Shanghai # ef-tests #327
     - callcodecallcodecallcode_ABCB_RECURSIVE_d0g0v0_Shanghai # ef-tests #327
   stCallCreateCallCodeTest:
-    - Call1024BalanceTooLow_d0g0v0_Shanghai # ef-tests #493
-    - Call1024OOG_d0g0v0_Shanghai # ef-tests #493
-    - Call1024OOG_d0g1v0_Shanghai # ef-tests #493
+    - Call1024BalanceTooLow_d0g0v0_Shanghai # RunResources has no remaining steps.
+    - Call1024OOG_d0g0v0_Shanghai # RunResources has no remaining steps.
+    - Call1024OOG_d0g1v0_Shanghai # RunResources has no remaining steps.
     - Call1024OOG_d0g2v0_Shanghai # ef-tests #493
     - Call1024OOG_d0g3v0_Shanghai # ef-tests #493
     - Call1024PreCalls_d0g0v0_Shanghai # ef-tests #495
@@ -5526,10 +5526,6 @@ testname:
     - mulmod_d13g0v0_Shanghai # ef-tests #695
     - mulmod_d14g0v0_Shanghai # ef-tests #695
     - mulmod_d15g0v0_Shanghai # ef-tests #695
-    - signextend_d12g0v0_Shanghai # ef-tests #677
-    - signextend_d7g0v0_Shanghai # ef-tests #677
-    - signextend_d8g0v0_Shanghai # ef-tests #677
-    - signextend_d9g0v0_Shanghai # ef-tests #677
     - twoOps_d0g0v0_Shanghai # ef-tests #700
   vmIOandFlowOperations:
     - codecopy_d1g0v0_Shanghai # ef-tests #496
