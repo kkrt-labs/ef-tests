@@ -10,7 +10,19 @@ use starknet::{
     },
     macros::selector,
 };
-use starknet_api::{core::ClassHash, hash::StarkFelt};
+use starknet_api::core::ClassHash;
+
+/// Computes the Starknet address of a contract given its EVM address.
+pub fn compute_starknet_address(evm_address: &Address) -> FeltSequencer {
+    let evm_address: FeltSequencer = (*evm_address).try_into().unwrap(); // infallible
+    let starknet_address = get_contract_address(
+        evm_address.into(),
+        class_hash_for_csa().0.into(),
+        &constructor_calldata_for_csa(evm_address.into()),
+        (*KAKAROT_ADDRESS.0.key()).into(),
+    );
+    starknet_address.into()
+}
 
 fn class_hash_for_csa() -> ClassHash {
     #[cfg(not(any(feature = "v0", feature = "v1")))]
@@ -20,26 +32,30 @@ fn class_hash_for_csa() -> ClassHash {
 
     #[cfg(feature = "v0")]
     {
-        // trunk-ignore(clippy/E0308)
         *crate::evm_sequencer::constants::kkrt_constants_v0::PROXY_CLASS_HASH
     }
 
     #[cfg(feature = "v1")]
     {
-        *crate::evm_sequencer::constants::kkrt_constants_v0::EOA_CLASS_HASH // TODO change to v1
+        *crate::evm_sequencer::constants::kkrt_constants_v0::EOA_CLASS_HASH
     }
 }
 
-/// Splits a byte array into 16-byte chunks and converts each chunk to a StarkFelt.
-pub fn split_bytecode_to_starkfelt(bytecode: &Bytes) -> Vec<StarkFelt> {
-    bytecode
-        .chunks(16)
-        .map(|x| {
-            let mut storage_value = [0u8; 16];
-            storage_value[..x.len()].copy_from_slice(x);
-            StarkFelt::from(u128::from_be_bytes(storage_value))
-        })
-        .collect()
+fn constructor_calldata_for_csa(evm_address: FieldElement) -> Vec<FieldElement> {
+    #[cfg(not(any(feature = "v0", feature = "v1")))]
+    {
+        vec![]
+    }
+
+    #[cfg(feature = "v0")]
+    {
+        vec![]
+    }
+
+    #[cfg(feature = "v1")]
+    {
+        vec![(*KAKAROT_ADDRESS.0.key()).into(), evm_address]
+    }
 }
 
 /// Split a U256 into low and high u128.
