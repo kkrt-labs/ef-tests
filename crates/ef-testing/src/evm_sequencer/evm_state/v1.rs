@@ -71,6 +71,9 @@ impl EvmState for KakarotSequencer {
             *CONTRACT_ACCOUNT_CLASS_HASH
         };
 
+        // Set up the contract class hash
+        (&mut self.state).set_class_hash_at(starknet_address, class_hash)?;
+
         // Initialize the bytecode storage vars.
         let bytecode_base_address = compute_storage_base_address("contract_account_bytecode", &[]);
         let pending_word_address = offset_storage_base_address(bytecode_base_address, -2);
@@ -126,9 +129,6 @@ impl EvmState for KakarotSequencer {
         for (k, v) in storage {
             (&mut self.state).set_storage_at(starknet_address, k, v);
         }
-
-        // Set up the contract class hash
-        (&mut self.state).set_class_hash_at(starknet_address, class_hash)?;
 
         // Add the address tot the Kakarot evm to starknet mapping
         (&mut self.state).set_storage_at(
@@ -310,6 +310,81 @@ fn split_bytecode_to_starkfelt(bytecode: &Bytes) -> Vec<StarkFelt> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::evm_sequencer::{
+        constants::{
+            tests::{PRIVATE_KEY, PUBLIC_KEY, TEST_CONTRACT_ADDRESS},
+            CHAIN_ID,
+        },
+        sequencer::InitializeSequencer,
+        utils::to_broadcasted_starknet_transaction,
+    };
+    use blockifier::{abi::abi_utils::get_storage_var_address, state::state_api::StateReader};
+    use bytes::BytesMut;
+    use reth_primitives::{sign_message, AccessList, Signature, TransactionSigned, TxEip1559};
+    use revm_primitives::B256;
+    use sequencer::{
+        execution::Execution, state::State as SequencerState,
+        transaction::BroadcastedTransactionWrapper,
+    };
+    use starknet::core::types::{BroadcastedTransaction, FieldElement};
+    use starknet_api::hash::StarkFelt;
+
+    #[test]
+    fn test_execute_simple_contract() {
+        // Given
+        let sequencer =
+            crate::evm_sequencer::sequencer::KakarotSequencer::new(SequencerState::default());
+        let mut sequencer = sequencer.initialize().unwrap();
+
+        let transaction = TransactionSigned {
+            hash: B256::default(),
+            signature: Signature::default(),
+            transaction: reth_primitives::Transaction::Eip1559(TxEip1559 {
+                chain_id: *CHAIN_ID,
+                nonce: 0,
+                gas_limit: 1_000_000,
+                max_fee_per_gas: 0,
+                max_priority_fee_per_gas: 0,
+                to: reth_primitives::TransactionKind::Call(*TEST_CONTRACT_ADDRESS),
+                value: 0,
+                access_list: AccessList::default(),
+                input: Bytes::default(),
+            }),
+        };
+        let signature =
+            sign_message(*PRIVATE_KEY, transaction.transaction.signature_hash()).unwrap();
+        let mut output = BytesMut::new();
+        transaction.encode_with_signature(&signature, &mut output, false);
+        let transaction = BroadcastedTransaction::Invoke(
+            to_broadcasted_starknet_transaction(&output.to_vec().into()).unwrap(),
+        );
+        let transaction = BroadcastedTransactionWrapper::new(transaction)
+            .try_into_execution_transaction(FieldElement::from(*CHAIN_ID))
+            .unwrap();
+
+        // When
+        let bytecode = Bytes::from(vec![96, 1, 96, 0, 85]); // PUSH 01 PUSH 00 SSTORE
+        let nonce = U256::from(0);
+        sequencer
+            .setup_account(&TEST_CONTRACT_ADDRESS, &bytecode, nonce, vec![])
+            .unwrap();
+        sequencer
+            .setup_account(&PUBLIC_KEY, &Bytes::default(), U256::from(0), vec![])
+            .unwrap();
+        sequencer.execute(transaction).unwrap();
+
+        // Then
+        let contract_starknet_address = compute_starknet_address(&TEST_CONTRACT_ADDRESS)
+            .try_into()
+            .unwrap();
+        let storage = (&mut sequencer.state)
+            .get_storage_at(
+                contract_starknet_address,
+                get_storage_var_address("storage_", &[StarkFelt::from(0u8), StarkFelt::from(0u8)]),
+            )
+            .unwrap();
+        assert_eq!(storage, StarkFelt::from(1u8));
+    }
 
     #[test]
     fn test_split_bytecode_to_starkfelt() {

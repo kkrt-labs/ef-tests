@@ -3,13 +3,12 @@ use super::types::felt::FeltSequencer;
 use reth_primitives::{Address, Bytes, TransactionSigned};
 use reth_rlp::Decodable;
 use revm_primitives::U256;
-use starknet::{
-    core::{
-        types::{BroadcastedInvokeTransaction, FieldElement},
-        utils::get_contract_address,
-    },
-    macros::selector,
+use starknet::core::{
+    types::{BroadcastedInvokeTransaction, FieldElement},
+    utils::get_contract_address,
 };
+#[cfg(any(feature = "v0", feature = "v1"))]
+use starknet::macros::selector;
 use starknet_api::core::ClassHash;
 
 /// Computes the Starknet address of a contract given its EVM address.
@@ -41,12 +40,7 @@ fn class_hash_for_csa() -> ClassHash {
     }
 }
 
-fn constructor_calldata_for_csa(evm_address: FieldElement) -> Vec<FieldElement> {
-    #[cfg(not(any(feature = "v0", feature = "v1")))]
-    {
-        vec![]
-    }
-
+fn constructor_calldata_for_csa(_evm_address: FieldElement) -> Vec<FieldElement> {
     #[cfg(feature = "v0")]
     {
         vec![]
@@ -54,8 +48,9 @@ fn constructor_calldata_for_csa(evm_address: FieldElement) -> Vec<FieldElement> 
 
     #[cfg(feature = "v1")]
     {
-        vec![(*KAKAROT_ADDRESS.0.key()).into(), evm_address]
+        vec![(*KAKAROT_ADDRESS.0.key()).into(), _evm_address]
     }
+    vec![]
 }
 
 /// Split a U256 into low and high u128.
@@ -91,14 +86,27 @@ pub(crate) fn to_broadcasted_starknet_transaction(
 
     let mut calldata = bytes_to_felt_vec(bytes);
 
-    let mut execute_calldata: Vec<FieldElement> = vec![
-        FieldElement::ONE,                  // call array length
-        (*KAKAROT_ADDRESS.0.key()).into(),  // contract address
-        selector!("eth_send_transaction"),  // selector
-        FieldElement::ZERO,                 // data offset
-        FieldElement::from(calldata.len()), // data length
-        FieldElement::from(calldata.len()), // calldata length
-    ];
+    let mut execute_calldata = vec![];
+    #[cfg(feature = "v0")]
+    {
+        execute_calldata = vec![
+            FieldElement::ONE,                  // call array length
+            (*KAKAROT_ADDRESS.0.key()).into(),  // contract address
+            selector!("eth_send_transaction"),  // selector
+            FieldElement::ZERO,                 // data offset
+            FieldElement::from(calldata.len()), // data length
+            FieldElement::from(calldata.len()), // calldata length
+        ];
+    }
+    #[cfg(feature = "v1")]
+    {
+        execute_calldata = vec![
+            FieldElement::ONE,                  // call array length
+            (*KAKAROT_ADDRESS.0.key()).into(),  // contract address
+            selector!("eth_send_transaction"),  // selector
+            FieldElement::from(calldata.len()), // calldata length
+        ];
+    }
     execute_calldata.append(&mut calldata);
 
     let signature = vec![];
