@@ -101,35 +101,12 @@ mod tests {
     use std::path::Path;
 
     #[test]
-    #[ignore]
-    fn test_filter_file() {
-        let filter = Filter::load_file("../../blockchain-tests-skip.yml").unwrap();
-        let path = PathWrapper::from(Path::new(
-            "../../ef-testing/ethereum-tests/BlockchainTests/GeneralStateTests/stCallCreateCallCodeTest/Call1024PreCalls.json",
-        ).to_path_buf());
-        assert!(filter.is_skipped(&path, None));
-    }
-
-    #[test]
     fn test_filter_regex() {
         let filter = Filter::load_file("../../blockchain-tests-skip.yml").unwrap();
         let path = PathWrapper::from(Path::new(
             "../../ef-testing/ethereum-tests/BlockchainTests/GeneralStateTests/stBadOpcode/opc4DDiffPlaces.json",
         ).to_path_buf());
         assert!(filter.is_skipped(&path, None));
-    }
-
-    #[test]
-    #[ignore]
-    fn test_filter_test() {
-        let filter = Filter::load_file("../../blockchain-tests-skip.yml").unwrap();
-        let path = PathWrapper::from(Path::new(
-            "../../ef-testing/ethereum-tests/BlockchainTests/GeneralStateTests/stTransactionTest/Opcodes_TransactionInit.json",
-        ).to_path_buf());
-        assert!(filter.is_skipped(
-            &path,
-            Some("Opcodes_TransactionInit_d111g0v0_Shanghai".to_string())
-        ));
     }
 
     #[test]
