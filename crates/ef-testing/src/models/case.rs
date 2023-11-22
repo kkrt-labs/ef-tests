@@ -3,7 +3,10 @@
 use super::{error::RunnerError, result::log_execution_result};
 use crate::{
     evm_sequencer::{
-        constants::CHAIN_ID, evm_state::EvmState, utils::to_broadcasted_starknet_transaction,
+        account::KakarotAccount,
+        constants::CHAIN_ID,
+        evm_state::{EvmState, KakarotConfig},
+        utils::to_broadcasted_starknet_transaction,
         KakarotSequencer,
     },
     get_signed_rlp_encoded_transaction,
@@ -52,13 +55,16 @@ impl BlockchainTestCase {
     }
 
     fn handle_pre_state(&self, sequencer: &mut KakarotSequencer) -> Result<(), RunnerError> {
+        let kakarot_config = KakarotConfig::default();
         for (address, account) in self.pre.iter() {
-            sequencer.setup_account(
+            let kakarot_account = KakarotAccount::new(
+                &kakarot_config,
                 address,
                 &account.code,
                 account.nonce.0,
                 account.storage.iter().map(|(k, v)| (k.0, v.0)).collect(),
             )?;
+            sequencer.setup_account(kakarot_account)?;
             sequencer.fund(address, account.balance.0)?;
         }
 
