@@ -29,11 +29,12 @@ setup: $(EF_TESTS_DIR)
 setup-kakarot: clean-kakarot
 	@curl -sL -o kakarot-build.zip -H "Authorization: token $(GITHUB_TOKEN)" "$(KKRT_BUILD_ARTIFACT_URL)"
 	unzip -o kakarot-build.zip -d build/v0
+	mv build/v0/fixtures/ERC20.json build/common/ERC20.json
 	rm -f kakarot-build.zip
 
 clean-kakarot:
-	rm -rf lib/kakarot
-	mkdir -p lib/kakarot/build
+	rm -rf build/v0
+	mkdir -p build/v0
 
 # Runs all tests but integration tests
 unit:
