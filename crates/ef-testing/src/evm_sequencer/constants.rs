@@ -97,12 +97,14 @@ pub mod kkrt_constants_v1 {
         // Main contract classes v1
         pub static ref KAKAROT_CLASS: CompiledClass = load_contract_class("../../build/v1/kakarot.json").expect("Failed to load Kakarot contract class");
         pub static ref CONTRACT_ACCOUNT_CLASS: CompiledClass = load_contract_class("../../build/v1/contract_account.json").expect("Failed to load ContractAccount contract class");
-        pub static ref EOA_CLASS: CompiledClass = load_contract_class("../../build/v1/externally_owned_account.json").expect("Failed to load ContractAccount contract class");
+        pub static ref EOA_CLASS: CompiledClass = load_contract_class("../../build/v1/externally_owned_account.json").expect("Failed to load EOA contract class");
+        pub static ref UNINITIALIZED_ACCOUNT_CLASS: CompiledClass = load_contract_class("../../build/v1/uninitialized_account.json").expect("Failed to load uninitialized account contract class");
 
         // Main class hashes
         pub static ref KAKAROT_CLASS_HASH: ClassHash = ClassHash(KAKAROT_CLASS.class_hash().unwrap().into());
         pub static ref CONTRACT_ACCOUNT_CLASS_HASH: ClassHash = ClassHash(CONTRACT_ACCOUNT_CLASS.class_hash().unwrap().into());
         pub static ref EOA_CLASS_HASH: ClassHash = ClassHash(EOA_CLASS.class_hash().unwrap().into());
+        pub static ref UNINITIALIZED_ACCOUNT_CLASS_HASH: ClassHash = ClassHash(UNINITIALIZED_ACCOUNT_CLASS.class_hash().unwrap().into());
 
         // v1 constants
         pub static ref DEPLOY_FEE: StarkFelt = StarkFelt::from(0xabde1_u128);
