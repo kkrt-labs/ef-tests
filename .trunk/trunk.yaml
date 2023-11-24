@@ -17,8 +17,8 @@ lint:
     - name: clippy
       commands:
         - run:
-            cargo clippy --message-format json --locked --workspace
-            --all-features --all-targets -- -W clippy::all -W clippy::nursery
+            cargo clippy --message-format json --locked --workspace --features
+            v0 --all-targets -- -W clippy::all -W clippy::nursery
             --cap-lints=warn --no-deps -D warnings
       run_timeout: 20m
   ignore:
