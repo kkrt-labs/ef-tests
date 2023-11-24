@@ -1,7 +1,7 @@
 use super::constants::KAKAROT_ADDRESS;
 use super::types::felt::FeltSequencer;
+use bytes::BytesMut;
 use reth_primitives::{Address, Bytes, TransactionSigned};
-use reth_rlp::Decodable;
 use revm_primitives::U256;
 use starknet::core::{
     types::{BroadcastedInvokeTransaction, FieldElement},
@@ -24,31 +24,22 @@ pub fn compute_starknet_address(evm_address: &Address) -> FeltSequencer {
 }
 
 fn class_hash_for_csa() -> ClassHash {
-    #[cfg(not(any(feature = "v0", feature = "v1")))]
-    {
-        ClassHash::default()
-    }
-
     #[cfg(feature = "v0")]
     {
-        *crate::evm_sequencer::constants::kkrt_constants_v0::PROXY_CLASS_HASH
+        return *crate::evm_sequencer::constants::kkrt_constants_v0::PROXY_CLASS_HASH;
     }
 
     #[cfg(feature = "v1")]
     {
-        *crate::evm_sequencer::constants::kkrt_constants_v0::EOA_CLASS_HASH
+        return *crate::evm_sequencer::constants::kkrt_constants_v1::UNINITIALIZED_ACCOUNT_CLASS_HASH;
     }
+    ClassHash::default()
 }
 
 fn constructor_calldata_for_csa(_evm_address: FieldElement) -> Vec<FieldElement> {
-    #[cfg(feature = "v0")]
-    {
-        vec![]
-    }
-
     #[cfg(feature = "v1")]
     {
-        vec![(*KAKAROT_ADDRESS.0.key()).into(), _evm_address]
+        return vec![(*KAKAROT_ADDRESS.0.key()).into(), _evm_address];
     }
     vec![]
 }
@@ -71,12 +62,10 @@ pub fn high_16_bytes_of_felt_to_bytes(felt: &FieldElement, len: usize) -> Bytes 
     Bytes::from(&felt.to_bytes_be()[16..len + 16])
 }
 
-/// Converts an rlp encoding of an evm signed transaction to a Starknet transaction.
+/// Converts an signed transaction and a signature to a Starknet-rs transaction.
 pub(crate) fn to_broadcasted_starknet_transaction(
-    bytes: &Bytes,
+    transaction: &TransactionSigned,
 ) -> Result<BroadcastedInvokeTransaction, eyre::Error> {
-    let transaction = TransactionSigned::decode(&mut bytes.as_ref())?;
-
     let evm_address = transaction
         .recover_signer()
         .ok_or_else(|| eyre::eyre!("Missing signer in signed transaction"))?;
@@ -84,7 +73,18 @@ pub(crate) fn to_broadcasted_starknet_transaction(
     let nonce = FieldElement::from(transaction.nonce());
     let starknet_address = compute_starknet_address(&evm_address);
 
-    let mut calldata = bytes_to_felt_vec(bytes);
+    #[allow(unused_mut)]
+    let mut bytes = BytesMut::new();
+    #[cfg(feature = "v0")]
+    {
+        transaction.encode_enveloped(&mut bytes);
+    }
+    #[cfg(feature = "v1")]
+    {
+        transaction.transaction.encode_without_signature(&mut bytes);
+    }
+
+    let mut calldata = bytes_to_felt_vec(&bytes.to_vec().into());
 
     let mut execute_calldata = vec![];
     #[cfg(feature = "v0")]
