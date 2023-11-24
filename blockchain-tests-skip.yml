@@ -2948,6 +2948,7 @@ testname:
     - buffer_d43g0v0_Shanghai # ef-tests #50
     - buffer_d44g0v0_Shanghai # ef-tests #50
     - buffer_d45g0v0_Shanghai # ef-tests #50
+    - buffer_d52g0v0_Shanghai # ef-tests #50
     - buffer_d53g0v0_Shanghai # ef-tests #50
     - buffer_d54g0v0_Shanghai # ef-tests #50
     - buffer_d55g0v0_Shanghai # ef-tests #50
