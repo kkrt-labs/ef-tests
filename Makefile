@@ -39,18 +39,14 @@ clean-kakarot:
 unit:
 	cargo test --lib
 
-# Runs the repo tests
-tests: build-ci
-	cargo test --test tests --lib --no-fail-fast --quiet
+# Runs the repo tests with the `v0` feature
+tests-v0: build
+	cargo test --test tests --lib --no-fail-fast --quiet --features "v0,ci"
 
-# Runs ef tests only
-ef-test: build-ci
-	cargo test --test tests --no-fail-fast --quiet
+# Runs ef tests only with the `v0` feature
+ef-test-v0: build
+	cargo test --test tests --no-fail-fast --quiet --features "v0,ci"
 
 # Build the rust crates
 build:
 	cargo build --release
-
-# Build the rust crates for ci
-build-ci:
-	cargo build --release --features ci
