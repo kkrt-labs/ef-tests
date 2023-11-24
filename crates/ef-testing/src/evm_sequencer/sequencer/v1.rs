@@ -41,37 +41,33 @@ impl InitializeSequencer for KakarotSequencer {
 
         // Write all the storage vars to the sequencer state.
         for (k, v) in storage {
-            (&mut self.0.state).set_storage_at(
-                *KAKAROT_ADDRESS,
-                get_storage_var_address(k, &[]),
-                v,
-            );
+            (&mut self.state).set_storage_at(*KAKAROT_ADDRESS, get_storage_var_address(k, &[]), v);
         }
 
         // Write the kakarot class and class hash.
-        (&mut self.0.state).set_class_hash_at(*KAKAROT_ADDRESS, *KAKAROT_CLASS_HASH)?;
-        (&mut self.0.state)
+        (&mut self.state).set_class_hash_at(*KAKAROT_ADDRESS, *KAKAROT_CLASS_HASH)?;
+        (&mut self.state)
             .set_contract_class(&KAKAROT_CLASS_HASH, convert_contract_class(&KAKAROT_CLASS)?)?;
 
         // Write eoa, contract account and uninitialized account.
-        (&mut self.0.state).set_contract_class(
+        (&mut self.state).set_contract_class(
             &CONTRACT_ACCOUNT_CLASS_HASH,
             convert_contract_class(&CONTRACT_ACCOUNT_CLASS)?,
         )?;
-        (&mut self.0.state)
+        (&mut self.state)
             .set_contract_class(&EOA_CLASS_HASH, convert_contract_class(&EOA_CLASS)?)?;
-        (&mut self.0.state).set_contract_class(
+        (&mut self.state).set_contract_class(
             &UNINITIALIZED_ACCOUNT_CLASS_HASH,
             convert_contract_class(&UNINITIALIZED_ACCOUNT_CLASS)?,
         )?;
 
-        (&mut self.0.state).set_contract_class(
+        (&mut self.state).set_contract_class(
             &FEE_TOKEN_CLASS_HASH,
             ContractClass::V0(ContractClassV0::try_from_json_string(
                 &serde_json::to_string(&*FEE_TOKEN_CLASS).map_err(ProgramError::Parse)?,
             )?),
         )?;
-        (&mut self.0.state).set_class_hash_at(*ETH_FEE_TOKEN_ADDRESS, *FEE_TOKEN_CLASS_HASH)?;
+        (&mut self.state).set_class_hash_at(*ETH_FEE_TOKEN_ADDRESS, *FEE_TOKEN_CLASS_HASH)?;
 
         Ok(self)
     }
@@ -80,7 +76,7 @@ impl InitializeSequencer for KakarotSequencer {
 fn convert_contract_class(class: &CompiledClass) -> Result<ContractClass, InitializationError> {
     let casm_contract_class = CasmContractClassWrapper::try_from(class)?;
     let casm_contract_class: CasmContractClass = casm_contract_class.into();
-    Result::<ContractClass, InitializationError>::Ok(ContractClass::V1(ContractClassV1::try_from(
+    Ok(ContractClass::V1(ContractClassV1::try_from(
         casm_contract_class,
     )?))
 }
