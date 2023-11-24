@@ -2713,8 +2713,8 @@ testname:
     - OutOfGasContractCreation_d1g0v0_Shanghai # ef-tests #116
     - OutOfGasPrefundedContractCreation_d0g0v0_Shanghai # ef-tests #112
     - OutOfGasPrefundedContractCreation_d0g2v0_Shanghai # ef-tests #112
-    - TransactionCreateSuicideInInitcode_d0g0v0_Shanghai # ef-tests #562
-    - CallContractToCreateContractOOG_d0g0v0_Shanghai
+    - TransactionCreateAutoSuicideContract_d0g0v0_Shanghai # ef-tests #550
+    - CallContractToCreateContractOOG_d0g0v0_Shanghai # ef-tests #550
   stLogTests:
     - log0_logMemStartTooHigh_d0g0v0_Shanghai # ef-tests #496
     - log0_logMemsizeTooHigh_d0g0v0_Shanghai # ef-tests #496
