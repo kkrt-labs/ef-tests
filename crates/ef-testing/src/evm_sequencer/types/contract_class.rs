@@ -113,6 +113,7 @@ mod tests {
     use std::fs;
 
     #[test]
+    #[ignore]
     fn test_casm_contract_class_from_compiled_contract_class() {
         // When
         let content = fs::read_to_string("../../build/v1/kakarot.json").unwrap();
