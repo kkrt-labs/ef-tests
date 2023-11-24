@@ -1,16 +1,20 @@
 #[cfg(feature = "v0")]
 pub mod v0;
-// #[cfg(feature = "v1")]
+#[cfg(feature = "v1")]
 pub mod v1;
 
-use blockifier::state::state_api::StateResult;
-use reth_primitives::{Address, Bytes};
+use blockifier::{
+    state::state_api::StateResult,
+    transaction::objects::{TransactionExecutionInfo, TransactionExecutionResult},
+};
+use reth_primitives::{Address, Bytes, TransactionSigned};
 use revm_primitives::U256;
+use sequencer::execution::Execution;
 
 /// EVM state interface. Used to setup EOA and contract accounts,
 /// fund them and get their state (balance, nonce, code, storage).
 /// Default implementation is used when no feature flag is enabled.
-pub trait EvmState {
+pub trait Evm: Execution {
     fn setup_account(
         &mut self,
         _evm_address: &Address,
@@ -40,7 +44,14 @@ pub trait EvmState {
     fn get_balance_at(&mut self, _evm_address: &Address) -> StateResult<U256> {
         panic!("Not implemented, use features flag \"v0\" or \"v1\"")
     }
+
+    fn execute_transaction(
+        &mut self,
+        _transaction: TransactionSigned,
+    ) -> TransactionExecutionResult<TransactionExecutionInfo> {
+        panic!("Not implemented, use features flag \"v0\" or \"v1\"")
+    }
 }
 
-// #[cfg(not(any(feature = "v0", feature = "v1")))]
-// impl EvmState for super::sequencer::KakarotSequencer {}
+#[cfg(not(any(feature = "v0", feature = "v1")))]
+impl Evm for super::sequencer::KakarotSequencer {}
