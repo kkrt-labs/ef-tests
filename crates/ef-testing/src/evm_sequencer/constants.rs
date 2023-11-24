@@ -65,6 +65,7 @@ lazy_static! {
 
 }
 
+#[cfg(feature = "v0")]
 pub mod kkrt_constants_v0 {
     use super::*;
 
@@ -83,6 +84,7 @@ pub mod kkrt_constants_v0 {
     }
 }
 
+#[cfg(feature = "v1")]
 pub mod kkrt_constants_v1 {
     use super::*;
     use starknet::core::types::contract::CompiledClass;
