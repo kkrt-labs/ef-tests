@@ -104,7 +104,7 @@ impl Evm for KakarotSequencer {
             ),
             (
                 bytecode_base_address,
-                StarkFelt::from(pending_word_index as u64),
+                StarkFelt::from((pending_word_index / 31) as u64),
             ),
         ]);
 
@@ -262,8 +262,9 @@ impl Evm for KakarotSequencer {
             return Ok(Bytes::default());
         }
 
-        // Assumes that the bytecode is stored in 31 byte chunks.
-        let num_chunks = bytecode_len / 31;
+        // Bytecode is stored in chunks of 31 bytes. At bytecode_base_address,
+        // we store the number of chunks.
+        let num_chunks = bytecode_len;
         let mut bytecode: Vec<u8> = Vec::new();
 
         for chunk_index in 0..num_chunks {
