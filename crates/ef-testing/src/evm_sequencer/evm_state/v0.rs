@@ -1,25 +1,32 @@
 use blockifier::abi::abi_utils::{
     get_erc20_balance_var_addresses, get_storage_var_address, get_uint256_storage_var_addresses,
 };
+use blockifier::execution::errors::EntryPointExecutionError;
 use blockifier::state::state_api::{State, StateReader, StateResult};
-use reth_primitives::{Address, Bytes};
+use blockifier::transaction::errors::TransactionExecutionError;
+use blockifier::transaction::objects::{TransactionExecutionInfo, TransactionExecutionResult};
+use reth_primitives::{Address, Bytes, TransactionSigned};
 use revm_primitives::U256;
-use starknet::core::types::FieldElement;
+use sequencer::execution::Execution as _;
+use sequencer::transaction::BroadcastedTransactionWrapper;
+use starknet::core::types::{BroadcastedTransaction, FieldElement};
 use starknet_api::core::Nonce;
 use starknet_api::hash::StarkFelt;
 use starknet_api::state::StorageKey;
 
 use super::account::{AccountType, KakarotAccount};
+use super::Evm;
 use super::EvmState;
 use crate::evm_sequencer::constants::kkrt_constants_v0::{
     CONTRACT_ACCOUNT_CLASS_HASH, EOA_CLASS_HASH, PROXY_CLASS_HASH,
 };
-use crate::evm_sequencer::constants::ETH_FEE_TOKEN_ADDRESS;
 use crate::evm_sequencer::constants::KAKAROT_ADDRESS;
+use crate::evm_sequencer::constants::{CHAIN_ID, ETH_FEE_TOKEN_ADDRESS};
 use crate::evm_sequencer::sequencer::KakarotSequencer;
 use crate::evm_sequencer::types::felt::FeltSequencer;
 use crate::evm_sequencer::utils::{
     compute_starknet_address, high_16_bytes_of_felt_to_bytes, split_u256,
+    to_broadcasted_starknet_transaction,
 };
 
 pub struct KakarotConfig {
@@ -38,7 +45,7 @@ impl Default for KakarotConfig {
     }
 }
 
-impl EvmState for KakarotSequencer {
+impl Evm for KakarotSequencer {
     /// Sets up an EOA or contract account. Writes nonce, code and storage to the sequencer storage.
     fn setup_account(
         &mut self,
@@ -250,6 +257,30 @@ impl EvmState for KakarotSequencer {
 
         Ok(high << 128 | low)
     }
+
+    /// Converts the given signed transaction to a Starknet-rs transaction and executes it.
+    fn execute_transaction(
+        &mut self,
+        transaction: TransactionSigned,
+    ) -> TransactionExecutionResult<TransactionExecutionInfo> {
+        let starknet_transaction =
+            BroadcastedTransactionWrapper::new(BroadcastedTransaction::Invoke(
+                to_broadcasted_starknet_transaction(&transaction).map_err(|err| {
+                    TransactionExecutionError::ValidateTransactionError(
+                        EntryPointExecutionError::InvalidExecutionInput {
+                            input_descriptor: String::from("Signed transaction"),
+                            info: err.to_string(),
+                        },
+                    )
+                })?,
+            ));
+
+        self.execute(
+            starknet_transaction
+                .try_into_execution_transaction(FieldElement::from(*CHAIN_ID))
+                .unwrap(),
+        )
+    }
 }
 
 /// Splits a byte array into 16-byte chunks and converts each chunk to a StarkFelt.
@@ -273,17 +304,11 @@ mod tests {
             CHAIN_ID,
         },
         sequencer::InitializeSequencer,
-        utils::to_broadcasted_starknet_transaction,
     };
     use blockifier::{abi::abi_utils::get_storage_var_address, state::state_api::StateReader};
-    use bytes::BytesMut;
     use reth_primitives::{sign_message, AccessList, Signature, TransactionSigned, TxEip1559};
     use revm_primitives::B256;
-    use sequencer::{
-        execution::Execution, state::State as SequencerState,
-        transaction::BroadcastedTransactionWrapper,
-    };
-    use starknet::core::types::{BroadcastedTransaction, FieldElement};
+    use sequencer::state::State as SequencerState;
     use starknet_api::hash::StarkFelt;
 
     #[test]
@@ -293,7 +318,7 @@ mod tests {
             crate::evm_sequencer::sequencer::KakarotSequencer::new(SequencerState::default());
         let mut sequencer = sequencer.initialize().unwrap();
 
-        let transaction = TransactionSigned {
+        let mut transaction = TransactionSigned {
             hash: B256::default(),
             signature: Signature::default(),
             transaction: reth_primitives::Transaction::Eip1559(TxEip1559 {
@@ -310,14 +335,7 @@ mod tests {
         };
         let signature =
             sign_message(*PRIVATE_KEY, transaction.transaction.signature_hash()).unwrap();
-        let mut output = BytesMut::new();
-        transaction.encode_with_signature(&signature, &mut output, false);
-        let transaction = BroadcastedTransaction::Invoke(
-            to_broadcasted_starknet_transaction(&output.to_vec().into()).unwrap(),
-        );
-        let transaction = BroadcastedTransactionWrapper::new(transaction)
-            .try_into_execution_transaction(FieldElement::from(*CHAIN_ID))
-            .unwrap();
+        transaction.signature = signature;
         let kakarot_config = KakarotConfig::default();
         let bytecode = Bytes::from(vec![96, 1, 96, 0, 85]); // PUSH 01 PUSH 00 SSTORE
         let nonce = U256::from(0);
@@ -341,7 +359,7 @@ mod tests {
         .unwrap();
         sequencer.setup_account(contract).unwrap();
         sequencer.setup_account(eoa).unwrap();
-        sequencer.0.execute(transaction).unwrap();
+        sequencer.execute_transaction(transaction).unwrap();
 
         // Then
         let contract_starknet_address = compute_starknet_address(&TEST_CONTRACT_ADDRESS)
