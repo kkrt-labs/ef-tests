@@ -36,6 +36,7 @@ fn class_hash_for_csa() -> ClassHash {
     ClassHash::default()
 }
 
+#[allow(clippy::missing_const_for_fn)]
 fn constructor_calldata_for_csa(_evm_address: FieldElement) -> Vec<FieldElement> {
     #[cfg(feature = "v1")]
     {
@@ -63,7 +64,7 @@ pub fn high_16_bytes_of_felt_to_bytes(felt: &FieldElement, len: usize) -> Bytes 
 }
 
 /// Converts an signed transaction and a signature to a Starknet-rs transaction.
-pub(crate) fn to_broadcasted_starknet_transaction(
+pub fn to_broadcasted_starknet_transaction(
     transaction: &TransactionSigned,
 ) -> Result<BroadcastedInvokeTransaction, eyre::Error> {
     let evm_address = transaction

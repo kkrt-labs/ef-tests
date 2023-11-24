@@ -12,7 +12,7 @@ logger.setLevel(logging.INFO)
 def get_resource_usage():
     try:
         result = subprocess.run(
-            "make tests",
+            "make tests-v0",
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
             text=True,
