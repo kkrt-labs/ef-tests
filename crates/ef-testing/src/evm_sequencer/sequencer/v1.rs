@@ -12,7 +12,8 @@ use crate::evm_sequencer::{
     constants::{
         kkrt_constants_v1::{
             CONTRACT_ACCOUNT_CLASS, CONTRACT_ACCOUNT_CLASS_HASH, DEPLOY_FEE, EOA_CLASS,
-            EOA_CLASS_HASH, KAKAROT_CLASS, KAKAROT_CLASS_HASH,
+            EOA_CLASS_HASH, KAKAROT_CLASS, KAKAROT_CLASS_HASH, UNINITIALIZED_ACCOUNT_CLASS,
+            UNINITIALIZED_ACCOUNT_CLASS_HASH,
         },
         CHAIN_ID, ETH_FEE_TOKEN_ADDRESS, FEE_TOKEN_CLASS, FEE_TOKEN_CLASS_HASH, KAKAROT_ADDRESS,
         KAKAROT_OWNER_ADDRESS,
@@ -33,14 +34,15 @@ impl InitializeSequencer for KakarotSequencer {
             ("chain_id", StarkFelt::from(*CHAIN_ID)),
             ("native_token", *ETH_FEE_TOKEN_ADDRESS.0.key()),
             ("deploy_fee", *DEPLOY_FEE),
-            ("account_class_hash", CONTRACT_ACCOUNT_CLASS_HASH.0),
+            ("ca_class_hash", CONTRACT_ACCOUNT_CLASS_HASH.0),
             ("eoa_class_hash", EOA_CLASS_HASH.0),
+            ("account_class_hash", UNINITIALIZED_ACCOUNT_CLASS_HASH.0),
         ];
 
         // Write all the storage vars to the sequencer state.
         for (k, v) in storage {
             (&mut self.0.state).set_storage_at(
-                *KAKAROT_OWNER_ADDRESS,
+                *KAKAROT_ADDRESS,
                 get_storage_var_address(k, &[]),
                 v,
             );
@@ -51,13 +53,18 @@ impl InitializeSequencer for KakarotSequencer {
         (&mut self.0.state)
             .set_contract_class(&KAKAROT_CLASS_HASH, convert_contract_class(&KAKAROT_CLASS)?)?;
 
-        // Write eoa, contract account and erc20 classes and class hashes.
+        // Write eoa, contract account and uninitialized account.
         (&mut self.0.state).set_contract_class(
             &CONTRACT_ACCOUNT_CLASS_HASH,
             convert_contract_class(&CONTRACT_ACCOUNT_CLASS)?,
         )?;
         (&mut self.0.state)
             .set_contract_class(&EOA_CLASS_HASH, convert_contract_class(&EOA_CLASS)?)?;
+        (&mut self.0.state).set_contract_class(
+            &UNINITIALIZED_ACCOUNT_CLASS_HASH,
+            convert_contract_class(&UNINITIALIZED_ACCOUNT_CLASS)?,
+        )?;
+
         (&mut self.0.state).set_contract_class(
             &FEE_TOKEN_CLASS_HASH,
             ContractClass::V0(ContractClassV0::try_from_json_string(
