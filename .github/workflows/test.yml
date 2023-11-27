@@ -36,9 +36,6 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
       - name: run tests
         run: python scripts/compute_resources.py
-      # TODO remove this once v1 can be integrated in ci
-      - name: run lib tests with v1 feature
-        run: cargo test --lib --features v1
       # upload artifacts
       - name: upload resources
         uses: actions/upload-artifact@v3
