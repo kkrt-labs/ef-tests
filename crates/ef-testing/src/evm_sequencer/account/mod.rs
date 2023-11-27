@@ -1,13 +1,13 @@
+#[cfg(feature = "v0")]
+pub mod v0;
+#[cfg(feature = "v1")]
+pub mod v1;
+
 use starknet_api::{
     core::{ContractAddress, Nonce},
     hash::StarkFelt,
     state::StorageKey,
 };
-
-#[cfg(feature = "v0")]
-pub mod v0;
-#[cfg(feature = "v1")]
-pub mod v1;
 
 #[allow(dead_code)]
 pub struct KakarotAccount {

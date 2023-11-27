@@ -1,3 +1,8 @@
+#[cfg(feature = "v0")]
+pub mod v0;
+#[cfg(feature = "v1")]
+pub mod v1;
+
 use std::ops::{Deref, DerefMut};
 
 use blockifier::transaction::{
@@ -7,11 +12,6 @@ use blockifier::transaction::{
 use sequencer::{execution::Execution, sequencer::Sequencer, state::State};
 
 use super::{constants::BLOCK_CONTEXT, InitializationResult};
-
-#[cfg(feature = "v0")]
-pub mod v0;
-#[cfg(feature = "v1")]
-pub mod v1;
 
 /// Sequencer initialization interface. Initializes the sequencer state
 /// by setting contract, its storage, declares all necessary classes and
