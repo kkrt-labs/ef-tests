@@ -24,9 +24,7 @@ pub enum AccountType {
 }
 
 #[cfg(not(any(feature = "v0", feature = "v1")))]
-pub use kkrt_account::*;
-#[cfg(not(any(feature = "v0", feature = "v1")))]
-mod kkrt_account {
+pub mod kkrt_account {
     use super::{AccountType, KakarotAccount};
     use reth_primitives::{Address, Bytes};
     use revm_primitives::U256;
