@@ -11,17 +11,13 @@ use reth_primitives::{Address, Bytes, TransactionSigned};
 use revm_primitives::U256;
 use sequencer::execution::Execution;
 
+use super::account::KakarotAccount;
+
 /// EVM state interface. Used to setup EOA and contract accounts,
 /// fund them and get their state (balance, nonce, code, storage).
 /// Default implementation is used when no feature flag is enabled.
 pub trait Evm: Execution {
-    fn setup_account(
-        &mut self,
-        _evm_address: &Address,
-        _bytecode: &Bytes,
-        _nonce: U256,
-        _storage: Vec<(U256, U256)>,
-    ) -> StateResult<()> {
+    fn setup_account(&mut self, _account: KakarotAccount) -> StateResult<()> {
         panic!("Not implemented, use features flag \"v0\" or \"v1\"")
     }
 
