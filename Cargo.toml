@@ -25,23 +25,23 @@ incremental = true
 
 [workspace.dependencies]
 # Eth deps
-ef-tests = { git = "https://github.com/paradigmxyz/reth.git", tag = "v0.1.0-alpha.7", features = [
+ef-tests = { git = "https://github.com/paradigmxyz/reth.git", tag = "v0.1.0-alpha.10", features = [
   "ef-tests",
 ] }
 ethers-signers = { git = "https://github.com/gakonst/ethers-rs.git", tag = "v2.0" }
-reth-primitives = { git = "https://github.com/paradigmxyz/reth.git", tag = "v0.1.0-alpha.7" }
-revm-primitives = "1.1"
-reth-rlp = { git = "https://github.com/paradigmxyz/reth.git", tag = "v0.1.0-alpha.7" }
+reth-primitives = { git = "https://github.com/paradigmxyz/reth.git", tag = "v0.1.0-alpha.10" }
+revm-primitives = { git = "https://github.com/bluealloy/revm", rev = "516f62cc" }
+reth-rlp = { git = "https://github.com/paradigmxyz/reth.git", tag = "v0.1.0-alpha.10" }
 
 # Starknet deps
 cairo-lang-casm = "2.1.0"
 cairo-lang-starknet = "2.1.0"
 cairo-lang-utils = "2.1.0"
 cairo-vm = "=0.8.2"
-blockifier = { package = "blockifier", git = "https://github.com/starkware-libs/blockifier.git", tag = "v0.3.0-rc0" }
+blockifier = { package = "blockifier", git = "https://github.com/kkrt-labs/blockifier.git", branch = "v0.4.0-rc9.1" }
 starknet = "0.6.0"
 starknet-crypto = "0.6.0"
-starknet_api = "0.5.0-rc1"
+starknet_api = "0.6.0-rc2"
 
 # Other
 async-trait = "0.1.58"
@@ -76,15 +76,6 @@ serde_yaml = "0.9.25"
 # Log
 log = "0.4.20"
 
-[patch."https://github.com/ethereum/c-kzg-4844"]
-c-kzg = { git = "https://github.com/rjected/c-kzg-4844", branch = "dan/add-serde-feature" }
-
-[patch."https://github.com/starkware-libs/blockifier.git"]
-blockifier = { package = "blockifier", git = "https://github.com/kkrt-labs/blockifier.git", branch = "v0.3.0-rc0" }
-
-
 [patch.crates-io]
-revm = { git = "https://github.com/bluealloy/revm/", branch = "release/v25" }
-revm-primitives = { git = "https://github.com/bluealloy/revm/", branch = "release/v25" }
 cairo-felt = { git = "https://github.com/kkrt-labs/cairo-vm.git", branch = "v0.8.2" }
 cairo-vm = { git = "https://github.com/kkrt-labs/cairo-vm.git", branch = "v0.8.2" }
