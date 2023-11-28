@@ -1,4 +1,4 @@
-use blockifier::abi::abi_utils::{get_storage_var_address, get_uint256_storage_var_addresses};
+use blockifier::abi::{abi_utils::get_storage_var_address, sierra_types::next_storage_key};
 use reth_primitives::{Address, Bytes};
 use revm_primitives::U256;
 use starknet_api::{
@@ -97,8 +97,9 @@ impl KakarotAccount {
             .flat_map(|(k, v)| {
                 let keys = split_u256(*k).map(Into::into);
                 let values = split_u256(*v).map(Into::<StarkFelt>::into);
-                let keys = get_uint256_storage_var_addresses("storage_", &keys).unwrap(); // safe unwrap: all vars are ASCII
-                vec![(keys.0, values[0]), (keys.1, values[1])]
+                let low_key = get_storage_var_address("storage_", &keys);
+                let high_key = next_storage_key(&low_key).unwrap(); // can fail only if low is the max key
+                vec![(low_key, values[0]), (high_key, values[1])]
             })
             .collect();
         storage.append(&mut evm_storage_storage);

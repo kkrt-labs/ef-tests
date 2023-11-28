@@ -1,7 +1,5 @@
-use blockifier::abi::abi_utils::{
-    get_erc20_balance_var_addresses, get_storage_var_address, get_uint256_storage_var_addresses,
-};
-use blockifier::execution::errors::EntryPointExecutionError;
+use blockifier::abi::abi_utils::{get_fee_token_var_address, get_storage_var_address};
+use blockifier::abi::sierra_types::next_storage_key;
 use blockifier::state::state_api::{State, StateReader, StateResult};
 use blockifier::transaction::errors::TransactionExecutionError;
 use blockifier::transaction::objects::{TransactionExecutionInfo, TransactionExecutionResult};
@@ -11,7 +9,6 @@ use sequencer::execution::Execution as _;
 use sequencer::transaction::BroadcastedTransactionWrapper;
 use starknet::core::types::{BroadcastedTransaction, FieldElement};
 use starknet_api::hash::StarkFelt;
-use starknet_api::state::StorageKey;
 
 use super::Evm;
 use crate::evm_sequencer::account::{AccountType, KakarotAccount};
@@ -57,26 +54,23 @@ impl Evm for KakarotSequencer {
         let mut storage = vec![];
 
         // Initialize the balance storage var.
-        let balance_keys = get_erc20_balance_var_addresses(&starknet_address.try_into()?)?;
-        let balance_keys: [StorageKey; 2] = balance_keys.into();
-        let balance_storage = &mut balance_keys
-            .into_iter()
-            .zip(balance_values)
-            .map(|(k, v)| (k, StarkFelt::from(v)))
-            .collect();
-        storage.append(balance_storage);
+        let balance_low_key = get_fee_token_var_address(&starknet_address.try_into()?);
+        let balance_high_key = next_storage_key(&balance_low_key)?;
+        storage.append(&mut vec![
+            (balance_low_key, StarkFelt::from(balance_values[0])),
+            (balance_high_key, StarkFelt::from(balance_values[1])),
+        ]);
 
         // Initialize the allowance storage var.
-        let allowance_keys = get_uint256_storage_var_addresses(
+        let allowance_key_low = get_storage_var_address(
             "ERC20_allowances",
             &[starknet_address.into(), *KAKAROT_ADDRESS.0.key()],
-        )?;
-        let allowance_keys: [StorageKey; 2] = allowance_keys.into();
-        let allowance_storage = &mut allowance_keys
-            .into_iter()
-            .map(|k| (k, StarkFelt::from(u128::MAX)))
-            .collect();
-        storage.append(allowance_storage);
+        );
+        let allowance_key_high = next_storage_key(&allowance_key_low)?;
+        storage.append(&mut vec![
+            (allowance_key_low, StarkFelt::from(u128::MAX)),
+            (allowance_key_high, StarkFelt::from(u128::MAX)),
+        ]);
 
         // Write all the storage vars to the sequencer state.
         for (k, v) in storage {
@@ -88,12 +82,13 @@ impl Evm for KakarotSequencer {
     /// Returns the storage value at the given key evm storage key.
     fn get_storage_at(&mut self, evm_address: &Address, key: U256) -> StateResult<U256> {
         let keys = split_u256(key).map(Into::into);
-        let keys = get_uint256_storage_var_addresses("storage_", &keys).unwrap(); // safe unwrap: all vars are ASCII
+        let key_low = get_storage_var_address("storage_", &keys);
+        let key_high = next_storage_key(&key_low)?;
 
         let starknet_address = compute_starknet_address(evm_address);
 
-        let low = (&mut self.state).get_storage_at(starknet_address.try_into()?, keys.0)?;
-        let high = (&mut self.state).get_storage_at(starknet_address.try_into()?, keys.1)?;
+        let low = (&mut self.0.state).get_storage_at(starknet_address.try_into()?, key_low)?;
+        let high = (&mut self.0.state).get_storage_at(starknet_address.try_into()?, key_high)?;
 
         let low = U256::from_be_bytes(Into::<FieldElement>::into(low).to_bytes_be());
         let high = U256::from_be_bytes(Into::<FieldElement>::into(high).to_bytes_be());

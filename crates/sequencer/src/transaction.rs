@@ -58,6 +58,7 @@ impl BroadcastedTransactionWrapper {
                                 .collect(),
                         )),
                     }),
+                    only_query: false,
                     tx_hash: TransactionHash(Into::<StarkHash>::into(Into::<StarkFelt>::into(
                         compute_transaction_hash(
                             invoke.sender_address,

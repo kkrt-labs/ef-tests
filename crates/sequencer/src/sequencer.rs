@@ -225,6 +225,7 @@ mod tests {
                 signature: TransactionSignature(vec![]),
                 nonce: Nonce(*ZERO_FELT),
             }),
+            only_query: false,
             tx_hash: TransactionHash(*ZERO_FELT),
         }))
     }
