@@ -16,14 +16,14 @@ pub fn compute_starknet_address(evm_address: &Address) -> FeltSequencer {
     let evm_address: FeltSequencer = (*evm_address).try_into().unwrap(); // infallible
     let starknet_address = get_contract_address(
         evm_address.into(),
-        account_class_hash_for_csa().0.into(),
-        &account_constructor_calldata_for_csa(evm_address.into()),
+        default_account_class_hash().0.into(),
+        &account_constructor_args(evm_address.into()),
         (*KAKAROT_ADDRESS.0.key()).into(),
     );
     starknet_address.into()
 }
 
-fn account_class_hash_for_csa() -> ClassHash {
+fn default_account_class_hash() -> ClassHash {
     #[cfg(feature = "v0")]
     {
         return *crate::evm_sequencer::constants::kkrt_constants_v0::PROXY_CLASS_HASH;
@@ -37,7 +37,7 @@ fn account_class_hash_for_csa() -> ClassHash {
 }
 
 #[allow(clippy::missing_const_for_fn)]
-fn account_constructor_calldata_for_csa(_evm_address: FieldElement) -> Vec<FieldElement> {
+fn account_constructor_args(_evm_address: FieldElement) -> Vec<FieldElement> {
     #[cfg(feature = "v1")]
     {
         return vec![(*KAKAROT_ADDRESS.0.key()).into(), _evm_address];
