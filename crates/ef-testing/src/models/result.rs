@@ -18,6 +18,7 @@ pub(crate) fn log_execution_result(
                 info!("{} passed: {:?}", case_name, info.actual_resources);
                 if let Some(call) = info.execute_call_info {
                     let events = get_kakarot_execution_events(&call);
+                    // Check only one execution event.
                     if events.len() != 1 {
                         warn!(
                             "{} failed to find the single execution event: {:?}",
@@ -38,6 +39,9 @@ pub(crate) fn log_execution_result(
                             .filter_map(|d| u8::try_from(FieldElement::from(d)).ok())
                             .map(|d| d as char)
                             .collect();
+
+                        // Check that the length of the revert message matches the first element
+                        // in the return data (https://github.com/kkrt-labs/kakarot/blob/main/src/kakarot/accounts/eoa/externally_owned_account.cairo#L67)
                         if revert_message_len != revert_message.len() {
                             warn!(
                                 "{} produced incorrect revert message length: expected {}, got {}",
@@ -45,9 +49,9 @@ pub(crate) fn log_execution_result(
                                 revert_message.len(),
                                 revert_message_len
                             );
-                        } else {
-                            warn!("{} returned: {}", case_name, revert_message);
+                            return;
                         }
+                        warn!("{} returned: {}", case_name, revert_message);
                     }
                 }
             }
