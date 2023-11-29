@@ -33,6 +33,7 @@ fn default_account_class_hash() -> ClassHash {
     {
         return *crate::evm_sequencer::constants::kkrt_constants_v1::UNINITIALIZED_ACCOUNT_CLASS_HASH;
     }
+    #[cfg(not(any(feature = "v0", feature = "v1")))]
     ClassHash::default()
 }
 
@@ -42,7 +43,10 @@ fn account_constructor_args(_evm_address: FieldElement) -> Vec<FieldElement> {
     {
         return vec![(*KAKAROT_ADDRESS.0.key()).into(), _evm_address];
     }
-    vec![]
+    #[cfg(not(feature = "v1"))]
+    {
+        return vec![];
+    }
 }
 
 /// Split a U256 into low and high u128.
@@ -87,27 +91,32 @@ pub fn to_broadcasted_starknet_transaction(
 
     let mut calldata = bytes_to_felt_vec(&bytes.to_vec().into());
 
-    let mut execute_calldata = vec![];
-    #[cfg(feature = "v0")]
-    {
-        execute_calldata = vec![
-            FieldElement::ONE,                  // call array length
-            (*KAKAROT_ADDRESS.0.key()).into(),  // contract address
-            selector!("eth_send_transaction"),  // selector
-            FieldElement::ZERO,                 // data offset
-            FieldElement::from(calldata.len()), // data length
-            FieldElement::from(calldata.len()), // calldata length
-        ];
-    }
-    #[cfg(feature = "v1")]
-    {
-        execute_calldata = vec![
-            FieldElement::ONE,                  // call array length
-            (*KAKAROT_ADDRESS.0.key()).into(),  // contract address
-            selector!("eth_send_transaction"),  // selector
-            FieldElement::from(calldata.len()), // calldata length
-        ];
-    }
+    let mut execute_calldata = {
+        #[cfg(feature = "v0")]
+        {
+            vec![
+                FieldElement::ONE,                  // call array length
+                (*KAKAROT_ADDRESS.0.key()).into(),  // contract address
+                selector!("eth_send_transaction"),  // selector
+                FieldElement::ZERO,                 // data offset
+                FieldElement::from(calldata.len()), // data length
+                FieldElement::from(calldata.len()), // calldata length
+            ]
+        }
+        #[cfg(feature = "v1")]
+        {
+            vec![
+                FieldElement::ONE,                  // call array length
+                (*KAKAROT_ADDRESS.0.key()).into(),  // contract address
+                selector!("eth_send_transaction"),  // selector
+                FieldElement::from(calldata.len()), // calldata length
+            ]
+        }
+        #[cfg(not(any(feature = "v0", feature = "v1")))]
+        {
+            vec![]
+        }
+    };
     execute_calldata.append(&mut calldata);
 
     let signature = vec![];
