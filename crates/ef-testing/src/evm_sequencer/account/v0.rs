@@ -8,30 +8,18 @@ use starknet_api::{
     StarknetApiError,
 };
 
-use crate::evm_sequencer::utils::split_u256;
-
-use super::{
-    evm_state::KakarotConfig,
-    types::FeltSequencer,
-    utils::{compute_starknet_address, split_bytecode_to_starkfelt},
+use super::{AccountType, KakarotAccount};
+use crate::evm_sequencer::{
+    constants::{
+        kkrt_constants_v0::{CONTRACT_ACCOUNT_CLASS_HASH, EOA_CLASS_HASH},
+        KAKAROT_ADDRESS,
+    },
+    types::felt::FeltSequencer,
+    utils::{compute_starknet_address, split_u256},
 };
-
-pub struct KakarotAccount {
-    pub(crate) starknet_address: ContractAddress,
-    pub(crate) evm_address: StarkFelt,
-    pub(crate) nonce: Nonce,
-    pub(crate) storage: Vec<(StorageKey, StarkFelt)>,
-    pub(crate) account_type: AccountType,
-}
-
-pub enum AccountType {
-    EOA,
-    Contract,
-}
 
 impl KakarotAccount {
     pub fn new(
-        kakarot_config: &KakarotConfig,
         evm_address: &Address,
         code: &Bytes,
         nonce: U256,
@@ -58,7 +46,7 @@ impl KakarotAccount {
             ),
             (
                 get_storage_var_address("Ownable_owner", &[]),
-                kakarot_config.address,
+                *KAKAROT_ADDRESS.0.key(),
             ),
             (
                 get_storage_var_address("bytecode_len_", &[]),
@@ -66,7 +54,7 @@ impl KakarotAccount {
             ),
             (
                 get_storage_var_address("kakarot_address", &[]),
-                kakarot_config.address,
+                *KAKAROT_ADDRESS.0.key(),
             ),
         ];
 
@@ -76,7 +64,7 @@ impl KakarotAccount {
         let account_type = if !has_code_or_storage {
             storage.push((
                 get_storage_var_address("_implementation", &[]),
-                kakarot_config.eoa_class_hash,
+                EOA_CLASS_HASH.0,
             ));
             AccountType::EOA
         } else {
@@ -84,7 +72,7 @@ impl KakarotAccount {
                 (get_storage_var_address("nonce", &[]), nonce),
                 (
                     get_storage_var_address("_implementation", &[]),
-                    kakarot_config.contract_account_class_hash,
+                    CONTRACT_ACCOUNT_CLASS_HASH.0,
                 ),
             ]);
             AccountType::Contract
@@ -123,4 +111,16 @@ impl KakarotAccount {
             nonce: Nonce(nonce),
         })
     }
+}
+
+/// Splits a byte array into 16-byte chunks and converts each chunk to a StarkFelt.
+pub fn split_bytecode_to_starkfelt(bytecode: &Bytes) -> Vec<StarkFelt> {
+    bytecode
+        .chunks(16)
+        .map(|x| {
+            let mut storage_value = [0u8; 16];
+            storage_value[..x.len()].copy_from_slice(x);
+            StarkFelt::from(u128::from_be_bytes(storage_value))
+        })
+        .collect()
 }

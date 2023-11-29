@@ -13,7 +13,11 @@
     "sstore"
   ],
   "search.useIgnoreFiles": false,
-  "rust-analyzer.cargo.features": [],
+  "rust-analyzer.cargo.features": "all",
   "rust-analyzer.check.features": null,
-  "rust-analyzer.files.excludeDirs": ["tests"]
+  "rust-analyzer.files.excludeDirs": ["tests"],
+  "rust-analyzer.inlayHints.typeHints.enable": true,
+  "rust-analyzer.cargo.autoreload": true,
+  "rust-analyzer.check.command": "clippy",
+  "rust-analyzer.trace.server": "verbose"
 }

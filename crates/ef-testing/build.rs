@@ -58,20 +58,20 @@ fn main() {
         fs::write(path, content).expect("Unable to write file");
     }
 
-    // If the ci feature is enabled, create a tests.rs file
-    // which imports all tests. This avoids `cargo test` from
-    // running the integration tests crate by crate which
-    // doesn't take full advantage of parallelism.
+    // Create a tests.rs file which imports all tests.
+    // This avoids `cargo test` from running the integration
+    // tests crate by crate which doesn't take full advantage
+    // of parallelism. Wrap it in a ci feature to avoid cargo
+    // double running tests.
     // (https://github.com/rust-lang/cargo/issues/5609)
-    if cfg!(feature = "ci") {
-        let mut concat = String::default();
-        for (folder_name, _) in tests.iter() {
-            concat += &format!("pub mod {};\n", folder_name);
-        }
-        let mut path = INTEGRATION_TESTS_PATH.join("tests");
-        path.set_extension("rs");
-        fs::write(path, concat).expect("Unable to write file");
+    let mut concat = String::default();
+    concat += "#![cfg(feature = \"ci\")]\n";
+    for (folder_name, _) in tests.iter() {
+        concat += &format!("pub mod {};\n", folder_name);
     }
+    let mut path = INTEGRATION_TESTS_PATH.join("tests");
+    path.set_extension("rs");
+    fs::write(path, concat).expect("Unable to write file");
 
     // Cache the filter
     let filter_content =

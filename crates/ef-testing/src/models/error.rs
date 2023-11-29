@@ -10,6 +10,8 @@ use starknet::{
 };
 use starknet_api::StarknetApiError;
 
+use crate::evm_sequencer::InitializationError;
+
 /// Error type based off <https://github.com/paradigmxyz/reth/blob/main/testing/ef-tests/src/result.rs>
 #[derive(Debug, thiserror::Error)]
 pub enum RunnerError {
@@ -27,6 +29,9 @@ pub enum RunnerError {
         /// The specific error
         error: String,
     },
+    /// Sequencer initialization error
+    #[error("An error occurred while initializing the sequencer: {0}")]
+    InitializationError(#[from] InitializationError),
     /// Sequencer error
     #[error("An error occurred while running the sequencer: {0}")]
     SequencerError(#[from] StateError),

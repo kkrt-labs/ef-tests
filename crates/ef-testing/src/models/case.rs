@@ -1,15 +1,11 @@
 // Inspired by https://github.com/paradigmxyz/reth/tree/main/testing/ef-tests
 
-use super::{error::RunnerError, result::log_execution_result};
+use super::error::RunnerError;
+use super::result::log_execution_result;
+use crate::evm_sequencer::evm_state::Evm;
+use crate::evm_sequencer::sequencer::{InitializeSequencer, KakarotSequencer};
 use crate::{
-    evm_sequencer::{
-        account::KakarotAccount,
-        constants::CHAIN_ID,
-        evm_state::{EvmState, KakarotConfig},
-        utils::to_broadcasted_starknet_transaction,
-        KakarotSequencer,
-    },
-    get_signed_rlp_encoded_transaction,
+    evm_sequencer::{account::KakarotAccount, constants::CHAIN_ID},
     traits::Case,
     utils::update_post_state,
 };
@@ -18,12 +14,10 @@ use ef_tests::models::Block;
 use ef_tests::models::{RootOrState, State};
 
 use ethers_signers::{LocalWallet, Signer};
+use reth_primitives::{sign_message, SealedBlock};
+use reth_rlp::Decodable as _;
 use revm_primitives::B256;
-use sequencer::{
-    execution::Execution, state::State as SequencerState,
-    transaction::BroadcastedTransactionWrapper,
-};
-use starknet::core::types::{BroadcastedTransaction, FieldElement};
+use sequencer::state::State as SequencerState;
 
 #[derive(Debug)]
 pub struct BlockchainTestCase {
@@ -55,10 +49,8 @@ impl BlockchainTestCase {
     }
 
     fn handle_pre_state(&self, sequencer: &mut KakarotSequencer) -> Result<(), RunnerError> {
-        let kakarot_config = KakarotConfig::default();
         for (address, account) in self.pre.iter() {
             let kakarot_account = KakarotAccount::new(
-                &kakarot_config,
                 address,
                 &account.code,
                 account.nonce.0,
@@ -74,18 +66,21 @@ impl BlockchainTestCase {
     fn handle_transaction(&self, sequencer: &mut KakarotSequencer) -> Result<(), RunnerError> {
         // we extract the transaction from the block
         let block = &self.block;
-        // we adjust the rlp to correspond with our currently hardcoded CHAIN_ID
-        let tx_encoded = get_signed_rlp_encoded_transaction(&block.rlp, self.secret_key)?;
+        let block =
+            SealedBlock::decode(&mut block.rlp.as_ref()).map_err(RunnerError::RlpDecodeError)?;
 
-        let starknet_transaction = BroadcastedTransactionWrapper::new(
-            BroadcastedTransaction::Invoke(to_broadcasted_starknet_transaction(&tx_encoded)?),
-        );
+        // Encode body as transaction
+        let mut tx_signed = block.body.first().cloned().ok_or_else(|| {
+            RunnerError::Other(vec!["No transaction in pre state block".into()].into())
+        })?;
 
-        let execution_result = sequencer.execute(
-            starknet_transaction
-                .try_into_execution_transaction(FieldElement::from(*CHAIN_ID))
-                .unwrap(),
-        );
+        tx_signed.transaction.set_chain_id(*CHAIN_ID);
+        let signature = sign_message(self.secret_key, tx_signed.signature_hash())
+            .map_err(|err| RunnerError::Other(vec![err.to_string()].into()))?;
+
+        tx_signed.signature = signature;
+
+        let execution_result = sequencer.execute_transaction(tx_signed);
         log_execution_result(execution_result, &self.case_name);
 
         Ok(())

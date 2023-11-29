@@ -28,29 +28,26 @@ setup: $(EF_TESTS_DIR)
 
 setup-kakarot: clean-kakarot
 	@curl -sL -o kakarot-build.zip -H "Authorization: token $(GITHUB_TOKEN)" "$(KKRT_BUILD_ARTIFACT_URL)"
-	unzip -o kakarot-build.zip -d lib/kakarot/build
+	unzip -o kakarot-build.zip -d build/v0
+	mkdir -p build/common/ && mv build/v0/fixtures/ERC20.json build/common/
 	rm -f kakarot-build.zip
 
 clean-kakarot:
-	rm -rf lib/kakarot
-	mkdir -p lib/kakarot/build
+	rm -rf build/v0
+	mkdir -p build/v0
 
 # Runs all tests but integration tests
 unit:
 	cargo test --lib
 
-# Runs the repo tests
-tests: build-ci
-	cargo test --test tests --lib --no-fail-fast --quiet
+# Runs the repo tests with the `v0` feature
+tests-v0: build
+	cargo test --test tests --lib --no-fail-fast --quiet --features "v0,ci"
 
-# Runs ef tests only
-ef-test: build-ci
-	cargo test --test tests --no-fail-fast --quiet
+# Runs ef tests only with the `v0` feature
+ef-test-v0: build
+	cargo test --test tests --no-fail-fast --quiet --features "v0,ci"
 
 # Build the rust crates
 build:
 	cargo build --release
-
-# Build the rust crates for ci
-build-ci:
-	cargo build --release --features ci

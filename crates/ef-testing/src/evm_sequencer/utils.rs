@@ -1,45 +1,52 @@
-use super::{
-    constants::{KAKAROT_ADDRESS, PROXY_CLASS_HASH},
-    types::FeltSequencer,
-};
+use super::constants::KAKAROT_ADDRESS;
+use super::types::felt::FeltSequencer;
+use bytes::BytesMut;
 use reth_primitives::{Address, Bytes, TransactionSigned};
-use reth_rlp::Decodable;
 use revm_primitives::U256;
-use starknet::{
-    core::{
-        types::{BroadcastedInvokeTransaction, FieldElement},
-        utils::get_contract_address,
-    },
-    macros::selector,
+use starknet::core::{
+    types::{BroadcastedInvokeTransaction, FieldElement},
+    utils::get_contract_address,
 };
-use starknet_api::hash::StarkFelt;
+#[cfg(any(feature = "v0", feature = "v1"))]
+use starknet::macros::selector;
+use starknet_api::core::ClassHash;
 
 /// Computes the Starknet address of a contract given its EVM address.
 pub fn compute_starknet_address(evm_address: &Address) -> FeltSequencer {
     let evm_address: FeltSequencer = (*evm_address).try_into().unwrap(); // infallible
     let starknet_address = get_contract_address(
         evm_address.into(),
-        PROXY_CLASS_HASH.0.into(),
-        &[],
+        default_account_class_hash().0.into(),
+        &account_constructor_args(evm_address.into()),
         (*KAKAROT_ADDRESS.0.key()).into(),
     );
     starknet_address.into()
 }
 
-/// Splits a byte array into 16-byte chunks and converts each chunk to a StarkFelt.
-pub(crate) fn split_bytecode_to_starkfelt(bytecode: &Bytes) -> Vec<StarkFelt> {
-    bytecode
-        .chunks(16)
-        .map(|x| {
-            let mut storage_value = [0u8; 16];
-            storage_value[..x.len()].copy_from_slice(x);
-            StarkFelt::from(u128::from_be_bytes(storage_value))
-        })
-        .collect()
+fn default_account_class_hash() -> ClassHash {
+    #[cfg(feature = "v0")]
+    {
+        return *crate::evm_sequencer::constants::kkrt_constants_v0::PROXY_CLASS_HASH;
+    }
+
+    #[cfg(feature = "v1")]
+    {
+        return *crate::evm_sequencer::constants::kkrt_constants_v1::UNINITIALIZED_ACCOUNT_CLASS_HASH;
+    }
+    ClassHash::default()
+}
+
+#[allow(clippy::missing_const_for_fn)]
+fn account_constructor_args(_evm_address: FieldElement) -> Vec<FieldElement> {
+    #[cfg(feature = "v1")]
+    {
+        return vec![(*KAKAROT_ADDRESS.0.key()).into(), _evm_address];
+    }
+    vec![]
 }
 
 /// Split a U256 into low and high u128.
-pub(crate) fn split_u256(value: U256) -> [u128; 2] {
+pub fn split_u256(value: U256) -> [u128; 2] {
     [
         (value & U256::from(u128::MAX)).try_into().unwrap(), // safe unwrap <= U128::MAX.
         (value >> 128).try_into().unwrap(),                  // safe unwrap <= U128::MAX.
@@ -56,12 +63,10 @@ pub fn high_16_bytes_of_felt_to_bytes(felt: &FieldElement, len: usize) -> Bytes 
     Bytes::from(&felt.to_bytes_be()[16..len + 16])
 }
 
-/// Converts an rlp encoding of an evm signed transaction to a Starknet transaction.
-pub(crate) fn to_broadcasted_starknet_transaction(
-    bytes: &Bytes,
+/// Converts an signed transaction and a signature to a Starknet-rs transaction.
+pub fn to_broadcasted_starknet_transaction(
+    transaction: &TransactionSigned,
 ) -> Result<BroadcastedInvokeTransaction, eyre::Error> {
-    let transaction = TransactionSigned::decode(&mut bytes.as_ref())?;
-
     let evm_address = transaction
         .recover_signer()
         .ok_or_else(|| eyre::eyre!("Missing signer in signed transaction"))?;
@@ -69,16 +74,40 @@ pub(crate) fn to_broadcasted_starknet_transaction(
     let nonce = FieldElement::from(transaction.nonce());
     let starknet_address = compute_starknet_address(&evm_address);
 
-    let mut calldata = bytes_to_felt_vec(bytes);
+    #[allow(unused_mut)]
+    let mut bytes = BytesMut::new();
+    #[cfg(feature = "v0")]
+    {
+        transaction.encode_enveloped(&mut bytes);
+    }
+    #[cfg(feature = "v1")]
+    {
+        transaction.transaction.encode_without_signature(&mut bytes);
+    }
 
-    let mut execute_calldata: Vec<FieldElement> = vec![
-        FieldElement::ONE,                  // call array length
-        (*KAKAROT_ADDRESS.0.key()).into(),  // contract address
-        selector!("eth_send_transaction"),  // selector
-        FieldElement::ZERO,                 // data offset
-        FieldElement::from(calldata.len()), // data length
-        FieldElement::from(calldata.len()), // calldata length
-    ];
+    let mut calldata = bytes_to_felt_vec(&bytes.to_vec().into());
+
+    let mut execute_calldata = vec![];
+    #[cfg(feature = "v0")]
+    {
+        execute_calldata = vec![
+            FieldElement::ONE,                  // call array length
+            (*KAKAROT_ADDRESS.0.key()).into(),  // contract address
+            selector!("eth_send_transaction"),  // selector
+            FieldElement::ZERO,                 // data offset
+            FieldElement::from(calldata.len()), // data length
+            FieldElement::from(calldata.len()), // calldata length
+        ];
+    }
+    #[cfg(feature = "v1")]
+    {
+        execute_calldata = vec![
+            FieldElement::ONE,                  // call array length
+            (*KAKAROT_ADDRESS.0.key()).into(),  // contract address
+            selector!("eth_send_transaction"),  // selector
+            FieldElement::from(calldata.len()), // calldata length
+        ];
+    }
     execute_calldata.append(&mut calldata);
 
     let signature = vec![];

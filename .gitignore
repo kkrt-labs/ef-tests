@@ -18,7 +18,7 @@ broadcast
 /crates/ef-testing/ethereum-tests
 
 # Ignore compiled Kakarot contracts
-lib/kakarot
+build/
 
 # Ignore failing tests log
 failing_tests.log

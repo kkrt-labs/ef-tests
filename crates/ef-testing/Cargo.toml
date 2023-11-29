@@ -22,8 +22,12 @@ sequencer = { path = "../sequencer" }
 
 # Starknet deps
 blockifier = { workspace = true }
+cairo-lang-casm = { workspace = true }
+cairo-lang-starknet = { workspace = true }
+cairo-lang-utils = { workspace = true }
 cairo-vm = { workspace = true }
 starknet_api = { workspace = true }
+starknet-crypto = { workspace = true }
 starknet = { workspace = true }
 
 # Log
@@ -36,6 +40,9 @@ chrono = { workspace = true, optional = true }
 dotenvy = { workspace = true, optional = true }
 eyre = { workspace = true }
 lazy_static = { workspace = true }
+num-bigint = { workspace = true }
+num-integer = { workspace = true }
+num-traits = { workspace = true }
 regex = { workspace = true }
 reqwest = { workspace = true, optional = true }
 serde = { workspace = true }
@@ -47,13 +54,13 @@ tracing-subscriber = { workspace = true }
 walkdir = { workspace = true }
 zip = { workspace = true, optional = true }
 
-[dev-dependencies]
+[features]
+v0 = []
+v1 = []
+ci = []
 
 [build-dependencies]
 build-utils = { path = "../build-utils" }
 cargo-emit = "0.2.1"
 lazy_static = { workspace = true }
 serde_yaml = { workspace = true }
-
-[features]
-ci = []
