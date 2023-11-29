@@ -1,5 +1,6 @@
 use blockifier::abi::abi_utils::{get_fee_token_var_address, get_storage_var_address};
 use blockifier::abi::sierra_types::next_storage_key;
+use blockifier::execution::errors::EntryPointExecutionError;
 use blockifier::state::state_api::{State, StateReader, StateResult};
 use blockifier::transaction::errors::TransactionExecutionError;
 use blockifier::transaction::objects::{TransactionExecutionInfo, TransactionExecutionResult};
@@ -87,8 +88,8 @@ impl Evm for KakarotSequencer {
 
         let starknet_address = compute_starknet_address(evm_address);
 
-        let low = (&mut self.0.state).get_storage_at(starknet_address.try_into()?, key_low)?;
-        let high = (&mut self.0.state).get_storage_at(starknet_address.try_into()?, key_high)?;
+        let low = (&mut self.state).get_storage_at(starknet_address.try_into()?, key_low)?;
+        let high = (&mut self.state).get_storage_at(starknet_address.try_into()?, key_high)?;
 
         let low = U256::from_be_bytes(Into::<FieldElement>::into(low).to_bytes_be());
         let high = U256::from_be_bytes(Into::<FieldElement>::into(high).to_bytes_be());

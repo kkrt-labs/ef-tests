@@ -1,7 +1,7 @@
 use blockifier::{
-    abi::abi_utils::{
-        get_erc20_balance_var_addresses, get_storage_var_address,
-        get_uint256_storage_var_addresses, starknet_keccak,
+    abi::{
+        abi_utils::{get_fee_token_var_address, get_storage_var_address, starknet_keccak},
+        sierra_types::next_storage_key,
     },
     execution::{
         errors::EntryPointExecutionError,
@@ -79,26 +79,23 @@ impl Evm for KakarotSequencer {
         let mut storage = vec![];
 
         // Initialize the balance storage var.
-        let balance_keys = get_erc20_balance_var_addresses(&starknet_address.try_into()?)?;
-        let balance_keys: [StorageKey; 2] = balance_keys.into();
-        let balance_storage = &mut balance_keys
-            .into_iter()
-            .zip(balance_values)
-            .map(|(k, v)| (k, StarkFelt::from(v)))
-            .collect();
-        storage.append(balance_storage);
+        let balance_key_low = get_fee_token_var_address(&starknet_address.try_into()?);
+        let balance_key_high = next_storage_key(&balance_key_low)?;
+        storage.append(&mut vec![
+            (balance_key_low, StarkFelt::from(balance_values[0])),
+            (balance_key_high, StarkFelt::from(balance_values[1])),
+        ]);
 
         // Initialize the allowance storage var.
-        let allowance_keys = get_uint256_storage_var_addresses(
+        let allowance_key_low = get_storage_var_address(
             "ERC20_allowances",
             &[starknet_address.into(), *KAKAROT_ADDRESS.0.key()],
-        )?;
-        let allowance_keys: [StorageKey; 2] = allowance_keys.into();
-        let allowance_storage = &mut allowance_keys
-            .into_iter()
-            .map(|k| (k, StarkFelt::from(u128::MAX)))
-            .collect();
-        storage.append(allowance_storage);
+        );
+        let allowance_key_high = next_storage_key(&allowance_key_low)?;
+        storage.append(&mut vec![
+            (allowance_key_low, StarkFelt::from(u128::MAX)),
+            (allowance_key_high, StarkFelt::from(u128::MAX)),
+        ]);
 
         // Write all the storage vars to the sequencer state.
         for (k, v) in storage {
