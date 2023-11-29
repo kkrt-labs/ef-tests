@@ -45,7 +45,7 @@ fn account_constructor_args(_evm_address: FieldElement) -> Vec<FieldElement> {
     }
     #[cfg(not(feature = "v1"))]
     {
-        return vec![];
+        vec![]
     }
 }
 

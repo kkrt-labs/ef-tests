@@ -41,7 +41,8 @@ pub(crate) fn log_execution_result(
                             .collect();
 
                         // Check that the length of the revert message matches the first element
-                        // in the return data (https://github.com/kkrt-labs/kakarot/blob/main/src/kakarot/accounts/eoa/externally_owned_account.cairo#L67)
+                        // in the return data
+                        // (https://github.com/kkrt-labs/kakarot/blob/main/src/kakarot/accounts/eoa/externally_owned_account.cairo#L67)
                         if revert_message_len != revert_message.len() {
                             warn!(
                                 "{} produced incorrect revert message length: expected {}, got {}",
