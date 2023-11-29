@@ -26,15 +26,28 @@ pub(crate) fn log_execution_result(
                         return;
                     }
                     if events[0].data.0.last() == Some(&StarkFelt::ZERO) {
-                        let revert_message: String = call
-                            .execution
-                            .retdata
-                            .0
+                        let return_data = call.execution.retdata.0;
+
+                        let revert_message_len = return_data.first().cloned().unwrap_or_default();
+                        let revert_message_len =
+                            usize::try_from(revert_message_len).unwrap_or_default();
+
+                        let revert_message: String = return_data
                             .into_iter()
+                            .skip(1)
                             .filter_map(|d| u8::try_from(FieldElement::from(d)).ok())
                             .map(|d| d as char)
                             .collect();
-                        warn!("{} returned: {}", case_name, revert_message);
+                        if revert_message_len != revert_message.len() {
+                            warn!(
+                                "{} produced incorrect revert message length: expected {}, got {}",
+                                case_name,
+                                revert_message.len(),
+                                revert_message_len
+                            );
+                        } else {
+                            warn!("{} returned: {}", case_name, revert_message);
+                        }
                     }
                 }
             }
