@@ -134,6 +134,7 @@ testname:
     - Callcode1024BalanceTooLow_d0g0v0_Shanghai # ef-tests #493
     - Callcode1024OOG_d0g0v0_Shanghai # ef-tests #493
     - Callcode1024OOG_d0g1v0_Shanghai # ef-tests #493
+    - CallcodeLoseGasOOG_d0g1v0_Shanghai # ef-tests #550
     - CallcodeLoseGasOOG_d0g2v0_Shanghai # ef-tests #493
     - callOutput3Fail_d0g0v0_Shanghai # ef-tests #493
     - callOutput3_d0g0v0_Shanghai # ef-tests #493
@@ -469,6 +470,7 @@ testname:
     - Call1024PreCalls_d0g2v0_Shanghai # ef-tests #495
     - CallLoseGasOOG_d0g0v0_Shanghai # ef-tests #493
     - CallRecursiveBombPreCall_d0g0v0_Shanghai # ef-tests #495
+    - CallcodeLoseGasOOG_d0g1v0_Shanghai # ef-tests #550
     - CallcodeLoseGasOOG_d0g2v0_Shanghai # ef-tests #493
     - Delegatecall1024OOG_d0g0v0_Shanghai # ef-tests #332
     - Delegatecall1024_d0g0v0_Shanghai # ef-tests #332
@@ -496,46 +498,6 @@ testname:
     - Transaction64Rule_d64m1_d0g0v0_Shanghai # ef-tests #311
     - Transaction64Rule_d64p1_d0g0v0_Shanghai # ef-tests #312
   stEIP150singleCodeGasPrices:
-    - RawBalanceGas_d0g0v0_Shanghai # ef-tests #344
-    - RawCallCodeGasAsk_d0g0v0_Shanghai # ef-tests #344
-    - RawCallCodeGasMemoryAsk_d0g0v0_Shanghai # ef-tests #344
-    - RawCallCodeGasMemory_d0g0v0_Shanghai # ef-tests #344
-    - RawCallCodeGasValueTransferAsk_d0g0v0_Shanghai # ef-tests #344
-    - RawCallCodeGasValueTransferMemoryAsk_d0g0v0_Shanghai # ef-tests #344
-    - RawCallCodeGasValueTransferMemory_d0g0v0_Shanghai # ef-tests #344
-    - RawCallCodeGasValueTransfer_d0g0v0_Shanghai # ef-tests #344
-    - RawCallCodeGas_d0g0v0_Shanghai # ef-tests #344
-    - RawCallGasAsk_d0g0v0_Shanghai # ef-tests #344
-    - RawCallGasValueTransferAsk_d0g0v0_Shanghai # ef-tests #344
-    - RawCallGasValueTransferMemoryAsk_d0g0v0_Shanghai # ef-tests #344
-    - RawCallGasValueTransferMemory_d0g0v0_Shanghai # ef-tests #344
-    - RawCallGasValueTransfer_d0g0v0_Shanghai # ef-tests #344
-    - RawCallGas_d0g0v0_Shanghai # ef-tests #344
-    - RawCallMemoryGasAsk_d0g0v0_Shanghai # ef-tests #344
-    - RawCallMemoryGas_d0g0v0_Shanghai # ef-tests #344
-    - RawCreateFailGasValueTransfer2_d0g0v0_Shanghai # ef-tests #344
-    - RawCreateFailGasValueTransfer_d0g0v0_Shanghai # ef-tests #344
-    - RawCreateGasMemory_d0g0v0_Shanghai # ef-tests #343
-    - RawCreateGasValueTransferMemory_d0g0v0_Shanghai # ef-tests #343
-    - RawCreateGasValueTransfer_d0g0v0_Shanghai # ef-tests #343
-    - RawCreateGas_d0g0v0_Shanghai # ef-tests #343
-    - RawDelegateCallGasAsk_d0g0v0_Shanghai # ef-tests #344
-    - RawDelegateCallGasMemoryAsk_d0g0v0_Shanghai # ef-tests #344
-    - RawDelegateCallGasMemory_d0g0v0_Shanghai # ef-tests #344
-    - RawDelegateCallGas_d0g0v0_Shanghai # ef-tests #344
-    - RawExtCodeCopyGas_d0g0v0_Shanghai # ef-tests #344
-    - RawExtCodeCopyMemoryGas_d0g0v0_Shanghai # ef-tests #344
-    - RawExtCodeSizeGas_d0g0v0_Shanghai # ef-tests #344
-    - eip2929OOG_d0g0v0_Shanghai # ef-tests #344
-    - eip2929OOG_d1g0v0_Shanghai # ef-tests #344
-    - eip2929OOG_d2g0v0_Shanghai # ef-tests #344
-    - eip2929OOG_d3g0v0_Shanghai # ef-tests #344
-    - eip2929OOG_d4g0v0_Shanghai # ef-tests #344
-    - eip2929OOG_d5g0v0_Shanghai # ef-tests #344
-    - eip2929OOG_d6g0v0_Shanghai # ef-tests #344
-    - eip2929OOG_d7g0v0_Shanghai # ef-tests #344
-    - eip2929OOG_d8g0v0_Shanghai # ef-tests #344
-    - eip2929OOG_d9g0v0_Shanghai # ef-tests #344
     - eip2929_d10g0v0_Shanghai # ef-tests #344
     - eip2929_d11g0v0_Shanghai # ef-tests #344
     - eip2929_d12g0v0_Shanghai # ef-tests #344
@@ -574,6 +536,16 @@ testname:
     - eip2929_d8g0v0_Shanghai # ef-tests #344
     - eip2929_d9g0v0_Shanghai # ef-tests #344
     - eip2929-ff_d0g0v0_Shanghai # ef-tests #344
+    - eip2929OOG_d0g0v0_Shanghai # ef-tests #344
+    - eip2929OOG_d1g0v0_Shanghai # ef-tests #344
+    - eip2929OOG_d2g0v0_Shanghai # ef-tests #344
+    - eip2929OOG_d3g0v0_Shanghai # ef-tests #344
+    - eip2929OOG_d4g0v0_Shanghai # ef-tests #344
+    - eip2929OOG_d5g0v0_Shanghai # ef-tests #344
+    - eip2929OOG_d6g0v0_Shanghai # ef-tests #344
+    - eip2929OOG_d7g0v0_Shanghai # ef-tests #344
+    - eip2929OOG_d8g0v0_Shanghai # ef-tests #344
+    - eip2929OOG_d9g0v0_Shanghai # ef-tests #344
     - gasCostBerlin_d23g0v0_Shanghai # ef-tests #36
     - gasCostBerlin_d31g0v0_Shanghai # ef-tests #36
     - gasCostBerlin_d39g0v0_Shanghai # ef-tests #36
@@ -591,61 +563,6 @@ testname:
     - gasCostJump_d0g0v0_Shanghai # ef-tests #36
     - gasCostJump_d1g0v0_Shanghai # ef-tests #36
     - gasCostJump_d2g0v0_Shanghai # ef-tests #36
-    - gasCostMemSeg_d0g0v0_Shanghai # ef-tests #36
-    - gasCostMemSeg_d10g0v0_Shanghai # ef-tests #36
-    - gasCostMemSeg_d11g0v0_Shanghai # ef-tests #36
-    - gasCostMemSeg_d12g0v0_Shanghai # ef-tests #36
-    - gasCostMemSeg_d13g0v0_Shanghai # ef-tests #36
-    - gasCostMemSeg_d14g0v0_Shanghai # ef-tests #36
-    - gasCostMemSeg_d15g0v0_Shanghai # ef-tests #36
-    - gasCostMemSeg_d16g0v0_Shanghai # ef-tests #36
-    - gasCostMemSeg_d17g0v0_Shanghai # ef-tests #36
-    - gasCostMemSeg_d18g0v0_Shanghai # ef-tests #36
-    - gasCostMemSeg_d19g0v0_Shanghai # ef-tests #36
-    - gasCostMemSeg_d1g0v0_Shanghai # ef-tests #36
-    - gasCostMemSeg_d20g0v0_Shanghai # ef-tests #36
-    - gasCostMemSeg_d21g0v0_Shanghai # ef-tests #36
-    - gasCostMemSeg_d22g0v0_Shanghai # ef-tests #36
-    - gasCostMemSeg_d23g0v0_Shanghai # ef-tests #36
-    - gasCostMemSeg_d24g0v0_Shanghai # ef-tests #36
-    - gasCostMemSeg_d25g0v0_Shanghai # ef-tests #36
-    - gasCostMemSeg_d26g0v0_Shanghai # ef-tests #36
-    - gasCostMemSeg_d27g0v0_Shanghai # ef-tests #36
-    - gasCostMemSeg_d28g0v0_Shanghai # ef-tests #36
-    - gasCostMemSeg_d29g0v0_Shanghai # ef-tests #36
-    - gasCostMemSeg_d2g0v0_Shanghai # ef-tests #36
-    - gasCostMemSeg_d30g0v0_Shanghai # ef-tests #36
-    - gasCostMemSeg_d31g0v0_Shanghai # ef-tests #36
-    - gasCostMemSeg_d32g0v0_Shanghai # ef-tests #36
-    - gasCostMemSeg_d33g0v0_Shanghai # ef-tests #36
-    - gasCostMemSeg_d34g0v0_Shanghai # ef-tests #36
-    - gasCostMemSeg_d35g0v0_Shanghai # ef-tests #36
-    - gasCostMemSeg_d36g0v0_Shanghai # ef-tests #36
-    - gasCostMemSeg_d37g0v0_Shanghai # ef-tests #36
-    - gasCostMemSeg_d38g0v0_Shanghai # ef-tests #36
-    - gasCostMemSeg_d39g0v0_Shanghai # ef-tests #36
-    - gasCostMemSeg_d3g0v0_Shanghai # ef-tests #36
-    - gasCostMemSeg_d40g0v0_Shanghai # ef-tests #36
-    - gasCostMemSeg_d41g0v0_Shanghai # ef-tests #36
-    - gasCostMemSeg_d42g0v0_Shanghai # ef-tests #36
-    - gasCostMemSeg_d43g0v0_Shanghai # ef-tests #36
-    - gasCostMemSeg_d44g0v0_Shanghai # ef-tests #36
-    - gasCostMemSeg_d45g0v0_Shanghai # ef-tests #36
-    - gasCostMemSeg_d46g0v0_Shanghai # ef-tests #36
-    - gasCostMemSeg_d47g0v0_Shanghai # ef-tests #36
-    - gasCostMemSeg_d48g0v0_Shanghai # ef-tests #36
-    - gasCostMemSeg_d49g0v0_Shanghai # ef-tests #36
-    - gasCostMemSeg_d4g0v0_Shanghai # ef-tests #36
-    - gasCostMemSeg_d50g0v0_Shanghai # ef-tests #36
-    - gasCostMemSeg_d51g0v0_Shanghai # ef-tests #36
-    - gasCostMemSeg_d52g0v0_Shanghai # ef-tests #36
-    - gasCostMemSeg_d53g0v0_Shanghai # ef-tests #36
-    - gasCostMemSeg_d54g0v0_Shanghai # ef-tests #36
-    - gasCostMemSeg_d5g0v0_Shanghai # ef-tests #36
-    - gasCostMemSeg_d6g0v0_Shanghai # ef-tests #36
-    - gasCostMemSeg_d7g0v0_Shanghai # ef-tests #36
-    - gasCostMemSeg_d8g0v0_Shanghai # ef-tests #36
-    - gasCostMemSeg_d9g0v0_Shanghai # ef-tests #36
     - gasCostMemory_d0g0v0_Shanghai # ef-tests #36
     - gasCostMemory_d10g0v0_Shanghai # ef-tests #36
     - gasCostMemory_d11g0v0_Shanghai # ef-tests #36
@@ -721,6 +638,92 @@ testname:
     - gasCostMemory_d7g0v0_Shanghai # ef-tests #36
     - gasCostMemory_d8g0v0_Shanghai # ef-tests #36
     - gasCostMemory_d9g0v0_Shanghai # ef-tests #36
+    - gasCostMemSeg_d0g0v0_Shanghai # ef-tests #36
+    - gasCostMemSeg_d10g0v0_Shanghai # ef-tests #36
+    - gasCostMemSeg_d11g0v0_Shanghai # ef-tests #36
+    - gasCostMemSeg_d12g0v0_Shanghai # ef-tests #36
+    - gasCostMemSeg_d13g0v0_Shanghai # ef-tests #36
+    - gasCostMemSeg_d14g0v0_Shanghai # ef-tests #36
+    - gasCostMemSeg_d15g0v0_Shanghai # ef-tests #36
+    - gasCostMemSeg_d16g0v0_Shanghai # ef-tests #36
+    - gasCostMemSeg_d17g0v0_Shanghai # ef-tests #36
+    - gasCostMemSeg_d18g0v0_Shanghai # ef-tests #36
+    - gasCostMemSeg_d19g0v0_Shanghai # ef-tests #36
+    - gasCostMemSeg_d1g0v0_Shanghai # ef-tests #36
+    - gasCostMemSeg_d20g0v0_Shanghai # ef-tests #36
+    - gasCostMemSeg_d21g0v0_Shanghai # ef-tests #36
+    - gasCostMemSeg_d22g0v0_Shanghai # ef-tests #36
+    - gasCostMemSeg_d23g0v0_Shanghai # ef-tests #36
+    - gasCostMemSeg_d24g0v0_Shanghai # ef-tests #36
+    - gasCostMemSeg_d25g0v0_Shanghai # ef-tests #36
+    - gasCostMemSeg_d26g0v0_Shanghai # ef-tests #36
+    - gasCostMemSeg_d27g0v0_Shanghai # ef-tests #36
+    - gasCostMemSeg_d28g0v0_Shanghai # ef-tests #36
+    - gasCostMemSeg_d29g0v0_Shanghai # ef-tests #36
+    - gasCostMemSeg_d2g0v0_Shanghai # ef-tests #36
+    - gasCostMemSeg_d30g0v0_Shanghai # ef-tests #36
+    - gasCostMemSeg_d31g0v0_Shanghai # ef-tests #36
+    - gasCostMemSeg_d32g0v0_Shanghai # ef-tests #36
+    - gasCostMemSeg_d33g0v0_Shanghai # ef-tests #36
+    - gasCostMemSeg_d34g0v0_Shanghai # ef-tests #36
+    - gasCostMemSeg_d35g0v0_Shanghai # ef-tests #36
+    - gasCostMemSeg_d36g0v0_Shanghai # ef-tests #36
+    - gasCostMemSeg_d37g0v0_Shanghai # ef-tests #36
+    - gasCostMemSeg_d38g0v0_Shanghai # ef-tests #36
+    - gasCostMemSeg_d39g0v0_Shanghai # ef-tests #36
+    - gasCostMemSeg_d3g0v0_Shanghai # ef-tests #36
+    - gasCostMemSeg_d40g0v0_Shanghai # ef-tests #36
+    - gasCostMemSeg_d41g0v0_Shanghai # ef-tests #36
+    - gasCostMemSeg_d42g0v0_Shanghai # ef-tests #36
+    - gasCostMemSeg_d43g0v0_Shanghai # ef-tests #36
+    - gasCostMemSeg_d44g0v0_Shanghai # ef-tests #36
+    - gasCostMemSeg_d45g0v0_Shanghai # ef-tests #36
+    - gasCostMemSeg_d46g0v0_Shanghai # ef-tests #36
+    - gasCostMemSeg_d47g0v0_Shanghai # ef-tests #36
+    - gasCostMemSeg_d48g0v0_Shanghai # ef-tests #36
+    - gasCostMemSeg_d49g0v0_Shanghai # ef-tests #36
+    - gasCostMemSeg_d4g0v0_Shanghai # ef-tests #36
+    - gasCostMemSeg_d50g0v0_Shanghai # ef-tests #36
+    - gasCostMemSeg_d51g0v0_Shanghai # ef-tests #36
+    - gasCostMemSeg_d52g0v0_Shanghai # ef-tests #36
+    - gasCostMemSeg_d53g0v0_Shanghai # ef-tests #36
+    - gasCostMemSeg_d54g0v0_Shanghai # ef-tests #36
+    - gasCostMemSeg_d5g0v0_Shanghai # ef-tests #36
+    - gasCostMemSeg_d6g0v0_Shanghai # ef-tests #36
+    - gasCostMemSeg_d7g0v0_Shanghai # ef-tests #36
+    - gasCostMemSeg_d8g0v0_Shanghai # ef-tests #36
+    - gasCostMemSeg_d9g0v0_Shanghai # ef-tests #36
+    - gasCostReturn_d0g0v0_Shanghai
+    - RawBalanceGas_d0g0v0_Shanghai # ef-tests #344
+    - RawCallCodeGas_d0g0v0_Shanghai # ef-tests #344
+    - RawCallCodeGasAsk_d0g0v0_Shanghai # ef-tests #344
+    - RawCallCodeGasMemory_d0g0v0_Shanghai # ef-tests #344
+    - RawCallCodeGasMemoryAsk_d0g0v0_Shanghai # ef-tests #344
+    - RawCallCodeGasValueTransfer_d0g0v0_Shanghai # ef-tests #344
+    - RawCallCodeGasValueTransferAsk_d0g0v0_Shanghai # ef-tests #344
+    - RawCallCodeGasValueTransferMemory_d0g0v0_Shanghai # ef-tests #344
+    - RawCallCodeGasValueTransferMemoryAsk_d0g0v0_Shanghai # ef-tests #344
+    - RawCallGas_d0g0v0_Shanghai # ef-tests #344
+    - RawCallGasAsk_d0g0v0_Shanghai # ef-tests #344
+    - RawCallGasValueTransfer_d0g0v0_Shanghai # ef-tests #344
+    - RawCallGasValueTransferAsk_d0g0v0_Shanghai # ef-tests #344
+    - RawCallGasValueTransferMemory_d0g0v0_Shanghai # ef-tests #344
+    - RawCallGasValueTransferMemoryAsk_d0g0v0_Shanghai # ef-tests #344
+    - RawCallMemoryGas_d0g0v0_Shanghai # ef-tests #344
+    - RawCallMemoryGasAsk_d0g0v0_Shanghai # ef-tests #344
+    - RawCreateFailGasValueTransfer_d0g0v0_Shanghai # ef-tests #344
+    - RawCreateFailGasValueTransfer2_d0g0v0_Shanghai # ef-tests #344
+    - RawCreateGas_d0g0v0_Shanghai # ef-tests #343
+    - RawCreateGasMemory_d0g0v0_Shanghai # ef-tests #343
+    - RawCreateGasValueTransfer_d0g0v0_Shanghai # ef-tests #343
+    - RawCreateGasValueTransferMemory_d0g0v0_Shanghai # ef-tests #343
+    - RawDelegateCallGas_d0g0v0_Shanghai # ef-tests #344
+    - RawDelegateCallGasAsk_d0g0v0_Shanghai # ef-tests #344
+    - RawDelegateCallGasMemory_d0g0v0_Shanghai # ef-tests #344
+    - RawDelegateCallGasMemoryAsk_d0g0v0_Shanghai # ef-tests #344
+    - RawExtCodeCopyGas_d0g0v0_Shanghai # ef-tests #344
+    - RawExtCodeCopyMemoryGas_d0g0v0_Shanghai # ef-tests #344
+    - RawExtCodeSizeGas_d0g0v0_Shanghai # ef-tests #344
   stEIP1559:
     - baseFeeDiffPlaces_d0g0v0_Shanghai # ef-tests #499
     - baseFeeDiffPlaces_d10g0v0_Shanghai # ef-tests #499
@@ -2748,48 +2751,6 @@ testname:
     - mload32bitBound_d0g0v0_Shanghai # ef-tests #31
     - mload32bitBound_d0g1v0_Shanghai # ef-tests #31
   stMemoryTest:
-    - bufferSrcOffset_d102g0v0_Shanghai # ef-tests #50
-    - bufferSrcOffset_d104g0v0_Shanghai # ef-tests #50
-    - bufferSrcOffset_d105g0v0_Shanghai # ef-tests #50
-    - bufferSrcOffset_d106g0v0_Shanghai # ef-tests #50
-    - bufferSrcOffset_d112g0v0_Shanghai # ef-tests #50
-    - bufferSrcOffset_d113g0v0_Shanghai # ef-tests #50
-    - bufferSrcOffset_d114g0v0_Shanghai # ef-tests #50
-    - bufferSrcOffset_d115g0v0_Shanghai # ef-tests #50
-    - bufferSrcOffset_d116g0v0_Shanghai # ef-tests #50
-    - bufferSrcOffset_d117g0v0_Shanghai # ef-tests #50
-    - bufferSrcOffset_d118g0v0_Shanghai # ef-tests #50
-    - bufferSrcOffset_d12g0v0_Shanghai # ef-tests #50
-    - bufferSrcOffset_d13g0v0_Shanghai # ef-tests #50
-    - bufferSrcOffset_d14g0v0_Shanghai # ef-tests #50
-    - bufferSrcOffset_d22g0v0_Shanghai # ef-tests #50
-    - bufferSrcOffset_d23g0v0_Shanghai # ef-tests #50
-    - bufferSrcOffset_d36g0v0_Shanghai # ef-tests #50
-    - bufferSrcOffset_d37g0v0_Shanghai # ef-tests #50
-    - bufferSrcOffset_d38g0v0_Shanghai # ef-tests #50
-    - bufferSrcOffset_d46g0v0_Shanghai # ef-tests #50
-    - bufferSrcOffset_d47g0v0_Shanghai # ef-tests #50
-    - bufferSrcOffset_d60g0v0_Shanghai # ef-tests #50
-    - bufferSrcOffset_d61g0v0_Shanghai # ef-tests #50
-    - bufferSrcOffset_d62g0v0_Shanghai # ef-tests #50
-    - bufferSrcOffset_d70g0v0_Shanghai # ef-tests #50
-    - bufferSrcOffset_d71g0v0_Shanghai # ef-tests #50
-    - bufferSrcOffset_d73g0v0_Shanghai # ef-tests #50
-    - bufferSrcOffset_d74g0v0_Shanghai # ef-tests #50
-    - bufferSrcOffset_d76g0v0_Shanghai # ef-tests #50
-    - bufferSrcOffset_d77g0v0_Shanghai # ef-tests #50
-    - bufferSrcOffset_d78g0v0_Shanghai # ef-tests #50
-    - bufferSrcOffset_d80g0v0_Shanghai # ef-tests #50
-    - bufferSrcOffset_d81g0v0_Shanghai # ef-tests #50
-    - bufferSrcOffset_d82g0v0_Shanghai # ef-tests #50
-    - bufferSrcOffset_d88g0v0_Shanghai # ef-tests #50
-    - bufferSrcOffset_d89g0v0_Shanghai # ef-tests #50
-    - bufferSrcOffset_d90g0v0_Shanghai # ef-tests #50
-    - bufferSrcOffset_d91g0v0_Shanghai # ef-tests #50
-    - bufferSrcOffset_d92g0v0_Shanghai # ef-tests #50
-    - bufferSrcOffset_d93g0v0_Shanghai # ef-tests #50
-    - bufferSrcOffset_d94g0v0_Shanghai # ef-tests #50
-    - bufferSrcOffset_d98g0v0_Shanghai # ef-tests #50
     - buffer_d100g0v0_Shanghai # ef-tests #50
     - buffer_d101g0v0_Shanghai # ef-tests #50
     - buffer_d102g0v0_Shanghai # ef-tests #50
@@ -2962,6 +2923,7 @@ testname:
     - buffer_d67g0v0_Shanghai # ef-tests #50
     - buffer_d68g0v0_Shanghai # ef-tests #50
     - buffer_d69g0v0_Shanghai # ef-tests #50
+    - buffer_d7g0v0_Shanghai
     - buffer_d70g0v0_Shanghai # ef-tests #50
     - buffer_d71g0v0_Shanghai # ef-tests #50
     - buffer_d72g0v0_Shanghai # ef-tests #50
@@ -2981,9 +2943,51 @@ testname:
     - buffer_d91g0v0_Shanghai # ef-tests #50
     - buffer_d92g0v0_Shanghai # ef-tests #50
     - buffer_d9g0v0_Shanghai # ef-tests #50
+    - bufferSrcOffset_d102g0v0_Shanghai # ef-tests #50
+    - bufferSrcOffset_d104g0v0_Shanghai # ef-tests #50
+    - bufferSrcOffset_d105g0v0_Shanghai # ef-tests #50
+    - bufferSrcOffset_d106g0v0_Shanghai # ef-tests #50
+    - bufferSrcOffset_d112g0v0_Shanghai # ef-tests #50
+    - bufferSrcOffset_d113g0v0_Shanghai # ef-tests #50
+    - bufferSrcOffset_d114g0v0_Shanghai # ef-tests #50
+    - bufferSrcOffset_d115g0v0_Shanghai # ef-tests #50
+    - bufferSrcOffset_d116g0v0_Shanghai # ef-tests #50
+    - bufferSrcOffset_d117g0v0_Shanghai # ef-tests #50
+    - bufferSrcOffset_d118g0v0_Shanghai # ef-tests #50
+    - bufferSrcOffset_d12g0v0_Shanghai # ef-tests #50
+    - bufferSrcOffset_d13g0v0_Shanghai # ef-tests #50
+    - bufferSrcOffset_d14g0v0_Shanghai # ef-tests #50
+    - bufferSrcOffset_d22g0v0_Shanghai # ef-tests #50
+    - bufferSrcOffset_d23g0v0_Shanghai # ef-tests #50
+    - bufferSrcOffset_d36g0v0_Shanghai # ef-tests #50
+    - bufferSrcOffset_d37g0v0_Shanghai # ef-tests #50
+    - bufferSrcOffset_d38g0v0_Shanghai # ef-tests #50
+    - bufferSrcOffset_d46g0v0_Shanghai # ef-tests #50
+    - bufferSrcOffset_d47g0v0_Shanghai # ef-tests #50
+    - bufferSrcOffset_d60g0v0_Shanghai # ef-tests #50
+    - bufferSrcOffset_d61g0v0_Shanghai # ef-tests #50
+    - bufferSrcOffset_d62g0v0_Shanghai # ef-tests #50
+    - bufferSrcOffset_d70g0v0_Shanghai # ef-tests #50
+    - bufferSrcOffset_d71g0v0_Shanghai # ef-tests #50
+    - bufferSrcOffset_d73g0v0_Shanghai # ef-tests #50
+    - bufferSrcOffset_d74g0v0_Shanghai # ef-tests #50
+    - bufferSrcOffset_d76g0v0_Shanghai # ef-tests #50
+    - bufferSrcOffset_d77g0v0_Shanghai # ef-tests #50
+    - bufferSrcOffset_d78g0v0_Shanghai # ef-tests #50
+    - bufferSrcOffset_d80g0v0_Shanghai # ef-tests #50
+    - bufferSrcOffset_d81g0v0_Shanghai # ef-tests #50
+    - bufferSrcOffset_d82g0v0_Shanghai # ef-tests #50
+    - bufferSrcOffset_d88g0v0_Shanghai # ef-tests #50
+    - bufferSrcOffset_d89g0v0_Shanghai # ef-tests #50
+    - bufferSrcOffset_d90g0v0_Shanghai # ef-tests #50
+    - bufferSrcOffset_d91g0v0_Shanghai # ef-tests #50
+    - bufferSrcOffset_d92g0v0_Shanghai # ef-tests #50
+    - bufferSrcOffset_d93g0v0_Shanghai # ef-tests #50
+    - bufferSrcOffset_d94g0v0_Shanghai # ef-tests #50
+    - bufferSrcOffset_d98g0v0_Shanghai # ef-tests #50
     - calldatacopy_dejavu_d0g0v0_Shanghai # ef-tests #20
-    - codecopy_dejavu2_d0g0v0_Shanghai # ef-tests #496
     - codecopy_dejavu_d0g0v0_Shanghai # ef-tests #496
+    - codecopy_dejavu2_d0g0v0_Shanghai # ef-tests #496
     - extcodecopy_dejavu_d0g0v0_Shanghai # ef-tests #496
     - log1_dejavu_d0g0v0_Shanghai # ef-tests #496
     - log3_dejavu_d0g0v0_Shanghai # ef-tests #496
@@ -2992,6 +2996,10 @@ testname:
     - mload_dejavu_d0g0v0_Shanghai # ef-tests #31
     - mstore_dejavu_d0g0v0_Shanghai # ef-tests #518
     - mstroe8_dejavu_d0g0v0_Shanghai # ef-tests #518
+    - oog_d34g0v0_Shanghai
+    - oog_d36g0v0_Shanghai
+    - oog_d38g0v0_Shanghai
+    - oog_d40g0v0_Shanghai
     - sha3_dejavu_d0g0v0_Shanghai # ef-tests #19
     - stackLimitGas_1023_d0g0v0_Shanghai # ef-tests #518
     - stackLimitGas_1024_d0g0v0_Shanghai # ef-tests #518
@@ -3688,6 +3696,7 @@ testname:
     - randomStatetest151_d0g0v0_Shanghai # ef-tests #496
     - randomStatetest153_d0g0v0_Shanghai # ef-tests #496
     - randomStatetest154_d0g0v0_Shanghai # ef-tests #496
+    - randomStatetest157_d0g0v0_Shanghai
     - randomStatetest159_d0g0v0_Shanghai # ef-tests #496
     - randomStatetest15_d0g0v0_Shanghai # ef-tests #496
     - randomStatetest163_d0g0v0_Shanghai # ef-tests #496
@@ -3799,6 +3808,7 @@ testname:
     - randomStatetest554_d0g0v0_Shanghai # ef-tests #496
     - randomStatetest564_d0g0v0_Shanghai # ef-tests #496
     - randomStatetest571_d0g0v0_Shanghai # ef-tests #496
+    - randomStatetest572_d0g0v0_Shanghai
     - randomStatetest577_d0g0v0_Shanghai # ef-tests #496
     - randomStatetest578_d0g0v0_Shanghai # ef-tests #496
     - randomStatetest581_d0g0v0_Shanghai # ef-tests #496
@@ -3813,6 +3823,7 @@ testname:
     - randomStatetest639_d0g0v0_Shanghai # ef-tests #496
     - randomStatetest642_d0g0v0_Shanghai # ef-tests #496
     - randomStatetest646_d0g0v0_Shanghai # ef-tests #496
+    - randomStatetest648_d0g0v0_Shanghai
     - randomStatetest649_d0g0v0_Shanghai # ef-tests #496
     - randomStatetest650_d0g0v0_Shanghai # ef-tests #496
   stRecursiveCreate:
@@ -3890,6 +3901,7 @@ testname:
     - revertRetDataSize_d7g0v0_Shanghai # ef-tests #320
     - revertRetDataSize_d8g0v0_Shanghai # ef-tests #320
     - revertRetDataSize_d9g0v0_Shanghai # ef-tests #320
+    - subcallReturnMoreThenExpected_d0g0v0_Shanghai
     - tooLongReturnDataCopy_d0g0v0_Shanghai # ef-tests #319
     - tooLongReturnDataCopy_d10g0v0_Shanghai # ef-tests #319
     - tooLongReturnDataCopy_d11g0v0_Shanghai # ef-tests #319
@@ -4048,6 +4060,7 @@ testname:
     - eoaEmpty_d1g1v0_Shanghai # ef-tests #413
     - eoaEmpty_d1g1v1_Shanghai # ef-tests #413
     - selfdestructEIP2929_d0g0v0_Shanghai # ef-tests #413
+    - sha3_deja_d0g0v0_Shanghai
     - tx_e1c174e2_d0g0v0_Shanghai # ef-tests #412
   stStackTests:
     - stackOverflowM1DUP_d0g0v0_Shanghai # ef-tests #415
@@ -5588,6 +5601,8 @@ testname:
     - sha3_d3g0v0_Shanghai
     - sha3_d5g0v0_Shanghai
     - sha3_d6g0v0_Shanghai
+    - loopExp_d0g0v0_Shanghai
+    - performanceTester_d2g0v0_Shanghai
 
 # List of file names regex to be skipped
 # The first level corresponds to the directory, the second to the list of file names regex to ignore.
