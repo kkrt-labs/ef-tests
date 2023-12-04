@@ -2752,6 +2752,7 @@ testname:
     - mload32bitBound_d0g0v0_Shanghai # ef-tests #31
     - mload32bitBound_d0g1v0_Shanghai # ef-tests #31
   stMemoryTest:
+    - buffer_d18g0v0_Shanghai # ef-tests #605
     - buffer_d5g0v0_Shanghai # ef-tests #605
     - buffer_d95g0v0_Shanghai # ef-tests #605
     - buffer_d200g0v0_Shanghai # ef-tests #605
@@ -2963,6 +2964,9 @@ testname:
     - buffer_d91g0v0_Shanghai # ef-tests #50
     - buffer_d92g0v0_Shanghai # ef-tests #50
     - buffer_d9g0v0_Shanghai # ef-tests #50
+    - bufferSrcOffset_d103g0v0_Shanghai # ef-tests #605
+    - bufferSrcOffset_d7g0v0_Shanghai # ef-tests #605
+    - bufferSrcOffset_d83g0v0_Shanghai # ef-tests #605
     - bufferSrcOffset_d79g0v0_Shanghai # ef-tests #605
     - bufferSrcOffset_d7g0v0_Shanghai, # ef-tests #605
     - bufferSrcOffset_d99g0v0_Shanghai # ef-tests #605
@@ -3556,6 +3560,7 @@ testname:
     - precompsEIP2929_d9g0v0_Shanghai # ef-tests #389
     - sec80_d0g0v0_Shanghai # ef-tests #389
   stPreCompiledContracts2:
+    - CALLBlake2f_d9g1v0_Shanghai # ef-tests #605
     - CALLBlake2f_d9g2v0_Shanghai # ef-tests #605
     - CALLBlake2f_d9g3v0_Shanghai # ef-tests #605
     - CALLCODEBlake2f_d9g1v0_Shanghai # ef-tests #605
@@ -3717,6 +3722,7 @@ testname:
     - Callcode50000_d0g1v0_Shanghai # ef-tests #605
     - Call50000_ecrec_d0g1v0_Shanghai # ef-tests #605
     - Call50000_ecrec_d0g0v0_Shanghai # ef-tests #605
+    - Call50000_d0g0v0_Shanghai # ef-tests #605
     - Call50000_d0g1v0_Shanghai # ef-tests #605
     - Call50000_sha256_d0g1v0_Shanghai # ef-tests #605
     - Call50000_identity_d0g0v0_Shanghai # ef-tests #605
@@ -3724,7 +3730,10 @@ testname:
     - Call50000_identity2_d0g1v0_Shanghai # ef-tests #605
     - Call50000_identity2_d0g0v0_Shanghai # ef-tests #605
     - Call20KbytesContract50_3_d0g0v0_Shanghai # ef-tests #605
+    - Call20KbytesContract50_2_d0g0v0_Shanghai
     - Call50000_rip160_d0g0v0_Shanghai # ef-tests #605
+    - Call50000_rip160_d0g1v0_Shanghai # ef-tests #605
+    - Create1000_d0g1v0_Shanghai # ef-tests #605
     - Call1MB1024Calldepth_d0g1v0_Shanghai # ef-tests #375
     - Call20KbytesContract50_1_d0g1v0_Shanghai # ef-tests #375
     - Call20KbytesContract50_2_d0g1v0_Shanghai # ef-tests #375
@@ -3828,6 +3837,7 @@ testname:
     - randomStatetest98_d0g0v0_Shanghai # ef-tests #496
   stRandom2:
     - 201503110226PYTHON_DUP6_d0g0v0_Shanghai # ef-tests #393
+    - randomStatetest573_d0g0v0_Shanghai # ef-tests #605
     - randomStatetest443_d0g0v0_Shanghai # ef-tests #605
     - randomStatetest393_d0g0v0_Shanghai # ef-tests #605
     - randomStatetest499_d0g0v0_Shanghai # ef-tests #605

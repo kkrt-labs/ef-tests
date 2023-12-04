@@ -9,20 +9,29 @@ use tracing::{error, info, warn};
 pub(crate) fn log_execution_result(
     result: TransactionExecutionResult<TransactionExecutionInfo>,
     case_name: &str,
+    parent_dir: &str,
 ) {
     match result {
         TransactionExecutionResult::Ok(info) => {
             if let Some(err) = info.revert_error {
-                warn!("{} reverted:\n{}", case_name, err.replace("\\n", "\n"));
+                warn!(
+                    "{}::{} reverted:\n{}",
+                    parent_dir,
+                    case_name,
+                    err.replace("\\n", "\n")
+                );
             } else {
-                info!("{} passed: {:?}", case_name, info.actual_resources);
+                info!(
+                    "{}::{} passed: {:?}",
+                    parent_dir, case_name, info.actual_resources
+                );
                 if let Some(call) = info.execute_call_info {
                     let events = get_kakarot_execution_events(&call);
                     // Check only one execution event.
                     if events.len() != 1 {
                         warn!(
-                            "{} failed to find the single execution event: {:?}",
-                            case_name, events
+                            "{}::{} failed to find the single execution event: {:?}",
+                            parent_dir, case_name, events
                         );
                         return;
                     }
@@ -45,20 +54,21 @@ pub(crate) fn log_execution_result(
                         // (https://github.com/kkrt-labs/kakarot/blob/main/src/kakarot/accounts/eoa/externally_owned_account.cairo#L67)
                         if revert_message_len != revert_message.len() {
                             warn!(
-                                "{} produced incorrect revert message length: expected {}, got {}",
+                                "{}::{} produced incorrect revert message length: expected {}, got {}",
+                                parent_dir,
                                 case_name,
                                 revert_message.len(),
                                 revert_message_len
                             );
                             return;
                         }
-                        warn!("{} returned: {}", case_name, revert_message);
+                        warn!("{}::{} returned: {}", parent_dir, case_name, revert_message);
                     }
                 }
             }
         }
         TransactionExecutionResult::Err(err) => {
-            error!("{} tx failed with:\n{:?}", case_name, err);
+            error!("{}::{} tx failed with:\n{:?}", parent_dir, case_name, err);
         }
     }
 }

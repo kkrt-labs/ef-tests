@@ -63,7 +63,7 @@ impl<'a> EfTests<'a> {
                 let mut acc = String::new();
                 acc += &Self::format_to_folder();
                 acc += &Self::format_to_module(folder_name);
-                acc += &self.convert_folders(node)?;
+                acc += &self.convert_folders(node, folder_name)?;
                 acc += "}";
                 Ok((folder_name.clone(), acc))
             })
@@ -71,20 +71,24 @@ impl<'a> EfTests<'a> {
     }
 
     /// Converts the given directory into a String.
-    fn convert_folders(&self, node: &DirReader) -> Result<String, eyre::Error> {
+    fn convert_folders(&self, node: &DirReader, parent_dir: &str) -> Result<String, eyre::Error> {
         let mut acc = String::new();
         for (dir_name, sub_node) in &node.sub_dirs {
             acc += &Self::format_to_module(dir_name);
-            acc += &self.convert_folders(sub_node)?;
+            acc += &self.convert_folders(sub_node, dir_name)?;
             acc += "}";
         }
-        acc += &self.convert_files(&node.files)?.as_str();
+        acc += &self.convert_files(&node.files, parent_dir)?.as_str();
         Ok(acc)
     }
 
     #[allow(clippy::manual_try_fold)]
     /// Converts the given files into a String.
-    fn convert_files(&self, files: &[PathWrapper]) -> Result<String, eyre::Error> {
+    fn convert_files(
+        &self,
+        files: &[PathWrapper],
+        parent_dir: &str,
+    ) -> Result<String, eyre::Error> {
         let mut acc = String::new();
         for file_path in files {
             let content = file_path.read_file_to_string()?;
@@ -98,7 +102,7 @@ impl<'a> EfTests<'a> {
                     let secret_key = ContentReader::secret_key(file_path.clone())?
                         .ok_or_else(|| eyre::eyre!("Missing secret key"))?;
                     let is_skipped = self.filter.is_skipped(file_path, Some(case_name.clone()));
-                    Self::format_to_test(case_name, &secret_key, content, is_skipped)
+                    Self::format_to_test(case_name, parent_dir, &secret_key, content, is_skipped)
                 })
                 .collect::<Result<Vec<String>, eyre::Error>>()?;
             acc += &file_contents.into_iter().fold(String::new(), |mut acc, s| {
@@ -137,11 +141,13 @@ impl<'a> EfTests<'a> {
     /// Formats the given test case into a rust test.
     fn format_to_test(
         case_name: &str,
+        parent_dir: &str,
         secret_key: &Value,
         content: &Value,
         is_skipped: bool,
     ) -> Result<String, eyre::Error> {
-        let test_content = Self::format_test_content(case_name, secret_key, content, is_skipped);
+        let test_content =
+            Self::format_test_content(case_name, parent_dir, secret_key, content, is_skipped);
         let test_content_err = test_content.as_ref().map_err(|err| err.to_string());
 
         let test_header = Self::format_test_header(is_skipped, test_content_err.err());
@@ -161,6 +167,7 @@ impl<'a> EfTests<'a> {
     /// Formats the given test content into a rust test.
     fn format_test_content(
         case_name: &str,
+        parent_dir: &str,
         secret_key: &Value,
         content: &Value,
         is_skipped: bool,
@@ -177,7 +184,7 @@ impl<'a> EfTests<'a> {
             let block: Block = serde_json::from_str(r#"{block}"#).expect("Error while reading the block");
             let pre: State = serde_json::from_str(r#"{pre}"#).expect("Error while reading the pre state");
             let post: RootOrState = serde_json::from_str(r#"{post}"#).expect("Error while reading the post state");
-            let case = BlockchainTestCase::new("{case_name}".to_string(), block, pre, post, B256::from_str({secret_key}).expect("Error while reading  secret key"));
+            let case = BlockchainTestCase::new("{case_name}".to_string(), "{parent_dir}".to_string(), block, pre, post, B256::from_str({secret_key}).expect("Error while reading  secret key"));
             case.run().expect("Error while running the test");
         "##
         ))
