@@ -53,7 +53,7 @@ fn account_constructor_args(_evm_address: FieldElement) -> Vec<FieldElement> {
 pub fn split_u256(value: U256) -> [u128; 2] {
     [
         (value & U256::from(u128::MAX)).try_into().unwrap(), // safe unwrap <= U128::MAX.
-        (value >> 128).try_into().unwrap(),                  // safe unwrap <= U128::MAX.
+        (value >> U256::from(128)).try_into().unwrap(),      // safe unwrap <= U128::MAX.
     ]
 }
 
