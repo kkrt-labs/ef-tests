@@ -1,5 +1,4 @@
 // Inspired by https://github.com/paradigmxyz/reth/tree/main/testing/ef-tests
-
 use super::error::RunnerError;
 use super::result::log_execution_result;
 use crate::evm_sequencer::evm_state::Evm;
@@ -197,10 +196,8 @@ impl Case for BlockchainTestCase {
 
         self.handle_pre_state(&mut sequencer)?;
 
-        // handle transaction
         self.handle_transaction(&mut sequencer)?;
 
-        // handle post state
         self.handle_post_state(&mut sequencer)?;
         Ok(())
     }
