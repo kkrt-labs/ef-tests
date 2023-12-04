@@ -238,6 +238,7 @@ testname:
     - codesizeOOGInvalidSize_d0g0v0_Shanghai # ef-tests #528
     - codesizeOOGInvalidSize_d1g0v0_Shanghai # ef-tests #528
   stCreateTest:
+    - CREATE_ContractRETURNBigOffset_d3g0v0_Shanghai # ef-tests #605
     - CREATE_EContract_ThenCALLToNonExistentAcc_d0g0v0_Shanghai # ef-tests #338
     - CREATE_EmptyContractAndCallIt_0wei_d0g0v0_Shanghai # ef-tests #338
     - CREATE_EmptyContractAndCallIt_1wei_d0g0v0_Shanghai # ef-tests #338
@@ -2751,6 +2752,25 @@ testname:
     - mload32bitBound_d0g0v0_Shanghai # ef-tests #31
     - mload32bitBound_d0g1v0_Shanghai # ef-tests #31
   stMemoryTest:
+    - buffer_d5g0v0_Shanghai # ef-tests #605
+    - buffer_d95g0v0_Shanghai # ef-tests #605
+    - buffer_d200g0v0_Shanghai # ef-tests #605
+    - buffer_d203g0v0_Shanghai # ef-tests #605
+    - buffer_d21g0v0_Shanghai # ef-tests #605
+    - buffer_d233g0v0_Shanghai # ef-tests #605
+    - buffer_d230g0v0_Shanghai # ef-tests #605
+    - buffer_d263g0v0_Shanghai # ef-tests #605
+    - buffer_d260g0v0_Shanghai # ef-tests #605
+    - buffer_d308g0v0_Shanghai # ef-tests #605
+    - buffer_d305g0v0_Shanghai # ef-tests #605
+    - buffer_d33g0v0_Shanghai # ef-tests #605
+    - buffer_d48g0v0_Shanghai # ef-tests #605
+    - buffer_d36g0v0_Shanghai # ef-tests #605
+    - buffer_d51g0v0_Shanghai # ef-tests #605
+    - buffer_d66g0v0_Shanghai # ef-tests #605
+    - buffer_d63g0v0_Shanghai # ef-tests #605
+    - buffer_d78g0v0_Shanghai # ef-tests #605
+    - buffer_d81g0v0_Shanghai # ef-tests #605
     - buffer_d100g0v0_Shanghai # ef-tests #50
     - buffer_d101g0v0_Shanghai # ef-tests #50
     - buffer_d102g0v0_Shanghai # ef-tests #50
@@ -2943,10 +2963,24 @@ testname:
     - buffer_d91g0v0_Shanghai # ef-tests #50
     - buffer_d92g0v0_Shanghai # ef-tests #50
     - buffer_d9g0v0_Shanghai # ef-tests #50
+    - bufferSrcOffset_d79g0v0_Shanghai # ef-tests #605
+    - bufferSrcOffset_d7g0v0_Shanghai, # ef-tests #605
+    - bufferSrcOffset_d99g0v0_Shanghai # ef-tests #605
+    - bufferSrcOffset_d27g0v0_Shanghai # ef-tests #605
+    - bufferSrcOffset_d11g0v0_Shanghai # ef-tests #605
+    - bufferSrcOffset_d3g0v0_Shanghai # ef-tests #605
+    - bufferSrcOffset_d35g0v0_Shanghai # ef-tests #605
+    - bufferSrcOffset_d59g0v0_Shanghai # ef-tests #605
+    - bufferSrcOffset_d31g0v0_Shanghai # ef-tests #605
+    - bufferSrcOffset_d55g0v0_Shanghai # ef-tests #605
+    - bufferSrcOffset_d51g0v0_Shanghai # ef-tests #605
+    - bufferSrcOffset_d75g0v0_Shanghai # ef-tests #605
     - bufferSrcOffset_d102g0v0_Shanghai # ef-tests #50
     - bufferSrcOffset_d104g0v0_Shanghai # ef-tests #50
     - bufferSrcOffset_d105g0v0_Shanghai # ef-tests #50
     - bufferSrcOffset_d106g0v0_Shanghai # ef-tests #50
+    - bufferSrcOffset_d107g0v0_Shanghai # ef-tests #605
+    - bufferSrcOffset_d108g0v0_Shanghai # ef-tests #605
     - bufferSrcOffset_d112g0v0_Shanghai # ef-tests #50
     - bufferSrcOffset_d113g0v0_Shanghai # ef-tests #50
     - bufferSrcOffset_d114g0v0_Shanghai # ef-tests #50
@@ -3522,6 +3556,11 @@ testname:
     - precompsEIP2929_d9g0v0_Shanghai # ef-tests #389
     - sec80_d0g0v0_Shanghai # ef-tests #389
   stPreCompiledContracts2:
+    - CALLBlake2f_d9g2v0_Shanghai # ef-tests #605
+    - CALLBlake2f_d9g3v0_Shanghai # ef-tests #605
+    - CALLCODEBlake2f_d9g1v0_Shanghai # ef-tests #605
+    - CALLCODEBlake2f_d9g2v0_Shanghai # ef-tests #605
+    - CALLCODEBlake2f_d9g3v0_Shanghai # ef-tests #605
     - CALLBlake2f_d4g0v0_Shanghai # ef-tests #391
     - CALLBlake2f_d4g1v0_Shanghai # ef-tests #391
     - CALLBlake2f_d4g2v0_Shanghai # ef-tests #391
@@ -3672,6 +3711,20 @@ testname:
     - modexp_0_0_0_35000_d0g2v0_Shanghai # ef-tests #700
     - modexp_0_0_0_35000_d0g3v0_Shanghai # ef-tests #700
   stQuadraticComplexityTest:
+    - Callcode50000_d0g0v0_Shanghai # ef-tests #605
+    - Return50000_d0g0v0_Shanghai # ef-tests #605
+    - Return50000_2_d0g0v0_Shanghai # ef-tests #605
+    - Callcode50000_d0g1v0_Shanghai # ef-tests #605
+    - Call50000_ecrec_d0g1v0_Shanghai # ef-tests #605
+    - Call50000_ecrec_d0g0v0_Shanghai # ef-tests #605
+    - Call50000_d0g1v0_Shanghai # ef-tests #605
+    - Call50000_sha256_d0g1v0_Shanghai # ef-tests #605
+    - Call50000_identity_d0g0v0_Shanghai # ef-tests #605
+    - Call50000_identity_d0g1v0_Shanghai # ef-tests #605
+    - Call50000_identity2_d0g1v0_Shanghai # ef-tests #605
+    - Call50000_identity2_d0g0v0_Shanghai # ef-tests #605
+    - Call20KbytesContract50_3_d0g0v0_Shanghai # ef-tests #605
+    - Call50000_rip160_d0g0v0_Shanghai # ef-tests #605
     - Call1MB1024Calldepth_d0g1v0_Shanghai # ef-tests #375
     - Call20KbytesContract50_1_d0g1v0_Shanghai # ef-tests #375
     - Call20KbytesContract50_2_d0g1v0_Shanghai # ef-tests #375
@@ -3679,6 +3732,9 @@ testname:
     - Return50000_2_d0g1v0_Shanghai # ef-tests #375
     - Return50000_d0g1v0_Shanghai # ef-tests #375
   stRandom:
+    - randomStatetest177_d0g0v0_Shanghai # ef-tests #605
+    - randomStatetest133_d0g0v0_Shanghai # ef-tests #605
+    - randomStatetest295_d0g0v0_Shanghai # ef-tests #605
     - randomStatetest100_d0g0v0_Shanghai # ef-tests #496
     - randomStatetest116_d0g0v0_Shanghai # ef-tests #496
     - randomStatetest120_d0g0v0_Shanghai # ef-tests #496
@@ -3772,6 +3828,11 @@ testname:
     - randomStatetest98_d0g0v0_Shanghai # ef-tests #496
   stRandom2:
     - 201503110226PYTHON_DUP6_d0g0v0_Shanghai # ef-tests #393
+    - randomStatetest443_d0g0v0_Shanghai # ef-tests #605
+    - randomStatetest393_d0g0v0_Shanghai # ef-tests #605
+    - randomStatetest499_d0g0v0_Shanghai # ef-tests #605
+    - randomStatetest601_d0g0v0_Shanghai # ef-tests #605
+    - randomStatetest643_d0g0v0_Shanghai # ef-tests #605
     - randomStatetest389_d0g0v0_Shanghai # ef-tests #496
     - randomStatetest398_d0g0v0_Shanghai # ef-tests #496
     - randomStatetest409_d0g0v0_Shanghai # ef-tests #496
@@ -3838,6 +3899,8 @@ testname:
     - refund_multimpleSuicide_d0g0v0_Shanghai # ef-tests #496
     - refund_singleSuicide_d0g0v0_Shanghai # ef-tests #550
   stReturnDataTest:
+    - returndatacopy_initial_big_sum_d0g0v0_Shanghai # ef-tests #605
+    - returndatacopy_overrun_d0g0v0_Shanghai # ef-tests #605
     - call_ecrec_success_empty_then_returndatasize_d0g0v0_Shanghai # ef-tests #496
     - call_outsize_then_create_successful_then_returndatasize_d0g0v0_Shanghai # ef-tests #496
     - call_then_call_value_fail_then_returndatasize_d0g0v0_Shanghai # ef-tests #496
@@ -3927,6 +3990,7 @@ testname:
     - tooLongReturnDataCopy_d8g0v0_Shanghai # ef-tests #319
     - tooLongReturnDataCopy_d9g0v0_Shanghai # ef-tests #319
   stRevertTest:
+    - RevertOpcodeReturn_d2g0v0_Shanghai # ef-tests #605
     - LoopCallsDepthThenRevert2_d0g0v0_Shanghai # ef-tests #322
     - LoopCallsDepthThenRevert3_d0g0v0_Shanghai # ef-tests #322
     - LoopCallsDepthThenRevert_d0g0v0_Shanghai # ef-tests #322
@@ -4048,6 +4112,7 @@ testname:
     - TestCryptographicFunctions_d0g0v0_Shanghai # ef-tests #133
     - TestStoreGasPrices_d0g0v0_Shanghai # ef-tests #139
   stSpecialTest:
+    - failed_tx_xcf416c53_d0g0v0_Shanghai # ef-tests #605
     - JUMPDEST_Attack_d0g0v0_Shanghai # ef-tests #479
     - JUMPDEST_AttackwithJump_d0g0v0_Shanghai # ef-tests #479
     - block504980_d0g0v0_Shanghai # ef-tests #479
@@ -5568,8 +5633,11 @@ testname:
     - log4_d1g0v0_Shanghai # ef-tests #496
     - log4_d2g0v0_Shanghai # ef-tests #496
   vmPerformance:
+    - loopExp_d8g0v0_Shanghai # ef-tests #605
     - loopExp_d10g0v0_Shanghai # ef-tests #39
     - loopExp_d11g0v0_Shanghai # ef-tests #39
+    - loopExp_d12g0v0_Shanghai # ef-tests #605
+    - loopExp_d13g0v0_Shanghai # ef-tests #605
     - loopExp_d14g0v0_Shanghai # ef-tests #39
     - loopExp_d2g0v0_Shanghai # ef-tests #39
     - loopExp_d9g0v0_Shanghai # ef-tests #39
