@@ -30,6 +30,7 @@ pub trait InitializeSequencer {
 impl InitializeSequencer for KakarotSequencer {}
 
 /// Kakarot wrapper around a sequencer.
+#[derive(Clone)]
 pub(crate) struct KakarotSequencer(Sequencer<State>);
 
 impl KakarotSequencer {
