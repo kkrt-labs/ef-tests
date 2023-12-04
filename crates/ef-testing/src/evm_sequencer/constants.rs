@@ -46,9 +46,9 @@ lazy_static! {
             fee_token_addresses: FeeTokenAddresses{eth_fee_token_address: *ETH_FEE_TOKEN_ADDRESS, strk_fee_token_address: *STRK_FEE_TOKEN_ADDRESS},
             vm_resource_fee_cost: Arc::new(VM_RESOURCES.clone()),
             gas_prices: GasPrices{eth_l1_gas_price: 1, strk_l1_gas_price: 1},
-            invoke_tx_max_n_steps: u32::MAX,
-            validate_max_n_steps: u32::MAX,
-            max_recursion_depth: usize::MAX,
+            invoke_tx_max_n_steps: 20_000_000,
+            validate_max_n_steps: 20_000_000,
+            max_recursion_depth: 2048,
         };
 
     // Main addresses
