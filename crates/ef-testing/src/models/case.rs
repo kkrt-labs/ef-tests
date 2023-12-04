@@ -22,6 +22,7 @@ use sequencer::state::State as SequencerState;
 #[derive(Debug)]
 pub struct BlockchainTestCase {
     case_name: String,
+    parent_dir: String,
     block: Block,
     pre: State,
     post: RootOrState,
@@ -34,6 +35,7 @@ pub struct BlockchainTestCase {
 impl BlockchainTestCase {
     pub const fn new(
         case_name: String,
+        parent_dir: String,
         block: Block,
         pre: State,
         post: RootOrState,
@@ -41,6 +43,7 @@ impl BlockchainTestCase {
     ) -> Self {
         Self {
             case_name,
+            parent_dir,
             block,
             pre,
             post,
@@ -81,7 +84,7 @@ impl BlockchainTestCase {
         tx_signed.signature = signature;
 
         let execution_result = sequencer.execute_transaction(tx_signed);
-        log_execution_result(execution_result, &self.case_name);
+        log_execution_result(execution_result, &self.case_name, &self.parent_dir);
 
         Ok(())
     }
