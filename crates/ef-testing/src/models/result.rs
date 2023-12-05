@@ -85,3 +85,21 @@ fn get_kakarot_execution_events(call_info: &CallInfo) -> Vec<EventContent> {
     }
     events
 }
+
+fn get_kakarot_version() -> String {
+    let version = {
+        #[cfg(feature = "v1")]
+        {
+            "v1"
+        }
+        #[cfg(feature = "v0")]
+        {
+            "v0"
+        }
+        #[cfg(not(any(feature = "v0", feature = "v1")))]
+        {
+            "unknown"
+        }
+    };
+    version.to_string()
+}
