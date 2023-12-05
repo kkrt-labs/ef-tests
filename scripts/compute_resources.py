@@ -3,6 +3,7 @@ import json
 import logging
 import os
 import re
+import subprocess
 from pathlib import Path
 
 logging.basicConfig()
@@ -16,13 +17,25 @@ KAKAROT_VERSION = [
 ]
 
 
-def get_resource_usage(path: str = "./test.out"):
-    with open(path, "r") as f:
-        result = f.read()
+def get_resource_usage(version: str):
+    try:
+        result = subprocess.run(
+            f"make tests-{version}-ci",
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            text=True,
+            shell=True,
+            check=True,
+        )
+        logger.info("\n" + result.stdout)
+    except subprocess.CalledProcessError as e:
+        logger.error(e.stdout)
+        raise RuntimeError(f"Error while running ef-tests for version {version}") from e
+
     # Remove ANSI escape sequences
-    cleaned_output = re.sub(r"\x1b\[[0-9;]*[a-zA-Z]", "", result)
+    cleaned_output = re.sub(r"\x1b\[[0-9;]*[a-zA-Z]", "", result.stdout)
     matches = re.findall(
-        r"ef_testing::models::result: (.*) passed: .?ResourcesMapping\((.*)\)",
+        rf"ef_testing::models::result: (.*) version {version} passed: .?ResourcesMapping\((.*)\)",
         cleaned_output,
     )
     tests_resources = [
@@ -56,7 +69,7 @@ def main():
     os.makedirs(RESOURCES_PATH, exist_ok=True)
 
     for version in KAKAROT_VERSION:
-        test_resources = get_resource_usage(f"./test_{version}.out")
+        test_resources = get_resource_usage(version)
         write_resources_to_csv(
             test_resources, output_file=RESOURCES_PATH / f"resources_{version}.csv"
         )
