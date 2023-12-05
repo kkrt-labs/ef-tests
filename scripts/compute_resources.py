@@ -1,18 +1,26 @@
 import csv
 import json
 import logging
+import os
 import re
 import subprocess
+from pathlib import Path
 
 logging.basicConfig()
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
+RESOURCES_PATH = Path("./resources/")
+VERSIONS = ["v0", "v1"]
+KAKAROT_VERSION = [
+    x for x in os.getenv("KAKAROT_VERSION", "none").lower().split(",") if x in VERSIONS
+]
 
-def get_resource_usage():
+
+def get_resource_usage(version: str):
     try:
         result = subprocess.run(
-            "make tests-v0",
+            f"make tests-{version}-ci",
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
             text=True,
@@ -22,12 +30,12 @@ def get_resource_usage():
         logger.info("\n" + result.stdout)
     except subprocess.CalledProcessError as e:
         logger.error(e.stdout)
-        raise RuntimeError("Error while running ef-tests") from e
+        raise RuntimeError(f"Error while running ef-tests for version {version}") from e
 
     # Remove ANSI escape sequences
     cleaned_output = re.sub(r"\x1b\[[0-9;]*[a-zA-Z]", "", result.stdout)
     matches = re.findall(
-        r"ef_testing::models::result: (.*) passed: .?ResourcesMapping\((.*)\)",
+        rf"ef_testing::models::result: (.*) {version} passed: .?ResourcesMapping\((.*)\)",
         cleaned_output,
     )
     tests_resources = [
@@ -58,8 +66,13 @@ def write_resources_to_csv(tests_resources: list, output_file: str = "resources.
 
 
 def main():
-    test_resources = get_resource_usage()
-    write_resources_to_csv(test_resources, output_file="resources.csv")
+    os.makedirs(RESOURCES_PATH, exist_ok=True)
+
+    for version in KAKAROT_VERSION:
+        test_resources = get_resource_usage(version)
+        write_resources_to_csv(
+            test_resources, output_file=RESOURCES_PATH / f"resources_{version}.csv"
+        )
 
 
 if __name__ == "__main__":
