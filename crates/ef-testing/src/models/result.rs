@@ -2,8 +2,8 @@ use blockifier::{
     execution::call_info::CallInfo,
     transaction::objects::{TransactionExecutionInfo, TransactionExecutionResult},
 };
-use starknet::{core::types::FieldElement, macros::selector};
-use starknet_api::{hash::StarkFelt, transaction::EventContent};
+use starknet::macros::selector;
+use starknet_api::transaction::EventContent;
 use tracing::{error, info, warn};
 
 pub(crate) fn log_execution_result(
@@ -19,6 +19,8 @@ pub(crate) fn log_execution_result(
             } else {
                 info!("{} passed: {:?}", case, info.actual_resources);
                 if let Some(call) = info.execute_call_info {
+                    use starknet::core::types::FieldElement;
+                    use starknet_api::hash::StarkFelt;
                     let events = get_kakarot_execution_events(&call);
                     // Check only one execution event.
                     if events.len() != 1 {
@@ -65,6 +67,7 @@ pub(crate) fn log_execution_result(
     }
 }
 
+#[allow(dead_code)]
 fn get_kakarot_execution_events(call_info: &CallInfo) -> Vec<EventContent> {
     let mut events = Vec::new();
     for c in call_info.into_iter() {
