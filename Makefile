@@ -39,6 +39,7 @@ setup-kakarot-v0: clean-kakarot
 setup-kakarot-v1:
 	@curl -sL -o dev-artifacts.zip -H "Authorization: token $(GITHUB_TOKEN)" "$(KKRT_V1_BUILD_ARTIFACT_URL)"
 	unzip -o dev-artifacts.zip -d build/temp
+	mkdir -p build/v1
 	mv build/temp/contracts_ContractAccount.compiled_contract_class.json build/v1/contract_account.json
 	mv build/temp/contracts_ExternallyOwnedAccount.compiled_contract_class.json build/v1/externally_owned_account.json
 	mv build/temp/contracts_KakarotCore.compiled_contract_class.json build/v1/kakarot.json
