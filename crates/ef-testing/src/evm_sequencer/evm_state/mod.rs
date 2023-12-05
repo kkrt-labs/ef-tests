@@ -9,13 +9,20 @@ use blockifier::{
 };
 use reth_primitives::{Address, Bytes, TransactionSigned};
 use revm_primitives::U256;
+use sequencer::execution::Execution;
 
 use super::account::KakarotAccount;
 
-/// EVM state interface. Used to setup EOA and contract accounts,
+/// EVM state interface. Used to setup the evm state, EOA and contract accounts,
 /// fund them and get their state (balance, nonce, code, storage).
 /// Default implementation is used when no feature flag is enabled.
-pub trait Evm {
+pub trait Evm: Execution {
+    // TODO enforce using a marker type that you can only proceed
+    // with execution if the state is initialized.
+    fn setup_state(&mut self) -> StateResult<()> {
+        panic!("Not implemented, use features flag \"v0\" or \"v1\"")
+    }
+
     fn setup_account(&mut self, _account: KakarotAccount) -> StateResult<()> {
         panic!("Not implemented, use features flag \"v0\" or \"v1\"")
     }

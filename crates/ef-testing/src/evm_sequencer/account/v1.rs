@@ -51,6 +51,10 @@ impl KakarotAccount {
         // The account is an EOA if it has no bytecode and no storage (or all storage is zero).
         let has_code_or_storage = !code.is_empty() || evm_storage.iter().any(|x| x.1 != U256::ZERO);
         let account_type = if !has_code_or_storage {
+            storage.push((
+                get_storage_var_address("chain_id", &[]),
+                StarkFelt::from(*CHAIN_ID),
+            ));
             AccountType::EOA
         } else {
             storage.push(starknet_storage!("contract_account_nonce", nonce));
