@@ -3,6 +3,8 @@
 # In the ef-tests repo, we skip all tests but the vmArithmeticTest.
 
 filename:
+  None:
+    - None
 
 testname:
   vmArithmeticTest:

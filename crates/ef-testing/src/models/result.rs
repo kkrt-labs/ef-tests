@@ -76,7 +76,7 @@ fn get_kakarot_execution_events(call_info: &CallInfo) -> Vec<EventContent> {
             .events
             .iter()
             .filter(|e| {
-                e.event.keys.get(0).map(|e| e.0) == Some(selector!("transaction_executed").into())
+                e.event.keys.first().map(|e| e.0) == Some(selector!("transaction_executed").into())
             })
             .map(|e| e.event.clone())
             .collect();
