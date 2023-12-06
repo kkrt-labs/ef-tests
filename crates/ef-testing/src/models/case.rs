@@ -129,13 +129,13 @@ impl BlockchainTestCase {
             base_fee_per_gas
         } * gas_used;
 
-        let mut post_state = match self.post.clone() {
+        let post_state = match self.post.clone() {
             RootOrState::Root(_) => {
                 panic!("RootOrState::Root(_) not supported")
             }
             RootOrState::State(state) => state,
         };
-        update_post_state(&mut post_state, self.pre.clone());
+        let post_state = update_post_state(post_state, self.pre.clone());
 
         let mut diff: Vec<String> = vec![];
         for (address, expected_state) in post_state.iter() {
