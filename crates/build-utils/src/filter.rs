@@ -62,14 +62,14 @@ impl Filter {
     /// Returns the difference in keys (folders) between the two filters
     pub fn diff(&self, rhs: &Self) -> Vec<Folder> {
         let mut diff = Vec::new();
-        diff.append(&mut map_diff(&self.filename, &rhs.filename));
-        diff.append(&mut map_diff(&self.regex, &rhs.regex));
-        diff.append(&mut map_diff(&self.test_name, &rhs.test_name));
+        diff.append(&mut diff_map(&self.filename, &rhs.filename));
+        diff.append(&mut diff_map(&self.regex, &rhs.regex));
+        diff.append(&mut diff_map(&self.test_name, &rhs.test_name));
         diff
     }
 }
 
-fn map_diff(lhs: &FilterMap, rhs: &FilterMap) -> Vec<Folder> {
+fn diff_map(lhs: &FilterMap, rhs: &FilterMap) -> Vec<Folder> {
     let mut top = Vec::new();
     let diff = |top: &mut Vec<String>, lhs: &FilterMap, rhs: &FilterMap| {
         for (key, _) in lhs.iter() {
@@ -142,7 +142,7 @@ mod tests {
         .collect();
 
         // When
-        let mut diff = map_diff(&lhs, &rhs);
+        let mut diff = diff_map(&lhs, &rhs);
         diff.sort();
 
         // Then

@@ -57,11 +57,6 @@ pub fn split_u256(value: U256) -> [u128; 2] {
     ]
 }
 
-/// Converts a byte array to a vector of FieldElement.
-pub fn bytes_to_felt_vec(bytes: &Bytes) -> Vec<FieldElement> {
-    bytes.to_vec().into_iter().map(FieldElement::from).collect()
-}
-
 /// Converts the high 16 bytes of a FieldElement to a byte array.
 pub fn high_16_bytes_of_felt_to_bytes(felt: &FieldElement, len: usize) -> Bytes {
     Bytes::from(&felt.to_bytes_be()[16..len + 16])
@@ -81,7 +76,7 @@ pub fn to_broadcasted_starknet_transaction(
     let mut bytes = BytesMut::new();
     transaction.transaction.encode_without_signature(&mut bytes);
 
-    let mut calldata = bytes_to_felt_vec(&bytes.to_vec().into());
+    let mut calldata: Vec<_> = bytes.into_iter().map(FieldElement::from).collect();
 
     let mut execute_calldata = {
         #[cfg(feature = "v0")]

@@ -81,7 +81,7 @@ impl Evm for KakarotSequencer {
     }
 
     /// Returns the storage value at the given key evm storage key.
-    fn get_storage_at(&mut self, evm_address: &Address, key: U256) -> StateResult<U256> {
+    fn storage_at(&mut self, evm_address: &Address, key: U256) -> StateResult<U256> {
         let keys = split_u256(key).map(Into::into);
         let key_low = get_storage_var_address("storage_", &keys);
         let key_high = next_storage_key(&key_low)?;
@@ -99,7 +99,7 @@ impl Evm for KakarotSequencer {
 
     /// Returns the nonce of the given address. For an EOA, uses the protocol level nonce.
     /// For a contract account, uses the Kakarot managed nonce stored in the contract account's storage.
-    fn get_nonce_at(&mut self, evm_address: &Address) -> StateResult<U256> {
+    fn nonce_at(&mut self, evm_address: &Address) -> StateResult<U256> {
         let starknet_address = compute_starknet_address(evm_address);
 
         let implementation = (&mut self.state)
@@ -129,7 +129,7 @@ impl Evm for KakarotSequencer {
     /// Returns the bytecode of the given address. For an EOA, the bytecode_len_ storage variable will return 0,
     /// and the function will return an empty vector. For a contract account, the function will return the bytecode
     /// stored in the bytecode_ storage variables. The function assumes that the bytecode is stored in 16 byte big-endian chunks.
-    fn get_code_at(&mut self, evm_address: &Address) -> StateResult<Bytes> {
+    fn code_at(&mut self, evm_address: &Address) -> StateResult<Bytes> {
         let starknet_address = compute_starknet_address(evm_address);
 
         let bytecode_len = (&mut self.state).get_storage_at(
@@ -162,7 +162,7 @@ impl Evm for KakarotSequencer {
 
     /// Returns the balance of native tokens at the given address.
     /// Makes use of the default StateReader implementation from Blockifier.
-    fn get_balance_at(&mut self, evm_address: &Address) -> StateResult<U256> {
+    fn balance_at(&mut self, evm_address: &Address) -> StateResult<U256> {
         let starknet_address = compute_starknet_address(evm_address);
         let (low, high) = (&mut self.state)
             .get_fee_token_balance(&starknet_address.try_into()?, &ETH_FEE_TOKEN_ADDRESS)?;
@@ -237,9 +237,8 @@ mod tests {
         let nonce = U256::from(0);
 
         // When
-        let contract =
-            KakarotAccount::new(&TEST_CONTRACT_ADDRESS, &bytecode, nonce, vec![]).unwrap();
-        let eoa = KakarotAccount::new(&PUBLIC_KEY, &Bytes::default(), nonce, vec![]).unwrap();
+        let contract = KakarotAccount::new(&TEST_CONTRACT_ADDRESS, &bytecode, nonce, &[]).unwrap();
+        let eoa = KakarotAccount::new(&PUBLIC_KEY, &Bytes::default(), nonce, &[]).unwrap();
         sequencer.setup_account(contract).unwrap();
         sequencer.setup_account(eoa).unwrap();
         sequencer.execute_transaction(transaction).unwrap();
