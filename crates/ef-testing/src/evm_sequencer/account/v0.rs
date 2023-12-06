@@ -17,13 +17,14 @@ use crate::evm_sequencer::{
     types::felt::FeltSequencer,
     utils::{compute_starknet_address, split_u256},
 };
+use crate::starknet_storage;
 
 impl KakarotAccount {
     pub fn new(
         evm_address: &Address,
         code: &Bytes,
         nonce: U256,
-        evm_storage: Vec<(U256, U256)>,
+        evm_storage: &[(U256, U256)],
     ) -> Result<Self, StarknetApiError> {
         let nonce = StarkFelt::from(TryInto::<u128>::try_into(nonce).map_err(|err| {
             StarknetApiError::OutOfRange {
@@ -35,61 +36,37 @@ impl KakarotAccount {
         let starknet_address = ContractAddress::try_from(starknet_address)?;
 
         let evm_address = TryInto::<FeltSequencer>::try_into(*evm_address)
-            .unwrap()
-            .into(); // infallible
+            .unwrap() // infallible
+            .into();
 
         let mut storage = vec![
-            (get_storage_var_address("evm_address", &[]), evm_address),
-            (
-                get_storage_var_address("is_initialized_", &[]),
-                StarkFelt::from(1u8),
-            ),
-            (
-                get_storage_var_address("Ownable_owner", &[]),
-                *KAKAROT_ADDRESS.0.key(),
-            ),
-            (
-                get_storage_var_address("bytecode_len_", &[]),
-                StarkFelt::from(code.len() as u32),
-            ),
-            (
-                get_storage_var_address("kakarot_address", &[]),
-                *KAKAROT_ADDRESS.0.key(),
-            ),
+            starknet_storage!("evm_address", evm_address),
+            starknet_storage!("is_initialized_", 1u8),
+            starknet_storage!("Ownable_owner", *KAKAROT_ADDRESS.0.key()),
+            starknet_storage!("bytecode_len_", code.len() as u32),
+            starknet_storage!("kakarot_address", *KAKAROT_ADDRESS.0.key()),
         ];
 
         // Initialize the implementation and nonce based on account type.
         // The account is an EOA if it has no bytecode and no storage (or all storage is zero).
         let has_code_or_storage = !code.is_empty() || evm_storage.iter().any(|x| x.1 != U256::ZERO);
         let account_type = if !has_code_or_storage {
-            storage.push((
-                get_storage_var_address("_implementation", &[]),
-                EOA_CLASS_HASH.0,
-            ));
+            storage.push(starknet_storage!("_implementation", EOA_CLASS_HASH.0));
             AccountType::EOA
         } else {
             storage.append(&mut vec![
-                (get_storage_var_address("nonce", &[]), nonce),
-                (
-                    get_storage_var_address("_implementation", &[]),
-                    CONTRACT_ACCOUNT_CLASS_HASH.0,
-                ),
+                starknet_storage!("nonce", nonce),
+                starknet_storage!("_implementation", CONTRACT_ACCOUNT_CLASS_HASH.0),
             ]);
             AccountType::Contract
         };
 
         // Initialize the bytecode storage var.
-        let bytecode_storage = &mut split_bytecode_to_starkfelt(code)
-            .into_iter()
+        let mut bytecode_storage = split_bytecode_to_starkfelt(code)
             .enumerate()
-            .map(|(i, bytes)| {
-                (
-                    get_storage_var_address("bytecode_", &[StarkFelt::from(i as u32)]),
-                    bytes,
-                )
-            })
+            .map(|(i, bytes)| starknet_storage!("bytecode_", [StarkFelt::from(i as u32)], bytes))
             .collect();
-        storage.append(bytecode_storage);
+        storage.append(&mut bytecode_storage);
 
         // Initialize the storage vars.
         let mut evm_storage_storage: Vec<(StorageKey, StarkFelt)> = evm_storage
@@ -115,13 +92,12 @@ impl KakarotAccount {
 }
 
 /// Splits a byte array into 16-byte chunks and converts each chunk to a StarkFelt.
-pub fn split_bytecode_to_starkfelt(bytecode: &Bytes) -> Vec<StarkFelt> {
-    bytecode
-        .chunks(16)
-        .map(|x| {
-            let mut storage_value = [0u8; 16];
-            storage_value[..x.len()].copy_from_slice(x);
-            StarkFelt::from(u128::from_be_bytes(storage_value))
-        })
-        .collect()
+pub fn split_bytecode_to_starkfelt<'a>(
+    bytecode: &'a Bytes,
+) -> impl Iterator<Item = StarkFelt> + 'a {
+    bytecode.chunks(16).map(|x| {
+        let mut storage_value = [0u8; 16];
+        storage_value[..x.len()].copy_from_slice(x);
+        StarkFelt::from(u128::from_be_bytes(storage_value))
+    })
 }

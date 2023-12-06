@@ -11,12 +11,15 @@ use starknet_crypto::{poseidon_hash_many, FieldElement};
 
 use super::{AccountType, KakarotAccount};
 use crate::evm_sequencer::{
-    constants::KAKAROT_ADDRESS,
-    evm_state::v1::{compute_storage_base_address, offset_storage_base_address},
-};
-use crate::evm_sequencer::{
     types::felt::FeltSequencer,
     utils::{compute_starknet_address, split_u256},
+};
+use crate::{
+    evm_sequencer::{
+        constants::KAKAROT_ADDRESS,
+        evm_state::v1::{compute_storage_base_address, offset_storage_key},
+    },
+    starknet_storage,
 };
 
 impl KakarotAccount {
@@ -24,7 +27,7 @@ impl KakarotAccount {
         evm_address: &Address,
         code: &Bytes,
         nonce: U256,
-        evm_storage: Vec<(U256, U256)>,
+        evm_storage: &[(U256, U256)],
     ) -> Result<Self, StarknetApiError> {
         let nonce = StarkFelt::from(TryInto::<u128>::try_into(nonce).map_err(|err| {
             StarknetApiError::OutOfRange {
@@ -36,15 +39,12 @@ impl KakarotAccount {
         let starknet_address = ContractAddress::try_from(starknet_address)?;
 
         let evm_address = TryInto::<FeltSequencer>::try_into(*evm_address)
-            .unwrap()
-            .into(); // infallible
+            .unwrap() // infallible
+            .into();
 
         let mut storage = vec![
-            (
-                get_storage_var_address("kakarot_core_address", &[]),
-                *KAKAROT_ADDRESS.0.key(),
-            ),
-            (get_storage_var_address("evm_address", &[]), evm_address),
+            starknet_storage!("kakarot_core_address", *KAKAROT_ADDRESS.0.key()),
+            starknet_storage!("evm_address", evm_address),
         ];
 
         // Initialize the implementation and nonce based on account type.
@@ -53,17 +53,14 @@ impl KakarotAccount {
         let account_type = if !has_code_or_storage {
             AccountType::EOA
         } else {
-            storage.push((
-                get_storage_var_address("contract_account_nonce", &[]),
-                nonce,
-            ));
+            storage.push(starknet_storage!("contract_account_nonce", nonce));
             AccountType::Contract
         };
 
         // Initialize the bytecode storage vars.
         let bytecode_base_address = get_storage_var_address("contract_account_bytecode", &[]);
-        let pending_word_address = offset_storage_base_address(bytecode_base_address, -2);
-        let pending_word_len_address = offset_storage_base_address(bytecode_base_address, -1);
+        let pending_word_address = offset_storage_key(bytecode_base_address, -2);
+        let pending_word_len_address = offset_storage_key(bytecode_base_address, -1);
         let pending_word_index = code.len() / 31 * 31;
         let pending_word = &code[pending_word_index..];
         // Assumes that the bytecode is stored in 31 byte chunks using the List type from Alexandria.
@@ -87,8 +84,7 @@ impl KakarotAccount {
 
         // The storage address for the bytecode is computed as poseidon_hash(contract_account_bytecode, index) + offset.
         // In our case, the index is incremented every 256 chunks of 31 bytes.
-        let mut bytecode_storage = split_bytecode_to_starkfelt(&code[..pending_word_index].into())
-            .into_iter()
+        let mut bytecode_storage = split_bytecode_to_starkfelt(&code[..pending_word_index])
             .enumerate()
             .map(|(index, b)| {
                 let offset = index % 256;
@@ -98,7 +94,7 @@ impl KakarotAccount {
                     FieldElement::from(index),
                 ]);
                 (
-                    offset_storage_base_address(
+                    offset_storage_key(
                         StorageKey(PatriciaKey::try_from(StarkFelt::from(key)).unwrap()),
                         offset as i64,
                     ),
@@ -115,7 +111,7 @@ impl KakarotAccount {
                 let keys = split_u256(*k).map(Into::into);
                 let values = split_u256(*v).map(Into::<StarkFelt>::into);
                 let low_key = compute_storage_base_address("contract_account_storage_keys", &keys);
-                let high_key = offset_storage_base_address(low_key, 1);
+                let high_key = offset_storage_key(low_key, 1);
                 vec![(low_key, values[0]), (high_key, values[1])]
             })
             .collect();
@@ -131,11 +127,10 @@ impl KakarotAccount {
     }
 }
 
-fn split_bytecode_to_starkfelt(bytecode: &Bytes) -> Vec<StarkFelt> {
+fn split_bytecode_to_starkfelt(bytecode: &[u8]) -> impl Iterator<Item = StarkFelt> + '_ {
     bytecode
         .chunks(31)
-        .map(|bytes| StarkFelt::from(FieldElement::from_byte_slice_be(bytes).unwrap())) // infallible
-        .collect()
+        .map(|bytes| StarkFelt::from(FieldElement::from_byte_slice_be(bytes).unwrap()))
 }
 
 #[cfg(test)]
@@ -148,7 +143,7 @@ mod tests {
         let bytes = Bytes::from([0x01, 0x02, 0x03, 0x04, 0x05]);
 
         // When
-        let result = split_bytecode_to_starkfelt(&bytes);
+        let result: Vec<_> = split_bytecode_to_starkfelt(&bytes).collect();
 
         // Then
         assert_eq!(result, vec![StarkFelt::from(0x0102030405u64)]);
