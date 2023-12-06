@@ -18,6 +18,7 @@ pub(crate) fn log_execution_result(
                 warn!("{} reverted:\n{}", case, err.replace("\\n", "\n"));
             } else {
                 info!("{} passed: {:?}", case, info.actual_resources);
+                #[cfg(feature = "v0")]
                 if let Some(call) = info.execute_call_info {
                     use starknet::core::types::FieldElement;
                     use starknet_api::hash::StarkFelt;
