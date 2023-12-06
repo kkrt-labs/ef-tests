@@ -27,15 +27,15 @@ fn main() {
     let mut target = maybe_cached_filter.map(|cached_filter| filter.diff(&cached_filter));
 
     // Check that we already have tests in the folder
-    let mut current_tests = DirReader::walk_dir((INTEGRATION_TESTS_PATH.clone()).into());
-    if current_tests.next().is_none() {
+    let current_tests = DirReader::walk_dir((INTEGRATION_TESTS_PATH.clone()).into());
+    if current_tests.is_empty() {
         // If not, ignore the target
         target = None;
     }
 
     // Walk the directory and store all files based on diff (or all files if no diff)
-    let root_node = DirReader::new(&target);
-    let root_node = root_node
+    let mut root_node = DirReader::new(&target);
+    root_node
         .walk_dir_and_store_files(SUITE_PATH.clone().into())
         .expect("Error while walking directory");
 
