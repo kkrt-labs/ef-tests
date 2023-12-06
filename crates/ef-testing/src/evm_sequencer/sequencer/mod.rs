@@ -29,7 +29,9 @@ impl KakarotSequencer {
                 v1::INITIAL_SEQUENCER_STATE.clone()
             }
             #[cfg(not(any(feature = "v0", feature = "v1")))]
-            panic!("No sequencer version enabled")
+            {
+                State::default()
+            }
         };
         let sequencer = Sequencer::new(BLOCK_CONTEXT.clone(), initial_state);
         Self(sequencer)
