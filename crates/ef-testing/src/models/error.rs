@@ -1,7 +1,4 @@
-use std::{
-    fmt::{Debug, Display},
-    path::PathBuf,
-};
+use std::fmt::{Debug, Display};
 
 use blockifier::{state::errors::StateError, transaction::errors::TransactionExecutionError};
 use starknet::{
@@ -13,29 +10,15 @@ use starknet_api::StarknetApiError;
 /// Error type based off <https://github.com/paradigmxyz/reth/blob/main/testing/ef-tests/src/result.rs>
 #[derive(Debug, thiserror::Error)]
 pub enum RunnerError {
-    /// Assertion error
-    #[error("{0}")]
-    Assertion(String),
     /// An error occurred while decoding RLP.
     #[error("An error occurred deserializing RLP")]
     RlpDecodeError(#[from] reth_rlp::DecodeError),
-    /// An IO error occurred
-    #[error("An error occurred interacting with the file system at {path}: {error}")]
-    Io {
-        /// The path to the file or directory
-        path: PathBuf,
-        /// The specific error
-        error: String,
-    },
     /// Sequencer error
     #[error("An error occurred while running the sequencer: {0}")]
     SequencerError(#[from] StateError),
     /// Execution error
     #[error("An error occurred while executing the transaction: {0}")]
     ExecutionError(#[from] TransactionExecutionError),
-    /// Skipped test
-    #[error("test skipped")]
-    Skipped,
     /// Other
     #[error(transparent)]
     Other(Messages),

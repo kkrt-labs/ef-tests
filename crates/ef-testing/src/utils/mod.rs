@@ -4,10 +4,7 @@ use ef_tests::models::{Account, State};
 use reth_primitives::{Bytes, JsonU256};
 use revm_primitives::{B160, U256};
 
-pub(crate) fn update_post_state(
-    mut post_state: BTreeMap<B160, Account>,
-    pre_state: State,
-) -> BTreeMap<B160, Account> {
+pub(crate) fn update_post_state(post_state: &mut BTreeMap<B160, Account>, pre_state: State) {
     for (k, _) in pre_state.iter() {
         // If the post account's storage does not contain a key from the pre-state,
         // It means its storage was deleted
@@ -46,5 +43,4 @@ pub(crate) fn update_post_state(
             );
         }
     }
-    post_state
 }

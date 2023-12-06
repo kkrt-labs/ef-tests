@@ -5,11 +5,7 @@ pub mod v1;
 
 use std::ops::{Deref, DerefMut};
 
-use blockifier::transaction::{
-    objects::{TransactionExecutionInfo, TransactionExecutionResult},
-    transaction_execution::Transaction,
-};
-use sequencer::{execution::Execution, sequencer::Sequencer, state::State};
+use sequencer::{sequencer::Sequencer, state::State};
 
 use super::constants::BLOCK_CONTEXT;
 
@@ -49,14 +45,5 @@ impl Deref for KakarotSequencer {
 impl DerefMut for KakarotSequencer {
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.0
-    }
-}
-
-impl Execution for KakarotSequencer {
-    fn execute(
-        &mut self,
-        transaction: Transaction,
-    ) -> TransactionExecutionResult<TransactionExecutionInfo> {
-        self.0.execute(transaction)
     }
 }
