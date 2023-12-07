@@ -30,16 +30,15 @@ $(EF_TESTS_DIR):
 .PHONY: $(EF_TESTS_DIR) build
 setup: $(EF_TESTS_DIR)
 
-setup-kakarot-v0: clean-kakarot
+setup-kakarot-v0: clean-kakarot-v0
 	@curl -sL -o kakarot-build.zip -H "Authorization: token $(GITHUB_TOKEN)" "$(KKRT_V0_BUILD_ARTIFACT_URL)"
 	unzip -o kakarot-build.zip -d build/v0
-	mkdir -p build/common/ && mv build/v0/fixtures/ERC20.json build/common/
+	mv build/v0/fixtures/ERC20.json build/common/
 	rm -f kakarot-build.zip
 
-setup-kakarot-v1:
+setup-kakarot-v1: clean-kakarot-v1
 	@curl -sL -o dev-artifacts.zip -H "Authorization: token $(GITHUB_TOKEN)" "$(KKRT_V1_BUILD_ARTIFACT_URL)"
 	unzip -o dev-artifacts.zip -d build/temp
-	mkdir -p build/v1
 	mv build/temp/contracts_ContractAccount.compiled_contract_class.json build/v1/contract_account.json
 	mv build/temp/contracts_ExternallyOwnedAccount.compiled_contract_class.json build/v1/externally_owned_account.json
 	mv build/temp/contracts_KakarotCore.compiled_contract_class.json build/v1/kakarot.json
@@ -48,9 +47,15 @@ setup-kakarot-v1:
 	rm -f dev-artifacts.zip
 
 
-clean-kakarot:
+clean-kakarot-v0:
 	rm -rf build/v0
+	rm -rf build/common
 	mkdir -p build/v0
+	mkdir -p build/common
+
+clean-kakarot-v1:
+	rm -rf build/v1
+	mkdir -p build/v1
 
 # Runs all tests but integration tests
 unit:
