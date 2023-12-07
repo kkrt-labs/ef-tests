@@ -11,30 +11,29 @@ use blockifier::transaction::{
 };
 use sequencer::{execution::Execution, sequencer::Sequencer, state::State};
 
-use super::{constants::BLOCK_CONTEXT, InitializationResult};
-
-/// Sequencer initialization interface. Initializes the sequencer state
-/// by setting contract, its storage, declares all necessary classes and
-/// deploys the fee token contract.
-/// Default implementation is used when no feature flag is enabled.
-pub trait InitializeSequencer {
-    fn initialize(self) -> InitializationResult<Self>
-    where
-        Self: Sized,
-    {
-        panic!("Not implemented, use features flag \"v0\" or \"v1\"")
-    }
-}
-
-#[cfg(not(any(feature = "v0", feature = "v1")))]
-impl InitializeSequencer for KakarotSequencer {}
+use super::constants::BLOCK_CONTEXT;
 
 /// Kakarot wrapper around a sequencer.
+#[derive(Clone)]
 pub(crate) struct KakarotSequencer(Sequencer<State>);
 
 impl KakarotSequencer {
-    pub fn new(state: State) -> Self {
-        let sequencer = Sequencer::new(BLOCK_CONTEXT.clone(), state);
+    pub fn new() -> Self {
+        let initial_state = {
+            #[cfg(feature = "v0")]
+            {
+                v0::INITIAL_SEQUENCER_STATE.clone()
+            }
+            #[cfg(feature = "v1")]
+            {
+                v1::INITIAL_SEQUENCER_STATE.clone()
+            }
+            #[cfg(not(any(feature = "v0", feature = "v1")))]
+            {
+                State::default()
+            }
+        };
+        let sequencer = Sequencer::new(BLOCK_CONTEXT.clone(), initial_state);
         Self(sequencer)
     }
 }

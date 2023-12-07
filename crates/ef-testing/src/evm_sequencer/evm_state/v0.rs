@@ -201,25 +201,19 @@ impl Evm for KakarotSequencer {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::evm_sequencer::{
-        constants::{
-            tests::{PRIVATE_KEY, PUBLIC_KEY, TEST_CONTRACT_ADDRESS},
-            CHAIN_ID,
-        },
-        sequencer::InitializeSequencer,
+    use crate::evm_sequencer::constants::{
+        tests::{PRIVATE_KEY, PUBLIC_KEY, TEST_CONTRACT_ADDRESS},
+        CHAIN_ID,
     };
     use blockifier::{abi::abi_utils::get_storage_var_address, state::state_api::StateReader};
     use reth_primitives::{sign_message, AccessList, Signature, TransactionSigned, TxEip1559};
     use revm_primitives::B256;
-    use sequencer::state::State as SequencerState;
     use starknet_api::hash::StarkFelt;
 
     #[test]
     fn test_execute_simple_contract() {
         // Given
-        let sequencer =
-            crate::evm_sequencer::sequencer::KakarotSequencer::new(SequencerState::default());
-        let mut sequencer = sequencer.initialize().unwrap();
+        let mut sequencer = crate::evm_sequencer::sequencer::KakarotSequencer::new();
 
         let mut transaction = TransactionSigned {
             hash: B256::default(),

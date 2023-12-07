@@ -20,6 +20,7 @@ use starknet_api::core::ContractAddress;
 /// must implement State and `StateReader`. The `for` keyword
 /// indicates that the bound must hold for any lifetime 'any.
 /// For more details, check out [rust-lang docs](https://doc.rust-lang.org/nomicon/hrtb.html)
+#[derive(Clone)]
 pub struct Sequencer<S>
 where
     for<'any> &'any mut S: State + StateReader,

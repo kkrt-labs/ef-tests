@@ -1,9 +1,8 @@
 // Inspired by https://github.com/paradigmxyz/reth/tree/main/testing/ef-tests
-
 use super::error::RunnerError;
 use super::result::log_execution_result;
 use crate::evm_sequencer::evm_state::Evm;
-use crate::evm_sequencer::sequencer::{InitializeSequencer, KakarotSequencer};
+use crate::evm_sequencer::sequencer::KakarotSequencer;
 use crate::{
     evm_sequencer::{account::KakarotAccount, constants::CHAIN_ID},
     traits::Case,
@@ -17,7 +16,6 @@ use ethers_signers::{LocalWallet, Signer};
 use reth_primitives::{sign_message, SealedBlock};
 use reth_rlp::Decodable as _;
 use revm_primitives::B256;
-use sequencer::state::State as SequencerState;
 
 #[derive(Debug)]
 pub struct BlockchainTestCase {
@@ -192,15 +190,12 @@ impl BlockchainTestCase {
 #[async_trait]
 impl Case for BlockchainTestCase {
     fn run(&self) -> Result<(), RunnerError> {
-        let sequencer = KakarotSequencer::new(SequencerState::default());
-        let mut sequencer = sequencer.initialize()?;
+        let mut sequencer = KakarotSequencer::new();
 
         self.handle_pre_state(&mut sequencer)?;
 
-        // handle transaction
         self.handle_transaction(&mut sequencer)?;
 
-        // handle post state
         self.handle_post_state(&mut sequencer)?;
         Ok(())
     }

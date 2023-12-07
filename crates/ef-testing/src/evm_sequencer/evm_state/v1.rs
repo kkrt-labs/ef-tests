@@ -269,16 +269,12 @@ pub(crate) fn offset_storage_base_address(base_address: StorageKey, offset: i64)
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::evm_sequencer::{
-        constants::{
-            tests::{PRIVATE_KEY, PUBLIC_KEY, TEST_CONTRACT_ADDRESS},
-            CHAIN_ID,
-        },
-        sequencer::InitializeSequencer,
+    use crate::evm_sequencer::constants::{
+        tests::{PRIVATE_KEY, PUBLIC_KEY, TEST_CONTRACT_ADDRESS},
+        CHAIN_ID,
     };
     use reth_primitives::{sign_message, AccessList, Signature, TransactionSigned, TxEip1559};
     use revm_primitives::B256;
-    use sequencer::state::State as SequencerState;
     use starknet::core::types::FieldElement;
     use starknet_api::hash::StarkFelt;
 
@@ -305,7 +301,7 @@ mod tests {
     #[test]
     fn test_store_bytecode() {
         // Given
-        let mut sequencer = KakarotSequencer::new(SequencerState::default());
+        let mut sequencer = KakarotSequencer::new();
         let bytecode = Bytes::from(vec![
             0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e,
             0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e,
@@ -331,8 +327,7 @@ mod tests {
     #[test]
     fn test_execute_simple_contract() {
         // Given
-        let sequencer = KakarotSequencer::new(SequencerState::default());
-        let mut sequencer = sequencer.initialize().unwrap();
+        let mut sequencer = KakarotSequencer::new();
 
         let mut transaction = TransactionSigned {
             hash: B256::default(),
