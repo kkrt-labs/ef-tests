@@ -56,7 +56,7 @@ impl<'a> DirReader<'a> {
         &mut self,
         directory_path: PathWrapper,
     ) -> Result<(), eyre::Error> {
-        let target = self.target.clone();
+        let target = self.target;
         let dir_reader = Arc::new(Mutex::new(self));
         Self::walk_dir(directory_path)
             .par_iter()
