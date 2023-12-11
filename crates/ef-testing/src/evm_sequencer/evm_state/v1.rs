@@ -65,7 +65,7 @@ impl Evm for KakarotSequencer {
         );
         (&mut self.state).set_storage_at(
             *KAKAROT_ADDRESS,
-            offset_storage_base_address(registry_base_address, 1),
+            offset_storage_key(registry_base_address, 1),
             *account.starknet_address.0.key(),
         );
 
@@ -105,10 +105,10 @@ impl Evm for KakarotSequencer {
     }
 
     /// Returns the storage value at the given key evm storage key.
-    fn get_storage_at(&mut self, evm_address: &Address, key: U256) -> StateResult<U256> {
+    fn storage_at(&mut self, evm_address: &Address, key: U256) -> StateResult<U256> {
         let keys = split_u256(key).map(Into::into);
         let low_key = compute_storage_base_address("contract_account_storage_keys", &keys);
-        let high_key = offset_storage_base_address(low_key, 1);
+        let high_key = offset_storage_key(low_key, 1);
 
         let starknet_address = compute_starknet_address(evm_address);
 
@@ -123,7 +123,7 @@ impl Evm for KakarotSequencer {
 
     /// Returns the nonce of the given address. For an EOA, uses the protocol level nonce.
     /// For a contract account, uses the Kakarot managed nonce stored in the contract account's storage.
-    fn get_nonce_at(&mut self, evm_address: &Address) -> StateResult<U256> {
+    fn nonce_at(&mut self, evm_address: &Address) -> StateResult<U256> {
         let starknet_address = compute_starknet_address(evm_address);
 
         let class_hash = (&mut self.state).get_class_hash_at(starknet_address.try_into()?)?;
@@ -149,12 +149,12 @@ impl Evm for KakarotSequencer {
     /// and the function will return an empty vector. For a contract account, the function will return the bytecode
     /// stored in the contract_account_bytecode storage variables. The function assumes that the bytecode is stored
     /// in 31 byte big-endian chunks.
-    fn get_code_at(&mut self, evm_address: &Address) -> StateResult<Bytes> {
+    fn code_at(&mut self, evm_address: &Address) -> StateResult<Bytes> {
         // Get all storage addresses.
         let starknet_address = compute_starknet_address(evm_address);
         let bytecode_base_address = get_storage_var_address("contract_account_bytecode", &[]);
-        let pending_word_address = offset_storage_base_address(bytecode_base_address, -2);
-        let pending_word_len_address = offset_storage_base_address(bytecode_base_address, -1);
+        let pending_word_address = offset_storage_key(bytecode_base_address, -2);
+        let pending_word_len_address = offset_storage_key(bytecode_base_address, -1);
 
         // Handle early return.
         let bytecode_len = (&mut self.state)
@@ -182,7 +182,7 @@ impl Evm for KakarotSequencer {
                 (*bytecode_base_address.0.key()).into(),
                 FieldElement::from(index),
             ]);
-            let key = offset_storage_base_address(
+            let key = offset_storage_key(
                 StorageKey(PatriciaKey::try_from(StarkFelt::from(key)).unwrap()),
                 offset as i64,
             );
@@ -201,7 +201,7 @@ impl Evm for KakarotSequencer {
 
     /// Returns the balance of native tokens at the given address.
     /// Makes use of the default StateReader implementation from Blockifier.
-    fn get_balance_at(&mut self, evm_address: &Address) -> StateResult<U256> {
+    fn balance_at(&mut self, evm_address: &Address) -> StateResult<U256> {
         let starknet_address = compute_starknet_address(evm_address);
         let (low, high) = (&mut self.state)
             .get_fee_token_balance(&starknet_address.try_into()?, &ETH_FEE_TOKEN_ADDRESS)?;
@@ -259,8 +259,8 @@ pub(crate) fn compute_storage_base_address(
     StorageKey(PatriciaKey::try_from(key_floored).unwrap()) // infallible
 }
 
-pub(crate) fn offset_storage_base_address(base_address: StorageKey, offset: i64) -> StorageKey {
-    let base_address = stark_felt_to_felt(*base_address.0.key()) + Felt252::from(offset);
+pub(crate) fn offset_storage_key(key: StorageKey, offset: i64) -> StorageKey {
+    let base_address = stark_felt_to_felt(*key.0.key()) + Felt252::from(offset);
     let base_address = felt_to_stark_felt(&base_address);
 
     StorageKey(PatriciaKey::try_from(base_address).unwrap()) // infallible
@@ -288,7 +288,7 @@ mod tests {
         let offset = -1;
 
         // When
-        let result = offset_storage_base_address(base_address, offset);
+        let result = offset_storage_key(base_address, offset);
 
         // Then
         let expected = StorageKey(
@@ -316,11 +316,11 @@ mod tests {
 
         // When
         let account =
-            KakarotAccount::new(&TEST_CONTRACT_ADDRESS, &bytecode, U256::ZERO, vec![]).unwrap();
+            KakarotAccount::new(&TEST_CONTRACT_ADDRESS, &bytecode, U256::ZERO, &[]).unwrap();
         sequencer.setup_account(account).unwrap();
 
         // Then
-        let code = sequencer.get_code_at(&TEST_CONTRACT_ADDRESS).unwrap();
+        let code = sequencer.code_at(&TEST_CONTRACT_ADDRESS).unwrap();
         assert_eq!(code, bytecode);
     }
 
@@ -355,15 +355,15 @@ mod tests {
         ]); // PUSH 01 PUSH 00 SSTORE
         let nonce = U256::from(0);
         let contract_account =
-            KakarotAccount::new(&TEST_CONTRACT_ADDRESS, &bytecode, nonce, vec![]).unwrap();
-        let eoa = KakarotAccount::new(&PUBLIC_KEY, &Bytes::default(), nonce, vec![]).unwrap();
+            KakarotAccount::new(&TEST_CONTRACT_ADDRESS, &bytecode, nonce, &[]).unwrap();
+        let eoa = KakarotAccount::new(&PUBLIC_KEY, &Bytes::default(), nonce, &[]).unwrap();
         sequencer.setup_account(contract_account).unwrap();
         sequencer.setup_account(eoa).unwrap();
         sequencer.execute_transaction(transaction).unwrap();
 
         // Then
         let storage = sequencer
-            .get_storage_at(&TEST_CONTRACT_ADDRESS, U256::ZERO)
+            .storage_at(&TEST_CONTRACT_ADDRESS, U256::ZERO)
             .unwrap();
         assert_eq!(storage, U256::from(1));
     }

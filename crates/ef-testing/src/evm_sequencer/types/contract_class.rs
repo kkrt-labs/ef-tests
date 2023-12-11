@@ -106,24 +106,3 @@ fn compiled_class_entrypoint_to_casm_entrypoint(
         builtins: ep.builtins.clone(),
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use std::fs;
-
-    #[test]
-    #[ignore]
-    fn test_casm_contract_class_from_compiled_contract_class() {
-        // When
-        let content = fs::read_to_string("../../build/v1/kakarot.json").unwrap();
-        let casm: CompiledClass = serde_json::from_str(&content).unwrap();
-        let casm: CasmContractClassWrapper = (&casm).try_into().unwrap();
-
-        // Then
-        let content = fs::read_to_string("../../build/v1/kakarot.json").unwrap();
-        let expected = serde_json::from_str::<CasmContractClass>(&content).unwrap();
-
-        assert_eq!(casm.0, expected);
-    }
-}

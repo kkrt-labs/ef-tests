@@ -1,6 +1,10 @@
 use std::collections::BTreeMap;
 use std::path::PathBuf;
+use std::sync::Arc;
+use std::sync::Mutex;
 
+use rayon::iter::IntoParallelRefIterator;
+use rayon::iter::ParallelIterator;
 use walkdir::DirEntry;
 use walkdir::WalkDir;
 
@@ -37,34 +41,45 @@ impl<'a> DirReader<'a> {
     }
 
     /// Walks the given directory
-    pub fn walk_dir(directory_path: PathWrapper) -> impl Iterator<Item = DirEntry> {
+    pub fn walk_dir(directory_path: PathWrapper) -> Vec<DirEntry> {
         WalkDir::new(Into::<PathBuf>::into(directory_path))
             .into_iter()
             .filter_map(Result::ok)
             .filter(|f| f.file_type().is_file())
+            .collect()
     }
 
-    /// Walks the given directory and stores files. If self.target is Some, it will
-    /// only store files that are in a directory from target.
+    /// Walks the given directory and stores files using par_iter.
+    /// If self.target is Some, it will only store files that
+    /// are in a directory from target.
     pub fn walk_dir_and_store_files(
-        mut self,
+        &mut self,
         directory_path: PathWrapper,
-    ) -> Result<Self, eyre::Error> {
-        for entry in Self::walk_dir(directory_path) {
-            let full_path = entry.path();
-            if let Some(target) = &self.target {
-                if target.iter().any(|t| {
-                    full_path
-                        .ancestors()
-                        .any(|a| a.to_str().map(|s| s == t).unwrap_or_default())
-                }) {
-                    continue;
+    ) -> Result<(), eyre::Error> {
+        let target = self.target;
+        let dir_reader = Arc::new(Mutex::new(self));
+        Self::walk_dir(directory_path)
+            .par_iter()
+            .map(|entry| {
+                let full_path = entry.path();
+                if let Some(target) = &target {
+                    if target.iter().any(|t| {
+                        full_path
+                            .ancestors()
+                            .any(|a| a.to_str().map(|s| s == t).unwrap_or_default())
+                    }) {
+                        return Ok(());
+                    }
                 }
-            }
-            let path = path_to_vec_string(full_path)?;
-            self.insert_file(path_relative_to(path, ROOT), full_path.to_path_buf().into());
-        }
-        Ok(self)
+                let path = path_to_vec_string(full_path)?;
+                dir_reader
+                    .lock()
+                    .map_err(|_| eyre::eyre!("Unable to lock reader"))?
+                    .insert_file(path_relative_to(path, ROOT), full_path.to_path_buf().into());
+                Ok(())
+            })
+            .collect::<Result<Vec<()>, eyre::Error>>()?;
+        Ok(())
     }
 
     /// Inserts a file into the `DirReader` by recursively navigating the file's

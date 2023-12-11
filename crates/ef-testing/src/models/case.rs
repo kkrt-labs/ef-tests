@@ -20,7 +20,7 @@ use revm_primitives::B256;
 #[derive(Debug)]
 pub struct BlockchainTestCase {
     case_name: String,
-    parent_dir: String,
+    case_category: String,
     block: Block,
     pre: State,
     post: RootOrState,
@@ -33,7 +33,7 @@ pub struct BlockchainTestCase {
 impl BlockchainTestCase {
     pub const fn new(
         case_name: String,
-        parent_dir: String,
+        case_category: String,
         block: Block,
         pre: State,
         post: RootOrState,
@@ -41,7 +41,7 @@ impl BlockchainTestCase {
     ) -> Self {
         Self {
             case_name,
-            parent_dir,
+            case_category,
             block,
             pre,
             post,
@@ -55,7 +55,11 @@ impl BlockchainTestCase {
                 address,
                 &account.code,
                 account.nonce.0,
-                account.storage.iter().map(|(k, v)| (k.0, v.0)).collect(),
+                &account
+                    .storage
+                    .iter()
+                    .map(|(k, v)| (k.0, v.0))
+                    .collect::<Vec<_>>(),
             )?;
             sequencer.setup_account(kakarot_account)?;
             sequencer.fund(address, account.balance.0)?;
@@ -82,7 +86,7 @@ impl BlockchainTestCase {
         tx_signed.signature = signature;
 
         let execution_result = sequencer.execute_transaction(tx_signed);
-        log_execution_result(execution_result, &self.case_name, &self.parent_dir);
+        log_execution_result(execution_result, &self.case_name, &self.case_category);
 
         Ok(())
     }
@@ -137,7 +141,7 @@ impl BlockchainTestCase {
         for (address, expected_state) in post_state.iter() {
             // Storage
             for (k, v) in expected_state.storage.iter() {
-                let actual = sequencer.get_storage_at(address, k.0)?;
+                let actual = sequencer.storage_at(address, k.0)?;
                 if actual != v.0 {
                     let storage_diff = format!(
                         "storage mismatch for {:#20x} at {:#32x}: expected {:#32x}, got {:#32x}",
@@ -147,7 +151,7 @@ impl BlockchainTestCase {
                 }
             }
             // Nonce
-            let actual = sequencer.get_nonce_at(address)?;
+            let actual = sequencer.nonce_at(address)?;
             if actual != expected_state.nonce.0 {
                 let nonce_diff = format!(
                     "nonce mismatch for {:#20x}: expected {:#32x}, got {:#32x}",
@@ -156,7 +160,7 @@ impl BlockchainTestCase {
                 diff.push(nonce_diff);
             }
             // Bytecode
-            let actual = sequencer.get_code_at(address)?;
+            let actual = sequencer.code_at(address)?;
             if actual != expected_state.code {
                 let bytecode_diff = format!(
                     "code mismatch for {:#20x}: expected {:#x}, got {:#x}",
@@ -165,7 +169,7 @@ impl BlockchainTestCase {
                 diff.push(bytecode_diff);
             }
             // Balance
-            let mut actual = sequencer.get_balance_at(address)?;
+            let mut actual = sequencer.balance_at(address)?;
             // Subtract transaction cost to sender balance
             if address.0 == sender_address {
                 actual -= transaction_cost;

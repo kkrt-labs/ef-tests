@@ -4,10 +4,7 @@ use rayon::prelude::*;
 use serde_json::Value;
 
 use crate::{
-    constants::{FORK, UNSUPPORTED_IDENTIFIER_CHAR},
-    content_reader::ContentReader,
-    dir_reader::DirReader,
-    filter::Filter,
+    constants::FORK, content_reader::ContentReader, dir_reader::DirReader, filter::Filter,
     path::PathWrapper,
 };
 
@@ -201,9 +198,8 @@ impl<'a> EfTests<'a> {
 
     /// Formats the given string into a valid rust identifier.
     fn format_into_identifier(s: &str) -> String {
-        UNSUPPORTED_IDENTIFIER_CHAR
-            .replace_all(s, "_")
-            .replace('-', "_minus_")
+        s.replace('-', "_minus_")
             .replace('+', "_plus_")
+            .replace('^', "_xor_")
     }
 }
