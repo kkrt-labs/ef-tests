@@ -34,10 +34,12 @@ revm-primitives = { git = "https://github.com/bluealloy/revm", rev = "516f62cc" 
 reth-rlp = { git = "https://github.com/paradigmxyz/reth.git", tag = "v0.1.0-alpha.10" }
 
 # Starknet deps
-cairo-lang-casm = "2.4.0-rc2"
-cairo-lang-starknet = "2.4.0-rc2"
-cairo-lang-utils = "2.4.0-rc2"
-cairo-vm = "=0.8.2"
+cairo-lang-casm = { git = "https://github.com/kkrt-labs/cairo.git", branch = "v2.4.0", default-features = false }
+cairo-lang-starknet = { git = "https://github.com/kkrt-labs/cairo.git", branch = "v2.4.0", default-features = false }
+cairo-lang-utils = { git = "https://github.com/kkrt-labs/cairo.git", branch = "v2.4.0", default-features = false }
+cairo-vm = { git = "https://github.com/kkrt-labs/cairo-vm.git", branch = "v0.9.1", features = [
+  "print",
+] }
 blockifier = { package = "blockifier", git = "https://github.com/kkrt-labs/blockifier.git", branch = "v0.4.0-rc9.1" }
 starknet = "0.6.0"
 starknet-crypto = "0.6.0"
@@ -75,7 +77,3 @@ serde_yaml = "0.9.25"
 
 # Log
 log = "0.4.20"
-
-[patch.crates-io]
-cairo-felt = { git = "https://github.com/kkrt-labs/cairo-vm.git", branch = "v0.8.2" }
-cairo-vm = { git = "https://github.com/kkrt-labs/cairo-vm.git", branch = "v0.8.2" }
