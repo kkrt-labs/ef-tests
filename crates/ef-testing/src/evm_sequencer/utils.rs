@@ -1,7 +1,7 @@
 use super::constants::KAKAROT_ADDRESS;
 use super::types::felt::FeltSequencer;
 use bytes::BytesMut;
-use reth_primitives::{Address, Bytes, TransactionSigned};
+use reth_primitives::{Address, Bytes, TransactionSigned, TxType};
 use revm_primitives::U256;
 use starknet::core::{
     types::{BroadcastedInvokeTransaction, FieldElement},
@@ -78,16 +78,8 @@ pub fn to_broadcasted_starknet_transaction(
     let nonce = FieldElement::from(transaction.nonce());
     let starknet_address = compute_starknet_address(&evm_address);
 
-    #[allow(unused_mut)]
     let mut bytes = BytesMut::new();
-    #[cfg(feature = "v0")]
-    {
-        transaction.encode_enveloped(&mut bytes);
-    }
-    #[cfg(feature = "v1")]
-    {
-        transaction.transaction.encode_without_signature(&mut bytes);
-    }
+    transaction.transaction.encode_without_signature(&mut bytes);
 
     let mut calldata = bytes_to_felt_vec(&bytes.to_vec().into());
 
@@ -119,7 +111,20 @@ pub fn to_broadcasted_starknet_transaction(
     };
     execute_calldata.append(&mut calldata);
 
-    let signature = vec![];
+    let signature = transaction.signature();
+    let [r_low, r_high] = split_u256(signature.r);
+    let [s_low, s_high] = split_u256(signature.s);
+    let v = match transaction.transaction.tx_type() {
+        TxType::Legacy => signature.v(transaction.chain_id()),
+        _ => signature.odd_y_parity as u64,
+    };
+    let signature = vec![
+        FieldElement::from(r_low),
+        FieldElement::from(r_high),
+        FieldElement::from(s_low),
+        FieldElement::from(s_high),
+        FieldElement::from(v),
+    ];
 
     let request = BroadcastedInvokeTransaction {
         max_fee: FieldElement::from(0u8),
