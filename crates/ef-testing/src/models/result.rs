@@ -2,8 +2,8 @@ use blockifier::{
     execution::call_info::CallInfo,
     transaction::objects::{TransactionExecutionInfo, TransactionExecutionResult},
 };
-use starknet::{core::types::FieldElement, macros::selector};
-use starknet_api::{hash::StarkFelt, transaction::EventContent};
+use starknet::macros::selector;
+use starknet_api::transaction::EventContent;
 use tracing::{error, info, warn};
 
 pub(crate) fn log_execution_result(
@@ -18,7 +18,10 @@ pub(crate) fn log_execution_result(
                 warn!("{} reverted:\n{}", case, err.replace("\\n", "\n"));
             } else {
                 info!("{} passed: {:?}", case, info.actual_resources);
+                #[cfg(feature = "v0")]
                 if let Some(call) = info.execute_call_info {
+                    use starknet::core::types::FieldElement;
+                    use starknet_api::hash::StarkFelt;
                     let events = get_kakarot_execution_events(&call);
                     // Check only one execution event.
                     if events.len() != 1 {
@@ -65,6 +68,7 @@ pub(crate) fn log_execution_result(
     }
 }
 
+#[allow(dead_code)]
 fn get_kakarot_execution_events(call_info: &CallInfo) -> Vec<EventContent> {
     let mut events = Vec::new();
     for c in call_info.into_iter() {
@@ -73,7 +77,7 @@ fn get_kakarot_execution_events(call_info: &CallInfo) -> Vec<EventContent> {
             .events
             .iter()
             .filter(|e| {
-                e.event.keys.get(0).map(|e| e.0) == Some(selector!("transaction_executed").into())
+                e.event.keys.first().map(|e| e.0) == Some(selector!("transaction_executed").into())
             })
             .map(|e| e.event.clone())
             .collect();

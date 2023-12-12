@@ -25,6 +25,11 @@ use crate::evm_sequencer::utils::{
 };
 
 impl Evm for KakarotSequencer {
+    /// Sets up the evm state (coinbase, block number, etc.)
+    fn setup_state(&mut self) -> StateResult<()> {
+        Ok(())
+    }
+
     /// Sets up an EOA or contract account. Writes nonce, code and storage to the sequencer storage.
     fn setup_account(&mut self, account: KakarotAccount) -> StateResult<()> {
         if matches!(account.account_type, AccountType::EOA) {

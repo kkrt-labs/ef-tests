@@ -31,13 +31,21 @@ use crate::evm_sequencer::{
     account::{AccountType, KakarotAccount},
     constants::{
         kkrt_constants_v1::{CONTRACT_ACCOUNT_CLASS_HASH, EOA_CLASS_HASH},
-        CHAIN_ID, ETH_FEE_TOKEN_ADDRESS, KAKAROT_ADDRESS,
+        CHAIN_ID, COINBASE_ADDRESS, ETH_FEE_TOKEN_ADDRESS, KAKAROT_ADDRESS,
     },
     sequencer::KakarotSequencer,
     utils::{compute_starknet_address, split_u256, to_broadcasted_starknet_transaction},
 };
 
 impl Evm for KakarotSequencer {
+    /// Sets up the evm state (coinbase, block number, etc.)
+    fn setup_state(&mut self) -> StateResult<()> {
+        let coinbase = KakarotAccount::new(&COINBASE_ADDRESS, &Bytes::default(), U256::ZERO, &[])?;
+        self.setup_account(coinbase)?;
+
+        Ok(())
+    }
+
     /// Sets up an EOA or contract account. Writes nonce, code and storage to the sequencer storage.
     fn setup_account(&mut self, account: KakarotAccount) -> StateResult<()> {
         let class_hash = if matches!(account.account_type, AccountType::EOA) {
@@ -349,6 +357,7 @@ mod tests {
         transaction.signature = signature;
 
         // When
+        sequencer.setup_state().unwrap();
         let bytecode = Bytes::from(vec![
             0x60, 0x01, 0x60, 0x00, 0x55, 0x60, 0x02, 0x60, 0x00, 0x53, 0x60, 0x01, 0x60, 0x00,
             0xf3,

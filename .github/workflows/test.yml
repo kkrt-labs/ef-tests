@@ -11,8 +11,7 @@ concurrency:
 
 jobs:
   test:
-    # trunk-ignore(actionlint/runner-label)
-    runs-on: ubuntu-latest-32-cores
+    runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
       - uses: actions/checkout@v3
@@ -31,14 +30,16 @@ jobs:
       - name: fetch ef tests
         run: make setup
       - name: fetch Kakarot
-        run: make setup-kakarot
+        run: make setup-kakarot-v0 && make setup-kakarot-v1
         env:
           GITHUB_TOKEN: ${{ github.token }}
       - name: run tests
         run: python scripts/compute_resources.py
+        env:
+          KAKAROT_VERSION: v0,v1
       # upload artifacts
       - name: upload resources
         uses: actions/upload-artifact@v3
         with:
-          path: ./resources.csv
+          path: ./resources/
           name: resources-usage
