@@ -11,6 +11,7 @@ use starknet_crypto::{poseidon_hash_many, FieldElement};
 
 use super::{AccountType, KakarotAccount};
 use crate::evm_sequencer::{
+    constants::CHAIN_ID,
     types::felt::FeltSequencer,
     utils::{compute_starknet_address, split_u256},
 };

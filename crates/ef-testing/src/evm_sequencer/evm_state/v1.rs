@@ -40,8 +40,7 @@ use crate::evm_sequencer::{
 impl Evm for KakarotSequencer {
     /// Sets up the evm state (coinbase, block number, etc.)
     fn setup_state(&mut self) -> StateResult<()> {
-        let coinbase =
-            KakarotAccount::new(&COINBASE_ADDRESS, &Bytes::default(), U256::ZERO, vec![])?;
+        let coinbase = KakarotAccount::new(&COINBASE_ADDRESS, &Bytes::default(), U256::ZERO, &[])?;
         self.setup_account(coinbase)?;
 
         Ok(())
