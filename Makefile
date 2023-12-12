@@ -61,17 +61,27 @@ clean-kakarot-v1:
 unit:
 	cargo test --lib
 
-# Runs the VMTests tests with the `v0` feature
-tests-v0-ci: build
-	cargo test --test VMTests --lib --no-fail-fast --quiet --features "v0,ci"
+vm-tests-v0-ci: build
+	cargo test --test VmTests --lib --no-fail-fast --quiet --features "v0,ci"
 
-# Runs the VMTests tests with the `v1` feature
+vm-tests-v1-ci: build
+	cargo test --test VmTests --lib --no-fail-fast --quiet --features "v1,ci"
+
+# Runs the repo tests with the `v0` feature
+tests-v0-ci: build
+	cargo test --test tests --lib --no-fail-fast --quiet --features "v0,ci"
+
+# Runs the repo tests with the `v1` feature
 tests-v1-ci: build
-	cargo test --test VMTests --lib --no-fail-fast --quiet --features "v1,ci"
+	cargo test --test tests --lib --no-fail-fast --quiet --features "v1,ci"
 
 # Runs ef tests only with the `v0` feature
 ef-test-v0: build
 	cargo test --test tests --no-fail-fast --quiet --features "v0,ci"
+
+# Runs ef tests only with the `v1` feature
+ef-test-v1: build
+	cargo test --test tests --no-fail-fast --quiet --features "v1,ci"
 
 # Build the rust crates
 build:
