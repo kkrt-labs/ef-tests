@@ -141,7 +141,7 @@ impl Evm for KakarotSequencer {
                 .get_nonce_at(starknet_address.try_into()?)?
                 .0
         } else if class_hash == *CONTRACT_ACCOUNT_CLASS_HASH {
-            let key = compute_storage_base_address("contract_account_nonce", &[]);
+            let key = get_storage_var_address("contract_account_nonce", &[]);
             (&mut self.state).get_storage_at(starknet_address.try_into()?, key)?
         } else {
             // We can't throw an error here, because it could just be an uninitialized account.
