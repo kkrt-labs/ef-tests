@@ -198,8 +198,6 @@ impl Case for BlockchainTestCase {
 
         sequencer.setup_state()?;
 
-        sequencer.setup_state()?;
-
         self.handle_pre_state(&mut sequencer)?;
 
         self.handle_transaction(&mut sequencer)?;
