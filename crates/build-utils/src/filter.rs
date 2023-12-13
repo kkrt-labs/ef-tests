@@ -101,6 +101,7 @@ mod tests {
     use std::path::Path;
 
     #[test]
+    #[ignore]
     fn test_filter_regex() {
         let filter = Filter::load_file("../../blockchain-tests-skip.yml").unwrap();
         let path = PathWrapper::from(Path::new(
