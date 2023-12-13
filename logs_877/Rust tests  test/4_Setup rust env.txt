@@ -1,0 +1,69 @@
+2023-12-13T15:34:42.8080868Z ##[group]Run actions-rs/toolchain@v1
+2023-12-13T15:34:42.8081332Z with:
+2023-12-13T15:34:42.8081639Z   profile: minimal
+2023-12-13T15:34:42.8082106Z   components: llvm-tools-preview
+2023-12-13T15:34:42.8082481Z   override: true
+2023-12-13T15:34:42.8082804Z   default: false
+2023-12-13T15:34:42.8083179Z env:
+2023-12-13T15:34:42.8083589Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.0/x64
+2023-12-13T15:34:42.8084520Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.0/x64/lib/pkgconfig
+2023-12-13T15:34:42.8085265Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.0/x64
+2023-12-13T15:34:42.8085815Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.0/x64
+2023-12-13T15:34:42.8086413Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.0/x64
+2023-12-13T15:34:42.8087082Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.0/x64/lib
+2023-12-13T15:34:42.8087574Z ##[endgroup]
+2023-12-13T15:34:43.0123178Z [command]/home/runner/.cargo/bin/rustup show
+2023-12-13T15:34:43.0190209Z Default host: x86_64-unknown-linux-gnu
+2023-12-13T15:34:43.0191146Z rustup home:  /home/runner/.rustup
+2023-12-13T15:34:43.0191488Z 
+2023-12-13T15:34:43.0193899Z info: syncing channel updates for 'nightly-2023-09-22-x86_64-unknown-linux-gnu'
+2023-12-13T15:34:43.2437631Z info: latest update on 2023-09-22, rust version 1.74.0-nightly (b3aa8e716 2023-09-21)
+2023-12-13T15:34:43.2438592Z info: downloading component 'cargo'
+2023-12-13T15:34:43.2757562Z info: downloading component 'rust-std'
+2023-12-13T15:34:43.3598057Z info: downloading component 'rustc'
+2023-12-13T15:34:43.5555427Z info: installing component 'cargo'
+2023-12-13T15:34:44.1416756Z info: installing component 'rust-std'
+2023-12-13T15:34:45.8110397Z info: installing component 'rustc'
+2023-12-13T15:34:49.3286850Z nightly-2023-09-22-x86_64-unknown-linux-gnu (overridden by '/home/runner/work/ef-tests/ef-tests/rust-toolchain')
+2023-12-13T15:34:49.3395438Z rustc 1.74.0-nightly (b3aa8e716 2023-09-21)
+2023-12-13T15:34:49.3445317Z [command]/home/runner/.cargo/bin/rustup -V
+2023-12-13T15:34:49.3491057Z rustup 1.26.0 (5af9b9484 2023-04-05)
+2023-12-13T15:34:49.3491908Z info: This is the version for the rustup toolchain manager, not the rustc compiler.
+2023-12-13T15:34:49.3890151Z info: The currently active `rustc` version is `rustc 1.74.0-nightly (b3aa8e716 2023-09-21)`
+2023-12-13T15:34:49.3911805Z Installed rustup 1.26.0 support profiles
+2023-12-13T15:34:49.3915999Z [command]/home/runner/.cargo/bin/rustup -V
+2023-12-13T15:34:49.3961278Z rustup 1.26.0 (5af9b9484 2023-04-05)
+2023-12-13T15:34:49.3962299Z info: This is the version for the rustup toolchain manager, not the rustc compiler.
+2023-12-13T15:34:49.4335229Z info: The currently active `rustc` version is `rustc 1.74.0-nightly (b3aa8e716 2023-09-21)`
+2023-12-13T15:34:49.4350013Z Installed rustup 1.26.0 support components
+2023-12-13T15:34:49.4354624Z [command]/home/runner/.cargo/bin/rustup set profile minimal
+2023-12-13T15:34:49.4419342Z info: profile set to 'minimal'
+2023-12-13T15:34:49.4430878Z [command]/home/runner/.cargo/bin/rustup toolchain install nightly-2023-09-22 --component llvm-tools-preview
+2023-12-13T15:34:49.5069176Z info: syncing channel updates for 'nightly-2023-09-22-x86_64-unknown-linux-gnu'
+2023-12-13T15:34:49.5631001Z info: latest update on 2023-09-22, rust version 1.74.0-nightly (b3aa8e716 2023-09-21)
+2023-12-13T15:34:49.5861263Z info: downloading component 'llvm-tools'
+2023-12-13T15:34:49.6905428Z info: installing component 'llvm-tools'
+2023-12-13T15:34:51.5663605Z 
+2023-12-13T15:34:51.5776329Z   nightly-2023-09-22-x86_64-unknown-linux-gnu updated - rustc 1.74.0-nightly (b3aa8e716 2023-09-21) (from rustc 1.74.0-nightly (b3aa8e716 2023-09-21))
+2023-12-13T15:34:51.5777380Z 
+2023-12-13T15:34:51.5777651Z info: checking for self-update
+2023-12-13T15:34:51.5838810Z [command]/home/runner/.cargo/bin/rustup override set nightly-2023-09-22
+2023-12-13T15:34:51.5894580Z info: using existing install for 'nightly-2023-09-22-x86_64-unknown-linux-gnu'
+2023-12-13T15:34:51.5896132Z info: override toolchain for '/home/runner/work/ef-tests/ef-tests' set to 'nightly-2023-09-22-x86_64-unknown-linux-gnu'
+2023-12-13T15:34:51.5903305Z 
+2023-12-13T15:34:51.6012732Z   nightly-2023-09-22-x86_64-unknown-linux-gnu unchanged - rustc 1.74.0-nightly (b3aa8e716 2023-09-21)
+2023-12-13T15:34:51.6013504Z 
+2023-12-13T15:34:51.6022961Z ##[group]Gathering installed versions
+2023-12-13T15:34:51.6034585Z [command]/home/runner/.cargo/bin/rustc -V
+2023-12-13T15:34:51.6448291Z rustc 1.74.0-nightly (b3aa8e716 2023-09-21)
+2023-12-13T15:34:51.6482986Z ##[warning]The `set-output` command is deprecated and will be disabled soon. Please upgrade to using Environment Files. For more information see: https://github.blog/changelog/2022-10-11-github-actions-deprecating-save-state-and-set-output-commands/
+2023-12-13T15:34:51.6494697Z ##[warning]The `set-output` command is deprecated and will be disabled soon. Please upgrade to using Environment Files. For more information see: https://github.blog/changelog/2022-10-11-github-actions-deprecating-save-state-and-set-output-commands/
+2023-12-13T15:34:51.6496811Z [command]/home/runner/.cargo/bin/cargo -V
+2023-12-13T15:34:51.6834845Z cargo 1.74.0-nightly (b4ddf95ad 2023-09-18)
+2023-12-13T15:34:51.6847290Z ##[warning]The `set-output` command is deprecated and will be disabled soon. Please upgrade to using Environment Files. For more information see: https://github.blog/changelog/2022-10-11-github-actions-deprecating-save-state-and-set-output-commands/
+2023-12-13T15:34:51.6853821Z [command]/home/runner/.cargo/bin/rustup -V
+2023-12-13T15:34:51.6897119Z rustup 1.26.0 (5af9b9484 2023-04-05)
+2023-12-13T15:34:51.6898147Z info: This is the version for the rustup toolchain manager, not the rustc compiler.
+2023-12-13T15:34:51.7277095Z info: The currently active `rustc` version is `rustc 1.74.0-nightly (b3aa8e716 2023-09-21)`
+2023-12-13T15:34:51.7293599Z ##[warning]The `set-output` command is deprecated and will be disabled soon. Please upgrade to using Environment Files. For more information see: https://github.blog/changelog/2022-10-11-github-actions-deprecating-save-state-and-set-output-commands/
+2023-12-13T15:34:51.7295991Z ##[endgroup]

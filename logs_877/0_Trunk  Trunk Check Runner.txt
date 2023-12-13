@@ -1,0 +1,1046 @@
+2023-12-13T15:34:28.8762355Z Requested labels: ubuntu-latest
+2023-12-13T15:34:28.8762744Z Job defined at: kkrt-labs/ef-tests/.github/workflows/trunk-check.yml@refs/pull/612/merge
+2023-12-13T15:34:28.8763034Z Reusable workflow chain:
+2023-12-13T15:34:28.8763154Z kkrt-labs/ef-tests/.github/workflows/ci.yml@refs/pull/612/merge (b0c8587b5f624c65981ed8bd5584c375d3224208)
+2023-12-13T15:34:28.8763284Z -> kkrt-labs/ef-tests/.github/workflows/trunk-check.yml@refs/pull/612/merge (b0c8587b5f624c65981ed8bd5584c375d3224208)
+2023-12-13T15:34:28.8763425Z Waiting for a runner to pick up this job...
+2023-12-13T15:34:29.9940620Z Job is waiting for a hosted runner to come online.
+2023-12-13T15:34:32.6736190Z Job is about to start running on the hosted runner: GitHub Actions 2 (hosted)
+2023-12-13T15:34:34.4269933Z Current runner version: '2.311.0'
+2023-12-13T15:34:34.4294254Z ##[group]Operating System
+2023-12-13T15:34:34.4295029Z Ubuntu
+2023-12-13T15:34:34.4295338Z 22.04.3
+2023-12-13T15:34:34.4295681Z LTS
+2023-12-13T15:34:34.4296121Z ##[endgroup]
+2023-12-13T15:34:34.4296470Z ##[group]Runner Image
+2023-12-13T15:34:34.4296913Z Image: ubuntu-22.04
+2023-12-13T15:34:34.4297402Z Version: 20231205.1.0
+2023-12-13T15:34:34.4298385Z Included Software: https://github.com/actions/runner-images/blob/ubuntu22/20231205.1/images/ubuntu/Ubuntu2204-Readme.md
+2023-12-13T15:34:34.4299809Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu22%2F20231205.1
+2023-12-13T15:34:34.4300758Z ##[endgroup]
+2023-12-13T15:34:34.4301178Z ##[group]Runner Image Provisioner
+2023-12-13T15:34:34.4301660Z 2.0.321.1
+2023-12-13T15:34:34.4302087Z ##[endgroup]
+2023-12-13T15:34:34.4303053Z ##[group]GITHUB_TOKEN Permissions
+2023-12-13T15:34:34.4304597Z Checks: read
+2023-12-13T15:34:34.4305138Z Contents: read
+2023-12-13T15:34:34.4305675Z Metadata: read
+2023-12-13T15:34:34.4306228Z ##[endgroup]
+2023-12-13T15:34:34.4309276Z Secret source: None
+2023-12-13T15:34:34.4309818Z Prepare workflow directory
+2023-12-13T15:34:34.4935444Z Prepare all required actions
+2023-12-13T15:34:34.5094641Z Getting action download info
+2023-12-13T15:34:34.8118323Z Download action repository 'actions/checkout@v3' (SHA:f43a0e5ff2bd294095638e18286ca9a3d1956744)
+2023-12-13T15:34:34.9244212Z Download action repository 'actions-rs/toolchain@v1' (SHA:16499b5e05bf2e26879000db0c1d13f7e13fa3af)
+2023-12-13T15:34:35.3311556Z Download action repository 'Swatinem/rust-cache@v2' (SHA:a95ba195448af2da9b00fb742d14ffaaf3c21f43)
+2023-12-13T15:34:35.6855790Z Download action repository 'trunk-io/trunk-action@v1' (SHA:97ecd21fe6c743bf7a606791584b683a7995c70e)
+2023-12-13T15:34:36.0723400Z Getting action download info
+2023-12-13T15:34:36.3319731Z Download action repository 'actions/cache@v3' (SHA:704facf57e6136b1bc63b828d79edcd491f0ee84)
+2023-12-13T15:34:36.4279274Z Download action repository 'actions/upload-artifact@v3' (SHA:a8a3f3ad30e3422c9c7b888a15615d19a852ae32)
+2023-12-13T15:34:36.4556311Z Download action repository 'actions/github-script@v6' (SHA:d7906e4ad0b1822421a7e6a35d5ca353c962f410)
+2023-12-13T15:34:36.7354834Z Uses: kkrt-labs/ef-tests/.github/workflows/trunk-check.yml@refs/pull/612/merge (b0c8587b5f624c65981ed8bd5584c375d3224208)
+2023-12-13T15:34:36.7356857Z Complete job name: Trunk / Trunk Check Runner
+2023-12-13T15:34:36.8241499Z ##[group]Run actions/checkout@v3
+2023-12-13T15:34:36.8241951Z with:
+2023-12-13T15:34:36.8242442Z   repository: kkrt-labs/ef-tests
+2023-12-13T15:34:36.8243101Z   token: ***
+2023-12-13T15:34:36.8243460Z   ssh-strict: true
+2023-12-13T15:34:36.8243940Z   persist-credentials: true
+2023-12-13T15:34:36.8244332Z   clean: true
+2023-12-13T15:34:36.8244634Z   sparse-checkout-cone-mode: true
+2023-12-13T15:34:36.8245117Z   fetch-depth: 1
+2023-12-13T15:34:36.8245457Z   fetch-tags: false
+2023-12-13T15:34:36.8245749Z   lfs: false
+2023-12-13T15:34:36.8246155Z   submodules: false
+2023-12-13T15:34:36.8246521Z   set-safe-directory: true
+2023-12-13T15:34:36.8246847Z ##[endgroup]
+2023-12-13T15:34:36.9785012Z Syncing repository: kkrt-labs/ef-tests
+2023-12-13T15:34:36.9787237Z ##[group]Getting Git version info
+2023-12-13T15:34:36.9787903Z Working directory is '/home/runner/work/ef-tests/ef-tests'
+2023-12-13T15:34:36.9788932Z [command]/usr/bin/git version
+2023-12-13T15:34:36.9789332Z git version 2.43.0
+2023-12-13T15:34:36.9810393Z ##[endgroup]
+2023-12-13T15:34:36.9825025Z Temporarily overriding HOME='/home/runner/work/_temp/f0c36137-16db-4106-b53f-9d244a666fc6' before making global git config changes
+2023-12-13T15:34:36.9826736Z Adding repository directory to the temporary git global config as a safe directory
+2023-12-13T15:34:36.9830216Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/ef-tests/ef-tests
+2023-12-13T15:34:36.9877561Z Deleting the contents of '/home/runner/work/ef-tests/ef-tests'
+2023-12-13T15:34:36.9881568Z ##[group]Initializing the repository
+2023-12-13T15:34:36.9885099Z [command]/usr/bin/git init /home/runner/work/ef-tests/ef-tests
+2023-12-13T15:34:36.9948809Z hint: Using 'master' as the name for the initial branch. This default branch name
+2023-12-13T15:34:36.9950304Z hint: is subject to change. To configure the initial branch name to use in all
+2023-12-13T15:34:36.9951911Z hint: of your new repositories, which will suppress this warning, call:
+2023-12-13T15:34:36.9952901Z hint: 
+2023-12-13T15:34:36.9953755Z hint: 	git config --global init.defaultBranch <name>
+2023-12-13T15:34:36.9954788Z hint: 
+2023-12-13T15:34:36.9955697Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2023-12-13T15:34:36.9957188Z hint: 'development'. The just-created branch can be renamed via this command:
+2023-12-13T15:34:36.9958380Z hint: 
+2023-12-13T15:34:36.9958958Z hint: 	git branch -m <name>
+2023-12-13T15:34:36.9959845Z Initialized empty Git repository in /home/runner/work/ef-tests/ef-tests/.git/
+2023-12-13T15:34:36.9968034Z [command]/usr/bin/git remote add origin https://github.com/kkrt-labs/ef-tests
+2023-12-13T15:34:37.0013423Z ##[endgroup]
+2023-12-13T15:34:37.0014082Z ##[group]Disabling automatic garbage collection
+2023-12-13T15:34:37.0016903Z [command]/usr/bin/git config --local gc.auto 0
+2023-12-13T15:34:37.0056115Z ##[endgroup]
+2023-12-13T15:34:37.0056738Z ##[group]Setting up auth
+2023-12-13T15:34:37.0062804Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2023-12-13T15:34:37.0102740Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2023-12-13T15:34:37.0414962Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2023-12-13T15:34:37.0453550Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2023-12-13T15:34:37.0702395Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2023-12-13T15:34:37.0747052Z ##[endgroup]
+2023-12-13T15:34:37.0747945Z ##[group]Fetching the repository
+2023-12-13T15:34:37.0755982Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --progress --no-recurse-submodules --depth=1 origin +b0c8587b5f624c65981ed8bd5584c375d3224208:refs/remotes/pull/612/merge
+2023-12-13T15:34:37.3311688Z remote: Enumerating objects: 127, done.        
+2023-12-13T15:34:37.3319036Z remote: Counting objects:   0% (1/127)        
+2023-12-13T15:34:37.3320616Z remote: Counting objects:   1% (2/127)        
+2023-12-13T15:34:37.3322040Z remote: Counting objects:   2% (3/127)        
+2023-12-13T15:34:37.3323708Z remote: Counting objects:   3% (4/127)        
+2023-12-13T15:34:37.3324819Z remote: Counting objects:   4% (6/127)        
+2023-12-13T15:34:37.3326064Z remote: Counting objects:   5% (7/127)        
+2023-12-13T15:34:37.3326855Z remote: Counting objects:   6% (8/127)        
+2023-12-13T15:34:37.3327402Z remote: Counting objects:   7% (9/127)        
+2023-12-13T15:34:37.3328341Z remote: Counting objects:   8% (11/127)        
+2023-12-13T15:34:37.3329315Z remote: Counting objects:   9% (12/127)        
+2023-12-13T15:34:37.3330080Z remote: Counting objects:  10% (13/127)        
+2023-12-13T15:34:37.3331303Z remote: Counting objects:  11% (14/127)        
+2023-12-13T15:34:37.3332196Z remote: Counting objects:  12% (16/127)        
+2023-12-13T15:34:37.3333064Z remote: Counting objects:  13% (17/127)        
+2023-12-13T15:34:37.3333952Z remote: Counting objects:  14% (18/127)        
+2023-12-13T15:34:37.3334384Z remote: Counting objects:  15% (20/127)        
+2023-12-13T15:34:37.3334845Z remote: Counting objects:  16% (21/127)        
+2023-12-13T15:34:37.3335417Z remote: Counting objects:  17% (22/127)        
+2023-12-13T15:34:37.3335842Z remote: Counting objects:  18% (23/127)        
+2023-12-13T15:34:37.3336301Z remote: Counting objects:  19% (25/127)        
+2023-12-13T15:34:37.3337250Z remote: Counting objects:  20% (26/127)        
+2023-12-13T15:34:37.3337668Z remote: Counting objects:  21% (27/127)        
+2023-12-13T15:34:37.3338143Z remote: Counting objects:  22% (28/127)        
+2023-12-13T15:34:37.3338706Z remote: Counting objects:  23% (30/127)        
+2023-12-13T15:34:37.3339123Z remote: Counting objects:  24% (31/127)        
+2023-12-13T15:34:37.3339614Z remote: Counting objects:  25% (32/127)        
+2023-12-13T15:34:37.3340177Z remote: Counting objects:  26% (34/127)        
+2023-12-13T15:34:37.3340601Z remote: Counting objects:  27% (35/127)        
+2023-12-13T15:34:37.3341107Z remote: Counting objects:  28% (36/127)        
+2023-12-13T15:34:37.3341661Z remote: Counting objects:  29% (37/127)        
+2023-12-13T15:34:37.3342083Z remote: Counting objects:  30% (39/127)        
+2023-12-13T15:34:37.3342560Z remote: Counting objects:  31% (40/127)        
+2023-12-13T15:34:37.3343100Z remote: Counting objects:  32% (41/127)        
+2023-12-13T15:34:37.3343587Z remote: Counting objects:  33% (42/127)        
+2023-12-13T15:34:37.3344007Z remote: Counting objects:  34% (44/127)        
+2023-12-13T15:34:37.3344592Z remote: Counting objects:  35% (45/127)        
+2023-12-13T15:34:37.3345069Z remote: Counting objects:  36% (46/127)        
+2023-12-13T15:34:37.3345504Z remote: Counting objects:  37% (47/127)        
+2023-12-13T15:34:37.3346053Z remote: Counting objects:  38% (49/127)        
+2023-12-13T15:34:37.3346526Z remote: Counting objects:  39% (50/127)        
+2023-12-13T15:34:37.3346947Z remote: Counting objects:  40% (51/127)        
+2023-12-13T15:34:37.3347480Z remote: Counting objects:  41% (53/127)        
+2023-12-13T15:34:37.3347957Z remote: Counting objects:  42% (54/127)        
+2023-12-13T15:34:37.3348378Z remote: Counting objects:  43% (55/127)        
+2023-12-13T15:34:37.3348925Z remote: Counting objects:  44% (56/127)        
+2023-12-13T15:34:37.3349390Z remote: Counting objects:  45% (58/127)        
+2023-12-13T15:34:37.3349817Z remote: Counting objects:  46% (59/127)        
+2023-12-13T15:34:37.3350406Z remote: Counting objects:  47% (60/127)        
+2023-12-13T15:34:37.3350855Z remote: Counting objects:  48% (61/127)        
+2023-12-13T15:34:37.3351269Z remote: Counting objects:  49% (63/127)        
+2023-12-13T15:34:37.3351814Z remote: Counting objects:  50% (64/127)        
+2023-12-13T15:34:37.3352454Z remote: Counting objects:  51% (65/127)        
+2023-12-13T15:34:37.3352886Z remote: Counting objects:  52% (67/127)        
+2023-12-13T15:34:37.3353445Z remote: Counting objects:  53% (68/127)        
+2023-12-13T15:34:37.3353896Z remote: Counting objects:  54% (69/127)        
+2023-12-13T15:34:37.3354309Z remote: Counting objects:  55% (70/127)        
+2023-12-13T15:34:37.3354864Z remote: Counting objects:  56% (72/127)        
+2023-12-13T15:34:37.3355316Z remote: Counting objects:  57% (73/127)        
+2023-12-13T15:34:37.3356156Z remote: Counting objects:  58% (74/127)        
+2023-12-13T15:34:37.3356622Z remote: Counting objects:  59% (75/127)        
+2023-12-13T15:34:37.3357071Z remote: Counting objects:  60% (77/127)        
+2023-12-13T15:34:37.3357636Z remote: Counting objects:  61% (78/127)        
+2023-12-13T15:34:37.3358053Z remote: Counting objects:  62% (79/127)        
+2023-12-13T15:34:37.3358498Z remote: Counting objects:  63% (81/127)        
+2023-12-13T15:34:37.3360017Z remote: Counting objects:  64% (82/127)        
+2023-12-13T15:34:37.3361099Z remote: Counting objects:  65% (83/127)        
+2023-12-13T15:34:37.3361979Z remote: Counting objects:  66% (84/127)        
+2023-12-13T15:34:37.3363159Z remote: Counting objects:  67% (86/127)        
+2023-12-13T15:34:37.3363998Z remote: Counting objects:  68% (87/127)        
+2023-12-13T15:34:37.3364834Z remote: Counting objects:  69% (88/127)        
+2023-12-13T15:34:37.3365952Z remote: Counting objects:  70% (89/127)        
+2023-12-13T15:34:37.3366483Z remote: Counting objects:  71% (91/127)        
+2023-12-13T15:34:37.3367037Z remote: Counting objects:  72% (92/127)        
+2023-12-13T15:34:37.3368019Z remote: Counting objects:  73% (93/127)        
+2023-12-13T15:34:37.3369517Z remote: Counting objects:  74% (94/127)        
+2023-12-13T15:34:37.3370074Z remote: Counting objects:  75% (96/127)        
+2023-12-13T15:34:37.3370766Z remote: Counting objects:  76% (97/127)        
+2023-12-13T15:34:37.3371263Z remote: Counting objects:  77% (98/127)        
+2023-12-13T15:34:37.3371712Z remote: Counting objects:  78% (100/127)        
+2023-12-13T15:34:37.3372294Z remote: Counting objects:  79% (101/127)        
+2023-12-13T15:34:37.3372788Z remote: Counting objects:  80% (102/127)        
+2023-12-13T15:34:37.3373307Z remote: Counting objects:  81% (103/127)        
+2023-12-13T15:34:37.3374487Z remote: Counting objects:  82% (105/127)        
+2023-12-13T15:34:37.3375233Z remote: Counting objects:  83% (106/127)        
+2023-12-13T15:34:37.3375719Z remote: Counting objects:  84% (107/127)        
+2023-12-13T15:34:37.3376535Z remote: Counting objects:  85% (108/127)        
+2023-12-13T15:34:37.3377255Z remote: Counting objects:  86% (110/127)        
+2023-12-13T15:34:37.3377809Z remote: Counting objects:  87% (111/127)        
+2023-12-13T15:34:37.3378382Z remote: Counting objects:  88% (112/127)        
+2023-12-13T15:34:37.3378851Z remote: Counting objects:  89% (114/127)        
+2023-12-13T15:34:37.3379315Z remote: Counting objects:  90% (115/127)        
+2023-12-13T15:34:37.3379867Z remote: Counting objects:  91% (116/127)        
+2023-12-13T15:34:37.3380330Z remote: Counting objects:  92% (117/127)        
+2023-12-13T15:34:37.3380805Z remote: Counting objects:  93% (119/127)        
+2023-12-13T15:34:37.3381334Z remote: Counting objects:  94% (120/127)        
+2023-12-13T15:34:37.3381805Z remote: Counting objects:  95% (121/127)        
+2023-12-13T15:34:37.3382279Z remote: Counting objects:  96% (122/127)        
+2023-12-13T15:34:37.3382811Z remote: Counting objects:  97% (124/127)        
+2023-12-13T15:34:37.3383285Z remote: Counting objects:  98% (125/127)        
+2023-12-13T15:34:37.3383772Z remote: Counting objects:  99% (126/127)        
+2023-12-13T15:34:37.3384285Z remote: Counting objects: 100% (127/127)        
+2023-12-13T15:34:37.3384785Z remote: Counting objects: 100% (127/127), done.        
+2023-12-13T15:34:37.3385327Z remote: Compressing objects:   0% (1/105)        
+2023-12-13T15:34:37.3385871Z remote: Compressing objects:   1% (2/105)        
+2023-12-13T15:34:37.3386565Z remote: Compressing objects:   2% (3/105)        
+2023-12-13T15:34:37.3387101Z remote: Compressing objects:   3% (4/105)        
+2023-12-13T15:34:37.3387694Z remote: Compressing objects:   4% (5/105)        
+2023-12-13T15:34:37.3388365Z remote: Compressing objects:   5% (6/105)        
+2023-12-13T15:34:37.3389690Z remote: Compressing objects:   6% (7/105)        
+2023-12-13T15:34:37.3390722Z remote: Compressing objects:   7% (8/105)        
+2023-12-13T15:34:37.3391211Z remote: Compressing objects:   8% (9/105)        
+2023-12-13T15:34:37.3391709Z remote: Compressing objects:   9% (10/105)        
+2023-12-13T15:34:37.3392323Z remote: Compressing objects:  10% (11/105)        
+2023-12-13T15:34:37.3392810Z remote: Compressing objects:  11% (12/105)        
+2023-12-13T15:34:37.3393309Z remote: Compressing objects:  12% (13/105)        
+2023-12-13T15:34:37.3393907Z remote: Compressing objects:  13% (14/105)        
+2023-12-13T15:34:37.3394445Z remote: Compressing objects:  14% (15/105)        
+2023-12-13T15:34:37.3394913Z remote: Compressing objects:  15% (16/105)        
+2023-12-13T15:34:37.3395514Z remote: Compressing objects:  16% (17/105)        
+2023-12-13T15:34:37.3396018Z remote: Compressing objects:  17% (18/105)        
+2023-12-13T15:34:37.3396513Z remote: Compressing objects:  18% (19/105)        
+2023-12-13T15:34:37.3397128Z remote: Compressing objects:  19% (20/105)        
+2023-12-13T15:34:37.3397617Z remote: Compressing objects:  20% (21/105)        
+2023-12-13T15:34:37.3398068Z remote: Compressing objects:  21% (23/105)        
+2023-12-13T15:34:37.3398654Z remote: Compressing objects:  22% (24/105)        
+2023-12-13T15:34:37.3399335Z remote: Compressing objects:  23% (25/105)        
+2023-12-13T15:34:37.3399786Z remote: Compressing objects:  24% (26/105)        
+2023-12-13T15:34:37.3400404Z remote: Compressing objects:  25% (27/105)        
+2023-12-13T15:34:37.3400882Z remote: Compressing objects:  26% (28/105)        
+2023-12-13T15:34:37.3401327Z remote: Compressing objects:  27% (29/105)        
+2023-12-13T15:34:37.3401915Z remote: Compressing objects:  28% (30/105)        
+2023-12-13T15:34:37.3402395Z remote: Compressing objects:  29% (31/105)        
+2023-12-13T15:34:37.3402855Z remote: Compressing objects:  30% (32/105)        
+2023-12-13T15:34:37.3403428Z remote: Compressing objects:  31% (33/105)        
+2023-12-13T15:34:37.3403909Z remote: Compressing objects:  32% (34/105)        
+2023-12-13T15:34:37.3404490Z remote: Compressing objects:  33% (35/105)        
+2023-12-13T15:34:37.3404950Z remote: Compressing objects:  34% (36/105)        
+2023-12-13T15:34:37.3405438Z remote: Compressing objects:  35% (37/105)        
+2023-12-13T15:34:37.3406026Z remote: Compressing objects:  36% (38/105)        
+2023-12-13T15:34:37.3406501Z remote: Compressing objects:  37% (39/105)        
+2023-12-13T15:34:37.3406982Z remote: Compressing objects:  38% (40/105)        
+2023-12-13T15:34:37.3407564Z remote: Compressing objects:  39% (41/105)        
+2023-12-13T15:34:37.3408332Z remote: Compressing objects:  40% (42/105)        
+2023-12-13T15:34:37.3409092Z remote: Compressing objects:  41% (44/105)        
+2023-12-13T15:34:37.3409700Z remote: Compressing objects:  42% (45/105)        
+2023-12-13T15:34:37.3410159Z remote: Compressing objects:  43% (46/105)        
+2023-12-13T15:34:37.3410675Z remote: Compressing objects:  44% (47/105)        
+2023-12-13T15:34:37.3411240Z remote: Compressing objects:  45% (48/105)        
+2023-12-13T15:34:37.3411691Z remote: Compressing objects:  46% (49/105)        
+2023-12-13T15:34:37.3467048Z remote: Compressing objects:  47% (50/105)        
+2023-12-13T15:34:37.3513736Z remote: Compressing objects:  48% (51/105)        
+2023-12-13T15:34:37.3519280Z remote: Compressing objects:  49% (52/105)        
+2023-12-13T15:34:37.3520087Z remote: Compressing objects:  50% (53/105)        
+2023-12-13T15:34:37.3520810Z remote: Compressing objects:  51% (54/105)        
+2023-12-13T15:34:37.3521321Z remote: Compressing objects:  52% (55/105)        
+2023-12-13T15:34:37.3522121Z remote: Compressing objects:  53% (56/105)        
+2023-12-13T15:34:37.3522791Z remote: Compressing objects:  54% (57/105)        
+2023-12-13T15:34:37.3523328Z remote: Compressing objects:  55% (58/105)        
+2023-12-13T15:34:37.3557758Z remote: Compressing objects:  56% (59/105)        
+2023-12-13T15:34:37.3576402Z remote: Compressing objects:  57% (60/105)        
+2023-12-13T15:34:37.3577348Z remote: Compressing objects:  58% (61/105)        
+2023-12-13T15:34:37.3578276Z remote: Compressing objects:  59% (62/105)        
+2023-12-13T15:34:37.3578870Z remote: Compressing objects:  60% (63/105)        
+2023-12-13T15:34:37.3607760Z remote: Compressing objects:  61% (65/105)        
+2023-12-13T15:34:37.3609138Z remote: Compressing objects:  62% (66/105)        
+2023-12-13T15:34:37.3609868Z remote: Compressing objects:  63% (67/105)        
+2023-12-13T15:34:37.3610747Z remote: Compressing objects:  64% (68/105)        
+2023-12-13T15:34:37.3612012Z remote: Compressing objects:  65% (69/105)        
+2023-12-13T15:34:37.3613110Z remote: Compressing objects:  66% (70/105)        
+2023-12-13T15:34:37.3614189Z remote: Compressing objects:  67% (71/105)        
+2023-12-13T15:34:37.3615053Z remote: Compressing objects:  68% (72/105)        
+2023-12-13T15:34:37.3615659Z remote: Compressing objects:  69% (73/105)        
+2023-12-13T15:34:37.3616323Z remote: Compressing objects:  70% (74/105)        
+2023-12-13T15:34:37.3617122Z remote: Compressing objects:  71% (75/105)        
+2023-12-13T15:34:37.3617681Z remote: Compressing objects:  72% (76/105)        
+2023-12-13T15:34:37.3618312Z remote: Compressing objects:  73% (77/105)        
+2023-12-13T15:34:37.3619281Z remote: Compressing objects:  74% (78/105)        
+2023-12-13T15:34:37.3619858Z remote: Compressing objects:  75% (79/105)        
+2023-12-13T15:34:37.3620453Z remote: Compressing objects:  76% (80/105)        
+2023-12-13T15:34:37.3621135Z remote: Compressing objects:  77% (81/105)        
+2023-12-13T15:34:37.3621735Z remote: Compressing objects:  78% (82/105)        
+2023-12-13T15:34:37.3622298Z remote: Compressing objects:  79% (83/105)        
+2023-12-13T15:34:37.3622965Z remote: Compressing objects:  80% (84/105)        
+2023-12-13T15:34:37.3623565Z remote: Compressing objects:  81% (86/105)        
+2023-12-13T15:34:37.3624120Z remote: Compressing objects:  82% (87/105)        
+2023-12-13T15:34:37.3624788Z remote: Compressing objects:  83% (88/105)        
+2023-12-13T15:34:37.3625406Z remote: Compressing objects:  84% (89/105)        
+2023-12-13T15:34:37.3625960Z remote: Compressing objects:  85% (90/105)        
+2023-12-13T15:34:37.3626649Z remote: Compressing objects:  86% (91/105)        
+2023-12-13T15:34:37.3627237Z remote: Compressing objects:  87% (92/105)        
+2023-12-13T15:34:37.3627786Z remote: Compressing objects:  88% (93/105)        
+2023-12-13T15:34:37.3628404Z remote: Compressing objects:  89% (94/105)        
+2023-12-13T15:34:37.3628932Z remote: Compressing objects:  90% (95/105)        
+2023-12-13T15:34:37.3629512Z remote: Compressing objects:  91% (96/105)        
+2023-12-13T15:34:37.3630053Z remote: Compressing objects:  92% (97/105)        
+2023-12-13T15:34:37.3630525Z remote: Compressing objects:  93% (98/105)        
+2023-12-13T15:34:37.3631108Z remote: Compressing objects:  94% (99/105)        
+2023-12-13T15:34:37.3631647Z remote: Compressing objects:  95% (100/105)        
+2023-12-13T15:34:37.3632148Z remote: Compressing objects:  96% (101/105)        
+2023-12-13T15:34:37.3632767Z remote: Compressing objects:  97% (102/105)        
+2023-12-13T15:34:37.3633284Z remote: Compressing objects:  98% (103/105)        
+2023-12-13T15:34:37.3633761Z remote: Compressing objects:  99% (104/105)        
+2023-12-13T15:34:37.3634380Z remote: Compressing objects: 100% (105/105)        
+2023-12-13T15:34:37.3634925Z remote: Compressing objects: 100% (105/105), done.        
+2023-12-13T15:34:37.3672215Z Receiving objects:   0% (1/127)
+2023-12-13T15:34:37.3673150Z Receiving objects:   1% (2/127)
+2023-12-13T15:34:37.3673970Z Receiving objects:   2% (3/127)
+2023-12-13T15:34:37.3674880Z Receiving objects:   3% (4/127)
+2023-12-13T15:34:37.3675678Z Receiving objects:   4% (6/127)
+2023-12-13T15:34:37.3676323Z Receiving objects:   5% (7/127)
+2023-12-13T15:34:37.3677072Z Receiving objects:   6% (8/127)
+2023-12-13T15:34:37.3677849Z Receiving objects:   7% (9/127)
+2023-12-13T15:34:37.3678503Z Receiving objects:   8% (11/127)
+2023-12-13T15:34:37.3679164Z Receiving objects:   9% (12/127)
+2023-12-13T15:34:37.3679909Z Receiving objects:  10% (13/127)
+2023-12-13T15:34:37.3680542Z Receiving objects:  11% (14/127)
+2023-12-13T15:34:37.3681211Z Receiving objects:  12% (16/127)
+2023-12-13T15:34:37.3681953Z Receiving objects:  13% (17/127)
+2023-12-13T15:34:37.3682589Z Receiving objects:  14% (18/127)
+2023-12-13T15:34:37.3683269Z Receiving objects:  15% (20/127)
+2023-12-13T15:34:37.3683994Z Receiving objects:  16% (21/127)
+2023-12-13T15:34:37.3684627Z Receiving objects:  17% (22/127)
+2023-12-13T15:34:37.3685280Z Receiving objects:  18% (23/127)
+2023-12-13T15:34:37.3686007Z Receiving objects:  19% (25/127)
+2023-12-13T15:34:37.3686651Z Receiving objects:  20% (26/127)
+2023-12-13T15:34:37.3687332Z Receiving objects:  21% (27/127)
+2023-12-13T15:34:37.3687902Z Receiving objects:  22% (28/127)
+2023-12-13T15:34:37.3727682Z Receiving objects:  23% (30/127)
+2023-12-13T15:34:37.3729273Z Receiving objects:  24% (31/127)
+2023-12-13T15:34:37.3730218Z Receiving objects:  25% (32/127)
+2023-12-13T15:34:37.3776898Z Receiving objects:  26% (34/127)
+2023-12-13T15:34:37.3777685Z Receiving objects:  27% (35/127)
+2023-12-13T15:34:37.3778564Z Receiving objects:  28% (36/127)
+2023-12-13T15:34:37.3779254Z Receiving objects:  29% (37/127)
+2023-12-13T15:34:37.3780240Z Receiving objects:  30% (39/127)
+2023-12-13T15:34:37.3781134Z Receiving objects:  31% (40/127)
+2023-12-13T15:34:37.3781843Z Receiving objects:  32% (41/127)
+2023-12-13T15:34:37.3782488Z Receiving objects:  33% (42/127)
+2023-12-13T15:34:37.3783284Z Receiving objects:  34% (44/127)
+2023-12-13T15:34:37.3783942Z Receiving objects:  35% (45/127)
+2023-12-13T15:34:37.3784768Z Receiving objects:  36% (46/127)
+2023-12-13T15:34:37.3785373Z Receiving objects:  37% (47/127)
+2023-12-13T15:34:37.3786026Z Receiving objects:  38% (49/127)
+2023-12-13T15:34:37.3786773Z Receiving objects:  39% (50/127)
+2023-12-13T15:34:37.3787352Z Receiving objects:  40% (51/127)
+2023-12-13T15:34:37.3788001Z Receiving objects:  41% (53/127)
+2023-12-13T15:34:37.3788739Z Receiving objects:  42% (54/127)
+2023-12-13T15:34:37.3846498Z Receiving objects:  43% (55/127)
+2023-12-13T15:34:37.3847748Z Receiving objects:  44% (56/127)
+2023-12-13T15:34:37.3849725Z Receiving objects:  45% (58/127)
+2023-12-13T15:34:37.3850629Z Receiving objects:  46% (59/127)
+2023-12-13T15:34:37.3851574Z Receiving objects:  47% (60/127)
+2023-12-13T15:34:37.3853051Z Receiving objects:  48% (61/127)
+2023-12-13T15:34:37.3853943Z Receiving objects:  49% (63/127)
+2023-12-13T15:34:37.3854877Z Receiving objects:  50% (64/127)
+2023-12-13T15:34:37.3856081Z Receiving objects:  51% (65/127)
+2023-12-13T15:34:37.3857204Z Receiving objects:  52% (67/127)
+2023-12-13T15:34:37.3858240Z Receiving objects:  53% (68/127)
+2023-12-13T15:34:37.3859008Z Receiving objects:  54% (69/127)
+2023-12-13T15:34:37.3860009Z Receiving objects:  55% (70/127)
+2023-12-13T15:34:37.3860781Z Receiving objects:  56% (72/127)
+2023-12-13T15:34:37.3861529Z Receiving objects:  57% (73/127)
+2023-12-13T15:34:37.3862142Z Receiving objects:  58% (74/127)
+2023-12-13T15:34:37.3862542Z Receiving objects:  59% (75/127)
+2023-12-13T15:34:37.3862955Z Receiving objects:  60% (77/127)
+2023-12-13T15:34:37.3863415Z Receiving objects:  61% (78/127)
+2023-12-13T15:34:37.3863858Z Receiving objects:  62% (79/127)
+2023-12-13T15:34:37.3865137Z Receiving objects:  63% (81/127)
+2023-12-13T15:34:37.3866070Z Receiving objects:  64% (82/127)
+2023-12-13T15:34:37.3867006Z Receiving objects:  65% (83/127)
+2023-12-13T15:34:37.3868166Z Receiving objects:  66% (84/127)
+2023-12-13T15:34:37.3869209Z Receiving objects:  67% (86/127)
+2023-12-13T15:34:37.3869983Z Receiving objects:  68% (87/127)
+2023-12-13T15:34:37.3871094Z Receiving objects:  69% (88/127)
+2023-12-13T15:34:37.3872550Z Receiving objects:  70% (89/127)
+2023-12-13T15:34:37.3873269Z Receiving objects:  71% (91/127)
+2023-12-13T15:34:37.3874292Z Receiving objects:  72% (92/127)
+2023-12-13T15:34:37.3875131Z Receiving objects:  73% (93/127)
+2023-12-13T15:34:37.3875806Z Receiving objects:  74% (94/127)
+2023-12-13T15:34:37.3876735Z Receiving objects:  75% (96/127)
+2023-12-13T15:34:37.3877399Z Receiving objects:  76% (97/127)
+2023-12-13T15:34:37.3879315Z Receiving objects:  77% (98/127)
+2023-12-13T15:34:37.3880191Z Receiving objects:  78% (100/127)
+2023-12-13T15:34:37.3880971Z Receiving objects:  79% (101/127)
+2023-12-13T15:34:37.3881899Z Receiving objects:  80% (102/127)
+2023-12-13T15:34:37.3882571Z Receiving objects:  81% (103/127)
+2023-12-13T15:34:37.3883266Z Receiving objects:  82% (105/127)
+2023-12-13T15:34:37.3884184Z Receiving objects:  83% (106/127)
+2023-12-13T15:34:37.3884916Z Receiving objects:  84% (107/127)
+2023-12-13T15:34:37.3885805Z Receiving objects:  85% (108/127)
+2023-12-13T15:34:37.3886719Z Receiving objects:  86% (110/127)
+2023-12-13T15:34:37.3901373Z Receiving objects:  87% (111/127)
+2023-12-13T15:34:37.3926318Z Receiving objects:  88% (112/127)
+2023-12-13T15:34:37.3927490Z remote: Total 127 (delta 9), reused 65 (delta 4), pack-reused 0        
+2023-12-13T15:34:37.3928409Z Receiving objects:  89% (114/127)
+2023-12-13T15:34:37.3929541Z Receiving objects:  90% (115/127)
+2023-12-13T15:34:37.3930247Z Receiving objects:  91% (116/127)
+2023-12-13T15:34:37.3930887Z Receiving objects:  92% (117/127)
+2023-12-13T15:34:37.3931599Z Receiving objects:  93% (119/127)
+2023-12-13T15:34:37.3932548Z Receiving objects:  94% (120/127)
+2023-12-13T15:34:37.3933184Z Receiving objects:  95% (121/127)
+2023-12-13T15:34:37.3936294Z Receiving objects:  96% (122/127)
+2023-12-13T15:34:37.3936995Z Receiving objects:  97% (124/127)
+2023-12-13T15:34:37.3937664Z Receiving objects:  98% (125/127)
+2023-12-13T15:34:37.3938435Z Receiving objects:  99% (126/127)
+2023-12-13T15:34:37.3939107Z Receiving objects: 100% (127/127)
+2023-12-13T15:34:37.3939914Z Receiving objects: 100% (127/127), 201.91 KiB | 7.77 MiB/s, done.
+2023-12-13T15:34:37.3940840Z Resolving deltas:   0% (0/9)
+2023-12-13T15:34:37.3949100Z Resolving deltas:  11% (1/9)
+2023-12-13T15:34:37.3949799Z Resolving deltas:  22% (2/9)
+2023-12-13T15:34:37.3959776Z Resolving deltas:  33% (3/9)
+2023-12-13T15:34:37.3970521Z Resolving deltas:  44% (4/9)
+2023-12-13T15:34:37.3971190Z Resolving deltas:  55% (5/9)
+2023-12-13T15:34:37.3972012Z Resolving deltas:  66% (6/9)
+2023-12-13T15:34:37.3972613Z Resolving deltas:  77% (7/9)
+2023-12-13T15:34:37.3982593Z Resolving deltas:  88% (8/9)
+2023-12-13T15:34:37.3984208Z Resolving deltas: 100% (9/9)
+2023-12-13T15:34:37.3984829Z Resolving deltas: 100% (9/9), done.
+2023-12-13T15:34:37.4064133Z From https://github.com/kkrt-labs/ef-tests
+2023-12-13T15:34:37.4065205Z  * [new ref]         b0c8587b5f624c65981ed8bd5584c375d3224208 -> pull/612/merge
+2023-12-13T15:34:37.4091894Z ##[endgroup]
+2023-12-13T15:34:37.4092661Z ##[group]Determining the checkout info
+2023-12-13T15:34:37.4094233Z ##[endgroup]
+2023-12-13T15:34:37.4095046Z ##[group]Checking out the ref
+2023-12-13T15:34:37.4099622Z [command]/usr/bin/git checkout --progress --force refs/remotes/pull/612/merge
+2023-12-13T15:34:37.4261629Z Note: switching to 'refs/remotes/pull/612/merge'.
+2023-12-13T15:34:37.4262157Z 
+2023-12-13T15:34:37.4262616Z You are in 'detached HEAD' state. You can look around, make experimental
+2023-12-13T15:34:37.4263590Z changes and commit them, and you can discard any commits you make in this
+2023-12-13T15:34:37.4264583Z state without impacting any branches by switching back to a branch.
+2023-12-13T15:34:37.4265310Z 
+2023-12-13T15:34:37.4265889Z If you want to create a new branch to retain commits you create, you may
+2023-12-13T15:34:37.4267356Z do so (now or later) by using -c with the switch command. Example:
+2023-12-13T15:34:37.4268141Z 
+2023-12-13T15:34:37.4268491Z   git switch -c <new-branch-name>
+2023-12-13T15:34:37.4268927Z 
+2023-12-13T15:34:37.4269547Z Or undo this operation with:
+2023-12-13T15:34:37.4270206Z 
+2023-12-13T15:34:37.4270420Z   git switch -
+2023-12-13T15:34:37.4270794Z 
+2023-12-13T15:34:37.4271317Z Turn off this advice by setting config variable advice.detachedHead to false
+2023-12-13T15:34:37.4272155Z 
+2023-12-13T15:34:37.4273226Z HEAD is now at b0c8587 Merge 28f408bc8b9cba0632fd0463ab4bea3ec8dbeca1 into 51741b58aeeef07fb0503a86f4386b0b41cbc5b8
+2023-12-13T15:34:37.4275832Z ##[endgroup]
+2023-12-13T15:34:37.4322075Z [command]/usr/bin/git log -1 --format='%H'
+2023-12-13T15:34:37.4355769Z 'b0c8587b5f624c65981ed8bd5584c375d3224208'
+2023-12-13T15:34:37.4661075Z ##[group]Run actions-rs/toolchain@v1
+2023-12-13T15:34:37.4661754Z with:
+2023-12-13T15:34:37.4662185Z   toolchain: nightly
+2023-12-13T15:34:37.4662614Z   override: true
+2023-12-13T15:34:37.4663127Z   components: clippy
+2023-12-13T15:34:37.4663554Z   default: false
+2023-12-13T15:34:37.4663904Z ##[endgroup]
+2023-12-13T15:34:37.5830084Z [command]/home/runner/.cargo/bin/rustup show
+2023-12-13T15:34:37.9538465Z Default host: x86_64-unknown-linux-gnu
+2023-12-13T15:34:37.9539206Z rustup home:  /home/runner/.rustup
+2023-12-13T15:34:37.9539517Z 
+2023-12-13T15:34:37.9585786Z info: syncing channel updates for 'nightly-2023-09-22-x86_64-unknown-linux-gnu'
+2023-12-13T15:34:38.1326726Z info: latest update on 2023-09-22, rust version 1.74.0-nightly (b3aa8e716 2023-09-21)
+2023-12-13T15:34:38.1330650Z info: downloading component 'cargo'
+2023-12-13T15:34:38.1850962Z info: downloading component 'rust-std'
+2023-12-13T15:34:38.2847989Z info: downloading component 'rustc'
+2023-12-13T15:34:38.5331045Z info: installing component 'cargo'
+2023-12-13T15:34:39.1582698Z info: installing component 'rust-std'
+2023-12-13T15:34:40.8582693Z info: installing component 'rustc'
+2023-12-13T15:34:44.5332230Z nightly-2023-09-22-x86_64-unknown-linux-gnu (overridden by '/home/runner/work/ef-tests/ef-tests/rust-toolchain')
+2023-12-13T15:34:44.5443338Z rustc 1.74.0-nightly (b3aa8e716 2023-09-21)
+2023-12-13T15:34:44.5483442Z [command]/home/runner/.cargo/bin/rustup -V
+2023-12-13T15:34:44.5525819Z rustup 1.26.0 (5af9b9484 2023-04-05)
+2023-12-13T15:34:44.5527727Z info: This is the version for the rustup toolchain manager, not the rustc compiler.
+2023-12-13T15:34:44.5928459Z info: The currently active `rustc` version is `rustc 1.74.0-nightly (b3aa8e716 2023-09-21)`
+2023-12-13T15:34:44.5948992Z Installed rustup 1.26.0 support components
+2023-12-13T15:34:44.5954064Z [command]/home/runner/.cargo/bin/rustup toolchain install nightly --component clippy --allow-downgrade
+2023-12-13T15:34:44.6007720Z info: syncing channel updates for 'nightly-x86_64-unknown-linux-gnu'
+2023-12-13T15:34:44.7311494Z info: latest update on 2023-12-13, rust version 1.76.0-nightly (3340d49d2 2023-12-12)
+2023-12-13T15:34:44.7312709Z info: downloading component 'cargo'
+2023-12-13T15:34:44.7813645Z info: downloading component 'clippy'
+2023-12-13T15:34:44.7984496Z info: downloading component 'rust-std'
+2023-12-13T15:34:44.9175733Z info: downloading component 'rustc'
+2023-12-13T15:34:45.1640522Z info: installing component 'cargo'
+2023-12-13T15:34:45.7770134Z info: installing component 'clippy'
+2023-12-13T15:34:46.0104722Z info: installing component 'rust-std'
+2023-12-13T15:34:47.8587344Z info: installing component 'rustc'
+2023-12-13T15:34:51.7917819Z 
+2023-12-13T15:34:51.8025538Z   nightly-x86_64-unknown-linux-gnu installed - rustc 1.76.0-nightly (3340d49d2 2023-12-12)
+2023-12-13T15:34:51.8026310Z 
+2023-12-13T15:34:51.8026556Z info: checking for self-update
+2023-12-13T15:34:51.8110819Z warning: tool `rust-analyzer` is already installed, remove it from `/home/runner/.cargo/bin`, then run `rustup update` to have rustup manage this tool.
+2023-12-13T15:34:51.8113462Z warning: tool `rustfmt` is already installed, remove it from `/home/runner/.cargo/bin`, then run `rustup update` to have rustup manage this tool.
+2023-12-13T15:34:51.8115810Z warning: tool `cargo-fmt` is already installed, remove it from `/home/runner/.cargo/bin`, then run `rustup update` to have rustup manage this tool.
+2023-12-13T15:34:51.8142494Z [command]/home/runner/.cargo/bin/rustup override set nightly
+2023-12-13T15:34:51.8194415Z info: using existing install for 'nightly-x86_64-unknown-linux-gnu'
+2023-12-13T15:34:51.8195696Z info: override toolchain for '/home/runner/work/ef-tests/ef-tests' set to 'nightly-x86_64-unknown-linux-gnu'
+2023-12-13T15:34:51.8308364Z 
+2023-12-13T15:34:51.8430102Z   nightly-x86_64-unknown-linux-gnu unchanged - rustc 1.76.0-nightly (3340d49d2 2023-12-12)
+2023-12-13T15:34:51.8431195Z 
+2023-12-13T15:34:51.8440172Z ##[group]Gathering installed versions
+2023-12-13T15:34:51.8449514Z [command]/home/runner/.cargo/bin/rustc -V
+2023-12-13T15:34:51.8870093Z rustc 1.76.0-nightly (3340d49d2 2023-12-12)
+2023-12-13T15:34:51.8910947Z ##[warning]The `set-output` command is deprecated and will be disabled soon. Please upgrade to using Environment Files. For more information see: https://github.blog/changelog/2022-10-11-github-actions-deprecating-save-state-and-set-output-commands/
+2023-12-13T15:34:51.8925739Z ##[warning]The `set-output` command is deprecated and will be disabled soon. Please upgrade to using Environment Files. For more information see: https://github.blog/changelog/2022-10-11-github-actions-deprecating-save-state-and-set-output-commands/
+2023-12-13T15:34:51.8929638Z [command]/home/runner/.cargo/bin/cargo -V
+2023-12-13T15:34:51.9280125Z cargo 1.76.0-nightly (1aa9df1a5 2023-12-12)
+2023-12-13T15:34:51.9294468Z ##[warning]The `set-output` command is deprecated and will be disabled soon. Please upgrade to using Environment Files. For more information see: https://github.blog/changelog/2022-10-11-github-actions-deprecating-save-state-and-set-output-commands/
+2023-12-13T15:34:51.9299309Z [command]/home/runner/.cargo/bin/rustup -V
+2023-12-13T15:34:51.9342331Z rustup 1.26.0 (5af9b9484 2023-04-05)
+2023-12-13T15:34:51.9343312Z info: This is the version for the rustup toolchain manager, not the rustc compiler.
+2023-12-13T15:34:51.9731507Z info: The currently active `rustc` version is `rustc 1.76.0-nightly (3340d49d2 2023-12-12)`
+2023-12-13T15:34:51.9748810Z ##[warning]The `set-output` command is deprecated and will be disabled soon. Please upgrade to using Environment Files. For more information see: https://github.blog/changelog/2022-10-11-github-actions-deprecating-save-state-and-set-output-commands/
+2023-12-13T15:34:51.9752611Z ##[endgroup]
+2023-12-13T15:34:51.9888841Z ##[group]Run Swatinem/rust-cache@v2
+2023-12-13T15:34:51.9889339Z with:
+2023-12-13T15:34:51.9889761Z   prefix-key: v0-rust
+2023-12-13T15:34:51.9890096Z   cache-targets: true
+2023-12-13T15:34:51.9890454Z   cache-all-crates: false
+2023-12-13T15:34:51.9890904Z   save-if: true
+2023-12-13T15:34:51.9891198Z   cache-provider: github
+2023-12-13T15:34:51.9891546Z ##[endgroup]
+2023-12-13T15:34:52.2715037Z ##[group]Cache Configuration
+2023-12-13T15:34:52.2715796Z Cache Provider:
+2023-12-13T15:34:52.2718985Z     github
+2023-12-13T15:34:52.2720220Z Workspaces:
+2023-12-13T15:34:52.2722246Z     /home/runner/work/ef-tests/ef-tests
+2023-12-13T15:34:52.2726601Z Cache Paths:
+2023-12-13T15:34:52.2728163Z     /home/runner/.cargo
+2023-12-13T15:34:52.2729530Z     /home/runner/work/ef-tests/ef-tests/target
+2023-12-13T15:34:52.2730246Z Restore Key:
+2023-12-13T15:34:52.2732142Z     v0-rust-trunk_check-d940afbb
+2023-12-13T15:34:52.2733612Z Cache Key:
+2023-12-13T15:34:52.2735686Z     v0-rust-trunk_check-d940afbb-e45f68cf
+2023-12-13T15:34:52.2736357Z .. Prefix:
+2023-12-13T15:34:52.2736962Z   - v0-rust-trunk_check
+2023-12-13T15:34:52.2737741Z .. Environment considered:
+2023-12-13T15:34:52.2738814Z   - Rust Version: 1.76.0-nightly x86_64-unknown-linux-gnu (3340d49d22b1aba425779767278c40781826c2f5)
+2023-12-13T15:34:52.2740138Z   - CARGO_INCREMENTAL
+2023-12-13T15:34:52.2740764Z .. Lockfiles considered:
+2023-12-13T15:34:52.2741464Z   - /home/runner/work/ef-tests/ef-tests/Cargo.lock
+2023-12-13T15:34:52.2742508Z   - /home/runner/work/ef-tests/ef-tests/Cargo.toml
+2023-12-13T15:34:52.2743373Z   - /home/runner/work/ef-tests/ef-tests/crates/build-utils/Cargo.toml
+2023-12-13T15:34:52.2744096Z   - /home/runner/work/ef-tests/ef-tests/crates/ef-testing/Cargo.toml
+2023-12-13T15:34:52.2744868Z   - /home/runner/work/ef-tests/ef-tests/crates/sequencer/Cargo.toml
+2023-12-13T15:34:52.2745507Z   - /home/runner/work/ef-tests/ef-tests/rust-toolchain
+2023-12-13T15:34:52.2746426Z ##[endgroup]
+2023-12-13T15:34:52.2746618Z 
+2023-12-13T15:34:52.2746790Z ... Restoring cache ...
+2023-12-13T15:34:52.3562890Z No cache found.
+2023-12-13T15:34:52.3865135Z ##[group]Run trunk-io/trunk-action@v1
+2023-12-13T15:34:52.3865630Z with:
+2023-12-13T15:34:52.3865931Z   cache: true
+2023-12-13T15:34:52.3866338Z   save-annotations: auto
+2023-12-13T15:34:52.3866718Z   post-annotations: false
+2023-12-13T15:34:52.3867084Z   setup-deps: false
+2023-12-13T15:34:52.3867459Z   debug: false
+2023-12-13T15:34:52.3867783Z env:
+2023-12-13T15:34:52.3868100Z   CACHE_ON_FAILURE: false
+2023-12-13T15:34:52.3868489Z   CARGO_INCREMENTAL: 0
+2023-12-13T15:34:52.3868832Z ##[endgroup]
+2023-12-13T15:34:52.4828159Z ##[group]Run cat >>$GITHUB_ENV <<EOF
+2023-12-13T15:34:52.4828847Z [36;1mcat >>$GITHUB_ENV <<EOF[0m
+2023-12-13T15:34:52.4829783Z [36;1mGITHUB_TOKEN=***[0m
+2023-12-13T15:34:52.4830130Z [36;1mEOF[0m
+2023-12-13T15:34:52.4830554Z [36;1m[0m
+2023-12-13T15:34:52.4830966Z [36;1mpayload() {[0m
+2023-12-13T15:34:52.4831329Z [36;1m  if command -v jq >/dev/null; then[0m
+2023-12-13T15:34:52.4832234Z [36;1m    jq -r ".inputs.payload | fromjson | .$1 // empty" ${TEST_GITHUB_EVENT_PATH:-${GITHUB_EVENT_PATH}}[0m
+2023-12-13T15:34:52.4832870Z [36;1m  else[0m
+2023-12-13T15:34:52.4833271Z [36;1m    echo "::error::jq not installed on system!"[0m
+2023-12-13T15:34:52.4834106Z [36;1m    exit 1[0m
+2023-12-13T15:34:52.4834465Z [36;1m  fi[0m
+2023-12-13T15:34:52.4834753Z [36;1m}[0m
+2023-12-13T15:34:52.4835116Z [36;1m[0m
+2023-12-13T15:34:52.4835674Z [36;1m# Every inputs.field should be referenced as INPUT_FIELD later in the action. This allows[0m
+2023-12-13T15:34:52.4836532Z [36;1m# the field to be set either as an argument to the github action or via inputs.json.[0m
+2023-12-13T15:34:52.4837234Z [36;1mif [[ "" = "payload" ]]; then[0m
+2023-12-13T15:34:52.4837630Z [36;1m[0m
+2023-12-13T15:34:52.4837979Z [36;1m  INPUT_GITHUB_TOKEN=$(payload githubToken)[0m
+2023-12-13T15:34:52.4838553Z [36;1m  INPUT_TRUNK_TOKEN=$(payload trunkToken)[0m
+2023-12-13T15:34:52.4839071Z [36;1m  echo "::add-mask::${INPUT_GITHUB_TOKEN}"[0m
+2023-12-13T15:34:52.4839540Z [36;1m  echo "::add-mask::${INPUT_TRUNK_TOKEN}"[0m
+2023-12-13T15:34:52.4840057Z [36;1m[0m
+2023-12-13T15:34:52.4840381Z [36;1m  cat >>$GITHUB_ENV <<EOF[0m
+2023-12-13T15:34:52.4840799Z [36;1mINPUT_GITHUB_TOKEN=${INPUT_GITHUB_TOKEN}[0m
+2023-12-13T15:34:52.4841362Z [36;1mINPUT_TRUNK_TOKEN=${INPUT_TRUNK_TOKEN}[0m
+2023-12-13T15:34:52.4841837Z [36;1mTRUNK_TOKEN=${INPUT_TRUNK_TOKEN}[0m
+2023-12-13T15:34:52.4842235Z [36;1m[0m
+2023-12-13T15:34:52.4842635Z [36;1mTRUNK_API_ADDRESS=$(payload trunkApiAddress)[0m
+2023-12-13T15:34:52.4843095Z [36;1m[0m
+2023-12-13T15:34:52.4843633Z [36;1mGITHUB_EVENT_PULL_REQUEST_BASE_REPO_OWNER=$(payload pullRequest.base.repo.owner.login)[0m
+2023-12-13T15:34:52.4844479Z [36;1mGITHUB_EVENT_PULL_REQUEST_BASE_REPO_NAME=$(payload pullRequest.base.repo.name)[0m
+2023-12-13T15:34:52.4845239Z [36;1mGITHUB_EVENT_PULL_REQUEST_BASE_SHA=$(payload pullRequest.base.sha)[0m
+2023-12-13T15:34:52.4845974Z [36;1mGITHUB_EVENT_PULL_REQUEST_HEAD_REPO_FORK=$(payload pullRequest.head.repo.fork)[0m
+2023-12-13T15:34:52.4846768Z [36;1mGITHUB_EVENT_PULL_REQUEST_HEAD_SHA=$(payload pullRequest.head.sha)[0m
+2023-12-13T15:34:52.4847455Z [36;1mGITHUB_EVENT_PULL_REQUEST_NUMBER=$(payload pullRequest.number)[0m
+2023-12-13T15:34:52.4848028Z [36;1mINPUT_ARGUMENTS=$(payload arguments)[0m
+2023-12-13T15:34:52.4848550Z [36;1mINPUT_CACHE=$(payload cache)[0m
+2023-12-13T15:34:52.4849241Z [36;1mINPUT_CACHE_KEY=$(payload cacheKey)[0m
+2023-12-13T15:34:52.4849712Z [36;1mINPUT_CACHE_PATH=$(payload cachePath)[0m
+2023-12-13T15:34:52.4850313Z [36;1mINPUT_CHECK_ALL_MODE=$(payload checkAllMode)[0m
+2023-12-13T15:34:52.4850778Z [36;1mINPUT_CHECK_MODE=$(payload checkMode)[0m
+2023-12-13T15:34:52.4851259Z [36;1mINPUT_CHECK_RUN_ID=$(payload checkRunId)[0m
+2023-12-13T15:34:52.4851802Z [36;1mINPUT_DEBUG=$(payload debug)[0m
+2023-12-13T15:34:52.4852244Z [36;1mINPUT_GITHUB_REF_NAME=$(payload targetRefName)[0m
+2023-12-13T15:34:52.4852723Z [36;1mINPUT_LABEL=$(payload label)[0m
+2023-12-13T15:34:52.4853566Z [36;1mINPUT_SETUP_CACHE_KEY=$(payload setupCacheKey)[0m
+2023-12-13T15:34:52.4854063Z [36;1mINPUT_SETUP_DEPS=$(payload setupDeps)[0m
+2023-12-13T15:34:52.4854598Z [36;1mINPUT_TARGET_CHECKOUT=$(payload targetCheckout)[0m
+2023-12-13T15:34:52.4855246Z [36;1mINPUT_TARGET_CHECKOUT_REF=$(payload targetCheckoutRef)[0m
+2023-12-13T15:34:52.4855786Z [36;1mINPUT_TRUNK_PATH=$(payload trunkPath)[0m
+2023-12-13T15:34:52.4856318Z [36;1mINPUT_UPLOAD_LANDING_STATE=$(payload uploadLandingState)[0m
+2023-12-13T15:34:52.4856948Z [36;1mINPUT_UPLOAD_SERIES=$(payload uploadSeries)[0m
+2023-12-13T15:34:52.4857455Z [36;1mINPUT_UPLOAD_ID=$(payload uploadId)[0m
+2023-12-13T15:34:52.4857926Z [36;1mINPUT_AUTOFIX_AND_PUSH=$(payload autofixAndPush)[0m
+2023-12-13T15:34:52.4858450Z [36;1mEOF[0m
+2023-12-13T15:34:52.4858763Z [36;1m[0m
+2023-12-13T15:34:52.4859039Z [36;1melse[0m
+2023-12-13T15:34:52.4859393Z [36;1m[0m
+2023-12-13T15:34:52.4859717Z [36;1m  cat >>$GITHUB_ENV <<EOF[0m
+2023-12-13T15:34:52.4860084Z [36;1mINPUT_GITHUB_TOKEN=[0m
+2023-12-13T15:34:52.4860530Z [36;1mINPUT_TRUNK_TOKEN=[0m
+2023-12-13T15:34:52.4860908Z [36;1mTRUNK_TOKEN=[0m
+2023-12-13T15:34:52.4861397Z [36;1mGITHUB_EVENT_PULL_REQUEST_BASE_SHA=51741b58aeeef07fb0503a86f4386b0b41cbc5b8[0m
+2023-12-13T15:34:52.4862304Z [36;1mGITHUB_EVENT_PULL_REQUEST_HEAD_REPO_FORK=true[0m
+2023-12-13T15:34:52.4862948Z [36;1mGITHUB_EVENT_PULL_REQUEST_HEAD_SHA=28f408bc8b9cba0632fd0463ab4bea3ec8dbeca1[0m
+2023-12-13T15:34:52.4863625Z [36;1mGITHUB_EVENT_PULL_REQUEST_NUMBER=612[0m
+2023-12-13T15:34:52.4864050Z [36;1mGITHUB_REF_NAME=612/merge[0m
+2023-12-13T15:34:52.4864462Z [36;1mINPUT_ARGUMENTS=[0m
+2023-12-13T15:34:52.4864890Z [36;1mINPUT_CACHE=true[0m
+2023-12-13T15:34:52.4865544Z [36;1mINPUT_CACHE_KEY=trunk--Linux-b795190f569eae5cf659ed9d7c085ae3c33bdbc7a714d3e9f1a0541a4720ed26[0m
+2023-12-13T15:34:52.4866267Z [36;1mINPUT_CACHE_PATH=~/.cache/trunk[0m
+2023-12-13T15:34:52.4866742Z [36;1mINPUT_CHECK_ALL_MODE=[0m
+2023-12-13T15:34:52.4867103Z [36;1mINPUT_CHECK_MODE=[0m
+2023-12-13T15:34:52.4867470Z [36;1mINPUT_CHECK_RUN_ID=[0m
+2023-12-13T15:34:52.4867905Z [36;1mINPUT_DEBUG=false[0m
+2023-12-13T15:34:52.4868244Z [36;1mINPUT_GITHUB_REF_NAME=612/merge[0m
+2023-12-13T15:34:52.4868651Z [36;1mINPUT_LABEL=[0m
+2023-12-13T15:34:52.4869074Z [36;1mINPUT_SETUP_CACHE_KEY=[0m
+2023-12-13T15:34:52.4869426Z [36;1mINPUT_SETUP_DEPS=false[0m
+2023-12-13T15:34:52.4869829Z [36;1mINPUT_TARGET_CHECKOUT=[0m
+2023-12-13T15:34:52.4870301Z [36;1mINPUT_TARGET_CHECKOUT_REF=[0m
+2023-12-13T15:34:52.4870671Z [36;1mINPUT_TRUNK_PATH=[0m
+2023-12-13T15:34:52.4871059Z [36;1mINPUT_UPLOAD_LANDING_STATE=false[0m
+2023-12-13T15:34:52.4871556Z [36;1mINPUT_UPLOAD_SERIES=[0m
+2023-12-13T15:34:52.4871897Z [36;1mINPUT_UPLOAD_ID=[0m
+2023-12-13T15:34:52.4872257Z [36;1mINPUT_AUTOFIX_AND_PUSH=[0m
+2023-12-13T15:34:52.4872707Z [36;1mEOF[0m
+2023-12-13T15:34:52.4872967Z [36;1m[0m
+2023-12-13T15:34:52.4873251Z [36;1mfi[0m
+2023-12-13T15:34:52.4934168Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2023-12-13T15:34:52.4934689Z env:
+2023-12-13T15:34:52.4935164Z   CACHE_ON_FAILURE: false
+2023-12-13T15:34:52.4935556Z   CARGO_INCREMENTAL: 0
+2023-12-13T15:34:52.4935878Z ##[endgroup]
+2023-12-13T15:34:52.5154990Z ##[group]Run ${GITHUB_ACTION_PATH}/locate_trunk.sh
+2023-12-13T15:34:52.5155491Z [36;1m${GITHUB_ACTION_PATH}/locate_trunk.sh[0m
+2023-12-13T15:34:52.5197613Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2023-12-13T15:34:52.5198091Z env:
+2023-12-13T15:34:52.5198416Z   CACHE_ON_FAILURE: false
+2023-12-13T15:34:52.5198865Z   CARGO_INCREMENTAL: 0
+2023-12-13T15:34:52.5199357Z   GITHUB_TOKEN: ***
+2023-12-13T15:34:52.5199726Z   INPUT_GITHUB_TOKEN: 
+2023-12-13T15:34:52.5200143Z   INPUT_TRUNK_TOKEN: 
+2023-12-13T15:34:52.5200451Z   TRUNK_TOKEN: 
+2023-12-13T15:34:52.5200951Z   GITHUB_EVENT_PULL_REQUEST_BASE_SHA: 51741b58aeeef07fb0503a86f4386b0b41cbc5b8
+2023-12-13T15:34:52.5201626Z   GITHUB_EVENT_PULL_REQUEST_HEAD_REPO_FORK: true
+2023-12-13T15:34:52.5202437Z   GITHUB_EVENT_PULL_REQUEST_HEAD_SHA: 28f408bc8b9cba0632fd0463ab4bea3ec8dbeca1
+2023-12-13T15:34:52.5203005Z   GITHUB_EVENT_PULL_REQUEST_NUMBER: 612
+2023-12-13T15:34:52.5203528Z   GITHUB_REF_NAME: 612/merge
+2023-12-13T15:34:52.5203926Z   INPUT_ARGUMENTS: 
+2023-12-13T15:34:52.5204281Z   INPUT_CACHE: true
+2023-12-13T15:34:52.5204968Z   INPUT_CACHE_KEY: trunk--Linux-b795190f569eae5cf659ed9d7c085ae3c33bdbc7a714d3e9f1a0541a4720ed26
+2023-12-13T15:34:52.5205692Z   INPUT_CACHE_PATH: ~/.cache/trunk
+2023-12-13T15:34:52.5206056Z   INPUT_CHECK_ALL_MODE: 
+2023-12-13T15:34:52.5206485Z   INPUT_CHECK_MODE: 
+2023-12-13T15:34:52.5206825Z   INPUT_CHECK_RUN_ID: 
+2023-12-13T15:34:52.5207134Z   INPUT_DEBUG: false
+2023-12-13T15:34:52.5207553Z   INPUT_GITHUB_REF_NAME: 612/merge
+2023-12-13T15:34:52.5207934Z   INPUT_LABEL: 
+2023-12-13T15:34:52.5208224Z   INPUT_SETUP_CACHE_KEY: 
+2023-12-13T15:34:52.5208881Z   INPUT_SETUP_DEPS: false
+2023-12-13T15:34:52.5209295Z   INPUT_TARGET_CHECKOUT: 
+2023-12-13T15:34:52.5209623Z   INPUT_TARGET_CHECKOUT_REF: 
+2023-12-13T15:34:52.5210092Z   INPUT_TRUNK_PATH: 
+2023-12-13T15:34:52.5210452Z   INPUT_UPLOAD_LANDING_STATE: false
+2023-12-13T15:34:52.5210818Z   INPUT_UPLOAD_SERIES: 
+2023-12-13T15:34:52.5211243Z   INPUT_UPLOAD_ID: 
+2023-12-13T15:34:52.5211782Z   INPUT_AUTOFIX_AND_PUSH: 
+2023-12-13T15:34:52.5212120Z ##[endgroup]
+2023-12-13T15:34:55.0435500Z 1.17.1
+2023-12-13T15:34:55.0514859Z ##[group]Run # Determine check mode
+2023-12-13T15:34:55.0515274Z [36;1m# Determine check mode[0m
+2023-12-13T15:34:55.0515740Z [36;1m${GITHUB_ACTION_PATH}/determine_check_mode.sh[0m
+2023-12-13T15:34:55.0561746Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2023-12-13T15:34:55.0562248Z env:
+2023-12-13T15:34:55.0562570Z   CACHE_ON_FAILURE: false
+2023-12-13T15:34:55.0563016Z   CARGO_INCREMENTAL: 0
+2023-12-13T15:34:55.0563507Z   GITHUB_TOKEN: ***
+2023-12-13T15:34:55.0563876Z   INPUT_GITHUB_TOKEN: 
+2023-12-13T15:34:55.0564292Z   INPUT_TRUNK_TOKEN: 
+2023-12-13T15:34:55.0564615Z   TRUNK_TOKEN: 
+2023-12-13T15:34:55.0565112Z   GITHUB_EVENT_PULL_REQUEST_BASE_SHA: 51741b58aeeef07fb0503a86f4386b0b41cbc5b8
+2023-12-13T15:34:55.0565783Z   GITHUB_EVENT_PULL_REQUEST_HEAD_REPO_FORK: true
+2023-12-13T15:34:55.0566370Z   GITHUB_EVENT_PULL_REQUEST_HEAD_SHA: 28f408bc8b9cba0632fd0463ab4bea3ec8dbeca1
+2023-12-13T15:34:55.0566963Z   GITHUB_EVENT_PULL_REQUEST_NUMBER: 612
+2023-12-13T15:34:55.0567456Z   GITHUB_REF_NAME: 612/merge
+2023-12-13T15:34:55.0567813Z   INPUT_ARGUMENTS: 
+2023-12-13T15:34:55.0568149Z   INPUT_CACHE: true
+2023-12-13T15:34:55.0569128Z   INPUT_CACHE_KEY: trunk--Linux-b795190f569eae5cf659ed9d7c085ae3c33bdbc7a714d3e9f1a0541a4720ed26
+2023-12-13T15:34:55.0569838Z   INPUT_CACHE_PATH: ~/.cache/trunk
+2023-12-13T15:34:55.0570240Z   INPUT_CHECK_ALL_MODE: 
+2023-12-13T15:34:55.0570686Z   INPUT_CHECK_MODE: 
+2023-12-13T15:34:55.0570995Z   INPUT_CHECK_RUN_ID: 
+2023-12-13T15:34:55.0571339Z   INPUT_DEBUG: false
+2023-12-13T15:34:55.0571759Z   INPUT_GITHUB_REF_NAME: 612/merge
+2023-12-13T15:34:55.0572108Z   INPUT_LABEL: 
+2023-12-13T15:34:55.0572440Z   INPUT_SETUP_CACHE_KEY: 
+2023-12-13T15:34:55.0572909Z   INPUT_SETUP_DEPS: false
+2023-12-13T15:34:55.0573235Z   INPUT_TARGET_CHECKOUT: 
+2023-12-13T15:34:55.0573591Z   INPUT_TARGET_CHECKOUT_REF: 
+2023-12-13T15:34:55.0574038Z   INPUT_TRUNK_PATH: 
+2023-12-13T15:34:55.0574368Z   INPUT_UPLOAD_LANDING_STATE: false
+2023-12-13T15:34:55.0574766Z   INPUT_UPLOAD_SERIES: 
+2023-12-13T15:34:55.0575181Z   INPUT_UPLOAD_ID: 
+2023-12-13T15:34:55.0575483Z   INPUT_AUTOFIX_AND_PUSH: 
+2023-12-13T15:34:55.0575868Z   TRUNK_TMPDIR: /tmp/tmp.H0h6Vwyvhr
+2023-12-13T15:34:55.0576365Z   TRUNK_PATH: /tmp/tmp.H0h6Vwyvhr/trunk
+2023-12-13T15:34:55.0576738Z ##[endgroup]
+2023-12-13T15:34:55.0694160Z ##[group]Run if [ ! -e .trunk/trunk.yaml ]; then
+2023-12-13T15:34:55.0694712Z [36;1mif [ ! -e .trunk/trunk.yaml ]; then[0m
+2023-12-13T15:34:55.0695226Z [36;1m  ${TRUNK_PATH:-trunk} init[0m
+2023-12-13T15:34:55.0695605Z [36;1mfi[0m
+2023-12-13T15:34:55.0738823Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2023-12-13T15:34:55.0739310Z env:
+2023-12-13T15:34:55.0739902Z   CACHE_ON_FAILURE: false
+2023-12-13T15:34:55.0740319Z   CARGO_INCREMENTAL: 0
+2023-12-13T15:34:55.0740850Z   GITHUB_TOKEN: ***
+2023-12-13T15:34:55.0741301Z   INPUT_GITHUB_TOKEN: 
+2023-12-13T15:34:55.0741658Z   INPUT_TRUNK_TOKEN: 
+2023-12-13T15:34:55.0741992Z   TRUNK_TOKEN: 
+2023-12-13T15:34:55.0742522Z   GITHUB_EVENT_PULL_REQUEST_BASE_SHA: 51741b58aeeef07fb0503a86f4386b0b41cbc5b8
+2023-12-13T15:34:55.0743111Z   GITHUB_EVENT_PULL_REQUEST_HEAD_REPO_FORK: true
+2023-12-13T15:34:55.0743696Z   GITHUB_EVENT_PULL_REQUEST_HEAD_SHA: 28f408bc8b9cba0632fd0463ab4bea3ec8dbeca1
+2023-12-13T15:34:55.0744350Z   GITHUB_EVENT_PULL_REQUEST_NUMBER: 612
+2023-12-13T15:34:55.0744732Z   GITHUB_REF_NAME: 612/merge
+2023-12-13T15:34:55.0745099Z   INPUT_ARGUMENTS: 
+2023-12-13T15:34:55.0745510Z   INPUT_CACHE: true
+2023-12-13T15:34:55.0746092Z   INPUT_CACHE_KEY: trunk--Linux-b795190f569eae5cf659ed9d7c085ae3c33bdbc7a714d3e9f1a0541a4720ed26
+2023-12-13T15:34:55.0746798Z   INPUT_CACHE_PATH: ~/.cache/trunk
+2023-12-13T15:34:55.0747300Z   INPUT_CHECK_ALL_MODE: 
+2023-12-13T15:34:55.0747625Z   INPUT_CHECK_MODE: 
+2023-12-13T15:34:55.0747962Z   INPUT_CHECK_RUN_ID: 
+2023-12-13T15:34:55.0748374Z   INPUT_DEBUG: false
+2023-12-13T15:34:55.0748871Z   INPUT_GITHUB_REF_NAME: 612/merge
+2023-12-13T15:34:55.0749266Z   INPUT_LABEL: 
+2023-12-13T15:34:55.0749658Z   INPUT_SETUP_CACHE_KEY: 
+2023-12-13T15:34:55.0749983Z   INPUT_SETUP_DEPS: false
+2023-12-13T15:34:55.0750354Z   INPUT_TARGET_CHECKOUT: 
+2023-12-13T15:34:55.0750771Z   INPUT_TARGET_CHECKOUT_REF: 
+2023-12-13T15:34:55.0751105Z   INPUT_TRUNK_PATH: 
+2023-12-13T15:34:55.0751500Z   INPUT_UPLOAD_LANDING_STATE: false
+2023-12-13T15:34:55.0751962Z   INPUT_UPLOAD_SERIES: 
+2023-12-13T15:34:55.0752272Z   INPUT_UPLOAD_ID: 
+2023-12-13T15:34:55.0752620Z   INPUT_AUTOFIX_AND_PUSH: 
+2023-12-13T15:34:55.0753059Z   TRUNK_TMPDIR: /tmp/tmp.H0h6Vwyvhr
+2023-12-13T15:34:55.0753442Z   TRUNK_PATH: /tmp/tmp.H0h6Vwyvhr/trunk
+2023-12-13T15:34:55.0753881Z   TRUNK_CHECK_MODE: pull_request
+2023-12-13T15:34:55.0754319Z ##[endgroup]
+2023-12-13T15:34:55.0851298Z ##[group]Run if [ -e .trunk/setup-ci ]; then
+2023-12-13T15:34:55.0851809Z [36;1mif [ -e .trunk/setup-ci ]; then[0m
+2023-12-13T15:34:55.0852262Z [36;1m  echo "INPUT_SETUP_DEPS=true" >>$GITHUB_ENV[0m
+2023-12-13T15:34:55.0852800Z [36;1melse[0m
+2023-12-13T15:34:55.0853145Z [36;1m  mkdir -p .trunk[0m
+2023-12-13T15:34:55.0853713Z [36;1m  ln -s /home/runner/work/_actions/trunk-io/trunk-action/v1/setup-env .trunk/setup-ci[0m
+2023-12-13T15:34:55.0854485Z [36;1m  echo .trunk/setup-ci >>.git/info/exclude[0m
+2023-12-13T15:34:55.0854944Z [36;1mfi[0m
+2023-12-13T15:34:55.0897430Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2023-12-13T15:34:55.0897917Z env:
+2023-12-13T15:34:55.0898284Z   CACHE_ON_FAILURE: false
+2023-12-13T15:34:55.0898667Z   CARGO_INCREMENTAL: 0
+2023-12-13T15:34:55.0899190Z   GITHUB_TOKEN: ***
+2023-12-13T15:34:55.0899598Z   INPUT_GITHUB_TOKEN: 
+2023-12-13T15:34:55.0899936Z   INPUT_TRUNK_TOKEN: 
+2023-12-13T15:34:55.0900293Z   TRUNK_TOKEN: 
+2023-12-13T15:34:55.0900862Z   GITHUB_EVENT_PULL_REQUEST_BASE_SHA: 51741b58aeeef07fb0503a86f4386b0b41cbc5b8
+2023-12-13T15:34:55.0901435Z   GITHUB_EVENT_PULL_REQUEST_HEAD_REPO_FORK: true
+2023-12-13T15:34:55.0902028Z   GITHUB_EVENT_PULL_REQUEST_HEAD_SHA: 28f408bc8b9cba0632fd0463ab4bea3ec8dbeca1
+2023-12-13T15:34:55.0902686Z   GITHUB_EVENT_PULL_REQUEST_NUMBER: 612
+2023-12-13T15:34:55.0903068Z   GITHUB_REF_NAME: 612/merge
+2023-12-13T15:34:55.0903440Z   INPUT_ARGUMENTS: 
+2023-12-13T15:34:55.0903847Z   INPUT_CACHE: true
+2023-12-13T15:34:55.0904426Z   INPUT_CACHE_KEY: trunk--Linux-b795190f569eae5cf659ed9d7c085ae3c33bdbc7a714d3e9f1a0541a4720ed26
+2023-12-13T15:34:55.0905119Z   INPUT_CACHE_PATH: ~/.cache/trunk
+2023-12-13T15:34:55.0905585Z   INPUT_CHECK_ALL_MODE: 
+2023-12-13T15:34:55.0905907Z   INPUT_CHECK_MODE: 
+2023-12-13T15:34:55.0906278Z   INPUT_CHECK_RUN_ID: 
+2023-12-13T15:34:55.0906694Z   INPUT_DEBUG: false
+2023-12-13T15:34:55.0907004Z   INPUT_GITHUB_REF_NAME: 612/merge
+2023-12-13T15:34:55.0907386Z   INPUT_LABEL: 
+2023-12-13T15:34:55.0907974Z   INPUT_SETUP_CACHE_KEY: 
+2023-12-13T15:34:55.0908322Z   INPUT_SETUP_DEPS: false
+2023-12-13T15:34:55.0908700Z   INPUT_TARGET_CHECKOUT: 
+2023-12-13T15:34:55.0909128Z   INPUT_TARGET_CHECKOUT_REF: 
+2023-12-13T15:34:55.0909468Z   INPUT_TRUNK_PATH: 
+2023-12-13T15:34:55.0909841Z   INPUT_UPLOAD_LANDING_STATE: false
+2023-12-13T15:34:55.0910298Z   INPUT_UPLOAD_SERIES: 
+2023-12-13T15:34:55.0910609Z   INPUT_UPLOAD_ID: 
+2023-12-13T15:34:55.0910983Z   INPUT_AUTOFIX_AND_PUSH: 
+2023-12-13T15:34:55.0911417Z   TRUNK_TMPDIR: /tmp/tmp.H0h6Vwyvhr
+2023-12-13T15:34:55.0911797Z   TRUNK_PATH: /tmp/tmp.H0h6Vwyvhr/trunk
+2023-12-13T15:34:55.0912233Z   TRUNK_CHECK_MODE: pull_request
+2023-12-13T15:34:55.0912669Z ##[endgroup]
+2023-12-13T15:34:55.1077512Z ##[group]Run actions/cache@v3
+2023-12-13T15:34:55.1077876Z with:
+2023-12-13T15:34:55.1078245Z   path: ~/.cache/trunk
+2023-12-13T15:34:55.1078843Z   key: trunk--Linux-b795190f569eae5cf659ed9d7c085ae3c33bdbc7a714d3e9f1a0541a4720ed26
+2023-12-13T15:34:55.1079496Z   enableCrossOsArchive: false
+2023-12-13T15:34:55.1079979Z   fail-on-cache-miss: false
+2023-12-13T15:34:55.1080364Z   lookup-only: false
+2023-12-13T15:34:55.1080652Z env:
+2023-12-13T15:34:55.1081006Z   CACHE_ON_FAILURE: false
+2023-12-13T15:34:55.1081590Z   CARGO_INCREMENTAL: 0
+2023-12-13T15:34:55.1082084Z   GITHUB_TOKEN: ***
+2023-12-13T15:34:55.1082498Z   INPUT_GITHUB_TOKEN: 
+2023-12-13T15:34:55.1082867Z   INPUT_TRUNK_TOKEN: 
+2023-12-13T15:34:55.1083178Z   TRUNK_TOKEN: 
+2023-12-13T15:34:55.1083724Z   GITHUB_EVENT_PULL_REQUEST_BASE_SHA: 51741b58aeeef07fb0503a86f4386b0b41cbc5b8
+2023-12-13T15:34:55.1084356Z   GITHUB_EVENT_PULL_REQUEST_HEAD_REPO_FORK: true
+2023-12-13T15:34:55.1084950Z   GITHUB_EVENT_PULL_REQUEST_HEAD_SHA: 28f408bc8b9cba0632fd0463ab4bea3ec8dbeca1
+2023-12-13T15:34:55.1085573Z   GITHUB_EVENT_PULL_REQUEST_NUMBER: 612
+2023-12-13T15:34:55.1085985Z   GITHUB_REF_NAME: 612/merge
+2023-12-13T15:34:55.1086352Z   INPUT_ARGUMENTS: 
+2023-12-13T15:34:55.1086721Z   INPUT_CACHE: true
+2023-12-13T15:34:55.1087336Z   INPUT_CACHE_KEY: trunk--Linux-b795190f569eae5cf659ed9d7c085ae3c33bdbc7a714d3e9f1a0541a4720ed26
+2023-12-13T15:34:55.1088030Z   INPUT_CACHE_PATH: ~/.cache/trunk
+2023-12-13T15:34:55.1088462Z   INPUT_CHECK_ALL_MODE: 
+2023-12-13T15:34:55.1089112Z   INPUT_CHECK_MODE: 
+2023-12-13T15:34:55.1089478Z   INPUT_CHECK_RUN_ID: 
+2023-12-13T15:34:55.1089867Z   INPUT_DEBUG: false
+2023-12-13T15:34:55.1090244Z   INPUT_GITHUB_REF_NAME: 612/merge
+2023-12-13T15:34:55.1090645Z   INPUT_LABEL: 
+2023-12-13T15:34:55.1090999Z   INPUT_SETUP_CACHE_KEY: 
+2023-12-13T15:34:55.1091360Z   INPUT_SETUP_DEPS: false
+2023-12-13T15:34:55.1091726Z   INPUT_TARGET_CHECKOUT: 
+2023-12-13T15:34:55.1092102Z   INPUT_TARGET_CHECKOUT_REF: 
+2023-12-13T15:34:55.1092469Z   INPUT_TRUNK_PATH: 
+2023-12-13T15:34:55.1092837Z   INPUT_UPLOAD_LANDING_STATE: false
+2023-12-13T15:34:55.1093266Z   INPUT_UPLOAD_SERIES: 
+2023-12-13T15:34:55.1093609Z   INPUT_UPLOAD_ID: 
+2023-12-13T15:34:55.1093960Z   INPUT_AUTOFIX_AND_PUSH: 
+2023-12-13T15:34:55.1094361Z   TRUNK_TMPDIR: /tmp/tmp.H0h6Vwyvhr
+2023-12-13T15:34:55.1094820Z   TRUNK_PATH: /tmp/tmp.H0h6Vwyvhr/trunk
+2023-12-13T15:34:55.1095260Z   TRUNK_CHECK_MODE: pull_request
+2023-12-13T15:34:55.1095660Z ##[endgroup]
+2023-12-13T15:34:56.3547085Z Received 264241152 of 1305464897 (20.2%), 252.0 MBs/sec
+2023-12-13T15:34:57.3554218Z Received 583008256 of 1305464897 (44.7%), 277.9 MBs/sec
+2023-12-13T15:34:58.3603238Z Received 851443712 of 1305464897 (65.2%), 270.2 MBs/sec
+2023-12-13T15:34:59.3606231Z Received 1115684864 of 1305464897 (85.5%), 265.6 MBs/sec
+2023-12-13T15:34:59.9119348Z Cache Size: ~1245 MB (1305464897 B)
+2023-12-13T15:34:59.9158135Z [command]/usr/bin/tar -xf /home/runner/work/_temp/85be588c-5431-4635-b7e8-9c6040152393/cache.tzst -P -C /home/runner/work/ef-tests/ef-tests --use-compress-program unzstd
+2023-12-13T15:35:00.3615870Z Received 1305464897 of 1305464897 (100.0%), 248.6 MBs/sec
+2023-12-13T15:35:16.3465400Z Cache restored successfully
+2023-12-13T15:35:16.5680086Z Cache restored from key: trunk--Linux-b795190f569eae5cf659ed9d7c085ae3c33bdbc7a714d3e9f1a0541a4720ed26
+2023-12-13T15:35:16.8906990Z ##[group]Run # Run 'trunk check' on pull request
+2023-12-13T15:35:16.8907433Z [36;1m# Run 'trunk check' on pull request[0m
+2023-12-13T15:35:16.8907841Z [36;1m${GITHUB_ACTION_PATH}/pull_request.sh[0m
+2023-12-13T15:35:16.8952336Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2023-12-13T15:35:16.8952748Z env:
+2023-12-13T15:35:16.8952971Z   CACHE_ON_FAILURE: false
+2023-12-13T15:35:16.8953260Z   CARGO_INCREMENTAL: 0
+2023-12-13T15:35:16.8953714Z   GITHUB_TOKEN: ***
+2023-12-13T15:35:16.8953982Z   INPUT_GITHUB_TOKEN: 
+2023-12-13T15:35:16.8954251Z   INPUT_TRUNK_TOKEN: 
+2023-12-13T15:35:16.8954499Z   TRUNK_TOKEN: 
+2023-12-13T15:35:16.8954900Z   GITHUB_EVENT_PULL_REQUEST_BASE_SHA: 51741b58aeeef07fb0503a86f4386b0b41cbc5b8
+2023-12-13T15:35:16.8955439Z   GITHUB_EVENT_PULL_REQUEST_HEAD_REPO_FORK: true
+2023-12-13T15:35:16.8955965Z   GITHUB_EVENT_PULL_REQUEST_HEAD_SHA: 28f408bc8b9cba0632fd0463ab4bea3ec8dbeca1
+2023-12-13T15:35:16.8956484Z   GITHUB_EVENT_PULL_REQUEST_NUMBER: 612
+2023-12-13T15:35:16.8956834Z   GITHUB_REF_NAME: 612/merge
+2023-12-13T15:35:16.8957122Z   INPUT_ARGUMENTS: 
+2023-12-13T15:35:16.8957370Z   INPUT_CACHE: true
+2023-12-13T15:35:16.8958108Z   INPUT_CACHE_KEY: trunk--Linux-b795190f569eae5cf659ed9d7c085ae3c33bdbc7a714d3e9f1a0541a4720ed26
+2023-12-13T15:35:16.8958735Z   INPUT_CACHE_PATH: ~/.cache/trunk
+2023-12-13T15:35:16.8959047Z   INPUT_CHECK_ALL_MODE: 
+2023-12-13T15:35:16.8959319Z   INPUT_CHECK_MODE: 
+2023-12-13T15:35:16.8959574Z   INPUT_CHECK_RUN_ID: 
+2023-12-13T15:35:16.8959836Z   INPUT_DEBUG: false
+2023-12-13T15:35:16.8960095Z   INPUT_GITHUB_REF_NAME: 612/merge
+2023-12-13T15:35:16.8960393Z   INPUT_LABEL: 
+2023-12-13T15:35:16.8960635Z   INPUT_SETUP_CACHE_KEY: 
+2023-12-13T15:35:16.8960913Z   INPUT_SETUP_DEPS: false
+2023-12-13T15:35:16.8961187Z   INPUT_TARGET_CHECKOUT: 
+2023-12-13T15:35:16.8961466Z   INPUT_TARGET_CHECKOUT_REF: 
+2023-12-13T15:35:16.8961751Z   INPUT_TRUNK_PATH: 
+2023-12-13T15:35:16.8962023Z   INPUT_UPLOAD_LANDING_STATE: false
+2023-12-13T15:35:16.8962350Z   INPUT_UPLOAD_SERIES: 
+2023-12-13T15:35:16.8962616Z   INPUT_UPLOAD_ID: 
+2023-12-13T15:35:16.8962871Z   INPUT_AUTOFIX_AND_PUSH: 
+2023-12-13T15:35:16.8963157Z   TRUNK_TMPDIR: /tmp/tmp.H0h6Vwyvhr
+2023-12-13T15:35:16.8963502Z   TRUNK_PATH: /tmp/tmp.H0h6Vwyvhr/trunk
+2023-12-13T15:35:16.8963848Z   TRUNK_CHECK_MODE: pull_request
+2023-12-13T15:35:16.8964161Z   INPUT_SAVE_ANNOTATIONS: auto
+2023-12-13T15:35:16.8964452Z ##[endgroup]
+2023-12-13T15:35:17.1356350Z Detected merge commit, using HEAD^1 (51741b58aeeef07fb0503a86f4386b0b41cbc5b8) as upstream and HEAD^2 (28f408bc8b9cba0632fd0463ab4bea3ec8dbeca1) as github commit
+2023-12-13T15:35:17.1358453Z Fork detected, saving annotations to an artifact.
+2023-12-13T15:38:02.5146626Z [0G[0G[0G[0G[0G[0G[0GChecked 7 modified files
+2023-12-13T15:38:02.5149556Z [1m[92m✔ No issues[0m
+2023-12-13T15:38:02.5253204Z ##[group]Run actions/upload-artifact@v3
+2023-12-13T15:38:02.5253533Z with:
+2023-12-13T15:38:02.5253753Z   name: trunk-annotations
+2023-12-13T15:38:02.5254093Z   path: /tmp/tmp.H0h6Vwyvhr/annotations.bin
+2023-12-13T15:38:02.5254450Z   if-no-files-found: warn
+2023-12-13T15:38:02.5254703Z env:
+2023-12-13T15:38:02.5254913Z   CACHE_ON_FAILURE: false
+2023-12-13T15:38:02.5255197Z   CARGO_INCREMENTAL: 0
+2023-12-13T15:38:02.5255625Z   GITHUB_TOKEN: ***
+2023-12-13T15:38:02.5255887Z   INPUT_GITHUB_TOKEN: 
+2023-12-13T15:38:02.5256149Z   INPUT_TRUNK_TOKEN: 
+2023-12-13T15:38:02.5256403Z   TRUNK_TOKEN: 
+2023-12-13T15:38:02.5256794Z   GITHUB_EVENT_PULL_REQUEST_BASE_SHA: 51741b58aeeef07fb0503a86f4386b0b41cbc5b8
+2023-12-13T15:38:02.5257310Z   GITHUB_EVENT_PULL_REQUEST_HEAD_REPO_FORK: true
+2023-12-13T15:38:02.5257818Z   GITHUB_EVENT_PULL_REQUEST_HEAD_SHA: 28f408bc8b9cba0632fd0463ab4bea3ec8dbeca1
+2023-12-13T15:38:02.5258306Z   GITHUB_EVENT_PULL_REQUEST_NUMBER: 612
+2023-12-13T15:38:02.5258633Z   GITHUB_REF_NAME: 612/merge
+2023-12-13T15:38:02.5258919Z   INPUT_ARGUMENTS: 
+2023-12-13T15:38:02.5259165Z   INPUT_CACHE: true
+2023-12-13T15:38:02.5259897Z   INPUT_CACHE_KEY: trunk--Linux-b795190f569eae5cf659ed9d7c085ae3c33bdbc7a714d3e9f1a0541a4720ed26
+2023-12-13T15:38:02.5260514Z   INPUT_CACHE_PATH: ~/.cache/trunk
+2023-12-13T15:38:02.5260821Z   INPUT_CHECK_ALL_MODE: 
+2023-12-13T15:38:02.5261094Z   INPUT_CHECK_MODE: 
+2023-12-13T15:38:02.5261343Z   INPUT_CHECK_RUN_ID: 
+2023-12-13T15:38:02.5261596Z   INPUT_DEBUG: false
+2023-12-13T15:38:02.5261862Z   INPUT_GITHUB_REF_NAME: 612/merge
+2023-12-13T15:38:02.5262163Z   INPUT_LABEL: 
+2023-12-13T15:38:02.5262411Z   INPUT_SETUP_CACHE_KEY: 
+2023-12-13T15:38:02.5262689Z   INPUT_SETUP_DEPS: false
+2023-12-13T15:38:02.5262958Z   INPUT_TARGET_CHECKOUT: 
+2023-12-13T15:38:02.5263223Z   INPUT_TARGET_CHECKOUT_REF: 
+2023-12-13T15:38:02.5263511Z   INPUT_TRUNK_PATH: 
+2023-12-13T15:38:02.5263776Z   INPUT_UPLOAD_LANDING_STATE: false
+2023-12-13T15:38:02.5264090Z   INPUT_UPLOAD_SERIES: 
+2023-12-13T15:38:02.5264348Z   INPUT_UPLOAD_ID: 
+2023-12-13T15:38:02.5264593Z   INPUT_AUTOFIX_AND_PUSH: 
+2023-12-13T15:38:02.5264885Z   TRUNK_TMPDIR: /tmp/tmp.H0h6Vwyvhr
+2023-12-13T15:38:02.5265223Z   TRUNK_PATH: /tmp/tmp.H0h6Vwyvhr/trunk
+2023-12-13T15:38:02.5265559Z   TRUNK_CHECK_MODE: pull_request
+2023-12-13T15:38:02.5265878Z   TRUNK_UPLOAD_ANNOTATIONS: true
+2023-12-13T15:38:02.5266348Z ##[endgroup]
+2023-12-13T15:38:02.5877026Z With the provided path, there will be 1 file uploaded
+2023-12-13T15:38:02.5879270Z Starting artifact upload
+2023-12-13T15:38:02.5881434Z For more detailed logs during the artifact upload process, enable step-debugging: https://docs.github.com/actions/monitoring-and-troubleshooting-workflows/enabling-debug-logging#enabling-step-debug-logging
+2023-12-13T15:38:02.5883468Z Artifact name is valid!
+2023-12-13T15:38:02.6579754Z Container for artifact "trunk-annotations" successfully created. Starting upload of file(s)
+2023-12-13T15:38:02.7630188Z Total size of all the files uploaded is 756 bytes
+2023-12-13T15:38:02.7631195Z File upload process has finished. Finalizing the artifact upload
+2023-12-13T15:38:02.8060743Z Artifact has been finalized. All files have been successfully uploaded!
+2023-12-13T15:38:02.8061585Z 
+2023-12-13T15:38:02.8062081Z The raw size of all the files that were specified for upload is 3548 bytes
+2023-12-13T15:38:02.8063857Z The size of all the files that were uploaded is 756 bytes. This takes into account any gzip compression used to reduce the upload size, time and storage
+2023-12-13T15:38:02.8065028Z 
+2023-12-13T15:38:02.8066486Z Note: The size of downloaded zips can differ significantly from the reported size. For more information see: https://github.com/actions/upload-artifact#zipped-artifact-downloads 
+2023-12-13T15:38:02.8067952Z 
+2023-12-13T15:38:02.8068376Z Artifact trunk-annotations has been successfully uploaded!
+2023-12-13T15:38:02.8148294Z ##[group]Run # Cleanup temporary files
+2023-12-13T15:38:02.8148655Z [36;1m# Cleanup temporary files[0m
+2023-12-13T15:38:02.8149014Z [36;1m${GITHUB_ACTION_PATH}/cleanup.sh[0m
+2023-12-13T15:38:02.8193328Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2023-12-13T15:38:02.8193730Z env:
+2023-12-13T15:38:02.8193960Z   CACHE_ON_FAILURE: false
+2023-12-13T15:38:02.8194241Z   CARGO_INCREMENTAL: 0
+2023-12-13T15:38:02.8194666Z   GITHUB_TOKEN: ***
+2023-12-13T15:38:02.8194931Z   INPUT_GITHUB_TOKEN: 
+2023-12-13T15:38:02.8195206Z   INPUT_TRUNK_TOKEN: 
+2023-12-13T15:38:02.8195450Z   TRUNK_TOKEN: 
+2023-12-13T15:38:02.8195833Z   GITHUB_EVENT_PULL_REQUEST_BASE_SHA: 51741b58aeeef07fb0503a86f4386b0b41cbc5b8
+2023-12-13T15:38:02.8196348Z   GITHUB_EVENT_PULL_REQUEST_HEAD_REPO_FORK: true
+2023-12-13T15:38:02.8196854Z   GITHUB_EVENT_PULL_REQUEST_HEAD_SHA: 28f408bc8b9cba0632fd0463ab4bea3ec8dbeca1
+2023-12-13T15:38:02.8197340Z   GITHUB_EVENT_PULL_REQUEST_NUMBER: 612
+2023-12-13T15:38:02.8197664Z   GITHUB_REF_NAME: 612/merge
+2023-12-13T15:38:02.8197947Z   INPUT_ARGUMENTS: 
+2023-12-13T15:38:02.8198193Z   INPUT_CACHE: true
+2023-12-13T15:38:02.8198719Z   INPUT_CACHE_KEY: trunk--Linux-b795190f569eae5cf659ed9d7c085ae3c33bdbc7a714d3e9f1a0541a4720ed26
+2023-12-13T15:38:02.8199325Z   INPUT_CACHE_PATH: ~/.cache/trunk
+2023-12-13T15:38:02.8199814Z   INPUT_CHECK_ALL_MODE: 
+2023-12-13T15:38:02.8200095Z   INPUT_CHECK_MODE: 
+2023-12-13T15:38:02.8200347Z   INPUT_CHECK_RUN_ID: 
+2023-12-13T15:38:02.8200603Z   INPUT_DEBUG: false
+2023-12-13T15:38:02.8200871Z   INPUT_GITHUB_REF_NAME: 612/merge
+2023-12-13T15:38:02.8201164Z   INPUT_LABEL: 
+2023-12-13T15:38:02.8201404Z   INPUT_SETUP_CACHE_KEY: 
+2023-12-13T15:38:02.8201679Z   INPUT_SETUP_DEPS: false
+2023-12-13T15:38:02.8201944Z   INPUT_TARGET_CHECKOUT: 
+2023-12-13T15:38:02.8202211Z   INPUT_TARGET_CHECKOUT_REF: 
+2023-12-13T15:38:02.8202491Z   INPUT_TRUNK_PATH: 
+2023-12-13T15:38:02.8202753Z   INPUT_UPLOAD_LANDING_STATE: false
+2023-12-13T15:38:02.8203066Z   INPUT_UPLOAD_SERIES: 
+2023-12-13T15:38:02.8203323Z   INPUT_UPLOAD_ID: 
+2023-12-13T15:38:02.8203574Z   INPUT_AUTOFIX_AND_PUSH: 
+2023-12-13T15:38:02.8203859Z   TRUNK_TMPDIR: /tmp/tmp.H0h6Vwyvhr
+2023-12-13T15:38:02.8204199Z   TRUNK_PATH: /tmp/tmp.H0h6Vwyvhr/trunk
+2023-12-13T15:38:02.8204535Z   TRUNK_CHECK_MODE: pull_request
+2023-12-13T15:38:02.8204849Z   TRUNK_UPLOAD_ANNOTATIONS: true
+2023-12-13T15:38:02.8205139Z ##[endgroup]
+2023-12-13T15:38:02.8507217Z Post job cleanup.
+2023-12-13T15:38:02.8540642Z Post job cleanup.
+2023-12-13T15:38:02.9742465Z Cache hit occurred on the primary key trunk--Linux-b795190f569eae5cf659ed9d7c085ae3c33bdbc7a714d3e9f1a0541a4720ed26, not saving cache.
+2023-12-13T15:38:02.9857341Z Post job cleanup.
+2023-12-13T15:38:03.1138490Z ##[group]Cache Configuration
+2023-12-13T15:38:03.1140813Z Cache Provider:
+2023-12-13T15:38:03.1141242Z     github
+2023-12-13T15:38:03.1141624Z Workspaces:
+2023-12-13T15:38:03.1142315Z     /home/runner/work/ef-tests/ef-tests
+2023-12-13T15:38:03.1142908Z Cache Paths:
+2023-12-13T15:38:03.1143327Z     /home/runner/.cargo
+2023-12-13T15:38:03.1143965Z     /home/runner/work/ef-tests/ef-tests/target
+2023-12-13T15:38:03.1144590Z Restore Key:
+2023-12-13T15:38:03.1145135Z     v0-rust-trunk_check-d940afbb
+2023-12-13T15:38:03.1145673Z Cache Key:
+2023-12-13T15:38:03.1146226Z     v0-rust-trunk_check-d940afbb-e45f68cf
+2023-12-13T15:38:03.1146835Z .. Prefix:
+2023-12-13T15:38:03.1147307Z   - v0-rust-trunk_check
+2023-12-13T15:38:03.1147809Z .. Environment considered:
+2023-12-13T15:38:03.1148975Z   - Rust Version: 1.76.0-nightly x86_64-unknown-linux-gnu (3340d49d22b1aba425779767278c40781826c2f5)
+2023-12-13T15:38:03.1150216Z   - CARGO_INCREMENTAL
+2023-12-13T15:38:03.1150773Z .. Lockfiles considered:
+2023-12-13T15:38:03.1151439Z   - /home/runner/work/ef-tests/ef-tests/Cargo.lock
+2023-12-13T15:38:03.1152262Z   - /home/runner/work/ef-tests/ef-tests/Cargo.toml
+2023-12-13T15:38:03.1153245Z   - /home/runner/work/ef-tests/ef-tests/crates/build-utils/Cargo.toml
+2023-12-13T15:38:03.1154383Z   - /home/runner/work/ef-tests/ef-tests/crates/ef-testing/Cargo.toml
+2023-12-13T15:38:03.1155490Z   - /home/runner/work/ef-tests/ef-tests/crates/sequencer/Cargo.toml
+2023-12-13T15:38:03.1156469Z   - /home/runner/work/ef-tests/ef-tests/rust-toolchain
+2023-12-13T15:38:03.1157473Z ##[endgroup]
+2023-12-13T15:38:03.1157718Z 
+2023-12-13T15:38:26.4184294Z ... Cleaning /home/runner/work/ef-tests/ef-tests/target ...
+2023-12-13T15:38:26.4191604Z ... Cleaning cargo registry (cache-all-crates: false) ...
+2023-12-13T15:38:27.5085039Z ... Cleaning cargo/bin ...
+2023-12-13T15:38:27.5146673Z ... Cleaning cargo git cache ...
+2023-12-13T15:38:27.5175687Z ... Saving cache ...
+2023-12-13T15:38:27.5384665Z [command]/usr/bin/tar --posix -cf cache.tzst --exclude cache.tzst -P -C /home/runner/work/ef-tests/ef-tests --files-from manifest.txt --use-compress-program zstdmt
+2023-12-13T15:38:34.7001757Z Cache Size: ~208 MB (218166959 B)
+2023-12-13T15:38:34.7843170Z Cache saved successfully
+2023-12-13T15:38:34.8507450Z Post job cleanup.
+2023-12-13T15:38:34.9337097Z [command]/usr/bin/git version
+2023-12-13T15:38:34.9383300Z git version 2.43.0
+2023-12-13T15:38:34.9423340Z Temporarily overriding HOME='/home/runner/work/_temp/2eb84250-4ff2-49b7-bd51-7bbcef4128d8' before making global git config changes
+2023-12-13T15:38:34.9425434Z Adding repository directory to the temporary git global config as a safe directory
+2023-12-13T15:38:34.9429563Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/ef-tests/ef-tests
+2023-12-13T15:38:34.9471176Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2023-12-13T15:38:34.9510040Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2023-12-13T15:38:34.9760532Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2023-12-13T15:38:34.9793202Z http.https://github.com/.extraheader
+2023-12-13T15:38:34.9804398Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2023-12-13T15:38:34.9843957Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2023-12-13T15:38:35.0318489Z Cleaning up orphan processes

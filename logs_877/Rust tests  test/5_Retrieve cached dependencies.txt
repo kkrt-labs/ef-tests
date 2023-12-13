@@ -1,0 +1,63 @@
+2023-12-13T15:34:51.7422139Z ##[group]Run Swatinem/rust-cache@v2
+2023-12-13T15:34:51.7422762Z with:
+2023-12-13T15:34:51.7423153Z   prefix-key: v0-rust
+2023-12-13T15:34:51.7423507Z   cache-targets: true
+2023-12-13T15:34:51.7423873Z   cache-all-crates: false
+2023-12-13T15:34:51.7424306Z   save-if: true
+2023-12-13T15:34:51.7424635Z   cache-provider: github
+2023-12-13T15:34:51.7424972Z env:
+2023-12-13T15:34:51.7425399Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.0/x64
+2023-12-13T15:34:51.7426047Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.0/x64/lib/pkgconfig
+2023-12-13T15:34:51.7426691Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.0/x64
+2023-12-13T15:34:51.7427311Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.0/x64
+2023-12-13T15:34:51.7427885Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.0/x64
+2023-12-13T15:34:51.7428559Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.0/x64/lib
+2023-12-13T15:34:51.7429112Z ##[endgroup]
+2023-12-13T15:34:52.0074284Z ##[group]Cache Configuration
+2023-12-13T15:34:52.0074937Z Cache Provider:
+2023-12-13T15:34:52.0075430Z     github
+2023-12-13T15:34:52.0075720Z Workspaces:
+2023-12-13T15:34:52.0076215Z     /home/runner/work/ef-tests/ef-tests
+2023-12-13T15:34:52.0076787Z Cache Paths:
+2023-12-13T15:34:52.0077102Z     /home/runner/.cargo
+2023-12-13T15:34:52.0077597Z     /home/runner/work/ef-tests/ef-tests/target
+2023-12-13T15:34:52.0078114Z Restore Key:
+2023-12-13T15:34:52.0078458Z     v0-rust-test-ba7884a8
+2023-12-13T15:34:52.0078857Z Cache Key:
+2023-12-13T15:34:52.0079299Z     v0-rust-test-ba7884a8-e45f68cf
+2023-12-13T15:34:52.0079687Z .. Prefix:
+2023-12-13T15:34:52.0080112Z   - v0-rust-test
+2023-12-13T15:34:52.0080599Z .. Environment considered:
+2023-12-13T15:34:52.0081347Z   - Rust Version: 1.74.0-nightly x86_64-unknown-linux-gnu (b3aa8e7168a3d940122db3561289ffbf3f587262)
+2023-12-13T15:34:52.0082103Z   - CARGO_INCREMENTAL
+2023-12-13T15:34:52.0082549Z .. Lockfiles considered:
+2023-12-13T15:34:52.0083045Z   - /home/runner/work/ef-tests/ef-tests/Cargo.lock
+2023-12-13T15:34:52.0083628Z   - /home/runner/work/ef-tests/ef-tests/Cargo.toml
+2023-12-13T15:34:52.0084375Z   - /home/runner/work/ef-tests/ef-tests/crates/build-utils/Cargo.toml
+2023-12-13T15:34:52.0085150Z   - /home/runner/work/ef-tests/ef-tests/crates/ef-testing/Cargo.toml
+2023-12-13T15:34:52.0086142Z   - /home/runner/work/ef-tests/ef-tests/crates/sequencer/Cargo.toml
+2023-12-13T15:34:52.0086917Z   - /home/runner/work/ef-tests/ef-tests/rust-toolchain
+2023-12-13T15:34:52.0087669Z ##[endgroup]
+2023-12-13T15:34:52.0087841Z 
+2023-12-13T15:34:52.0088101Z ... Restoring cache ...
+2023-12-13T15:34:53.2640680Z Received 197132288 of 3049923412 (6.5%), 188.2 MBs/sec
+2023-12-13T15:34:54.2638099Z Received 360710144 of 3049923412 (11.8%), 172.1 MBs/sec
+2023-12-13T15:34:55.2646003Z Received 570425344 of 3049923412 (18.7%), 181.3 MBs/sec
+2023-12-13T15:34:56.2650651Z Received 817889280 of 3049923412 (26.8%), 195.0 MBs/sec
+2023-12-13T15:34:57.2650262Z Received 1019215872 of 3049923412 (33.4%), 194.4 MBs/sec
+2023-12-13T15:34:58.2650010Z Received 1178599424 of 3049923412 (38.6%), 187.3 MBs/sec
+2023-12-13T15:34:59.2648186Z Received 1325400064 of 3049923412 (43.5%), 180.6 MBs/sec
+2023-12-13T15:35:00.2649677Z Received 1518338048 of 3049923412 (49.8%), 181.0 MBs/sec
+2023-12-13T15:35:01.2647710Z Received 1673527296 of 3049923412 (54.9%), 177.3 MBs/sec
+2023-12-13T15:35:02.2652362Z Received 1866465280 of 3049923412 (61.2%), 178.0 MBs/sec
+2023-12-13T15:35:03.2655860Z Received 2004877312 of 3049923412 (65.7%), 173.8 MBs/sec
+2023-12-13T15:35:04.2662420Z Received 2143289344 of 3049923412 (70.3%), 170.3 MBs/sec
+2023-12-13T15:35:05.2660003Z Received 2327838720 of 3049923412 (76.3%), 170.8 MBs/sec
+2023-12-13T15:35:06.2659321Z Received 2508193792 of 3049923412 (82.2%), 170.8 MBs/sec
+2023-12-13T15:35:07.2665715Z Received 2722103296 of 3049923412 (89.3%), 173.0 MBs/sec
+2023-12-13T15:35:08.2672536Z Received 2944401408 of 3049923412 (96.5%), 175.5 MBs/sec
+2023-12-13T15:35:08.8954077Z Cache Size: ~2909 MB (3049923412 B)
+2023-12-13T15:35:08.9027895Z [command]/usr/bin/tar -xf /home/runner/work/_temp/44425fc1-185b-46bc-b500-bb1d0040e015/cache.tzst -P -C /home/runner/work/ef-tests/ef-tests --use-compress-program unzstd
+2023-12-13T15:35:09.2677733Z Received 3049923412 of 3049923412 (100.0%), 171.1 MBs/sec
+2023-12-13T15:35:30.8675460Z Cache restored successfully
+2023-12-13T15:35:31.3434029Z Restored from cache key "v0-rust-test-ba7884a8-e45f68cf" full match: true.

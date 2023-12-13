@@ -1,0 +1,64 @@
+2023-12-13T15:34:37.4661007Z ##[group]Run actions-rs/toolchain@v1
+2023-12-13T15:34:37.4661749Z with:
+2023-12-13T15:34:37.4662181Z   toolchain: nightly
+2023-12-13T15:34:37.4662611Z   override: true
+2023-12-13T15:34:37.4663124Z   components: clippy
+2023-12-13T15:34:37.4663551Z   default: false
+2023-12-13T15:34:37.4663902Z ##[endgroup]
+2023-12-13T15:34:37.5829957Z [command]/home/runner/.cargo/bin/rustup show
+2023-12-13T15:34:37.9538404Z Default host: x86_64-unknown-linux-gnu
+2023-12-13T15:34:37.9539197Z rustup home:  /home/runner/.rustup
+2023-12-13T15:34:37.9539514Z 
+2023-12-13T15:34:37.9585763Z info: syncing channel updates for 'nightly-2023-09-22-x86_64-unknown-linux-gnu'
+2023-12-13T15:34:38.1326659Z info: latest update on 2023-09-22, rust version 1.74.0-nightly (b3aa8e716 2023-09-21)
+2023-12-13T15:34:38.1330634Z info: downloading component 'cargo'
+2023-12-13T15:34:38.1850910Z info: downloading component 'rust-std'
+2023-12-13T15:34:38.2847937Z info: downloading component 'rustc'
+2023-12-13T15:34:38.5330897Z info: installing component 'cargo'
+2023-12-13T15:34:39.1582644Z info: installing component 'rust-std'
+2023-12-13T15:34:40.8582631Z info: installing component 'rustc'
+2023-12-13T15:34:44.5332179Z nightly-2023-09-22-x86_64-unknown-linux-gnu (overridden by '/home/runner/work/ef-tests/ef-tests/rust-toolchain')
+2023-12-13T15:34:44.5443306Z rustc 1.74.0-nightly (b3aa8e716 2023-09-21)
+2023-12-13T15:34:44.5483416Z [command]/home/runner/.cargo/bin/rustup -V
+2023-12-13T15:34:44.5525793Z rustup 1.26.0 (5af9b9484 2023-04-05)
+2023-12-13T15:34:44.5527712Z info: This is the version for the rustup toolchain manager, not the rustc compiler.
+2023-12-13T15:34:44.5928413Z info: The currently active `rustc` version is `rustc 1.74.0-nightly (b3aa8e716 2023-09-21)`
+2023-12-13T15:34:44.5948974Z Installed rustup 1.26.0 support components
+2023-12-13T15:34:44.5954046Z [command]/home/runner/.cargo/bin/rustup toolchain install nightly --component clippy --allow-downgrade
+2023-12-13T15:34:44.6007653Z info: syncing channel updates for 'nightly-x86_64-unknown-linux-gnu'
+2023-12-13T15:34:44.7311454Z info: latest update on 2023-12-13, rust version 1.76.0-nightly (3340d49d2 2023-12-12)
+2023-12-13T15:34:44.7312704Z info: downloading component 'cargo'
+2023-12-13T15:34:44.7813607Z info: downloading component 'clippy'
+2023-12-13T15:34:44.7984471Z info: downloading component 'rust-std'
+2023-12-13T15:34:44.9175689Z info: downloading component 'rustc'
+2023-12-13T15:34:45.1640465Z info: installing component 'cargo'
+2023-12-13T15:34:45.7770082Z info: installing component 'clippy'
+2023-12-13T15:34:46.0104673Z info: installing component 'rust-std'
+2023-12-13T15:34:47.8587274Z info: installing component 'rustc'
+2023-12-13T15:34:51.7917770Z 
+2023-12-13T15:34:51.8025492Z   nightly-x86_64-unknown-linux-gnu installed - rustc 1.76.0-nightly (3340d49d2 2023-12-12)
+2023-12-13T15:34:51.8026304Z 
+2023-12-13T15:34:51.8026553Z info: checking for self-update
+2023-12-13T15:34:51.8110783Z warning: tool `rust-analyzer` is already installed, remove it from `/home/runner/.cargo/bin`, then run `rustup update` to have rustup manage this tool.
+2023-12-13T15:34:51.8113453Z warning: tool `rustfmt` is already installed, remove it from `/home/runner/.cargo/bin`, then run `rustup update` to have rustup manage this tool.
+2023-12-13T15:34:51.8115803Z warning: tool `cargo-fmt` is already installed, remove it from `/home/runner/.cargo/bin`, then run `rustup update` to have rustup manage this tool.
+2023-12-13T15:34:51.8142480Z [command]/home/runner/.cargo/bin/rustup override set nightly
+2023-12-13T15:34:51.8194399Z info: using existing install for 'nightly-x86_64-unknown-linux-gnu'
+2023-12-13T15:34:51.8195691Z info: override toolchain for '/home/runner/work/ef-tests/ef-tests' set to 'nightly-x86_64-unknown-linux-gnu'
+2023-12-13T15:34:51.8308348Z 
+2023-12-13T15:34:51.8430064Z   nightly-x86_64-unknown-linux-gnu unchanged - rustc 1.76.0-nightly (3340d49d2 2023-12-12)
+2023-12-13T15:34:51.8431189Z 
+2023-12-13T15:34:51.8440163Z ##[group]Gathering installed versions
+2023-12-13T15:34:51.8448426Z [command]/home/runner/.cargo/bin/rustc -V
+2023-12-13T15:34:51.8870045Z rustc 1.76.0-nightly (3340d49d2 2023-12-12)
+2023-12-13T15:34:51.8910917Z ##[warning]The `set-output` command is deprecated and will be disabled soon. Please upgrade to using Environment Files. For more information see: https://github.blog/changelog/2022-10-11-github-actions-deprecating-save-state-and-set-output-commands/
+2023-12-13T15:34:51.8925664Z ##[warning]The `set-output` command is deprecated and will be disabled soon. Please upgrade to using Environment Files. For more information see: https://github.blog/changelog/2022-10-11-github-actions-deprecating-save-state-and-set-output-commands/
+2023-12-13T15:34:51.8929624Z [command]/home/runner/.cargo/bin/cargo -V
+2023-12-13T15:34:51.9280081Z cargo 1.76.0-nightly (1aa9df1a5 2023-12-12)
+2023-12-13T15:34:51.9294367Z ##[warning]The `set-output` command is deprecated and will be disabled soon. Please upgrade to using Environment Files. For more information see: https://github.blog/changelog/2022-10-11-github-actions-deprecating-save-state-and-set-output-commands/
+2023-12-13T15:34:51.9299295Z [command]/home/runner/.cargo/bin/rustup -V
+2023-12-13T15:34:51.9342316Z rustup 1.26.0 (5af9b9484 2023-04-05)
+2023-12-13T15:34:51.9343307Z info: This is the version for the rustup toolchain manager, not the rustc compiler.
+2023-12-13T15:34:51.9731465Z info: The currently active `rustc` version is `rustc 1.76.0-nightly (3340d49d2 2023-12-12)`
+2023-12-13T15:34:51.9748791Z ##[warning]The `set-output` command is deprecated and will be disabled soon. Please upgrade to using Environment Files. For more information see: https://github.blog/changelog/2022-10-11-github-actions-deprecating-save-state-and-set-output-commands/
+2023-12-13T15:34:51.9752603Z ##[endgroup]

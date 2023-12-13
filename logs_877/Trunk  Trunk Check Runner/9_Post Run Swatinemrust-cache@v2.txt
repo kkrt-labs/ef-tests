@@ -1,0 +1,35 @@
+2023-12-13T15:38:02.9857328Z Post job cleanup.
+2023-12-13T15:38:03.1138444Z ##[group]Cache Configuration
+2023-12-13T15:38:03.1140798Z Cache Provider:
+2023-12-13T15:38:03.1141236Z     github
+2023-12-13T15:38:03.1141619Z Workspaces:
+2023-12-13T15:38:03.1142308Z     /home/runner/work/ef-tests/ef-tests
+2023-12-13T15:38:03.1142900Z Cache Paths:
+2023-12-13T15:38:03.1143321Z     /home/runner/.cargo
+2023-12-13T15:38:03.1143956Z     /home/runner/work/ef-tests/ef-tests/target
+2023-12-13T15:38:03.1144583Z Restore Key:
+2023-12-13T15:38:03.1145127Z     v0-rust-trunk_check-d940afbb
+2023-12-13T15:38:03.1145668Z Cache Key:
+2023-12-13T15:38:03.1146219Z     v0-rust-trunk_check-d940afbb-e45f68cf
+2023-12-13T15:38:03.1146829Z .. Prefix:
+2023-12-13T15:38:03.1147298Z   - v0-rust-trunk_check
+2023-12-13T15:38:03.1147796Z .. Environment considered:
+2023-12-13T15:38:03.1148961Z   - Rust Version: 1.76.0-nightly x86_64-unknown-linux-gnu (3340d49d22b1aba425779767278c40781826c2f5)
+2023-12-13T15:38:03.1150205Z   - CARGO_INCREMENTAL
+2023-12-13T15:38:03.1150703Z .. Lockfiles considered:
+2023-12-13T15:38:03.1151425Z   - /home/runner/work/ef-tests/ef-tests/Cargo.lock
+2023-12-13T15:38:03.1152256Z   - /home/runner/work/ef-tests/ef-tests/Cargo.toml
+2023-12-13T15:38:03.1153239Z   - /home/runner/work/ef-tests/ef-tests/crates/build-utils/Cargo.toml
+2023-12-13T15:38:03.1154376Z   - /home/runner/work/ef-tests/ef-tests/crates/ef-testing/Cargo.toml
+2023-12-13T15:38:03.1155484Z   - /home/runner/work/ef-tests/ef-tests/crates/sequencer/Cargo.toml
+2023-12-13T15:38:03.1156462Z   - /home/runner/work/ef-tests/ef-tests/rust-toolchain
+2023-12-13T15:38:03.1157467Z ##[endgroup]
+2023-12-13T15:38:03.1157711Z 
+2023-12-13T15:38:26.4184243Z ... Cleaning /home/runner/work/ef-tests/ef-tests/target ...
+2023-12-13T15:38:26.4191589Z ... Cleaning cargo registry (cache-all-crates: false) ...
+2023-12-13T15:38:27.5084990Z ... Cleaning cargo/bin ...
+2023-12-13T15:38:27.5146648Z ... Cleaning cargo git cache ...
+2023-12-13T15:38:27.5175666Z ... Saving cache ...
+2023-12-13T15:38:27.5384590Z [command]/usr/bin/tar --posix -cf cache.tzst --exclude cache.tzst -P -C /home/runner/work/ef-tests/ef-tests --files-from manifest.txt --use-compress-program zstdmt
+2023-12-13T15:38:34.7001705Z Cache Size: ~208 MB (218166959 B)
+2023-12-13T15:38:34.7843121Z Cache saved successfully

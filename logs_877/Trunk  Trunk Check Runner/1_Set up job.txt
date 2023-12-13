@@ -1,0 +1,34 @@
+2023-12-13T15:34:34.4269357Z Current runner version: '2.311.0'
+2023-12-13T15:34:34.4294233Z ##[group]Operating System
+2023-12-13T15:34:34.4295023Z Ubuntu
+2023-12-13T15:34:34.4295335Z 22.04.3
+2023-12-13T15:34:34.4295678Z LTS
+2023-12-13T15:34:34.4295976Z ##[endgroup]
+2023-12-13T15:34:34.4296467Z ##[group]Runner Image
+2023-12-13T15:34:34.4296910Z Image: ubuntu-22.04
+2023-12-13T15:34:34.4297398Z Version: 20231205.1.0
+2023-12-13T15:34:34.4298381Z Included Software: https://github.com/actions/runner-images/blob/ubuntu22/20231205.1/images/ubuntu/Ubuntu2204-Readme.md
+2023-12-13T15:34:34.4299805Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu22%2F20231205.1
+2023-12-13T15:34:34.4300753Z ##[endgroup]
+2023-12-13T15:34:34.4301174Z ##[group]Runner Image Provisioner
+2023-12-13T15:34:34.4301657Z 2.0.321.1
+2023-12-13T15:34:34.4302083Z ##[endgroup]
+2023-12-13T15:34:34.4303050Z ##[group]GITHUB_TOKEN Permissions
+2023-12-13T15:34:34.4304582Z Checks: read
+2023-12-13T15:34:34.4305133Z Contents: read
+2023-12-13T15:34:34.4305512Z Metadata: read
+2023-12-13T15:34:34.4306224Z ##[endgroup]
+2023-12-13T15:34:34.4309261Z Secret source: None
+2023-12-13T15:34:34.4309814Z Prepare workflow directory
+2023-12-13T15:34:34.4935425Z Prepare all required actions
+2023-12-13T15:34:34.5094603Z Getting action download info
+2023-12-13T15:34:34.8118289Z Download action repository 'actions/checkout@v3' (SHA:f43a0e5ff2bd294095638e18286ca9a3d1956744)
+2023-12-13T15:34:34.9244186Z Download action repository 'actions-rs/toolchain@v1' (SHA:16499b5e05bf2e26879000db0c1d13f7e13fa3af)
+2023-12-13T15:34:35.3311527Z Download action repository 'Swatinem/rust-cache@v2' (SHA:a95ba195448af2da9b00fb742d14ffaaf3c21f43)
+2023-12-13T15:34:35.6855762Z Download action repository 'trunk-io/trunk-action@v1' (SHA:97ecd21fe6c743bf7a606791584b683a7995c70e)
+2023-12-13T15:34:36.0723368Z Getting action download info
+2023-12-13T15:34:36.3319699Z Download action repository 'actions/cache@v3' (SHA:704facf57e6136b1bc63b828d79edcd491f0ee84)
+2023-12-13T15:34:36.4279236Z Download action repository 'actions/upload-artifact@v3' (SHA:a8a3f3ad30e3422c9c7b888a15615d19a852ae32)
+2023-12-13T15:34:36.4556278Z Download action repository 'actions/github-script@v6' (SHA:d7906e4ad0b1822421a7e6a35d5ca353c962f410)
+2023-12-13T15:34:36.7354802Z Uses: kkrt-labs/ef-tests/.github/workflows/trunk-check.yml@refs/pull/612/merge (b0c8587b5f624c65981ed8bd5584c375d3224208)
+2023-12-13T15:34:36.7356844Z Complete job name: Trunk / Trunk Check Runner

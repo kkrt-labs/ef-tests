@@ -1,0 +1,36 @@
+2023-12-13T15:34:51.9888630Z ##[group]Run Swatinem/rust-cache@v2
+2023-12-13T15:34:51.9889335Z with:
+2023-12-13T15:34:51.9889757Z   prefix-key: v0-rust
+2023-12-13T15:34:51.9890094Z   cache-targets: true
+2023-12-13T15:34:51.9890451Z   cache-all-crates: false
+2023-12-13T15:34:51.9890900Z   save-if: true
+2023-12-13T15:34:51.9891195Z   cache-provider: github
+2023-12-13T15:34:51.9891544Z ##[endgroup]
+2023-12-13T15:34:52.2714992Z ##[group]Cache Configuration
+2023-12-13T15:34:52.2715789Z Cache Provider:
+2023-12-13T15:34:52.2718968Z     github
+2023-12-13T15:34:52.2719710Z Workspaces:
+2023-12-13T15:34:52.2722217Z     /home/runner/work/ef-tests/ef-tests
+2023-12-13T15:34:52.2726584Z Cache Paths:
+2023-12-13T15:34:52.2728156Z     /home/runner/.cargo
+2023-12-13T15:34:52.2729514Z     /home/runner/work/ef-tests/ef-tests/target
+2023-12-13T15:34:52.2730237Z Restore Key:
+2023-12-13T15:34:52.2732127Z     v0-rust-trunk_check-d940afbb
+2023-12-13T15:34:52.2733599Z Cache Key:
+2023-12-13T15:34:52.2735313Z     v0-rust-trunk_check-d940afbb-e45f68cf
+2023-12-13T15:34:52.2736351Z .. Prefix:
+2023-12-13T15:34:52.2736954Z   - v0-rust-trunk_check
+2023-12-13T15:34:52.2737734Z .. Environment considered:
+2023-12-13T15:34:52.2738808Z   - Rust Version: 1.76.0-nightly x86_64-unknown-linux-gnu (3340d49d22b1aba425779767278c40781826c2f5)
+2023-12-13T15:34:52.2740130Z   - CARGO_INCREMENTAL
+2023-12-13T15:34:52.2740759Z .. Lockfiles considered:
+2023-12-13T15:34:52.2741458Z   - /home/runner/work/ef-tests/ef-tests/Cargo.lock
+2023-12-13T15:34:52.2742502Z   - /home/runner/work/ef-tests/ef-tests/Cargo.toml
+2023-12-13T15:34:52.2743370Z   - /home/runner/work/ef-tests/ef-tests/crates/build-utils/Cargo.toml
+2023-12-13T15:34:52.2744093Z   - /home/runner/work/ef-tests/ef-tests/crates/ef-testing/Cargo.toml
+2023-12-13T15:34:52.2744865Z   - /home/runner/work/ef-tests/ef-tests/crates/sequencer/Cargo.toml
+2023-12-13T15:34:52.2745504Z   - /home/runner/work/ef-tests/ef-tests/rust-toolchain
+2023-12-13T15:34:52.2746422Z ##[endgroup]
+2023-12-13T15:34:52.2746615Z 
+2023-12-13T15:34:52.2746780Z ... Restoring cache ...
+2023-12-13T15:34:52.3562847Z No cache found.

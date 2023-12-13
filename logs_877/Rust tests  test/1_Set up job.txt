@@ -1,0 +1,41 @@
+2023-12-13T15:34:37.7771909Z Current runner version: '2.311.0'
+2023-12-13T15:34:37.7778473Z Runner name: 'ubuntu-latest-32-cores_1144995b9862'
+2023-12-13T15:34:37.7779374Z Runner group name: 'Default Larger Runners'
+2023-12-13T15:34:37.7780195Z Machine name: 'runner'
+2023-12-13T15:34:37.7796225Z ##[group]Operating System
+2023-12-13T15:34:37.7796805Z Ubuntu
+2023-12-13T15:34:37.7797147Z 22.04.3
+2023-12-13T15:34:37.7797548Z LTS
+2023-12-13T15:34:37.7797862Z ##[endgroup]
+2023-12-13T15:34:37.7798234Z ##[group]Runner Image
+2023-12-13T15:34:37.7798741Z Image: ubuntu-22.04
+2023-12-13T15:34:37.7799109Z Version: 20231205.1.0
+2023-12-13T15:34:37.7800112Z Included Software: https://github.com/actions/runner-images/blob/ubuntu22/20231205.1/images/ubuntu/Ubuntu2204-Readme.md
+2023-12-13T15:34:37.7801658Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu22%2F20231205.1
+2023-12-13T15:34:37.7802509Z ##[endgroup]
+2023-12-13T15:34:37.7804554Z ##[group]GITHUB_TOKEN Permissions
+2023-12-13T15:34:37.7806230Z Actions: read
+2023-12-13T15:34:37.7806966Z Checks: read
+2023-12-13T15:34:37.7807333Z Contents: read
+2023-12-13T15:34:37.7807676Z Deployments: read
+2023-12-13T15:34:37.7808145Z Discussions: read
+2023-12-13T15:34:37.7808521Z Issues: read
+2023-12-13T15:34:37.7808843Z Metadata: read
+2023-12-13T15:34:37.7809297Z Packages: read
+2023-12-13T15:34:37.7809628Z Pages: read
+2023-12-13T15:34:37.7810001Z PullRequests: read
+2023-12-13T15:34:37.7810482Z RepositoryProjects: read
+2023-12-13T15:34:37.7810892Z SecurityEvents: read
+2023-12-13T15:34:37.7811302Z Statuses: read
+2023-12-13T15:34:37.7811732Z ##[endgroup]
+2023-12-13T15:34:37.7814577Z Secret source: None
+2023-12-13T15:34:37.7815152Z Prepare workflow directory
+2023-12-13T15:34:37.8419499Z Prepare all required actions
+2023-12-13T15:34:37.8573500Z Getting action download info
+2023-12-13T15:34:38.1245044Z Download action repository 'actions/checkout@v3' (SHA:f43a0e5ff2bd294095638e18286ca9a3d1956744)
+2023-12-13T15:34:38.3745278Z Download action repository 'actions/setup-python@v4' (SHA:65d7f2d534ac1bc67fcd62888c5f4f3d2cb2b236)
+2023-12-13T15:34:38.6682211Z Download action repository 'actions-rs/toolchain@v1' (SHA:16499b5e05bf2e26879000db0c1d13f7e13fa3af)
+2023-12-13T15:34:38.8954848Z Download action repository 'Swatinem/rust-cache@v2' (SHA:a95ba195448af2da9b00fb742d14ffaaf3c21f43)
+2023-12-13T15:34:39.1101436Z Download action repository 'actions/upload-artifact@v3' (SHA:a8a3f3ad30e3422c9c7b888a15615d19a852ae32)
+2023-12-13T15:34:39.3207815Z Uses: kkrt-labs/ef-tests/.github/workflows/test.yml@refs/pull/612/merge (b0c8587b5f624c65981ed8bd5584c375d3224208)
+2023-12-13T15:34:39.3209757Z Complete job name: Rust tests / test

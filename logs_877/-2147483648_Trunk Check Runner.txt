@@ -1,0 +1,10 @@
+2023-12-13T15:34:28.6532100Z ##[section]Starting: Prepare job trunk_check
+2023-12-13T15:34:28.6534829Z Evaluating workflow phase display name
+2023-12-13T15:34:28.6534983Z Evaluating inputs
+2023-12-13T15:34:28.6540920Z Evaluating strategy
+2023-12-13T15:34:28.6549463Z Creating job '__default'
+2023-12-13T15:34:28.6554043Z Evaluating timeout
+2023-12-13T15:34:28.6554082Z Evaluating cancel timeout
+2023-12-13T15:34:28.6554118Z Evaluating continue on error
+2023-12-13T15:34:28.6554150Z Evaluating target
+2023-12-13T15:34:28.6555978Z ##[section]Finishing: Prepare job trunk_check

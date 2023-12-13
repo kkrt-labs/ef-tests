@@ -1,0 +1,52 @@
+2023-12-13T15:36:18.0399143Z ##[group]Run make setup-kakarot-v0 && make setup-kakarot-v1
+2023-12-13T15:36:18.0399726Z [36;1mmake setup-kakarot-v0 && make setup-kakarot-v1[0m
+2023-12-13T15:36:18.0443966Z shell: /usr/bin/bash -e {0}
+2023-12-13T15:36:18.0444261Z env:
+2023-12-13T15:36:18.0444569Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.0/x64
+2023-12-13T15:36:18.0445134Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.0/x64/lib/pkgconfig
+2023-12-13T15:36:18.0445713Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.0/x64
+2023-12-13T15:36:18.0446213Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.0/x64
+2023-12-13T15:36:18.0446700Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.0/x64
+2023-12-13T15:36:18.0447197Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.0/x64/lib
+2023-12-13T15:36:18.0447619Z   CACHE_ON_FAILURE: false
+2023-12-13T15:36:18.0447903Z   CARGO_INCREMENTAL: 0
+2023-12-13T15:36:18.0448412Z   GITHUB_TOKEN: ***
+2023-12-13T15:36:18.0448668Z ##[endgroup]
+2023-12-13T15:36:18.0528018Z rm -rf build/v0
+2023-12-13T15:36:18.0538242Z rm -rf build/common
+2023-12-13T15:36:18.0547786Z mkdir -p build/v0
+2023-12-13T15:36:18.0559739Z mkdir -p build/common
+2023-12-13T15:36:19.0380518Z unzip -o kakarot-build.zip -d build/v0
+2023-12-13T15:36:19.1437353Z Archive:  kakarot-build.zip
+2023-12-13T15:36:19.1444156Z   inflating: build/v0/blockhash_registry.json  
+2023-12-13T15:36:19.1458448Z   inflating: build/v0/contract_account.json  
+2023-12-13T15:36:19.1482384Z   inflating: build/v0/externally_owned_account.json  
+2023-12-13T15:36:19.1482967Z    creating: build/v0/fixtures/
+2023-12-13T15:36:19.1553037Z   inflating: build/v0/kakarot.json   
+2023-12-13T15:36:19.1561598Z   inflating: build/v0/OpenzeppelinAccount.json  
+2023-12-13T15:36:19.1566317Z   inflating: build/v0/proxy.json     
+2023-12-13T15:36:19.1578583Z   inflating: build/v0/fixtures/ERC20.json  
+2023-12-13T15:36:19.1643372Z   inflating: build/v0/fixtures/EVM.json  
+2023-12-13T15:36:19.1645573Z mv build/v0/fixtures/ERC20.json build/common/
+2023-12-13T15:36:19.1662455Z rm -f kakarot-build.zip
+2023-12-13T15:36:19.1694201Z rm -rf build/v1
+2023-12-13T15:36:19.1706965Z mkdir -p build/v1
+2023-12-13T15:36:21.3751303Z unzip -o dev-artifacts.zip -d build/temp
+2023-12-13T15:36:21.3765127Z Archive:  dev-artifacts.zip
+2023-12-13T15:36:21.5731727Z   inflating: build/temp/contracts.sierra.json  
+2023-12-13T15:36:21.5732481Z   inflating: build/temp/contracts.starknet_artifacts.json  
+2023-12-13T15:36:21.5740794Z   inflating: build/temp/contracts_ContractAccount.compiled_contract_class.json  
+2023-12-13T15:36:21.5759699Z   inflating: build/temp/contracts_ContractAccount.contract_class.json  
+2023-12-13T15:36:21.5776794Z   inflating: build/temp/contracts_ExternallyOwnedAccount.compiled_contract_class.json  
+2023-12-13T15:36:21.5816081Z   inflating: build/temp/contracts_ExternallyOwnedAccount.contract_class.json  
+2023-12-13T15:36:21.6075772Z   inflating: build/temp/contracts_KakarotCore.compiled_contract_class.json  
+2023-12-13T15:36:21.6475744Z   inflating: build/temp/contracts_KakarotCore.contract_class.json  
+2023-12-13T15:36:21.6477198Z   inflating: build/temp/contracts_UninitializedAccount.compiled_contract_class.json  
+2023-12-13T15:36:21.6483079Z   inflating: build/temp/contracts_UninitializedAccount.contract_class.json  
+2023-12-13T15:36:21.6486421Z mkdir -p build/v1
+2023-12-13T15:36:21.6501385Z mv build/temp/contracts_ContractAccount.compiled_contract_class.json build/v1/contract_account.json
+2023-12-13T15:36:21.6515621Z mv build/temp/contracts_ExternallyOwnedAccount.compiled_contract_class.json build/v1/externally_owned_account.json
+2023-12-13T15:36:21.6528935Z mv build/temp/contracts_KakarotCore.compiled_contract_class.json build/v1/kakarot.json
+2023-12-13T15:36:21.6542465Z mv build/temp/contracts_UninitializedAccount.compiled_contract_class.json build/v1/uninitialized_account.json
+2023-12-13T15:36:21.6555080Z rm -fr build/temp
+2023-12-13T15:36:21.6672259Z rm -f dev-artifacts.zip
