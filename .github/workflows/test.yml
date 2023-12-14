@@ -36,7 +36,7 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
       - name: run tests
         run: |
-          make vm-tests-v1-ci
+          cargo test --test tests --lib --no-fail-fast --quiet --features "v1,ci"
       - name: Retrieve ef-tests execution resources
         run: python scripts/compute_resources.py
         env:
