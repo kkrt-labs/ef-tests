@@ -17,7 +17,7 @@ use crate::evm_sequencer::{
 };
 use crate::{
     evm_sequencer::{
-        constants::{CHAIN_ID, KAKAROT_ADDRESS},
+        constants::{ KAKAROT_ADDRESS},
         evm_state::v1::{compute_storage_base_address, offset_storage_key},
     },
     starknet_storage,
