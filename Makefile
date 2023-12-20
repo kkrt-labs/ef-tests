@@ -62,26 +62,26 @@ unit:
 	cargo test --lib
 
 vm-tests-v0-ci: build
-	cargo test --test VMTests --lib --no-fail-fast --quiet --features "v0,ci"
+	cargo test --test VMTests --lib --no-fail-fast --quiet --features v0 'build.rustflags=["--cfg", "ci"]'
 
 vm-tests-v1-ci: build
-	cargo test --test VMTests --lib --no-fail-fast --quiet --features "v1,ci"
+	cargo test --test VMTests --lib --no-fail-fast --quiet --features v1 'build.rustflags=["--cfg", "ci"]'
 
 # Runs the repo tests with the `v0` feature
 tests-v0-ci: build
-	cargo test --test tests --lib --no-fail-fast --quiet --features "v0,ci"
+	cargo test --test tests --lib --no-fail-fast --quiet --features v0 'build.rustflags=["--cfg", "ci"]'
 
 # Runs the repo tests with the `v1` feature
 tests-v1-ci: build
-	cargo test --test tests --lib --no-fail-fast --quiet --features "v1,ci"
+	cargo test --test tests --lib --no-fail-fast --quiet --features v1 'build.rustflags=["--cfg", "ci"]'
 
 # Runs ef tests only with the `v0` feature
 ef-test-v0: build
-	cargo test --test tests --no-fail-fast --quiet --features "v0,ci"
+	cargo test --test tests --no-fail-fast --quiet --features v0 'build.rustflags=["--cfg", "ci"]'
 
 # Runs ef tests only with the `v1` feature
 ef-test-v1: build
-	cargo test --test tests --no-fail-fast --quiet --features "v1,ci"
+	cargo test --test tests --no-fail-fast --quiet --features v1 'build.rustflags=["--cfg", "ci"]'
 
 # Build the rust crates
 build:

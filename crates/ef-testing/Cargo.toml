@@ -57,7 +57,6 @@ zip = { workspace = true, optional = true }
 [features]
 v0 = []
 v1 = []
-ci = []
 
 [build-dependencies]
 build-utils = { path = "../build-utils" }
