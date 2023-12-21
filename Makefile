@@ -31,7 +31,7 @@ $(EF_TESTS_DIR):
 setup: $(EF_TESTS_DIR)
 
 setup-kakarot-v0: clean-kakarot-v0
-	@curl -sL -o kakarot-build.zip -H "Authorization: token $(GITHUB_TOKEN)" "$(KKRT_V0_BUILD_ARTIFACT_URL)"
+	@curl -sL -o kakarot-build.zip -H "Authorization: token $(GITHUB_TOKEN)" "$(KKRT_V0_BUILD_ARTIFACT_URL)'"
 	unzip -o kakarot-build.zip -d build/v0
 	mv build/v0/fixtures/ERC20.json build/common/
 	rm -f kakarot-build.zip
@@ -86,3 +86,7 @@ ef-test-v1: build
 # Build the rust crates
 build:
 	cargo build --release
+
+# Generates a `blockchain-tests-skip.yml` at the project root, by consuming a `data.txt` file containing logs of the ran tests
+generate-skip-file:
+	python ./scripts/generate_skip_file.py
