@@ -9,9 +9,9 @@ matches_failed = matches_failed[1:]
 matches_failed = [
     (
         m.split("::")[-2]
-        .replace("-", "_minus_")
-        .replace("+", "_plus_")
-        .replace("^", "_xor_"),
+        .replace("_minus_", "-")
+        .replace("_plus_", "+")
+        .replace("_xor_", "^"),
         m.split("::")[-1],
     )
     for m in matches_failed
