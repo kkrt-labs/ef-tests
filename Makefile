@@ -5,6 +5,8 @@ ifneq ("$(wildcard .env)","")
 	include .env
 endif
 
+CAIRO_2_VERSION=2.3.1
+
 # The release tag of https://github.com/ethereum/tests to use for EF tests
 EF_TESTS_TAG := v12.4
 EF_TESTS_URL := https://github.com/ethereum/tests/archive/refs/tags/$(EF_TESTS_TAG).tar.gz
@@ -46,6 +48,14 @@ setup-kakarot-v1: clean-kakarot-v1
 	rm -fr build/temp
 	rm -f dev-artifacts.zip
 
+setup-native: clean-native
+	curl -L -o cairo2.tar "https://github.com/starkware-libs/cairo/releases/download/v$(CAIRO_2_VERSION)/release-aarch64-apple-darwin.tar"
+	tar -xzvf cairo2.tar
+	mv cairo/corelib corelib
+	rm -fr cairo
+	rm -rf cairo2.tar
+
+
 
 clean-kakarot-v0:
 	rm -rf build/v0
@@ -56,6 +66,9 @@ clean-kakarot-v0:
 clean-kakarot-v1:
 	rm -rf build/v1
 	mkdir -p build/v1
+
+clean-native:
+	rm -rf corelib
 
 # Runs all tests but integration tests
 unit:

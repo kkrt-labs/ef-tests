@@ -34,16 +34,18 @@ revm-primitives = { git = "https://github.com/bluealloy/revm", rev = "516f62cc" 
 reth-rlp = { git = "https://github.com/paradigmxyz/reth.git", tag = "v0.1.0-alpha.10" }
 
 # Starknet deps
-cairo-lang-casm = { git = "https://github.com/kkrt-labs/cairo.git", branch = "v2.4.0", default-features = false }
-cairo-lang-starknet = { git = "https://github.com/kkrt-labs/cairo.git", branch = "v2.4.0", default-features = false }
-cairo-lang-utils = { git = "https://github.com/kkrt-labs/cairo.git", branch = "v2.4.0", default-features = false }
-cairo-vm = { git = "https://github.com/kkrt-labs/cairo-vm.git", branch = "v0.9.1", features = [
-  "print",
+cairo-lang-casm = "2.3.1"
+cairo-lang-compiler = "2.3.1"
+cairo-lang-sierra = "2.3.1"
+cairo-lang-starknet = "2.3.1"
+cairo-lang-utils = "2.3.1"
+cairo-vm = { version = "0.8.5", features = ["cairo-1-hints"] }
+starknet_in_rust = { git = "https://github.com/lambdaclass/starknet_in_rust.git", version = "0.4", features = [
+  "cairo-native",
 ] }
-blockifier = { package = "blockifier", git = "https://github.com/kkrt-labs/blockifier.git", branch = "v0.4.0-rc9.1" }
-starknet = "0.6.0"
-starknet-crypto = "0.6.0"
-starknet_api = "0.6.0-rc2"
+starknet = "0.5.0"
+starknet-crypto = "0.6.1"
+starknet_api = "0.4.1"
 
 # Other
 async-trait = "0.1.58"

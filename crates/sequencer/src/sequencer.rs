@@ -1,29 +1,28 @@
-use crate::{commit::Committer, execution::Execution};
-use blockifier::{
-    block_context::BlockContext,
+use std::sync::Arc;
+
+use crate::{
+    commit::Committer,
+    execution::{Execution, TransactionExecutionResult},
+};
+use starknet_in_rust::{
+    definitions::block_context::BlockContext,
+    execution::TransactionExecutionInfo,
     state::{
-        cached_state::{CachedState, GlobalContractCache},
+        cached_state::CachedState,
+        contract_class_cache::PermanentContractClassCache,
         state_api::{State, StateReader},
     },
-    transaction::{
-        objects::{TransactionExecutionInfo, TransactionExecutionResult},
-        transaction_execution::Transaction,
-        transactions::ExecutableTransaction,
-    },
+    transaction::Transaction,
 };
-use starknet_api::core::ContractAddress;
 
 /// Sequencer is the main struct of the sequencer crate.
 /// Using a trait bound for the state allows for better
 /// speed, as the type of the state is known at compile time.
-/// We bound S such that a mutable reference to S (&'a mut S)
-/// must implement State and `StateReader`. The `for` keyword
-/// indicates that the bound must hold for any lifetime 'any.
-/// For more details, check out [rust-lang docs](https://doc.rust-lang.org/nomicon/hrtb.html)
-#[derive(Clone)]
+/// We bound S to implement State .
+#[derive(Clone, Default, Debug)]
 pub struct Sequencer<S>
 where
-    for<'any> &'any mut S: State + StateReader,
+    S: State + StateReader,
 {
     pub block_context: BlockContext,
     pub state: S,
@@ -31,7 +30,7 @@ where
 
 impl<S> Sequencer<S>
 where
-    for<'any> &'any mut S: State + StateReader,
+    S: State + StateReader,
 {
     /// Creates a new Sequencer instance.
     #[inline]
@@ -46,34 +45,23 @@ where
 
 impl<S> Execution for Sequencer<S>
 where
-    for<'any> &'any mut S: State + StateReader + Committer<S>,
+    S: Clone + State + StateReader + Committer,
 {
     /// Executes the provided transaction on the current state and leads to a commitment of the
     /// cached state in the case of success. Reversion of the transaction leads to a discarding
     /// of the cached state but still increments the nonce of the sender.
     fn execute(
         &mut self,
-        transaction: Transaction,
+        transaction: &Transaction,
     ) -> TransactionExecutionResult<TransactionExecutionInfo> {
-        let sender_address = match &transaction {
-            Transaction::AccountTransaction(tx) => match tx {
-                blockifier::transaction::account_transaction::AccountTransaction::Invoke(tx) => {
-                    tx.tx.sender_address()
-                }
-                blockifier::transaction::account_transaction::AccountTransaction::Declare(tx) => {
-                    tx.tx().sender_address()
-                }
-                blockifier::transaction::account_transaction::AccountTransaction::DeployAccount(
-                    tx,
-                ) => tx.contract_address,
-            },
-            Transaction::L1HandlerTransaction(_) => ContractAddress::from(0u8),
-        };
+        let sender_address = transaction.contract_address();
 
-        let mut cached_state = CachedState::new(&mut self.state, GlobalContractCache::default());
-        let charge_fee = false;
-        let validate = true;
-        let res = transaction.execute(&mut cached_state, &self.block_context, charge_fee, validate);
+        let state_reader = self.state.clone();
+        let mut cached_state = CachedState::new(
+            Arc::new(state_reader),
+            Arc::new(PermanentContractClassCache::default()),
+        );
+        let res = transaction.execute(&mut cached_state, &self.block_context, u128::MAX, None);
 
         let execution_information = match res {
             Err(err) => {
@@ -82,10 +70,10 @@ where
             Ok(execution_information) => {
                 if execution_information.revert_error.is_some() {
                     // If the transaction reverted, we increment the nonce.
-                    (&mut self.state).increment_nonce(sender_address)?;
+                    self.state.increment_nonce(&sender_address)?;
                 } else {
                     // If the transaction succeeded, we commit the state.
-                    <&mut S>::commit(&mut cached_state)?;
+                    self.state.commit(&mut cached_state)?;
                 }
                 execution_information
             }
@@ -98,137 +86,185 @@ where
 #[cfg(test)]
 mod tests {
     use std::collections::HashMap;
-    use std::fs::File;
+    use std::path::Path;
     use std::sync::Arc;
 
-    use blockifier::abi::abi_utils::get_storage_var_address;
-    use blockifier::block_context::{FeeTokenAddresses, GasPrices};
-    use blockifier::execution::contract_class::{ContractClass, ContractClassV0, ContractClassV1};
-    use blockifier::state::state_api::State as BlockifierState;
-    use blockifier::transaction::account_transaction::AccountTransaction;
-    use blockifier::transaction::transactions::InvokeTransaction as BlockifierInvokeTransaction;
+    use cairo_lang_compiler::CompilerConfig;
+    use cairo_lang_starknet::contract_class::compile_path;
+    use num_traits::Zero as _;
+    use starknet::core::types::contract::legacy::LegacyContractClass;
     use starknet::macros::selector;
-    use starknet_api::core::{ChainId, ClassHash, ContractAddress, Nonce};
-    use starknet_api::hash::StarkFelt;
-    use starknet_api::transaction::{
-        Calldata, Fee, InvokeTransaction, InvokeTransactionV1, TransactionHash,
-        TransactionSignature,
+    use starknet_in_rust::definitions::block_context::StarknetOsConfig;
+    use starknet_in_rust::definitions::constants::EXECUTE_ENTRY_POINT_SELECTOR;
+    use starknet_in_rust::felt::Felt252;
+    use starknet_in_rust::services::api::contract_classes::compiled_class::CompiledClass;
+    use starknet_in_rust::services::api::contract_classes::deprecated_contract_class::ContractClass;
+    use starknet_in_rust::state::state_api::State as _;
+    use starknet_in_rust::state::BlockInfo;
+    use starknet_in_rust::transaction::InvokeFunction;
+    use starknet_in_rust::utils::{
+        field_element_to_felt, get_storage_var_address, Address, ClassHash,
     };
-
-    use crate::constants::test_constants::{
-        ETH_FEE_TOKEN_ADDRESS, SEQUENCER_ADDRESS, STRK_FEE_TOKEN_ADDRESS,
-    };
-    use crate::constants::test_constants::{
-        ONE_BLOCK_NUMBER, ONE_BLOCK_TIMESTAMP, ONE_CLASS_HASH, TEST_ACCOUNT, TEST_CONTRACT,
-        TWO_CLASS_HASH, ZERO_FELT,
-    };
-    use crate::state::State;
+    use starknet_in_rust::CasmContractClass;
 
     use super::*;
+    use crate::constants::test_constants::{
+        CHAIN_ID, ETH_FEE_TOKEN_ADDRESS, ONE_CLASS_HASH, SEQUENCER_ADDRESS, TWO_CLASS_HASH, ZERO,
+    };
+    use crate::constants::test_constants::{TEST_ACCOUNT, TEST_CONTRACT};
+    use crate::state::State;
 
-    fn read_contract_class_v0(path: &str) -> ContractClass {
-        let reader = File::open(path).unwrap();
-        let contract_class: ContractClassV0 = serde_json::from_reader(reader).unwrap();
-
-        ContractClass::V0(contract_class)
+    enum Version {
+        V0,
+        V1,
+        Native,
     }
 
-    fn read_contract_class_v1(path: &str) -> ContractClass {
-        let raw_contract_class = std::fs::read_to_string(path).unwrap();
-        let contract_class: ContractClassV1 =
-            ContractClassV1::try_from_json_string(&raw_contract_class).unwrap();
+    fn read_contract_class_v0(path: &Path) -> CompiledClass {
+        let s = std::fs::read_to_string(path).expect("Failed to read v0 contract class");
+        let legacy_contract_class = serde_json::from_str::<LegacyContractClass>(&s).unwrap();
+        let class_hash = legacy_contract_class
+            .class_hash()
+            .expect("Failed to get class hash");
 
-        ContractClass::V1(contract_class)
+        let contract_class = ContractClass::from_program_json_and_class_hash(
+            &s,
+            Felt252::from_bytes_be(&class_hash.to_bytes_be()[..]),
+        )
+        .expect("Failed to get contract class");
+        CompiledClass::Deprecated(Arc::new(contract_class))
+    }
+
+    fn read_contract_class_v1(path: &Path) -> CompiledClass {
+        let s = std::fs::read_to_string(path).expect("Failed to read v1 contract class");
+        let casm_contract_class = serde_json::from_str::<CasmContractClass>(&s).unwrap();
+        CompiledClass::Casm(Arc::new(casm_contract_class))
+    }
+
+    fn read_contract_class_native(path: &Path) -> CompiledClass {
+        let contract = compile_path(
+            path,
+            None,
+            CompilerConfig {
+                replace_ids: true,
+                ..Default::default()
+            },
+        )
+        .expect("Failed to compile contract");
+
+        let sierra_program = contract.extract_sierra_program().unwrap();
+        let entrypoints = contract.entry_points_by_type;
+
+        CompiledClass::Sierra(Arc::new((sierra_program, entrypoints)))
     }
 
     fn declare_and_deploy_contract(
-        path: &str,
-        address: ContractAddress,
+        path: &Path,
+        address: Address,
         class_hash: ClassHash,
-        mut state: &mut State,
-        is_v0: bool,
+        state: &mut State,
+        version: Version,
     ) {
-        let contract_class = if is_v0 {
-            read_contract_class_v0(path)
-        } else {
-            read_contract_class_v1(path)
+        let contract_class = match version {
+            Version::V0 => read_contract_class_v0(path),
+            Version::V1 => read_contract_class_v1(path),
+            Version::Native => read_contract_class_native(path),
         };
 
         state
-            .set_contract_class(&class_hash, contract_class)
+            .set_contract_class(&class_hash, &contract_class)
             .unwrap();
         state.set_class_hash_at(address, class_hash).unwrap();
+        state
+            .set_compiled_class_hash(
+                &Felt252::from_bytes_be(class_hash.to_bytes_be()),
+                &Felt252::from_bytes_be(class_hash.to_bytes_be()),
+            )
+            .unwrap();
     }
 
-    fn fund(address: StarkFelt, mut state: &mut State) {
+    fn fund(address: &Address, state: &mut State) {
         state.set_storage_at(
-            *ETH_FEE_TOKEN_ADDRESS,
-            get_storage_var_address("ERC20_balances", &[address]),
-            StarkFelt::from(u128::MAX),
+            &(
+                ETH_FEE_TOKEN_ADDRESS.clone(),
+                get_storage_var_address("ERC20_balances", &[address.0.clone()])
+                    .expect("Failed to get storage var address")
+                    .to_be_bytes(),
+            ),
+            Felt252::from(u128::MAX),
         );
     }
 
     fn block_context() -> BlockContext {
-        BlockContext {
-            chain_id: ChainId("KKRT".into()),
-            block_number: *ONE_BLOCK_NUMBER,
-            block_timestamp: *ONE_BLOCK_TIMESTAMP,
-            sequencer_address: *SEQUENCER_ADDRESS,
-            fee_token_addresses: FeeTokenAddresses {
-                strk_fee_token_address: *STRK_FEE_TOKEN_ADDRESS,
-                eth_fee_token_address: *ETH_FEE_TOKEN_ADDRESS,
-            },
-
-            vm_resource_fee_cost: vm_resource_fee_cost(),
-            gas_prices: GasPrices {
-                eth_l1_gas_price: 1,
-                strk_l1_gas_price: 1,
-            },
-            invoke_tx_max_n_steps: 4_000_000,
-            validate_max_n_steps: 4_000_000,
-            max_recursion_depth: 1_000,
-        }
-    }
-
-    /// Maps builtins and steps to a single cost unit of reference (gas).
-    fn vm_resource_fee_cost() -> Arc<HashMap<String, f64>> {
-        Arc::new(
-            [
-                (String::from("n_steps"), 1_f64),
-                ("pedersen_builtin".to_string(), 1_f64),
-                ("range_check_builtin".to_string(), 1_f64),
-                ("ecdsa_builtin".to_string(), 1_f64),
-                ("bitwise_builtin".to_string(), 1_f64),
-                ("poseidon_builtin".to_string(), 1_f64),
-                ("output_builtin".to_string(), 1_f64),
-                ("ec_op_builtin".to_string(), 1_f64),
-                ("keccak_builtin".to_string(), 1_f64),
-                ("segment_arena_builtin".to_string(), 1_f64),
-            ]
-            .into_iter()
-            .collect(),
+        let starknet_os_config =
+            StarknetOsConfig::new(CHAIN_ID.clone(), ETH_FEE_TOKEN_ADDRESS.clone(), 1);
+        let block_info = BlockInfo {
+            block_number: 0,
+            block_timestamp: 0,
+            gas_price: 1,
+            sequencer_address: SEQUENCER_ADDRESS.clone(),
+        };
+        BlockContext::new(
+            starknet_os_config,
+            10,
+            10,
+            vm_resource_fee_cost(),
+            4_000_000,
+            4_000_000,
+            block_info,
+            HashMap::new(),
+            false,
         )
     }
 
-    fn test_transaction() -> Transaction {
-        Transaction::AccountTransaction(AccountTransaction::Invoke(BlockifierInvokeTransaction {
-            tx: InvokeTransaction::V1(InvokeTransactionV1 {
-                sender_address: *TEST_ACCOUNT,
-                calldata: Calldata(
-                    vec![
-                        *TEST_CONTRACT.0.key(), // destination
-                        selector!("inc").into(),
-                        *ZERO_FELT, // no data
-                    ]
-                    .into(),
-                ),
-                max_fee: Fee(1_000_000),
-                signature: TransactionSignature(vec![]),
-                nonce: Nonce(*ZERO_FELT),
-            }),
-            only_query: false,
-            tx_hash: TransactionHash(*ZERO_FELT),
-        }))
+    /// Maps builtins and steps to a single cost unit of reference (gas).
+    fn vm_resource_fee_cost() -> HashMap<String, f64> {
+        [
+            (String::from("n_steps"), 1_f64),
+            ("pedersen_builtin".to_string(), 1_f64),
+            ("range_check_builtin".to_string(), 1_f64),
+            ("ecdsa_builtin".to_string(), 1_f64),
+            ("bitwise_builtin".to_string(), 1_f64),
+            ("poseidon_builtin".to_string(), 1_f64),
+            ("output_builtin".to_string(), 1_f64),
+            ("ec_op_builtin".to_string(), 1_f64),
+            ("keccak_builtin".to_string(), 1_f64),
+            ("segment_arena_builtin".to_string(), 1_f64),
+        ]
+        .into_iter()
+        .collect()
+    }
+
+    fn test_transaction(nonce: &Felt252) -> Transaction {
+        let skip_validation = false;
+        let skip_execute = false;
+        let skip_fee_transfer = true;
+        let ignore_max_fee = false;
+        let skip_nonce_check = false;
+        Transaction::InvokeFunction(
+            InvokeFunction::new(
+                TEST_ACCOUNT.clone(),
+                EXECUTE_ENTRY_POINT_SELECTOR.clone(),
+                1_000_000,
+                Felt252::from(1),
+                vec![
+                    TEST_CONTRACT.0.clone(), // destination
+                    field_element_to_felt(&selector!("inc")),
+                    ZERO.clone(), // no data
+                ],
+                vec![],
+                CHAIN_ID.clone(),
+                Some(nonce.clone()),
+            )
+            .expect("Failed to create transaction"),
+        )
+        .create_for_simulation(
+            skip_validation,
+            skip_execute,
+            skip_fee_transfer,
+            ignore_max_fee,
+            skip_nonce_check,
+        )
     }
 
     #[test]
@@ -238,32 +274,38 @@ mod tests {
         let mutable = &mut state;
 
         declare_and_deploy_contract(
-            "src/test_data/cairo_0/compiled_classes/counter.json",
-            *TEST_CONTRACT,
+            Path::new("src/test_data/cairo_0/compiled_classes/counter.json"),
+            TEST_CONTRACT.clone(),
             *ONE_CLASS_HASH,
             mutable,
-            true,
+            Version::V0,
         );
         declare_and_deploy_contract(
-            "src/test_data/cairo_0/compiled_classes/account.json",
-            *TEST_ACCOUNT,
+            Path::new("src/test_data/cairo_0/compiled_classes/account.json"),
+            TEST_ACCOUNT.clone(),
             *TWO_CLASS_HASH,
             mutable,
-            true,
+            Version::V0,
         );
-        fund(*TEST_ACCOUNT.0.key(), mutable);
+        fund(&TEST_ACCOUNT, mutable);
 
         let context = block_context();
         let mut sequencer = Sequencer::new(context, state);
 
         // When
-        let transaction = test_transaction();
-        sequencer.execute(transaction).unwrap();
+        let transaction = test_transaction(&Felt252::zero());
+        sequencer.execute(&transaction).unwrap();
 
         // Then
-        let expected = StarkFelt::from(1u8);
-        let actual = (&mut sequencer.state)
-            .get_storage_at(*TEST_CONTRACT, get_storage_var_address("counter", &[]))
+        let expected = Felt252::from(1u8);
+        let actual = sequencer
+            .state
+            .get_storage_at(&(
+                TEST_CONTRACT.clone(),
+                get_storage_var_address("counter", &[])
+                    .unwrap()
+                    .to_be_bytes(),
+            ))
             .unwrap();
         assert_eq!(expected, actual);
     }
@@ -272,35 +314,82 @@ mod tests {
     fn test_sequencer_cairo_1() {
         // Given
         let mut state = State::default();
-        let mutable = &mut state;
 
         declare_and_deploy_contract(
-            "src/test_data/cairo_1/compiled_classes/counter.json",
-            *TEST_CONTRACT,
+            Path::new("src/test_data/cairo_1/compiled_classes/counter.json"),
+            TEST_CONTRACT.clone(),
             *ONE_CLASS_HASH,
-            mutable,
-            false,
+            &mut state,
+            Version::V1,
         );
         declare_and_deploy_contract(
-            "src/test_data/cairo_1/compiled_classes/account.json",
-            *TEST_ACCOUNT,
+            Path::new("src/test_data/cairo_1/compiled_classes/account.json"),
+            TEST_ACCOUNT.clone(),
             *TWO_CLASS_HASH,
-            mutable,
-            false,
+            &mut state,
+            Version::V1,
         );
-        fund(*TEST_ACCOUNT.0.key(), mutable);
+        fund(&TEST_ACCOUNT, &mut state);
 
         let context = block_context();
         let mut sequencer = Sequencer::new(context, state);
 
         // When
-        let transaction = test_transaction();
-        sequencer.execute(transaction).unwrap();
+        let transaction = test_transaction(&Felt252::zero());
+        sequencer.execute(&transaction).unwrap();
 
         // Then
-        let expected = StarkFelt::from(1u8);
-        let actual = (&mut sequencer.state)
-            .get_storage_at(*TEST_CONTRACT, get_storage_var_address("counter", &[]))
+        let expected = Felt252::from(1u8);
+        let actual = sequencer
+            .state
+            .get_storage_at(&(
+                TEST_CONTRACT.clone(),
+                get_storage_var_address("counter", &[])
+                    .unwrap()
+                    .to_be_bytes(),
+            ))
+            .unwrap();
+        assert_eq!(expected, actual);
+    }
+
+    #[test]
+    fn test_sequencer_cairo_1_native() {
+        // Given
+        let mut state = State::default();
+
+        declare_and_deploy_contract(
+            Path::new("/Users/greg/code/rust/ef-tests/crates/sequencer/src/test_data/native/classes/counter.cairo"),
+            TEST_CONTRACT.clone(),
+            *ONE_CLASS_HASH,
+            &mut state,
+            Version::Native,
+        );
+        declare_and_deploy_contract(
+            Path::new("/Users/greg/code/rust/ef-tests/crates/sequencer/src/test_data/native/classes/account.cairo"),
+            TEST_ACCOUNT.clone(),
+            *TWO_CLASS_HASH,
+            &mut state,
+            Version::Native,
+        );
+        fund(&TEST_ACCOUNT, &mut state);
+
+        let context = block_context();
+        let mut sequencer = Sequencer::new(context, state);
+
+        // When
+        let transaction = test_transaction(&Felt252::zero());
+        sequencer.execute(&transaction).unwrap();
+
+        // Then
+        let expected = Felt252::from(1u8);
+        let actual = sequencer
+            .state
+            .get_storage_at(&(
+                TEST_CONTRACT.clone(),
+                get_storage_var_address("counter", &[])
+                    .unwrap()
+                    .to_be_bytes(),
+            ))
             .unwrap();
         assert_eq!(expected, actual);
     }

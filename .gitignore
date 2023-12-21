@@ -11,6 +11,7 @@
 
 .env
 vscode
+.vscode
 broadcast
 .DS_Store
 
@@ -28,3 +29,6 @@ tmp*
 
 # Ignore the generated tests
 /crates/ef-testing/tests/*
+
+# Ignore corelib
+corelib/
