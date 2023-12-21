@@ -1,4 +1,3 @@
-# %%
 import re
 
 with open("data.txt", "r") as f:
@@ -7,12 +6,14 @@ with open("data.txt", "r") as f:
 matches_failed = re.findall(r"thread '(.*)' panicked at ", data)
 matches_failed = matches_failed[1:]
 
-print(len(matches_failed))
-
-print(matches_failed[:10])
-
 matches_failed = [
-    (m.split("::")[-2].replace("_minus_", "-"), m.split("::")[-1])
+    (
+        m.split("::")[-2]
+        .replace("-", "_minus_")
+        .replace("+", "_plus_")
+        .replace("^", "_xor_"),
+        m.split("::")[-1],
+    )
     for m in matches_failed
 ]
 skip_dict = dict()

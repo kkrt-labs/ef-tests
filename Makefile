@@ -31,7 +31,7 @@ $(EF_TESTS_DIR):
 setup: $(EF_TESTS_DIR)
 
 setup-kakarot-v0: clean-kakarot-v0
-	@curl -sL -o kakarot-build.zip -H "Authorization: token $(GITHUB_TOKEN)" "$(KKRT_V0_BUILD_ARTIFACT_URL)'"
+	@curl -sL -o kakarot-build.zip -H "Authorization: token $(GITHUB_TOKEN)" "$(KKRT_V0_BUILD_ARTIFACT_URL)"
 	unzip -o kakarot-build.zip -d build/v0
 	mv build/v0/fixtures/ERC20.json build/common/
 	rm -f kakarot-build.zip
