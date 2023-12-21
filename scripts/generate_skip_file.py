@@ -1,4 +1,4 @@
-#%%
+# %%
 import re
 
 with open("data.txt", "r") as f:
@@ -11,7 +11,10 @@ print(len(matches_failed))
 
 print(matches_failed[:10])
 
-matches_failed = [(m.split('::')[-2].replace("_minus_", "-"), m.split('::')[-1]) for m in matches_failed]
+matches_failed = [
+    (m.split("::")[-2].replace("_minus_", "-"), m.split("::")[-1])
+    for m in matches_failed
+]
 skip_dict = dict()
 for [folder, file] in matches_failed:
     files = skip_dict.get(folder, [])
