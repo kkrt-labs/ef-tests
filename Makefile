@@ -86,3 +86,7 @@ ef-test-v1: build
 # Build the rust crates
 build:
 	cargo build --release
+
+# Generates a `blockchain-tests-skip.yml` at the project root, by consuming a `data.txt` file containing logs of the ran tests
+generate-skip-file:
+	python ./scripts/generate_skip_file.py
