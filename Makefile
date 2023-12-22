@@ -55,8 +55,6 @@ setup-native: clean-native
 	rm -fr cairo
 	rm -rf cairo2.tar
 
-
-
 clean-kakarot-v0:
 	rm -rf build/v0
 	rm -rf build/common
