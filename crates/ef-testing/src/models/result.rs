@@ -1,9 +1,10 @@
-use blockifier::{
-    execution::call_info::CallInfo,
-    transaction::objects::{TransactionExecutionInfo, TransactionExecutionResult},
-};
+use cairo_vm::felt::Felt252;
+use sequencer::execution::TransactionExecutionResult;
 use starknet::macros::selector;
-use starknet_api::transaction::EventContent;
+use starknet_in_rust::{
+    execution::{CallInfo, OrderedEvent, TransactionExecutionInfo},
+    utils::field_element_to_felt,
+};
 use tracing::{error, info, warn};
 
 pub(crate) fn log_execution_result(
@@ -19,9 +20,8 @@ pub(crate) fn log_execution_result(
             } else {
                 info!("{} passed: {:?}", case, info.actual_resources);
                 #[cfg(feature = "v0")]
-                if let Some(call) = info.execute_call_info {
-                    use starknet::core::types::FieldElement;
-                    use starknet_api::hash::StarkFelt;
+                if let Some(call) = info.call_info {
+                    use num_traits::{ToPrimitive, Zero};
                     let events = get_kakarot_execution_events(&call);
                     // Check only one execution event.
                     if events.len() != 1 {
@@ -31,17 +31,16 @@ pub(crate) fn log_execution_result(
                         );
                         return;
                     }
-                    if events[0].data.0.last() == Some(&StarkFelt::ZERO) {
-                        let return_data = call.execution.retdata.0;
+                    if Some(&Felt252::zero()) == events[0].data.last() {
+                        let return_data = call.retdata;
 
                         let revert_message_len = return_data.first().cloned().unwrap_or_default();
-                        let revert_message_len =
-                            usize::try_from(revert_message_len).unwrap_or_default();
+                        let revert_message_len = revert_message_len.to_usize().unwrap_or_default();
 
                         let revert_message: String = return_data
                             .into_iter()
                             .skip(1)
-                            .filter_map(|d| u8::try_from(FieldElement::from(d)).ok())
+                            .filter_map(|d| d.to_u8())
                             .map(|d| d as char)
                             .collect();
 
@@ -69,19 +68,13 @@ pub(crate) fn log_execution_result(
 }
 
 #[allow(dead_code)]
-fn get_kakarot_execution_events(call_info: &CallInfo) -> Vec<EventContent> {
-    let mut events = Vec::new();
-    for c in call_info.into_iter() {
-        let mut filtered_events = c
-            .execution
-            .events
-            .iter()
-            .filter(|e| {
-                e.event.keys.first().map(|e| e.0) == Some(selector!("transaction_executed").into())
-            })
-            .map(|e| e.event.clone())
-            .collect();
-        events.append(&mut filtered_events);
-    }
-    events
+fn get_kakarot_execution_events(call_info: &CallInfo) -> Vec<OrderedEvent> {
+    call_info
+        .events
+        .iter()
+        .filter(|e| {
+            e.keys.first() == Some(&field_element_to_felt(&selector!("transaction_executed")))
+        })
+        .cloned()
+        .collect()
 }

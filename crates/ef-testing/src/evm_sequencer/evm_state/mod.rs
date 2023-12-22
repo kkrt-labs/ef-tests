@@ -3,12 +3,10 @@ pub mod v0;
 #[cfg(feature = "v1")]
 pub mod v1;
 
-use blockifier::{
-    state::state_api::StateResult,
-    transaction::objects::{TransactionExecutionInfo, TransactionExecutionResult},
-};
 use reth_primitives::{Address, Bytes, TransactionSigned};
 use revm_primitives::U256;
+use sequencer::{execution::TransactionExecutionResult, state::StateResult};
+use starknet_in_rust::execution::TransactionExecutionInfo;
 
 use super::account::KakarotAccount;
 

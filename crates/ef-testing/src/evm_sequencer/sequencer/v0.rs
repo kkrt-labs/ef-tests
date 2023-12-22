@@ -1,14 +1,6 @@
-#[allow(unused_imports)]
-use blockifier::state::state_api::{
-    State as BlockifierState, StateReader as BlockifierStateReader, StateResult,
-};
-use blockifier::{
-    abi::abi_utils::get_storage_var_address,
-    execution::contract_class::{ContractClass, ContractClassV0},
-};
-use cairo_vm::types::errors::program_errors::ProgramError;
+use cairo_vm::felt::Felt252;
 use lazy_static::lazy_static;
-use starknet::core::types::contract::legacy::LegacyContractClass;
+use starknet_in_rust::{state::state_api::State as _, utils::get_storage_var_address};
 
 use crate::evm_sequencer::{
     constants::kkrt_constants_v0::{
@@ -27,46 +19,31 @@ lazy_static! {
         let mut state = SequencerState::default();
 
         let storage = [
-            ("Ownable_owner", *KAKAROT_OWNER_ADDRESS.0.key()),
-            ("native_token_address", *ETH_FEE_TOKEN_ADDRESS.0.key()),
-            ("contract_account_class_hash", CONTRACT_ACCOUNT_CLASS_HASH.0),
-            ("externally_owned_account_class_hash", EOA_CLASS_HASH.0),
-            ("account_proxy_class_hash", PROXY_CLASS_HASH.0),
+            ("Ownable_owner", KAKAROT_OWNER_ADDRESS.0.clone()),
+            ("native_token_address", ETH_FEE_TOKEN_ADDRESS.0.clone()),
+            ("contract_account_class_hash", Felt252::from_bytes_be(CONTRACT_ACCOUNT_CLASS_HASH.to_bytes_be())),
+            ("externally_owned_account_class_hash", Felt252::from_bytes_be(EOA_CLASS_HASH.to_bytes_be()) ),
+            ("account_proxy_class_hash", Felt252::from_bytes_be(PROXY_CLASS_HASH.to_bytes_be()) ),
         ];
 
         // Write all the storage vars to the sequencer state.
         for (k, v) in storage {
-            (&mut state).set_storage_at(*KAKAROT_ADDRESS, get_storage_var_address(k, &[]), v);
+            state.set_storage_at(&(KAKAROT_ADDRESS.clone(), get_storage_var_address(k, &[]).expect("Failed to compute storage address").to_be_bytes()), v);
         }
 
         // Write the kakarot class and class hash.
-        (&mut state).set_class_hash_at(*KAKAROT_ADDRESS, *KAKAROT_CLASS_HASH).expect("Failed to set kakarot class hash");
-        (&mut state)
-            .set_contract_class(&KAKAROT_CLASS_HASH, convert_contract_class(&KAKAROT_CLASS).expect("Failed to convert KAKAROT CLASS to contract class")).expect("Failed to set kakarot contract class");
+        state.set_class_hash_at(KAKAROT_ADDRESS.clone(), *KAKAROT_CLASS_HASH).expect("Failed to set kakarot class hash");
+        state
+            .set_contract_class(&KAKAROT_CLASS_HASH, &KAKAROT_CLASS).expect("Failed to set kakarot contract class");
 
         // Write proxy, eoa, contract account and erc20 classes and class hashes.
-        (&mut state)
-            .set_contract_class(&PROXY_CLASS_HASH, convert_contract_class(&PROXY_CLASS).expect("Failed to convert PROXY CLASS to contract class")).expect("Failed to set proxy contract class");
-        (&mut state).set_contract_class(
-            &CONTRACT_ACCOUNT_CLASS_HASH,
-            convert_contract_class(&CONTRACT_ACCOUNT_CLASS).expect("Failed to convert CONTRACT ACCOUNT CLASS to contract class"),
-        ).expect("Failed to set contract account class");
-        (&mut state)
-            .set_contract_class(&EOA_CLASS_HASH, convert_contract_class(&EOA_CLASS).expect("Failed to convert EOA CLASS to contract class")).expect("Failed to set eoa contract class");
-        (&mut state).set_contract_class(
-            &FEE_TOKEN_CLASS_HASH,
-            convert_contract_class(&FEE_TOKEN_CLASS).expect("Failed to convert FEE TOKEN CLASS to contract class"),
-        ).expect("Failed to set sequencer contract class");
-        (&mut state).set_class_hash_at(*ETH_FEE_TOKEN_ADDRESS, *FEE_TOKEN_CLASS_HASH).expect("Failed to set fee token class hash");
+        state
+            .set_contract_class(&PROXY_CLASS_HASH, &PROXY_CLASS).expect("Failed to set proxy contract class");
+        state.set_contract_class(&CONTRACT_ACCOUNT_CLASS_HASH, &CONTRACT_ACCOUNT_CLASS).expect("Failed to set contract account class");
+        state.set_contract_class(&EOA_CLASS_HASH, &EOA_CLASS).expect("Failed to set eoa contract class");
+        state.set_contract_class(&FEE_TOKEN_CLASS_HASH, &FEE_TOKEN_CLASS).expect("Failed to set sequencer contract class");
+        state.set_class_hash_at(ETH_FEE_TOKEN_ADDRESS.clone(), *FEE_TOKEN_CLASS_HASH).expect("Failed to set fee token class hash");
 
         state
     };
-}
-
-fn convert_contract_class(class: &LegacyContractClass) -> Result<ContractClass, eyre::Error> {
-    Result::<ContractClass, eyre::Error>::Ok(ContractClass::V0(
-        ContractClassV0::try_from_json_string(
-            &serde_json::to_string(class).map_err(ProgramError::Parse)?,
-        )?,
-    ))
 }

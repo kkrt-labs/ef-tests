@@ -3,26 +3,23 @@ pub mod v0;
 #[cfg(feature = "v1")]
 pub mod v1;
 
-use starknet_api::{
-    core::{ContractAddress, Nonce},
-    hash::StarkFelt,
-    state::StorageKey,
-};
+use cairo_vm::felt::Felt252;
+use starknet_in_rust::utils::Address as StarknetAddress;
 
 #[macro_export]
 macro_rules! starknet_storage {
     ($storage_var: expr, $felt: expr) => {
         (
-            get_storage_var_address($storage_var, &[]),
-            StarkFelt::from($felt),
+            get_storage_var_address($storage_var, &[])?,
+            Felt252::from($felt),
         )
     };
     ($storage_var: expr, [$($key: expr),*], $felt: expr) => {
         {
             let args = vec![$($key),*];
             (
-                get_storage_var_address($storage_var, &args),
-                StarkFelt::from($felt),
+                get_storage_var_address($storage_var, &args)?,
+                Felt252::from($felt),
             )
         }
     };
@@ -34,10 +31,10 @@ macro_rules! starknet_storage {
 #[allow(dead_code)]
 #[derive(Debug, Clone, Default)]
 pub struct KakarotAccount {
-    pub(crate) starknet_address: ContractAddress,
-    pub(crate) evm_address: StarkFelt,
-    pub(crate) nonce: Nonce,
-    pub(crate) storage: Vec<(StorageKey, StarkFelt)>,
+    pub(crate) starknet_address: StarknetAddress,
+    pub(crate) evm_address: Felt252,
+    pub(crate) nonce: Felt252,
+    pub(crate) storage: Vec<(Felt252, Felt252)>,
     pub(crate) account_type: AccountType,
 }
 
@@ -52,13 +49,10 @@ pub enum AccountType {
 #[cfg(not(any(feature = "v0", feature = "v1")))]
 pub mod kkrt_account {
     use super::{AccountType, KakarotAccount};
+    use cairo_vm::felt::Felt252;
     use reth_primitives::{Address, Bytes};
     use revm_primitives::U256;
-    use starknet_api::{
-        core::{ContractAddress, Nonce},
-        hash::StarkFelt,
-        StarknetApiError,
-    };
+    use starknet_in_rust::utils::Address as StarknetAddress;
 
     impl KakarotAccount {
         pub fn new(
@@ -68,9 +62,9 @@ pub mod kkrt_account {
             _evm_storage: &[(U256, U256)],
         ) -> Result<Self, StarknetApiError> {
             Ok(Self {
-                starknet_address: ContractAddress::default(),
-                evm_address: StarkFelt::default(),
-                nonce: Nonce::default(),
+                starknet_address: StarknetAddress::default(),
+                evm_address: Felt252::default(),
+                nonce: Felt252::default(),
                 storage: vec![],
                 account_type: AccountType::EOA,
             })

@@ -41,6 +41,12 @@ where
             state,
         }
     }
+
+    /// Returns the block context.
+    #[inline]
+    pub fn block_context(&mut self) -> BlockContext {
+        self.block_context.clone()
+    }
 }
 
 impl<S> Execution for Sequencer<S>
@@ -89,8 +95,7 @@ mod tests {
     use std::path::Path;
     use std::sync::Arc;
 
-    use cairo_lang_compiler::CompilerConfig;
-    use cairo_lang_starknet::contract_class::compile_path;
+    use cairo_lang_starknet::contract_class::ContractClass as SierraContractClass;
     use num_traits::Zero as _;
     use starknet::core::types::contract::legacy::LegacyContractClass;
     use starknet::macros::selector;
@@ -136,24 +141,22 @@ mod tests {
     }
 
     fn read_contract_class_v1(path: &Path) -> CompiledClass {
-        let s = std::fs::read_to_string(path).expect("Failed to read v1 contract class");
-        let casm_contract_class = serde_json::from_str::<CasmContractClass>(&s).unwrap();
+        let s = std::fs::read_to_string(path).expect("Failed to read native contract class");
+        let contract_class = serde_json::from_str::<SierraContractClass>(&s)
+            .expect("Failed to parse contract class");
+
+        let casm_contract_class = CasmContractClass::from_contract_class(contract_class, true)
+            .expect("Failed to get casm contract class");
         CompiledClass::Casm(Arc::new(casm_contract_class))
     }
 
     fn read_contract_class_native(path: &Path) -> CompiledClass {
-        let contract = compile_path(
-            path,
-            None,
-            CompilerConfig {
-                replace_ids: true,
-                ..Default::default()
-            },
-        )
-        .expect("Failed to compile contract");
+        let s = std::fs::read_to_string(path).expect("Failed to read native contract class");
+        let contract_class = serde_json::from_str::<SierraContractClass>(&s)
+            .expect("Failed to parse contract class");
 
-        let sierra_program = contract.extract_sierra_program().unwrap();
-        let entrypoints = contract.entry_points_by_type;
+        let sierra_program = contract_class.extract_sierra_program().unwrap();
+        let entrypoints = contract_class.entry_points_by_type;
 
         CompiledClass::Sierra(Arc::new((sierra_program, entrypoints)))
     }
@@ -220,7 +223,7 @@ mod tests {
     /// Maps builtins and steps to a single cost unit of reference (gas).
     fn vm_resource_fee_cost() -> HashMap<String, f64> {
         [
-            (String::from("n_steps"), 1_f64),
+            ("n_steps".to_string(), 1_f64),
             ("pedersen_builtin".to_string(), 1_f64),
             ("range_check_builtin".to_string(), 1_f64),
             ("ecdsa_builtin".to_string(), 1_f64),
@@ -358,14 +361,14 @@ mod tests {
         let mut state = State::default();
 
         declare_and_deploy_contract(
-            Path::new("/Users/greg/code/rust/ef-tests/crates/sequencer/src/test_data/native/classes/counter.cairo"),
+            Path::new("src/test_data/cairo_1/compiled_classes/counter.json"),
             TEST_CONTRACT.clone(),
             *ONE_CLASS_HASH,
             &mut state,
             Version::Native,
         );
         declare_and_deploy_contract(
-            Path::new("/Users/greg/code/rust/ef-tests/crates/sequencer/src/test_data/native/classes/account.cairo"),
+            Path::new("src/test_data/cairo_1/compiled_classes/account.json"),
             TEST_ACCOUNT.clone(),
             *TWO_CLASS_HASH,
             &mut state,

@@ -189,7 +189,7 @@ impl<'a> EfTests<'a> {
 
     fn format_test_header(is_skipped: bool, content_err: Option<String>) -> String {
         if is_skipped {
-            return String::from("#[ignore = \"skipped in config file\"]");
+            return "#[ignore = \"skipped in config file\"]".to_string();
         } else if content_err.is_some() {
             return format!("#[ignore = \"{}\"]", content_err.unwrap());
         }

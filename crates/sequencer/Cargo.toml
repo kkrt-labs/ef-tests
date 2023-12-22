@@ -21,6 +21,7 @@ starknet_in_rust = { workspace = true }
 
 # Other
 eyre = { workspace = true }
+lazy_static = { workspace = true }
 num-traits = { workspace = true }
 tracing = { workspace = true }
 rustc-hash = "1.1.0"
@@ -29,5 +30,4 @@ serde_json = { workspace = true }
 thiserror = { workspace = true }
 
 [dev-dependencies]
-lazy_static = { workspace = true }
 tempfile = "3.8.0"
