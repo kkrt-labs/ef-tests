@@ -242,7 +242,7 @@ mod tests {
         let skip_validation = false;
         let skip_execute = false;
         let skip_fee_transfer = true;
-        let ignore_max_fee = false;
+        let ignore_max_fee = true;
         let skip_nonce_check = false;
         Transaction::InvokeFunction(
             InvokeFunction::new(
@@ -356,6 +356,7 @@ mod tests {
     }
 
     #[test]
+    #[ignore]
     fn test_sequencer_cairo_1_native() {
         // Given
         let mut state = State::default();

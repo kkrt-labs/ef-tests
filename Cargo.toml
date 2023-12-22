@@ -79,6 +79,3 @@ serde_yaml = "0.9.25"
 
 # Log
 log = "0.4.20"
-
-[patch."https://github.com/lambdaclass/starknet_in_rust.git"]
-starknet_in_rust = { path = "../starknet_in_rust" }
