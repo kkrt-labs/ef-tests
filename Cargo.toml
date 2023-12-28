@@ -40,9 +40,7 @@ cairo-lang-sierra = "2.3.1"
 cairo-lang-starknet = "2.3.1"
 cairo-lang-utils = "2.3.1"
 cairo-vm = { version = "0.8.5", features = ["cairo-1-hints"] }
-starknet_in_rust = { git = "https://github.com/lambdaclass/starknet_in_rust.git", version = "0.4", features = [
-  "cairo-native",
-] }
+starknet_in_rust = { git = "https://github.com/lambdaclass/starknet_in_rust.git", version = "0.4" }
 starknet = "0.5.0"
 starknet-crypto = "0.6.1"
 starknet_api = "0.4.1"

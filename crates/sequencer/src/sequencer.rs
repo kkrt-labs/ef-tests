@@ -67,7 +67,7 @@ where
             Arc::new(state_reader),
             Arc::new(PermanentContractClassCache::default()),
         );
-        let res = transaction.execute(&mut cached_state, &self.block_context, u128::MAX, None);
+        let res = transaction.execute(&mut cached_state, &self.block_context, u128::MAX);
 
         let execution_information = match res {
             Err(err) => {
