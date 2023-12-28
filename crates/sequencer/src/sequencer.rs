@@ -21,30 +21,32 @@ use starknet_api::core::ContractAddress;
 /// indicates that the bound must hold for any lifetime 'any.
 /// For more details, check out [rust-lang docs](https://doc.rust-lang.org/nomicon/hrtb.html)
 #[derive(Clone)]
-pub struct Sequencer<S>
+pub struct Sequencer<S, A>
 where
     for<'any> &'any mut S: State + StateReader,
 {
     pub block_context: BlockContext,
     pub state: S,
+    pub address: A,
 }
 
-impl<S> Sequencer<S>
+impl<S, A> Sequencer<S, A>
 where
     for<'any> &'any mut S: State + StateReader,
 {
     /// Creates a new Sequencer instance.
     #[inline]
     #[must_use]
-    pub const fn new(block_context: BlockContext, state: S) -> Self {
+    pub const fn new(block_context: BlockContext, state: S, address: A) -> Self {
         Self {
             block_context,
             state,
+            address,
         }
     }
 }
 
-impl<S> Execution for Sequencer<S>
+impl<S, A> Execution for Sequencer<S, A>
 where
     for<'any> &'any mut S: State + StateReader + Committer<S>,
 {
@@ -98,6 +100,7 @@ where
 #[cfg(test)]
 mod tests {
     use std::collections::HashMap;
+    use std::fmt::Display;
     use std::fs::File;
     use std::sync::Arc;
 
@@ -126,6 +129,20 @@ mod tests {
 
     use super::*;
 
+    enum CairoVersion {
+        V0,
+        V1,
+    }
+
+    impl Display for CairoVersion {
+        fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+            match self {
+                Self::V0 => write!(f, "cairo_0"),
+                Self::V1 => write!(f, "cairo_1"),
+            }
+        }
+    }
+
     fn read_contract_class_v0(path: &str) -> ContractClass {
         let reader = File::open(path).unwrap();
         let contract_class: ContractClassV0 = serde_json::from_reader(reader).unwrap();
@@ -146,12 +163,11 @@ mod tests {
         address: ContractAddress,
         class_hash: ClassHash,
         mut state: &mut State,
-        is_v0: bool,
+        version: CairoVersion,
     ) {
-        let contract_class = if is_v0 {
-            read_contract_class_v0(path)
-        } else {
-            read_contract_class_v1(path)
+        let contract_class = match version {
+            CairoVersion::V0 => read_contract_class_v0(path),
+            CairoVersion::V1 => read_contract_class_v1(path),
         };
 
         state
@@ -166,6 +182,53 @@ mod tests {
             get_storage_var_address("ERC20_balances", &[address]),
             StarkFelt::from(u128::MAX),
         );
+    }
+
+    macro_rules! sequencer_test {
+        ($cairo_version: path, $test_name: ident) => {
+            #[test]
+            fn $test_name() {
+                // Given
+                let mut state = State::default();
+                let mutable = &mut state;
+
+                declare_and_deploy_contract(
+                    &format!(
+                        "src/test_data/{}/compiled_classes/counter.json",
+                        $cairo_version
+                    ),
+                    *TEST_CONTRACT,
+                    *ONE_CLASS_HASH,
+                    mutable,
+                    $cairo_version,
+                );
+                declare_and_deploy_contract(
+                    &format!(
+                        "src/test_data/{}/compiled_classes/account.json",
+                        $cairo_version
+                    ),
+                    *TEST_ACCOUNT,
+                    *TWO_CLASS_HASH,
+                    mutable,
+                    $cairo_version,
+                );
+                fund(*TEST_ACCOUNT.0.key(), mutable);
+
+                let context = block_context();
+                let mut sequencer = Sequencer::new(context, state, 0);
+
+                // When
+                let transaction = test_transaction();
+                sequencer.execute(transaction).unwrap();
+
+                // Then
+                let expected = StarkFelt::from(1u8);
+                let actual = (&mut sequencer.state)
+                    .get_storage_at(*TEST_CONTRACT, get_storage_var_address("counter", &[]))
+                    .unwrap();
+                assert_eq!(expected, actual);
+            }
+        };
     }
 
     fn block_context() -> BlockContext {
@@ -231,77 +294,6 @@ mod tests {
         }))
     }
 
-    #[test]
-    fn test_sequencer_cairo_0() {
-        // Given
-        let mut state = State::default();
-        let mutable = &mut state;
-
-        declare_and_deploy_contract(
-            "src/test_data/cairo_0/compiled_classes/counter.json",
-            *TEST_CONTRACT,
-            *ONE_CLASS_HASH,
-            mutable,
-            true,
-        );
-        declare_and_deploy_contract(
-            "src/test_data/cairo_0/compiled_classes/account.json",
-            *TEST_ACCOUNT,
-            *TWO_CLASS_HASH,
-            mutable,
-            true,
-        );
-        fund(*TEST_ACCOUNT.0.key(), mutable);
-
-        let context = block_context();
-        let mut sequencer = Sequencer::new(context, state);
-
-        // When
-        let transaction = test_transaction();
-        sequencer.execute(transaction).unwrap();
-
-        // Then
-        let expected = StarkFelt::from(1u8);
-        let actual = (&mut sequencer.state)
-            .get_storage_at(*TEST_CONTRACT, get_storage_var_address("counter", &[]))
-            .unwrap();
-        assert_eq!(expected, actual);
-    }
-
-    #[test]
-    fn test_sequencer_cairo_1() {
-        // Given
-        let mut state = State::default();
-        let mutable = &mut state;
-
-        declare_and_deploy_contract(
-            "src/test_data/cairo_1/compiled_classes/counter.json",
-            *TEST_CONTRACT,
-            *ONE_CLASS_HASH,
-            mutable,
-            false,
-        );
-        declare_and_deploy_contract(
-            "src/test_data/cairo_1/compiled_classes/account.json",
-            *TEST_ACCOUNT,
-            *TWO_CLASS_HASH,
-            mutable,
-            false,
-        );
-        fund(*TEST_ACCOUNT.0.key(), mutable);
-
-        let context = block_context();
-        let mut sequencer = Sequencer::new(context, state);
-
-        // When
-        let transaction = test_transaction();
-        sequencer.execute(transaction).unwrap();
-
-        // Then
-        let expected = StarkFelt::from(1u8);
-        let actual = (&mut sequencer.state)
-            .get_storage_at(*TEST_CONTRACT, get_storage_var_address("counter", &[]))
-            .unwrap();
-        assert_eq!(expected, actual);
-    }
+    sequencer_test!(CairoVersion::V0, test_sequencer_cairo_0);
+    sequencer_test!(CairoVersion::V1, test_sequencer_cairo_1);
 }
