@@ -137,44 +137,44 @@ pub fn to_broadcasted_starknet_transaction(
 mod tests {
     use super::*;
 
-    #[test]
-    fn test_felt_to_bytes_full() {
-        // Given
-        let felt = FieldElement::from_hex_be("0x1234567890abcdef1234567890abcdef").unwrap();
+    macro_rules! test_felt_to_bytes {
+        ($input: expr, $output: expr, $len: expr, $test_name: ident) => {
+            #[test]
+            fn $test_name() {
+                // Given
+                let felt = FieldElement::from_hex_be($input).unwrap();
 
-        // When
-        let bytes = high_16_bytes_of_felt_to_bytes(&felt, 16);
+                // When
+                let bytes = high_16_bytes_of_felt_to_bytes(&felt, $len);
 
-        // Then
-        let expected = Bytes::from(vec![
+                // Then
+                let expected = Bytes::from($output);
+                assert_eq!(bytes, expected);
+            }
+        };
+    }
+
+    test_felt_to_bytes!(
+        "0x1234567890abcdef1234567890abcdef",
+        vec![
             0x12, 0x34, 0x56, 0x78, 0x90, 0xab, 0xcd, 0xef, 0x12, 0x34, 0x56, 0x78, 0x90, 0xab,
-            0xcd, 0xef,
-        ]);
-        assert_eq!(bytes, expected);
-    }
+            0xcd, 0xef
+        ],
+        16,
+        test_felt_to_bytes_full
+    );
 
-    #[test]
-    fn test_felt_to_bytes_partial() {
-        // Given
-        let felt = FieldElement::from_hex_be("0x12345678900000000000000000000000").unwrap();
+    test_felt_to_bytes!(
+        "0x12345678900000000000000000000000",
+        vec![0x12, 0x34, 0x56, 0x78, 0x90],
+        5,
+        test_felt_to_bytes_partial
+    );
 
-        // When
-        let bytes = high_16_bytes_of_felt_to_bytes(&felt, 5);
-
-        // Then
-        let expected = Bytes::from(vec![0x12, 0x34, 0x56, 0x78, 0x90]);
-        assert_eq!(bytes, expected);
-    }
-
-    #[test]
-    fn test_felt_to_bytes_empty() {
-        // Given
-        let felt = FieldElement::from_hex_be("0x12345678900000000000000000000000").unwrap();
-
-        // When
-        let bytes = high_16_bytes_of_felt_to_bytes(&felt, 0);
-
-        // Then
-        assert_eq!(bytes, Bytes::default());
-    }
+    test_felt_to_bytes!(
+        "0x12345678900000000000000000000000",
+        vec![],
+        0,
+        test_felt_to_bytes_empty
+    );
 }
