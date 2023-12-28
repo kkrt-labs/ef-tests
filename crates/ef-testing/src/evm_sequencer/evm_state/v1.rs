@@ -42,6 +42,7 @@ impl Evm for KakarotSequencer {
     fn setup_state(&mut self) -> StateResult<()> {
         let coinbase = KakarotAccount::new(&self.address, &Bytes::default(), U256::ZERO, &[])?;
         self.setup_account(coinbase)?;
+        self.fund(&self.address.clone(), U256::MAX)?;
 
         Ok(())
     }
