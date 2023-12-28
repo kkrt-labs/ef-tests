@@ -33,10 +33,12 @@ jobs:
         run: make setup-kakarot-v0 && make setup-kakarot-v1
         env:
           GITHUB_TOKEN: ${{ github.token }}
-      - name: run tests
+      - name: run tests v0
         run: |
           make vm-tests-v0-ci > test_v0.out 2>&1
           cat test_v0.out
+      - name: run tests v1
+        run: |
           make vm-tests-v1-ci > test_v1.out 2>&1
           cat test_v1.out
       - name: Retrieve ef-tests execution resources
