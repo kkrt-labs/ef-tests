@@ -52,6 +52,7 @@ pub mod kkrt_account {
     use cairo_vm::felt::Felt252;
     use reth_primitives::{Address, Bytes};
     use revm_primitives::U256;
+    use sequencer::state::StateResult;
     use starknet_in_rust::utils::Address as StarknetAddress;
 
     impl KakarotAccount {
@@ -60,7 +61,7 @@ pub mod kkrt_account {
             _code: &Bytes,
             _nonce: U256,
             _evm_storage: &[(U256, U256)],
-        ) -> Result<Self, StarknetApiError> {
+        ) -> StateResult<Self> {
             Ok(Self {
                 starknet_address: StarknetAddress::default(),
                 evm_address: Felt252::default(),
