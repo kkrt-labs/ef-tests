@@ -1,18 +1,13 @@
-use std::{collections::HashMap, sync::Arc};
+use std::collections::HashMap;
 
-use blockifier::block_context::{BlockContext, FeeTokenAddresses, GasPrices};
 use lazy_static::lazy_static;
-use reth_primitives::Address;
 use starknet::core::types::contract::legacy::LegacyContractClass;
 use starknet_api::{
-    block::{BlockNumber, BlockTimestamp},
     contract_address,
-    core::{ChainId, ClassHash, ContractAddress, PatriciaKey},
+    core::{ClassHash, ContractAddress, PatriciaKey},
     hash::{StarkFelt, StarkHash},
     patricia_key,
 };
-
-use crate::evm_sequencer::utils::compute_starknet_address;
 
 fn load_legacy_contract_class(path: &str) -> Result<LegacyContractClass, eyre::Error> {
     let content = std::fs::read_to_string(path)?;
@@ -23,7 +18,6 @@ fn load_legacy_contract_class(path: &str) -> Result<LegacyContractClass, eyre::E
 lazy_static! {
     // Chain params
     pub static ref CHAIN_ID: u64 = 0x4b4b5254;
-    pub static ref COINBASE_ADDRESS: Address = Address::from_low_u64_be(0xDEAD2BAD);
 
     // Vm resources: maps resource name to fee cost.
     pub static ref VM_RESOURCES: HashMap<String, f64> = [
@@ -41,22 +35,7 @@ lazy_static! {
     .into_iter()
     .collect();
 
-    // Block context
-    pub static ref BLOCK_CONTEXT: BlockContext = BlockContext {
-            chain_id: ChainId(String::from_utf8(CHAIN_ID.to_be_bytes().to_vec()).unwrap()),
-            block_number: BlockNumber(0),
-            block_timestamp: BlockTimestamp(0),
-            sequencer_address: *SEQUENCER_ADDRESS,
-            fee_token_addresses: FeeTokenAddresses{eth_fee_token_address: *ETH_FEE_TOKEN_ADDRESS, strk_fee_token_address: *STRK_FEE_TOKEN_ADDRESS},
-            vm_resource_fee_cost: Arc::new(VM_RESOURCES.clone()),
-            gas_prices: GasPrices{eth_l1_gas_price: 1, strk_l1_gas_price: 1},
-            invoke_tx_max_n_steps: 20_000_000,
-            validate_max_n_steps: 20_000_000,
-            max_recursion_depth: 2048,
-        };
-
     // Main addresses
-    pub static ref SEQUENCER_ADDRESS: ContractAddress = compute_starknet_address(&COINBASE_ADDRESS).try_into().expect("Failed to convert sequencer address to contract address");
     pub static ref ETH_FEE_TOKEN_ADDRESS: ContractAddress = contract_address!("0x049D36570D4e46f48e99674bd3fcc84644DdD6b96F7C741B1562B82f9e004dC7");
     pub static ref STRK_FEE_TOKEN_ADDRESS: ContractAddress = contract_address!("0xCa14007Eff0dB1f8135f4C25B34De49AB0d42766");
     pub static ref KAKAROT_ADDRESS: ContractAddress =

@@ -218,7 +218,8 @@ mod tests {
     #[test]
     fn test_execute_simple_contract() {
         // Given
-        let mut sequencer = crate::evm_sequencer::sequencer::KakarotSequencer::new();
+        let mut sequencer =
+            crate::evm_sequencer::sequencer::KakarotSequencer::new(Address::from(1234u64), 0, 0);
 
         let mut transaction = TransactionSigned {
             hash: B256::default(),

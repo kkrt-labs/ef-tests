@@ -92,9 +92,7 @@ impl KakarotAccount {
 }
 
 /// Splits a byte array into 16-byte chunks and converts each chunk to a StarkFelt.
-pub fn split_bytecode_to_starkfelt<'a>(
-    bytecode: &'a Bytes,
-) -> impl Iterator<Item = StarkFelt> + 'a {
+pub fn split_bytecode_to_starkfelt(bytecode: &Bytes) -> impl Iterator<Item = StarkFelt> + '_ {
     bytecode.chunks(16).map(|x| {
         let mut storage_value = [0u8; 16];
         storage_value[..x.len()].copy_from_slice(x);

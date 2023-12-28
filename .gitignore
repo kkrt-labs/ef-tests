@@ -28,3 +28,6 @@ tmp*
 
 # Ignore the generated tests
 /crates/ef-testing/tests/*
+
+# Ignore the launch file
+launch.json
