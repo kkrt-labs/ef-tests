@@ -39,7 +39,7 @@ jobs:
           cat test_v0.out
       - name: run tests v1
         run: |
-          cargo test --test VMTests --lib --no-fail-fast --quiet --features "v1,ci" > test_v1.out 2>&1
+          cargo test --test VMTests --lib --no-fail-fast --quiet --features "v1,ci"
           cat test_v1.out
       - name: Retrieve ef-tests execution resources
         run: python scripts/compute_resources.py
