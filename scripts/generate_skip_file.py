@@ -1,10 +1,8 @@
 import re
+from collections import defaultdict
 
 with open("data.txt", "r") as f:
     data = f.read()
-
-matches_failed = re.findall(r"thread '(.*)' panicked at ", data)
-matches_failed = matches_failed[1:]
 
 matches_failed = [
     (
@@ -14,13 +12,21 @@ matches_failed = [
         .replace("_xor_", "^"),
         m.split("::")[-1],
     )
-    for m in matches_failed
+    for m in re.findall(r"thread '(.*)' panicked at", data)
 ]
-skip_dict = dict()
+summary = next(
+    re.finditer(
+        r"test result: (?P<result>\w+). (?P<passed>\d+) passed; (?P<failed>\d+) failed; (?P<ignored>\d+) ignored",
+        data,
+    )
+)
+
+if len(matches_failed) != int(summary["failed"]):
+    raise ValueError("Failed to parse file")
+
+skip_dict = defaultdict(list)
 for [folder, file] in matches_failed:
-    files = skip_dict.get(folder, [])
-    files.append(file)
-    skip_dict[folder] = files
+    skip_dict[folder].append(file)
 
 skip = "filename:\n"
 for folder in skip_dict:
