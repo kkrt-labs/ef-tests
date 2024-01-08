@@ -31,7 +31,7 @@ use crate::evm_sequencer::{
     account::{AccountType, KakarotAccount},
     constants::{
         kkrt_constants_v1::{CONTRACT_ACCOUNT_CLASS_HASH, EOA_CLASS_HASH},
-        CHAIN_ID, COINBASE_ADDRESS, ETH_FEE_TOKEN_ADDRESS, KAKAROT_ADDRESS,
+        CHAIN_ID, ETH_FEE_TOKEN_ADDRESS, KAKAROT_ADDRESS,
     },
     sequencer::KakarotSequencer,
     utils::{compute_starknet_address, split_u256, to_broadcasted_starknet_transaction},
@@ -40,8 +40,9 @@ use crate::evm_sequencer::{
 impl Evm for KakarotSequencer {
     /// Sets up the evm state (coinbase, block number, etc.)
     fn setup_state(&mut self) -> StateResult<()> {
-        let coinbase = KakarotAccount::new(&COINBASE_ADDRESS, &Bytes::default(), U256::ZERO, &[])?;
+        let coinbase = KakarotAccount::new(&self.address, &Bytes::default(), U256::ZERO, &[])?;
         self.setup_account(coinbase)?;
+        self.fund(&self.address.clone(), U256::ZERO)?;
 
         Ok(())
     }
@@ -309,7 +310,7 @@ mod tests {
     #[test]
     fn test_store_bytecode() {
         // Given
-        let mut sequencer = KakarotSequencer::new();
+        let mut sequencer = KakarotSequencer::new(Address::from(1234u64), 0, 0);
         let bytecode = Bytes::from(vec![
             0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e,
             0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e,
@@ -335,7 +336,7 @@ mod tests {
     #[test]
     fn test_execute_simple_contract() {
         // Given
-        let mut sequencer = KakarotSequencer::new();
+        let mut sequencer = KakarotSequencer::new(Address::from(1234u64), 0, 0);
 
         let mut transaction = TransactionSigned {
             hash: B256::default(),

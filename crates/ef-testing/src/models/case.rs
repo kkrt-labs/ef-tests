@@ -194,7 +194,16 @@ impl BlockchainTestCase {
 #[async_trait]
 impl Case for BlockchainTestCase {
     fn run(&self) -> Result<(), RunnerError> {
-        let mut sequencer = KakarotSequencer::new();
+        let block_header = self
+            .block
+            .block_header
+            .as_ref()
+            .expect("Missing block header");
+
+        let coinbase_address = block_header.coinbase;
+        let block_number = TryInto::<u64>::try_into(block_header.number.0).unwrap_or_default();
+        let block_timestamp = TryInto::<u64>::try_into(block_header.number.0).unwrap_or_default();
+        let mut sequencer = KakarotSequencer::new(coinbase_address, block_number, block_timestamp);
 
         sequencer.setup_state()?;
 
