@@ -10,7 +10,10 @@ matches_failed = [
         .replace("_minus_", "-")
         .replace("_plus_", "+")
         .replace("_xor_", "^"),
-        m.split("::")[-1],
+        m.split("::")[-1]
+        .replace("_minus_", "-")
+        .replace("_plus_", "+")
+        .replace("_xor_", "^"),
     )
     for m in re.findall(r"thread '(.*)' panicked at", data)
 ]
