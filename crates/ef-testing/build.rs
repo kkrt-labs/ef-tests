@@ -65,7 +65,7 @@ fn main() {
     // double running tests.
     // (https://github.com/rust-lang/cargo/issues/5609)
     let mut concat = String::default();
-    concat += "#![cfg(feature = \"ci\")]\n";
+    concat += "#![cfg(ci)]\n";
     for (folder_name, _) in tests.iter() {
         concat += &format!("pub mod {};\n", folder_name);
     }

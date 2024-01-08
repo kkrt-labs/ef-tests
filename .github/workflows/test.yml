@@ -11,7 +11,8 @@ concurrency:
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    # trunk-ignore(actionlint/runner-label)
+    runs-on: ubuntu-latest-32-cores
     timeout-minutes: 45
     steps:
       - uses: actions/checkout@v3
@@ -35,12 +36,11 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
       - name: run tests
         run: |
-          make vm-tests-v0-ci > test_v0.out 2>&1 test_v0.out
-          make vm-tests-v1-ci > test_v1.out 2>&1 test_v1.out
+          make ef-test-v0 2>&1 | tee test_v0.out
       - name: Retrieve ef-tests execution resources
         run: python scripts/compute_resources.py
         env:
-          KAKAROT_VERSION: v0,v1
+          KAKAROT_VERSION: v0
       # upload artifacts
       - name: upload resources
         uses: actions/upload-artifact@v3

@@ -1,26 +1,32 @@
-use super::constants::KAKAROT_ADDRESS;
-use super::types::felt::FeltSequencer;
+use super::constants::{CHAIN_ID, KAKAROT_ADDRESS};
 use bytes::BytesMut;
+use cairo_vm::felt::Felt252;
+use num_traits::One;
 use reth_primitives::{Address, Bytes, TransactionSigned, TxType};
 use revm_primitives::U256;
-use starknet::core::{
-    types::{BroadcastedInvokeTransaction, FieldElement},
-    utils::get_contract_address,
-};
+use sequencer::constants::EXECUTE_ENTRY_POINT_SELECTOR;
+use starknet::core::{types::FieldElement, utils::get_contract_address};
 #[cfg(any(feature = "v0", feature = "v1"))]
 use starknet::macros::selector;
-use starknet_api::core::ClassHash;
+use starknet_in_rust::utils::felt_to_field_element;
+use starknet_in_rust::{
+    transaction::{InvokeFunction, Transaction},
+    utils::{field_element_to_felt, Address as StarknetAddress, ClassHash},
+};
 
 /// Computes the Starknet address of a contract given its EVM address.
-pub fn compute_starknet_address(evm_address: &Address) -> FeltSequencer {
-    let evm_address: FeltSequencer = (*evm_address).try_into().unwrap(); // infallible
+///
+/// # Panics
+///
+/// The function will panic if the Kakarot address does not fit into a FieldElement.
+pub fn compute_starknet_address(evm_address: &Address) -> StarknetAddress {
     let starknet_address = get_contract_address(
-        evm_address.into(),
-        default_account_class_hash().0.into(),
-        &account_constructor_args(evm_address.into()),
-        (*KAKAROT_ADDRESS.0.key()).into(),
+        address_to_field_element(evm_address),
+        class_hash_to_field_element(&default_account_class_hash()),
+        &account_constructor_args(address_to_field_element(evm_address)),
+        felt_to_field_element(&KAKAROT_ADDRESS.0).unwrap(),
     );
-    starknet_address.into()
+    StarknetAddress(field_element_to_felt(&starknet_address))
 }
 
 fn default_account_class_hash() -> ClassHash {
@@ -41,7 +47,10 @@ fn default_account_class_hash() -> ClassHash {
 fn account_constructor_args(_evm_address: FieldElement) -> Vec<FieldElement> {
     #[cfg(feature = "v1")]
     {
-        return vec![(*KAKAROT_ADDRESS.0.key()).into(), _evm_address];
+        return vec![
+            felt_to_field_element(&KAKAROT_ADDRESS.0).unwrap(),
+            _evm_address,
+        ];
     }
     #[cfg(not(feature = "v1"))]
     {
@@ -58,45 +67,46 @@ pub fn split_u256(value: U256) -> [u128; 2] {
 }
 
 /// Converts the high 16 bytes of a FieldElement to a byte array.
-pub fn high_16_bytes_of_felt_to_bytes(felt: &FieldElement, len: usize) -> Bytes {
-    Bytes::from(&felt.to_bytes_be()[16..len + 16])
+pub fn high_16_bytes_of_felt_to_bytes(felt: &Felt252, len: usize) -> Bytes {
+    Bytes::from(&felt.to_be_bytes()[16..len + 16])
 }
 
 /// Converts an signed transaction and a signature to a Starknet-rs transaction.
-pub fn to_broadcasted_starknet_transaction(
+pub fn to_starknet_transaction(
     transaction: &TransactionSigned,
-) -> Result<BroadcastedInvokeTransaction, eyre::Error> {
+) -> Result<Transaction, eyre::Error> {
     let evm_address = transaction
         .recover_signer()
         .ok_or_else(|| eyre::eyre!("Missing signer in signed transaction"))?;
 
-    let nonce = FieldElement::from(transaction.nonce());
+    let nonce = Felt252::from(transaction.nonce());
     let starknet_address = compute_starknet_address(&evm_address);
 
     let mut bytes = BytesMut::new();
     transaction.transaction.encode_without_signature(&mut bytes);
 
-    let mut calldata: Vec<_> = bytes.into_iter().map(FieldElement::from).collect();
+    let mut calldata: Vec<_> = bytes.into_iter().map(Felt252::from).collect();
 
     let mut execute_calldata = {
         #[cfg(feature = "v0")]
         {
+            use num_traits::Zero;
             vec![
-                FieldElement::ONE,                  // call array length
-                (*KAKAROT_ADDRESS.0.key()).into(),  // contract address
-                selector!("eth_send_transaction"),  // selector
-                FieldElement::ZERO,                 // data offset
-                FieldElement::from(calldata.len()), // data length
-                FieldElement::from(calldata.len()), // calldata length
+                Felt252::one(),                                            // call array length
+                KAKAROT_ADDRESS.0.clone(),                                 // contract address
+                field_element_to_felt(&selector!("eth_send_transaction")), // selector
+                Felt252::zero(),                                           // data offset
+                Felt252::from(calldata.len()),                             // data length
+                Felt252::from(calldata.len()),                             // calldata length
             ]
         }
         #[cfg(feature = "v1")]
         {
             vec![
-                FieldElement::ONE,                  // call array length
-                (*KAKAROT_ADDRESS.0.key()).into(),  // contract address
-                selector!("eth_send_transaction"),  // selector
-                FieldElement::from(calldata.len()), // calldata length
+                Felt252::one(),                                            // call array length
+                KAKAROT_ADDRESS.0.clone(),                                 // contract address
+                field_element_to_felt(&selector!("eth_send_transaction")), // selector
+                Felt252::from(calldata.len()),                             // calldata length
             ]
         }
         #[cfg(not(any(feature = "v0", feature = "v1")))]
@@ -114,33 +124,59 @@ pub fn to_broadcasted_starknet_transaction(
         _ => signature.odd_y_parity as u64,
     };
     let signature = vec![
-        FieldElement::from(r_low),
-        FieldElement::from(r_high),
-        FieldElement::from(s_low),
-        FieldElement::from(s_high),
-        FieldElement::from(v),
+        Felt252::from(r_low),
+        Felt252::from(r_high),
+        Felt252::from(s_low),
+        Felt252::from(s_high),
+        Felt252::from(v),
     ];
 
-    let request = BroadcastedInvokeTransaction {
-        max_fee: FieldElement::from(0u8),
+    let request = Transaction::InvokeFunction(InvokeFunction::new(
+        starknet_address,
+        EXECUTE_ENTRY_POINT_SELECTOR.clone(),
+        0,
+        Felt252::one(),
+        execute_calldata,
         signature,
-        nonce,
-        sender_address: starknet_address.into(),
-        calldata: execute_calldata,
-        is_query: false,
-    };
+        Felt252::from(*CHAIN_ID),
+        Some(nonce),
+    )?)
+    // for now we ignore the fees
+    .create_for_simulation(false, false, true, true, false);
 
     Ok(request)
+}
+
+/// Converts an EVM address to a Felt252.
+pub fn address_to_felt252(address: &Address) -> Felt252 {
+    Felt252::from_bytes_be(address.as_bytes())
+}
+
+/// Converts an EVM address to a FieldElement. This will not panic
+/// as Address is 20 bytes and FieldElement is 31 bytes.
+pub fn address_to_field_element(address: &Address) -> FieldElement {
+    FieldElement::from_byte_slice_be(address.as_bytes()).unwrap()
+}
+
+/// Converts a contract class hash to a FieldElement.
+///
+/// # Panics
+///
+/// This can panic if the class hash is bigger than 2^251 + 17 * 2^192.
+pub fn class_hash_to_field_element(class_hash: &ClassHash) -> FieldElement {
+    FieldElement::from_byte_slice_be(class_hash.to_bytes_be())
+        .expect("Failed to convert class hash to FieldElement")
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+    use starknet_in_rust::felt::felt_str;
 
     #[test]
     fn test_felt_to_bytes_full() {
         // Given
-        let felt = FieldElement::from_hex_be("0x1234567890abcdef1234567890abcdef").unwrap();
+        let felt = felt_str!("1234567890abcdef1234567890abcdef", 16);
 
         // When
         let bytes = high_16_bytes_of_felt_to_bytes(&felt, 16);
@@ -156,7 +192,7 @@ mod tests {
     #[test]
     fn test_felt_to_bytes_partial() {
         // Given
-        let felt = FieldElement::from_hex_be("0x12345678900000000000000000000000").unwrap();
+        let felt = felt_str!("12345678900000000000000000000000", 16);
 
         // When
         let bytes = high_16_bytes_of_felt_to_bytes(&felt, 5);
@@ -169,7 +205,7 @@ mod tests {
     #[test]
     fn test_felt_to_bytes_empty() {
         // Given
-        let felt = FieldElement::from_hex_be("0x12345678900000000000000000000000").unwrap();
+        let felt = felt_str!("12345678900000000000000000000000", 16);
 
         // When
         let bytes = high_16_bytes_of_felt_to_bytes(&felt, 0);

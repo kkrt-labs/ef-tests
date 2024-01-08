@@ -1,11 +1,13 @@
 use std::fmt::{Debug, Display};
 
-use blockifier::{state::errors::StateError, transaction::errors::TransactionExecutionError};
 use starknet::{
     core::{types::FromByteArrayError, utils::NonAsciiNameError},
     providers::ProviderError,
 };
 use starknet_api::StarknetApiError;
+use starknet_in_rust::{
+    core::errors::state_errors::StateError, transaction::error::TransactionError,
+};
 
 /// Error type based off <https://github.com/paradigmxyz/reth/blob/main/testing/ef-tests/src/result.rs>
 #[derive(Debug, thiserror::Error)]
@@ -18,7 +20,7 @@ pub enum RunnerError {
     SequencerError(#[from] StateError),
     /// Execution error
     #[error("An error occurred while executing the transaction: {0}")]
-    ExecutionError(#[from] TransactionExecutionError),
+    ExecutionError(#[from] TransactionError),
     /// Other
     #[error(transparent)]
     Other(Messages),

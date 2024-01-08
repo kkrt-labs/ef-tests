@@ -5,6 +5,8 @@ ifneq ("$(wildcard .env)","")
 	include .env
 endif
 
+CAIRO_2_VERSION=2.3.1
+
 # The release tag of https://github.com/ethereum/tests to use for EF tests
 EF_TESTS_TAG := v12.4
 EF_TESTS_URL := https://github.com/ethereum/tests/archive/refs/tags/$(EF_TESTS_TAG).tar.gz
@@ -46,6 +48,12 @@ setup-kakarot-v1: clean-kakarot-v1
 	rm -fr build/temp
 	rm -f dev-artifacts.zip
 
+setup-native: clean-native
+	curl -L -o cairo2.tar "https://github.com/starkware-libs/cairo/releases/download/v$(CAIRO_2_VERSION)/release-aarch64-apple-darwin.tar"
+	tar -xzvf cairo2.tar
+	mv cairo/corelib corelib
+	rm -fr cairo
+	rm -rf cairo2.tar
 
 clean-kakarot-v0:
 	rm -rf build/v0
@@ -57,31 +65,34 @@ clean-kakarot-v1:
 	rm -rf build/v1
 	mkdir -p build/v1
 
+clean-native:
+	rm -rf corelib
+
 # Runs all tests but integration tests
 unit:
 	cargo test --lib
 
 vm-tests-v0-ci: build
-	cargo test --test VMTests --lib --no-fail-fast --quiet --features "v0,ci"
+	cargo test --test VMTests --lib --no-fail-fast --quiet --features v0 --config 'build.rustflags=["--cfg", "ci"]'
 
 vm-tests-v1-ci: build
-	cargo test --test VMTests --lib --no-fail-fast --quiet --features "v1,ci"
+	cargo test --test VMTests --lib --no-fail-fast --quiet --features v1 --config 'build.rustflags=["--cfg", "ci"]'
 
 # Runs the repo tests with the `v0` feature
 tests-v0-ci: build
-	cargo test --test tests --lib --no-fail-fast --quiet --features "v0,ci"
+	cargo test --test tests --lib --no-fail-fast --quiet --features v0 --config 'build.rustflags=["--cfg", "ci"]'
 
 # Runs the repo tests with the `v1` feature
 tests-v1-ci: build
-	cargo test --test tests --lib --no-fail-fast --quiet --features "v1,ci"
+	cargo test --test tests --lib --no-fail-fast --quiet --features v1 --config 'build.rustflags=["--cfg", "ci"]'
 
 # Runs ef tests only with the `v0` feature
 ef-test-v0: build
-	cargo test --test tests --no-fail-fast --quiet --features "v0,ci"
+	cargo test --test tests --no-fail-fast --quiet --features v0 --config 'build.rustflags=["--cfg", "ci"]'
 
 # Runs ef tests only with the `v1` feature
 ef-test-v1: build
-	cargo test --test tests --no-fail-fast --quiet --features "v1,ci"
+	cargo test --test tests --no-fail-fast --quiet --features v1 --config 'build.rustflags=["--cfg", "ci"]'
 
 # Build the rust crates
 build:
