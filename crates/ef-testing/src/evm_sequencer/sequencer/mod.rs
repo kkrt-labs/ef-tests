@@ -58,9 +58,9 @@ impl KakarotSequencer {
                 eth_l1_gas_price: 1,
                 strk_l1_gas_price: 1,
             },
-            invoke_tx_max_n_steps: 20_000_000,
-            validate_max_n_steps: 20_000_000,
-            max_recursion_depth: 2048,
+            invoke_tx_max_n_steps: 50_000_000,
+            validate_max_n_steps: 50_000_000,
+            max_recursion_depth: 8192,
         };
         let sequencer = Sequencer::new(block_context, initial_state, coinbase_address);
         Self(sequencer)
