@@ -1,6 +1,9 @@
 use blockifier::{
-    execution::call_info::CallInfo,
-    transaction::objects::{TransactionExecutionInfo, TransactionExecutionResult},
+    execution::{call_info::CallInfo, errors::EntryPointExecutionError},
+    transaction::{
+        errors::TransactionExecutionError,
+        objects::{TransactionExecutionInfo, TransactionExecutionResult},
+    },
 };
 use starknet::macros::selector;
 use starknet_api::transaction::EventContent;
@@ -22,7 +25,7 @@ pub(crate) fn log_execution_result(
                 if let Some(call) = info.execute_call_info {
                     use starknet::core::types::FieldElement;
                     use starknet_api::hash::StarkFelt;
-                    let events = get_kakarot_execution_events(&call);
+                    let events = kakarot_execution_events(&call);
                     // Check only one execution event.
                     if events.len() != 1 {
                         warn!(
@@ -62,14 +65,25 @@ pub(crate) fn log_execution_result(
                 }
             }
         }
-        TransactionExecutionResult::Err(err) => {
-            error!("{} tx failed with:\n{:?}", case, err);
+        TransactionExecutionResult::Err(TransactionExecutionError::ValidateTransactionError(
+            EntryPointExecutionError::VirtualMachineExecutionErrorWithTrace { trace, .. },
+        )) => {
+            let re = regex::Regex::new(
+                r#"Error in the called contract \((0x[0-9a-zA-Z]+)\)[\s\S]*?EntryPointSelector\(StarkFelt\("(0x[0-9a-zA-Z]+)"\)\)"#,
+            ).unwrap();
+            let matches: Vec<_> = re.captures_iter(&trace).map(|c| c.extract::<2>()).collect();
+            let last_match = matches.last().cloned().unwrap_or_default();
+            warn!(
+                "Failed to find entrypoint {} for contract {}",
+                last_match.1[1], last_match.1[0]
+            );
         }
+        TransactionExecutionResult::Err(err) => error!("{} failed with:\n{:?}", case, err),
     }
 }
 
 #[allow(dead_code)]
-fn get_kakarot_execution_events(call_info: &CallInfo) -> Vec<EventContent> {
+fn kakarot_execution_events(call_info: &CallInfo) -> Vec<EventContent> {
     let mut events = Vec::new();
     for c in call_info.into_iter() {
         let mut filtered_events = c

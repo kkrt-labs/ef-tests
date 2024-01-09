@@ -1,4 +1,3 @@
-//! Procedural macros.
 mod constants;
 mod content_reader;
 pub mod converter;
