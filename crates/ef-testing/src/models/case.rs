@@ -123,11 +123,7 @@ impl BlockchainTestCase {
             .and_then(|transaction| transaction.gas_price)
             .map(|gas_price| gas_price.0)
             .unwrap_or_default();
-        let transaction_cost = if coinbase.0 != sender_address {
-            gas_price
-        } else {
-            base_fee_per_gas
-        } * gas_used;
+        let transaction_cost = gas_price * gas_used;
 
         let post_state = match self.post.clone() {
             RootOrState::Root(_) => {
@@ -150,6 +146,7 @@ impl BlockchainTestCase {
                     diff.push(storage_diff);
                 }
             }
+
             // Nonce
             let actual = sequencer.nonce_at(address)?;
             if actual != expected_state.nonce.0 {
@@ -159,6 +156,7 @@ impl BlockchainTestCase {
                 );
                 diff.push(nonce_diff);
             }
+
             // Bytecode
             let actual = sequencer.code_at(address)?;
             if actual != expected_state.code {
@@ -168,11 +166,16 @@ impl BlockchainTestCase {
                 );
                 diff.push(bytecode_diff);
             }
+
             // Balance
             let mut actual = sequencer.balance_at(address)?;
             // Subtract transaction cost to sender balance
             if address.0 == sender_address {
                 actual -= transaction_cost;
+            }
+            // Add priority fee to coinbase balance
+            if *address == coinbase {
+                actual += (gas_price - base_fee_per_gas) * gas_used;
             }
             if actual != expected_state.balance.0 {
                 let balance_diff = format!(
