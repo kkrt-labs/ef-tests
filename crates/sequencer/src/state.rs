@@ -2,12 +2,12 @@ use cairo_lang_utils::bigint::BigUintAsHex;
 use num_traits::cast::ToPrimitive;
 use rustc_hash::FxHashMap;
 use starknet_in_rust::core::errors::state_errors::StateError;
-use starknet_in_rust::felt::Felt252;
 use starknet_in_rust::services::api::contract_classes::compiled_class::CompiledClass;
 use starknet_in_rust::state::state_api::{State as SequencerState, StateChangesCount, StateReader};
 use starknet_in_rust::state::state_cache::StorageEntry;
 use starknet_in_rust::state::StateDiff;
 use starknet_in_rust::utils::{Address, ClassHash, CompiledClassHash};
+use starknet_in_rust::Felt252;
 
 use crate::commit::Committer;
 
@@ -99,7 +99,7 @@ impl SequencerState for State {
         compiled_class_hash: &Felt252,
     ) -> StateResult<()> {
         self.compiled_class_hashes
-            .insert(class_hash.clone(), compiled_class_hash.clone());
+            .insert(*class_hash, *compiled_class_hash);
         Ok(())
     }
 
@@ -117,7 +117,7 @@ impl SequencerState for State {
         sierra_program: Vec<BigUintAsHex>,
     ) -> Result<(), StateError> {
         self.sierra_programs
-            .insert(ClassHash::from(compiled_class_hash.clone()), sierra_program);
+            .insert(ClassHash::from(*compiled_class_hash), sierra_program);
         Ok(())
     }
 
@@ -126,19 +126,19 @@ impl SequencerState for State {
             self.set_class_hash_at(address.clone(), *class_hash)?;
         }
         for (address, nonce) in state_updates.address_to_nonce() {
-            self.set_nonce(address, nonce.clone());
+            self.set_nonce(address, *nonce);
         }
         for (class_hash, compiled_class_hash) in state_updates.class_hash_to_compiled_class() {
             self.set_compiled_class_hash(
-                &Felt252::from_bytes_be(&class_hash.0[..]),
-                &Felt252::from_bytes_be(&compiled_class_hash.0[..]),
+                &Felt252::from_bytes_be(&class_hash.0),
+                &Felt252::from_bytes_be(&compiled_class_hash.0),
             )?;
         }
         for (address, storage_updates) in state_updates.storage_updates() {
             for (storage_key, storage_value) in storage_updates {
                 self.set_storage_at(
-                    &(address.clone(), storage_key.to_be_bytes()),
-                    storage_value.clone(),
+                    &(address.clone(), storage_key.to_bytes_be()),
+                    *storage_value,
                 );
             }
         }
@@ -177,7 +177,7 @@ impl SequencerState for State {
         class_hash: &ClassHash,
     ) -> Result<CompiledClassHash, StateError> {
         self.compiled_class_hashes
-            .get(&Felt252::from_bytes_be(class_hash.to_bytes_be()))
+            .get(&Felt252::from_bytes_be(&class_hash.as_slice()))
             .cloned()
             .map(CompiledClassHash::from)
             .ok_or_else(|| StateError::NoneCompiledHash(*class_hash))
@@ -235,7 +235,7 @@ impl StateReader for State {
         class_hash: &ClassHash,
     ) -> Result<CompiledClassHash, StateError> {
         self.compiled_class_hashes
-            .get(&Felt252::from_bytes_be(class_hash.to_bytes_be()))
+            .get(&Felt252::from_bytes_be(&class_hash.as_slice()))
             .cloned()
             .map(CompiledClassHash::from)
             .ok_or_else(|| StateError::NoneCompiledHash(*class_hash))
@@ -261,12 +261,12 @@ mod tests {
         let state = &mut State::default();
 
         // When
-        state.set_storage_at(&(TEST_CONTRACT.clone(), ONE.to_be_bytes()), ONE.clone());
+        state.set_storage_at(&(TEST_CONTRACT.clone(), ONE.to_bytes_be()), *ONE);
 
         // Then
-        let expected = ONE.clone();
+        let expected = *ONE;
         let actual = state
-            .get_storage_at(&(TEST_CONTRACT.clone(), ONE.to_be_bytes()))
+            .get_storage_at(&(TEST_CONTRACT.clone(), ONE.to_bytes_be()))
             .unwrap();
         assert_eq!(expected, actual);
     }
@@ -280,7 +280,7 @@ mod tests {
         state.increment_nonce(&TEST_CONTRACT).unwrap();
 
         // Then
-        let expected = ONE.clone();
+        let expected = *ONE;
         let actual = state.get_nonce_at(&TEST_CONTRACT).unwrap();
         assert_eq!(expected, actual);
     }

@@ -1,5 +1,7 @@
-use cairo_vm::felt::Felt252;
-use num_integer::Integer;
+use std::{cell::RefCell, rc::Rc};
+
+use cairo_native::cache::ProgramCache;
+use cairo_vm::Felt252;
 use num_traits::ToPrimitive;
 use reth_primitives::{Address, Bytes, TransactionSigned};
 use revm_primitives::U256;
@@ -17,7 +19,7 @@ use starknet_in_rust::{
     transaction::error::TransactionError,
     utils::{
         felt_to_field_element, field_element_to_felt, get_erc20_balance_var_addresses,
-        get_storage_var_address,
+        get_storage_var_address, ClassHash,
     },
 };
 
@@ -45,7 +47,7 @@ impl Evm for KakarotSequencer {
     fn setup_account(&mut self, account: KakarotAccount) -> StateResult<()> {
         let class_hash = if matches!(account.account_type, AccountType::EOA) {
             self.state
-                .set_nonce(&account.starknet_address, account.nonce.clone());
+                .set_nonce(&account.starknet_address, account.nonce);
             *EOA_CLASS_HASH
         } else {
             *CONTRACT_ACCOUNT_CLASS_HASH
@@ -53,7 +55,7 @@ impl Evm for KakarotSequencer {
 
         for (k, v) in account.storage {
             self.state
-                .set_storage_at(&(account.starknet_address.clone(), k.to_be_bytes()), v);
+                .set_storage_at(&(account.starknet_address.clone(), k.to_bytes_be()), v);
         }
 
         // Set up the contract class hash
@@ -64,13 +66,13 @@ impl Evm for KakarotSequencer {
         let registry_base_address =
             get_storage_var_address("address_registry", &[account.evm_address])?;
         self.state.set_storage_at(
-            &(KAKAROT_ADDRESS.clone(), registry_base_address.to_be_bytes()),
+            &(KAKAROT_ADDRESS.clone(), registry_base_address.to_bytes_be()),
             Felt252::from(account.account_type as u8),
         );
         self.state.set_storage_at(
             &(
                 KAKAROT_ADDRESS.clone(),
-                (registry_base_address + 1u32).to_be_bytes(),
+                (registry_base_address + Felt252::ONE).to_bytes_be(),
             ),
             account.starknet_address.0,
         );
@@ -89,20 +91,18 @@ impl Evm for KakarotSequencer {
             get_erc20_balance_var_addresses(&starknet_address)?;
         storage.append(&mut vec![
             (
-                Felt252::from_bytes_be(&balance_key_low[..]),
+                Felt252::from_bytes_be(&balance_key_low),
                 Felt252::from(balance_values[0]),
             ),
             (
-                Felt252::from_bytes_be(&balance_key_high[..]),
+                Felt252::from_bytes_be(&balance_key_high),
                 Felt252::from(balance_values[1]),
             ),
         ]);
 
         // Initialize the allowance storage var.
-        let allowance_key_low = get_storage_var_address(
-            "ERC20_allowances",
-            &[starknet_address.0, KAKAROT_ADDRESS.0.clone()],
-        )?;
+        let allowance_key_low =
+            get_storage_var_address("ERC20_allowances", &[starknet_address.0, KAKAROT_ADDRESS.0])?;
         let allowance_key_high = &allowance_key_low + 1u64;
         storage.append(&mut vec![
             (allowance_key_low, Felt252::from(u128::MAX)),
@@ -112,7 +112,7 @@ impl Evm for KakarotSequencer {
         // Write all the storage vars to the sequencer state.
         for (k, v) in storage {
             self.state
-                .set_storage_at(&(ETH_FEE_TOKEN_ADDRESS.clone(), k.to_be_bytes()), v);
+                .set_storage_at(&(ETH_FEE_TOKEN_ADDRESS.clone(), k.to_bytes_be()), v);
         }
         Ok(())
     }
@@ -127,13 +127,13 @@ impl Evm for KakarotSequencer {
 
         let low = self
             .state
-            .get_storage_at(&(starknet_address.clone(), low_key.to_be_bytes()))?;
+            .get_storage_at(&(starknet_address.clone(), low_key.to_bytes_be()))?;
         let high = self
             .state
-            .get_storage_at(&(starknet_address, high_key.to_be_bytes()))?;
+            .get_storage_at(&(starknet_address, high_key.to_bytes_be()))?;
 
-        let low = U256::from_be_bytes(low.to_be_bytes());
-        let high = U256::from_be_bytes(high.to_be_bytes());
+        let low = U256::from_be_bytes(low.to_bytes_be());
+        let high = U256::from_be_bytes(high.to_bytes_be());
 
         Ok(high << 128 | low)
     }
@@ -150,13 +150,13 @@ impl Evm for KakarotSequencer {
         } else if class_hash == *CONTRACT_ACCOUNT_CLASS_HASH {
             let key = get_storage_var_address("contract_account_nonce", &[])?;
             self.state
-                .get_storage_at(&(starknet_address, key.to_be_bytes()))?
+                .get_storage_at(&(starknet_address, key.to_bytes_be()))?
         } else {
             // We can't throw an error here, because it could just be an uninitialized account.
             Felt252::from(0_u8)
         };
 
-        Ok(U256::from_be_bytes(nonce.to_be_bytes()))
+        Ok(U256::from_be_bytes(nonce.to_bytes_be()))
     }
 
     /// Returns the bytecode of the given address. For an EOA, the bytecode_len_ storage variable will return 0,
@@ -167,13 +167,13 @@ impl Evm for KakarotSequencer {
         // Get all storage addresses.
         let starknet_address = compute_starknet_address(evm_address);
         let bytecode_base_address = get_storage_var_address("contract_account_bytecode", &[])?;
-        let pending_word_address = &bytecode_base_address - 2u32;
-        let pending_word_len_address = &bytecode_base_address - 1u32;
+        let pending_word_address = bytecode_base_address - Felt252::TWO;
+        let pending_word_len_address = bytecode_base_address - Felt252::ONE;
 
         // Handle early return.
         let bytecode_len = self.state.get_storage_at(&(
             starknet_address.clone(),
-            bytecode_base_address.to_be_bytes(),
+            bytecode_base_address.to_bytes_be(),
         ))?;
         let bytecode_len = bytecode_len.to_u64().ok_or_else(|| {
             StateError::CustomError("Failed to convert Felt252 to u64".to_string())
@@ -184,7 +184,7 @@ impl Evm for KakarotSequencer {
             .state
             .get_storage_at(&(
                 starknet_address.clone(),
-                pending_word_len_address.to_be_bytes(),
+                pending_word_len_address.to_bytes_be(),
             ))?
             .to_usize()
             .ok_or_else(|| {
@@ -212,16 +212,16 @@ impl Evm for KakarotSequencer {
                 })?,
                 FieldElement::from(index),
             ]);
-            let key = &field_element_to_felt(&key) + offset;
+            let key = field_element_to_felt(&key) + offset;
             let code = self
                 .state
-                .get_storage_at(&(starknet_address.clone(), key.to_be_bytes()))?;
+                .get_storage_at(&(starknet_address.clone(), key.to_bytes_be()))?;
             bytecode.append(&mut code.to_bytes_be()[1..].to_vec());
         }
 
         let pending_word = self
             .state
-            .get_storage_at(&(starknet_address, pending_word_address.to_be_bytes()))?;
+            .get_storage_at(&(starknet_address, pending_word_address.to_bytes_be()))?;
         bytecode.append(&mut pending_word.to_bytes_be()[32 - pending_word_len..].to_vec());
 
         Ok(Bytes::from(bytecode))
@@ -235,8 +235,8 @@ impl Evm for KakarotSequencer {
             .state
             .get_fee_token_balance(&BLOCK_CONTEXT.clone(), &starknet_address)?;
 
-        let low = U256::from_be_bytes(low.to_be_bytes());
-        let high = U256::from_be_bytes(high.to_be_bytes());
+        let low = U256::from_be_bytes(low.to_bytes_be());
+        let high = U256::from_be_bytes(high.to_bytes_be());
 
         Ok(high << 128 | low)
     }
@@ -247,10 +247,11 @@ impl Evm for KakarotSequencer {
     fn execute_transaction(
         &mut self,
         transaction: TransactionSigned,
+        cache: Option<Rc<RefCell<ProgramCache<'_, ClassHash>>>>,
     ) -> TransactionExecutionResult<TransactionExecutionInfo> {
         let starknet_transaction = to_starknet_transaction(&transaction)
             .map_err(|err| TransactionError::CustomError(err.to_string()))?;
-        self.execute(&starknet_transaction)
+        self.execute(&starknet_transaction, cache)
     }
 }
 
@@ -266,9 +267,11 @@ pub(crate) fn poseidon_storage_base_address(storage_var_name: &str, keys: &[Felt
     let key = poseidon_hash_many(&data);
     let key = field_element_to_felt(&key);
 
-    key.mod_floor(&Felt252::from_bytes_be(
-        &L2_ADDRESS_UPPER_BOUND.to_bytes_be(),
-    ))
+    key.mod_floor(
+        &Felt252::from_bytes_le_slice(&L2_ADDRESS_UPPER_BOUND.to_bytes_be())
+            .try_into()
+            .unwrap(),
+    )
 }
 
 #[cfg(test)]
@@ -345,7 +348,7 @@ mod tests {
         let eoa = KakarotAccount::new(&PUBLIC_KEY, &Bytes::default(), nonce, &[]).unwrap();
         sequencer.setup_account(contract_account).unwrap();
         sequencer.setup_account(eoa).unwrap();
-        sequencer.execute_transaction(transaction).unwrap();
+        sequencer.execute_transaction(transaction, None).unwrap();
 
         // Then
         let storage = sequencer

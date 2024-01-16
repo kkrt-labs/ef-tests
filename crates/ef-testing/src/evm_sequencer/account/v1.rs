@@ -1,4 +1,4 @@
-use cairo_vm::felt::Felt252;
+use cairo_vm::Felt252;
 use reth_primitives::{Address, Bytes};
 use revm_primitives::U256;
 use sequencer::state::StateResult;
@@ -35,8 +35,8 @@ impl KakarotAccount {
         let evm_address: Felt252 = address_to_felt252(evm_address);
 
         let mut storage = vec![
-            starknet_storage!("kakarot_core_address", KAKAROT_ADDRESS.0.clone()),
-            starknet_storage!("evm_address", evm_address.clone()),
+            starknet_storage!("kakarot_core_address", KAKAROT_ADDRESS.0),
+            starknet_storage!("evm_address", evm_address),
         ];
 
         // Initialize the implementation and nonce based on account type.
@@ -49,14 +49,14 @@ impl KakarotAccount {
             ));
             AccountType::EOA
         } else {
-            storage.push(starknet_storage!("contract_account_nonce", nonce.clone()));
+            storage.push(starknet_storage!("contract_account_nonce", nonce));
             AccountType::Contract
         };
 
         // Initialize the bytecode storage vars.
         let bytecode_base_address = get_storage_var_address("contract_account_bytecode", &[])?;
-        let pending_word_address = &bytecode_base_address - 2u32;
-        let pending_word_len_address = &bytecode_base_address - 1u32;
+        let pending_word_address = bytecode_base_address - Felt252::TWO;
+        let pending_word_len_address = bytecode_base_address - Felt252::ONE;
         let pending_word_index = code.len() / 31 * 31;
         let pending_word = &code[pending_word_index..];
         // Assumes that the bytecode is stored in 31 byte chunks using the List type from Alexandria.
@@ -64,13 +64,16 @@ impl KakarotAccount {
         // at base address - 2, the pending word len at base address - 1, and the bytecode len (not including
         // the pending word length) at the base address.
         storage.append(&mut vec![
-            (pending_word_address, Felt252::from_bytes_be(pending_word)),
+            (
+                pending_word_address,
+                Felt252::from_bytes_be_slice(pending_word),
+            ),
             (
                 pending_word_len_address,
                 Felt252::from(pending_word.len() as u64),
             ),
             (
-                bytecode_base_address.clone(),
+                bytecode_base_address,
                 Felt252::from((pending_word_index / 31) as u64),
             ),
         ]);
@@ -87,7 +90,7 @@ impl KakarotAccount {
                     FieldElement::from(index),
                 ]);
                 let key = field_element_to_felt(&key);
-                Some((key + offset, b))
+                Some((key + Felt252::from(offset), b))
             })
             .collect::<Vec<_>>();
         storage.append(&mut bytecode_storage);
@@ -100,7 +103,7 @@ impl KakarotAccount {
                 let values = split_u256(*v).map(Into::<Felt252>::into);
                 let low_key = poseidon_storage_base_address("contract_account_storage_keys", &keys);
                 let high_key = &low_key + 1u64;
-                vec![(low_key, values[0].clone()), (high_key, values[1].clone())]
+                vec![(low_key, values[0]), (high_key, values[1])]
             })
             .collect::<Vec<_>>();
         storage.append(&mut evm_storage_storage);
@@ -116,7 +119,7 @@ impl KakarotAccount {
 }
 
 fn split_bytecode_to_starkfelt(bytecode: &[u8]) -> impl Iterator<Item = Felt252> + '_ {
-    bytecode.chunks(31).map(Felt252::from_bytes_be)
+    bytecode.chunks(31).map(Felt252::from_bytes_be_slice)
 }
 
 #[cfg(test)]

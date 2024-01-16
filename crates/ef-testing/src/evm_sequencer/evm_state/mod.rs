@@ -3,10 +3,13 @@ pub mod v0;
 #[cfg(feature = "v1")]
 pub mod v1;
 
+use std::{cell::RefCell, rc::Rc};
+
+use cairo_native::cache::ProgramCache;
 use reth_primitives::{Address, Bytes, TransactionSigned};
 use revm_primitives::U256;
 use sequencer::{execution::TransactionExecutionResult, state::StateResult};
-use starknet_in_rust::execution::TransactionExecutionInfo;
+use starknet_in_rust::{execution::TransactionExecutionInfo, utils::ClassHash};
 
 use super::account::KakarotAccount;
 
@@ -47,6 +50,7 @@ pub trait Evm {
     fn execute_transaction(
         &mut self,
         _transaction: TransactionSigned,
+        _cache: Option<Rc<RefCell<ProgramCache<'_, ClassHash>>>>,
     ) -> TransactionExecutionResult<TransactionExecutionInfo> {
         panic!("Not implemented, use features flag \"v0\" or \"v1\"")
     }

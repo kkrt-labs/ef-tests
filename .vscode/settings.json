@@ -13,7 +13,7 @@
     "sstore"
   ],
   "search.useIgnoreFiles": false,
-  "rust-analyzer.cargo.features": ["v0"],
+  "rust-analyzer.cargo.features": ["v1", "native"],
   "rust-analyzer.check.features": null,
   "rust-analyzer.files.excludeDirs": ["tests"],
   "rust-analyzer.inlayHints.typeHints.enable": true,

@@ -1,7 +1,6 @@
 use super::constants::{CHAIN_ID, KAKAROT_ADDRESS};
 use bytes::BytesMut;
-use cairo_vm::felt::Felt252;
-use num_traits::One;
+use cairo_vm::Felt252;
 use reth_primitives::{Address, Bytes, TransactionSigned, TxType};
 use revm_primitives::U256;
 use sequencer::constants::EXECUTE_ENTRY_POINT_SELECTOR;
@@ -68,7 +67,7 @@ pub fn split_u256(value: U256) -> [u128; 2] {
 
 /// Converts the high 16 bytes of a FieldElement to a byte array.
 pub fn high_16_bytes_of_felt_to_bytes(felt: &Felt252, len: usize) -> Bytes {
-    Bytes::from(&felt.to_be_bytes()[16..len + 16])
+    Bytes::from(&felt.to_bytes_be()[16..len + 16])
 }
 
 /// Converts an signed transaction and a signature to a Starknet-rs transaction.
@@ -90,12 +89,11 @@ pub fn to_starknet_transaction(
     let mut execute_calldata = {
         #[cfg(feature = "v0")]
         {
-            use num_traits::Zero;
             vec![
-                Felt252::one(),                                            // call array length
-                KAKAROT_ADDRESS.0.clone(),                                 // contract address
+                Felt252::ONE,                                              // call array length
+                KAKAROT_ADDRESS.0,                                         // contract address
                 field_element_to_felt(&selector!("eth_send_transaction")), // selector
-                Felt252::zero(),                                           // data offset
+                Felt252::ZERO,                                             // data offset
                 Felt252::from(calldata.len()),                             // data length
                 Felt252::from(calldata.len()),                             // calldata length
             ]
@@ -103,8 +101,8 @@ pub fn to_starknet_transaction(
         #[cfg(feature = "v1")]
         {
             vec![
-                Felt252::one(),                                            // call array length
-                KAKAROT_ADDRESS.0.clone(),                                 // contract address
+                Felt252::ONE,                                              // call array length
+                KAKAROT_ADDRESS.0,                                         // contract address
                 field_element_to_felt(&selector!("eth_send_transaction")), // selector
                 Felt252::from(calldata.len()),                             // calldata length
             ]
@@ -133,9 +131,9 @@ pub fn to_starknet_transaction(
 
     let request = Transaction::InvokeFunction(InvokeFunction::new(
         starknet_address,
-        EXECUTE_ENTRY_POINT_SELECTOR.clone(),
+        *EXECUTE_ENTRY_POINT_SELECTOR,
         0,
-        Felt252::one(),
+        Felt252::ONE,
         execute_calldata,
         signature,
         Felt252::from(*CHAIN_ID),
@@ -149,7 +147,7 @@ pub fn to_starknet_transaction(
 
 /// Converts an EVM address to a Felt252.
 pub fn address_to_felt252(address: &Address) -> Felt252 {
-    Felt252::from_bytes_be(address.as_bytes())
+    Felt252::from_bytes_be_slice(address.as_bytes())
 }
 
 /// Converts an EVM address to a FieldElement. This will not panic
@@ -171,12 +169,11 @@ pub fn class_hash_to_field_element(class_hash: &ClassHash) -> FieldElement {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use starknet_in_rust::felt::felt_str;
 
     #[test]
     fn test_felt_to_bytes_full() {
         // Given
-        let felt = felt_str!("1234567890abcdef1234567890abcdef", 16);
+        let felt = Felt252::from_hex("1234567890abcdef1234567890abcdef").unwrap();
 
         // When
         let bytes = high_16_bytes_of_felt_to_bytes(&felt, 16);
@@ -192,7 +189,7 @@ mod tests {
     #[test]
     fn test_felt_to_bytes_partial() {
         // Given
-        let felt = felt_str!("12345678900000000000000000000000", 16);
+        let felt = Felt252::from_hex("12345678900000000000000000000000").unwrap();
 
         // When
         let bytes = high_16_bytes_of_felt_to_bytes(&felt, 5);
@@ -205,7 +202,7 @@ mod tests {
     #[test]
     fn test_felt_to_bytes_empty() {
         // Given
-        let felt = felt_str!("12345678900000000000000000000000", 16);
+        let felt = Felt252::from_hex("12345678900000000000000000000000").unwrap();
 
         // When
         let bytes = high_16_bytes_of_felt_to_bytes(&felt, 0);

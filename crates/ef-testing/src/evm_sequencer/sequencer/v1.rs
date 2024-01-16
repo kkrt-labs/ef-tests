@@ -1,4 +1,4 @@
-use cairo_vm::felt::Felt252;
+use cairo_vm::Felt252;
 use lazy_static::lazy_static;
 use starknet_in_rust::{state::state_api::State as _, utils::get_storage_var_address};
 
@@ -18,18 +18,18 @@ lazy_static! {
         let mut state = SequencerState::default();
 
         let storage = [
-            ("owner", KAKAROT_OWNER_ADDRESS.0.clone()),
+            ("owner", KAKAROT_OWNER_ADDRESS.0),
             ("chain_id", Felt252::from(*CHAIN_ID)),
-            ("native_token", ETH_FEE_TOKEN_ADDRESS.0.clone()),
-            ("deploy_fee", DEPLOY_FEE.clone()),
-            ("ca_class_hash", Felt252::from_bytes_be(CONTRACT_ACCOUNT_CLASS_HASH.to_bytes_be())),
-            ("eoa_class_hash", Felt252::from_bytes_be(EOA_CLASS_HASH.to_bytes_be())),
-            ("account_class_hash", Felt252::from_bytes_be(UNINITIALIZED_ACCOUNT_CLASS_HASH.to_bytes_be())),
+            ("native_token", ETH_FEE_TOKEN_ADDRESS.0),
+            ("deploy_fee", *DEPLOY_FEE),
+            ("ca_class_hash", Felt252::from_bytes_be_slice(CONTRACT_ACCOUNT_CLASS_HASH.to_bytes_be())),
+            ("eoa_class_hash", Felt252::from_bytes_be_slice(EOA_CLASS_HASH.to_bytes_be())),
+            ("account_class_hash", Felt252::from_bytes_be_slice(UNINITIALIZED_ACCOUNT_CLASS_HASH.to_bytes_be())),
         ];
 
         // Write all the storage vars to the sequencer state.
         for (k, v) in storage {
-            state.set_storage_at(&(KAKAROT_ADDRESS.clone(), get_storage_var_address(k, &[]).expect("Failed to compute storage var address").to_be_bytes()), v);
+            state.set_storage_at(&(KAKAROT_ADDRESS.clone(), get_storage_var_address(k, &[]).expect("Failed to compute storage var address").to_bytes_be()), v);
         }
 
         // Write the kakarot class and class hash.

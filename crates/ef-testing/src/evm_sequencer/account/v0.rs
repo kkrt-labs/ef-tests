@@ -1,4 +1,4 @@
-use cairo_vm::felt::Felt252;
+use cairo_vm::Felt252;
 use reth_primitives::{Address, Bytes};
 use revm_primitives::U256;
 use sequencer::state::StateResult;
@@ -31,11 +31,11 @@ impl KakarotAccount {
         let evm_address = address_to_felt252(evm_address);
 
         let mut storage = vec![
-            starknet_storage!("evm_address", evm_address.clone()),
+            starknet_storage!("evm_address", evm_address),
             starknet_storage!("is_initialized_", 1u8),
-            starknet_storage!("Ownable_owner", KAKAROT_ADDRESS.0.clone()),
+            starknet_storage!("Ownable_owner", KAKAROT_ADDRESS.0),
             starknet_storage!("bytecode_len_", code.len() as u32),
-            starknet_storage!("kakarot_address", KAKAROT_ADDRESS.0.clone()),
+            starknet_storage!("kakarot_address", KAKAROT_ADDRESS.0),
         ];
 
         // Initialize the implementation and nonce based on account type.
@@ -44,15 +44,15 @@ impl KakarotAccount {
         let account_type = if !has_code_or_storage {
             storage.push(starknet_storage!(
                 "_implementation",
-                Felt252::from_bytes_be(&EOA_CLASS_HASH.0[..])
+                Felt252::from_bytes_be(&EOA_CLASS_HASH.0)
             ));
             AccountType::EOA
         } else {
             storage.append(&mut vec![
-                starknet_storage!("nonce", nonce.clone()),
+                starknet_storage!("nonce", nonce),
                 starknet_storage!(
                     "_implementation",
-                    Felt252::from_bytes_be(&CONTRACT_ACCOUNT_CLASS_HASH.0[..])
+                    Felt252::from_bytes_be(&CONTRACT_ACCOUNT_CLASS_HASH.0)
                 ),
             ]);
             AccountType::Contract
@@ -78,10 +78,7 @@ impl KakarotAccount {
                 let values = split_u256(*v).map(Into::<Felt252>::into);
                 let low_key = get_storage_var_address("storage_", &keys).ok()?;
                 let high_key = &low_key + 1u64; // can fail only if low is the max key
-                Some(vec![
-                    (low_key, values[0].clone()),
-                    (high_key, values[1].clone()),
-                ])
+                Some(vec![(low_key, values[0]), (high_key, values[1])])
             })
             .flatten()
             .collect();

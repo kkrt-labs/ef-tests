@@ -85,7 +85,7 @@ impl BlockchainTestCase {
 
         tx_signed.signature = signature;
 
-        let execution_result = sequencer.execute_transaction(tx_signed);
+        let execution_result = sequencer.execute_transaction(tx_signed, None);
         log_execution_result(execution_result, &self.case_name, &self.case_category);
 
         Ok(())

@@ -3,7 +3,7 @@ pub mod v0;
 #[cfg(feature = "v1")]
 pub mod v1;
 
-use cairo_vm::felt::Felt252;
+use cairo_vm::Felt252;
 use starknet_in_rust::utils::Address as StarknetAddress;
 
 #[macro_export]

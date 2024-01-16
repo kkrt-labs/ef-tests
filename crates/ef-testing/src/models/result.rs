@@ -20,8 +20,8 @@ pub(crate) fn log_execution_result(
                 info!("{} passed: {:?}", case, info.actual_resources);
                 #[cfg(feature = "v0")]
                 if let Some(call) = info.call_info {
-                    use cairo_vm::felt::Felt252;
-                    use num_traits::{ToPrimitive, Zero};
+                    use cairo_vm::Felt252;
+                    use num_traits::ToPrimitive;
                     let events = get_kakarot_execution_events(&call);
                     // Check only one execution event.
                     if events.len() != 1 {
@@ -31,7 +31,7 @@ pub(crate) fn log_execution_result(
                         );
                         return;
                     }
-                    if Some(&Felt252::zero()) == events[0].data.last() {
+                    if Some(&Felt252::ZERO) == events[0].data.last() {
                         let return_data = call.retdata;
 
                         let revert_message_len = return_data.first().cloned().unwrap_or_default();
