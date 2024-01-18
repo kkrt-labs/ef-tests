@@ -131,10 +131,16 @@ impl BlockchainTestCase {
             .and_then(|transaction| transaction.max_fee_per_gas)
             .map(|max_fee_per_gas| max_fee_per_gas.0)
             .unwrap_or_default();
-        // From EIP-1559: priority fee is capped because the base fee is filled first
-        let priority_fee_per_gas =
-            U256::min(max_priority_fee_per_gas, max_fee_per_gas - base_fee_per_gas);
-        let gas_price = gas_price | (priority_fee_per_gas + base_fee_per_gas);
+        // <https://eips.ethereum.org/EIPS/eip-1559>: priority fee is capped because the base fee is filled first
+        let max_fee_per_gas =
+            U256::min(max_priority_fee_per_gas, max_fee_per_gas - base_fee_per_gas)
+                + base_fee_per_gas;
+        if gas_price != U256::ZERO && max_fee_per_gas != U256::ZERO {
+            return Err(RunnerError::Other(
+                vec!["max_fee_per_gas and gas_price are both set".to_string()].into(),
+            ));
+        }
+        let gas_price = gas_price | max_fee_per_gas;
         let transaction_cost = gas_price * gas_used;
 
         let post_state = match self.post.clone() {
