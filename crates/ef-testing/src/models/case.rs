@@ -15,7 +15,7 @@ use ef_tests::models::{RootOrState, State};
 use ethers_signers::{LocalWallet, Signer};
 use reth_primitives::{sign_message, SealedBlock};
 use reth_rlp::Decodable as _;
-use revm_primitives::B256;
+use revm_primitives::{B256, U256};
 
 #[derive(Debug)]
 pub struct BlockchainTestCase {
@@ -123,6 +123,18 @@ impl BlockchainTestCase {
             .and_then(|transaction| transaction.gas_price)
             .map(|gas_price| gas_price.0)
             .unwrap_or_default();
+        let max_priority_fee_per_gas = maybe_transaction
+            .and_then(|transaction| transaction.max_priority_fee_per_gas)
+            .map(|max_priority_fee_per_gas| max_priority_fee_per_gas.0)
+            .unwrap_or_default();
+        let max_fee_per_gas = maybe_transaction
+            .and_then(|transaction| transaction.max_fee_per_gas)
+            .map(|max_fee_per_gas| max_fee_per_gas.0)
+            .unwrap_or_default();
+        // From EIP-1559: priority fee is capped because the base fee is filled first
+        let priority_fee_per_gas =
+            U256::min(max_priority_fee_per_gas, max_fee_per_gas - base_fee_per_gas);
+        let gas_price = gas_price | (priority_fee_per_gas + base_fee_per_gas);
         let transaction_cost = gas_price * gas_used;
 
         let post_state = match self.post.clone() {
