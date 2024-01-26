@@ -30,7 +30,7 @@ jobs:
       - name: fetch ef tests
         run: make setup
       - name: fetch Kakarot
-        run: make setup-kakarot-v0 && make setup-kakarot-v1
+        run: make setup-kakarot
         env:
           GITHUB_TOKEN: ${{ github.token }}
       - name: run tests v0
