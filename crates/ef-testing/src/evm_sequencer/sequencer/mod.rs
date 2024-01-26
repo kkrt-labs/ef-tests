@@ -8,9 +8,15 @@ use std::{
     sync::Arc,
 };
 
-use blockifier::block_context::{BlockContext, FeeTokenAddresses, GasPrices};
+use blockifier::{
+    block_context::{BlockContext, FeeTokenAddresses, GasPrices},
+    execution::contract_class::{ContractClass, ContractClassV0, ContractClassV1},
+};
+use cairo_lang_starknet::casm_contract_class::CasmContractClass;
+use cairo_vm::types::errors::program_errors::ProgramError;
 use reth_primitives::Address;
 use sequencer::{sequencer::Sequencer, state::State};
+use starknet::core::types::contract::{legacy::LegacyContractClass, CompiledClass};
 use starknet_api::{
     block::{BlockNumber, BlockTimestamp},
     core::ChainId,
@@ -18,6 +24,7 @@ use starknet_api::{
 
 use super::{
     constants::{CHAIN_ID, ETH_FEE_TOKEN_ADDRESS, STRK_FEE_TOKEN_ADDRESS, VM_RESOURCES},
+    types::contract_class::CasmContractClassWrapper,
     utils::compute_starknet_address,
 };
 
@@ -79,4 +86,22 @@ impl DerefMut for KakarotSequencer {
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.0
     }
+}
+
+pub fn convert_contract_class_v0(
+    class: &LegacyContractClass,
+) -> Result<ContractClass, eyre::Error> {
+    Result::<ContractClass, eyre::Error>::Ok(ContractClass::V0(
+        ContractClassV0::try_from_json_string(
+            &serde_json::to_string(class).map_err(ProgramError::Parse)?,
+        )?,
+    ))
+}
+
+pub fn convert_contract_class_v1(class: &CompiledClass) -> Result<ContractClass, eyre::Error> {
+    let casm_contract_class = CasmContractClassWrapper::try_from(class)?;
+    let casm_contract_class: CasmContractClass = casm_contract_class.into();
+    Ok(ContractClass::V1(ContractClassV1::try_from(
+        casm_contract_class,
+    )?))
 }

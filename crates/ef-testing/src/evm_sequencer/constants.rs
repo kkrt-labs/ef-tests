@@ -2,6 +2,7 @@ use std::collections::HashMap;
 
 use lazy_static::lazy_static;
 use starknet::core::types::contract::legacy::LegacyContractClass;
+use starknet::core::types::contract::CompiledClass;
 use starknet_api::{
     contract_address,
     core::{ClassHash, ContractAddress, PatriciaKey},
@@ -12,6 +13,12 @@ use starknet_api::{
 fn load_legacy_contract_class(path: &str) -> Result<LegacyContractClass, eyre::Error> {
     let content = std::fs::read_to_string(path)?;
     let class = serde_json::from_str::<LegacyContractClass>(&content)?;
+    Ok(class)
+}
+
+fn load_contract_class(path: &str) -> Result<CompiledClass, eyre::Error> {
+    let content = std::fs::read_to_string(path)?;
+    let class = serde_json::from_str::<CompiledClass>(&content)?;
     Ok(class)
 }
 
@@ -46,6 +53,9 @@ lazy_static! {
     pub static ref FEE_TOKEN_CLASS: LegacyContractClass = load_legacy_contract_class("../../build/common/ERC20.json").expect("Failed to load FeeToken contract class");
     pub static ref FEE_TOKEN_CLASS_HASH: ClassHash = ClassHash(FEE_TOKEN_CLASS.class_hash().unwrap().into());
 
+    pub static ref PRECOMPILES_CLASS: CompiledClass = load_contract_class("../../build/common/precompiles.json").expect("Failed to load precompiles contract class");
+    pub static ref PRECOMPILES_CLASS_HASH: ClassHash = ClassHash(PRECOMPILES_CLASS.class_hash().unwrap().into());
+
 }
 
 #[cfg(feature = "v0")]
@@ -70,13 +80,6 @@ pub mod kkrt_constants_v0 {
 #[cfg(feature = "v1")]
 pub mod kkrt_constants_v1 {
     use super::*;
-    use starknet::core::types::contract::CompiledClass;
-
-    fn load_contract_class(path: &str) -> Result<CompiledClass, eyre::Error> {
-        let content = std::fs::read_to_string(path)?;
-        let class = serde_json::from_str::<CompiledClass>(&content)?;
-        Ok(class)
-    }
 
     lazy_static! {
         // Main contract classes v1
