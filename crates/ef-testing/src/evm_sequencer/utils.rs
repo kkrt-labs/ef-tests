@@ -1,7 +1,7 @@
 use super::constants::KAKAROT_ADDRESS;
 use super::types::felt::FeltSequencer;
 use bytes::BytesMut;
-use reth_primitives::{Address, TransactionSigned, TxType};
+use reth_primitives::{Address, Bytes, TransactionSigned, TxType};
 use revm_primitives::U256;
 use starknet::core::{
     types::{BroadcastedInvokeTransaction, FieldElement},
@@ -55,6 +55,11 @@ pub fn split_u256(value: U256) -> [u128; 2] {
         (value & U256::from(u128::MAX)).try_into().unwrap(), // safe unwrap <= U128::MAX.
         (value >> U256::from(128)).try_into().unwrap(),      // safe unwrap <= U128::MAX.
     ]
+}
+
+/// Converts the high 16 bytes of a FieldElement to a byte array.
+pub fn high_16_bytes_of_felt_to_bytes(felt: &FieldElement, len: usize) -> Bytes {
+    Bytes::from(&felt.to_bytes_be()[16..len + 16])
 }
 
 /// Converts an signed transaction and a signature to a Starknet-rs transaction.
@@ -126,4 +131,50 @@ pub fn to_broadcasted_starknet_transaction(
     };
 
     Ok(request)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    macro_rules! test_felt_to_bytes {
+        ($input: expr, $output: expr, $len: expr, $test_name: ident) => {
+            #[test]
+            fn $test_name() {
+                // Given
+                let felt = FieldElement::from_hex_be($input).unwrap();
+
+                // When
+                let bytes = high_16_bytes_of_felt_to_bytes(&felt, $len);
+
+                // Then
+                let expected = Bytes::from($output);
+                assert_eq!(bytes, expected);
+            }
+        };
+    }
+
+    test_felt_to_bytes!(
+        "0x1234567890abcdef1234567890abcdef",
+        vec![
+            0x12, 0x34, 0x56, 0x78, 0x90, 0xab, 0xcd, 0xef, 0x12, 0x34, 0x56, 0x78, 0x90, 0xab,
+            0xcd, 0xef
+        ],
+        16,
+        test_felt_to_bytes_full
+    );
+
+    test_felt_to_bytes!(
+        "0x12345678900000000000000000000000",
+        vec![0x12, 0x34, 0x56, 0x78, 0x90],
+        5,
+        test_felt_to_bytes_partial
+    );
+
+    test_felt_to_bytes!(
+        "0x12345678900000000000000000000000",
+        vec![],
+        0,
+        test_felt_to_bytes_empty
+    );
 }
