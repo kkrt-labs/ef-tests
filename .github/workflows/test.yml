@@ -35,10 +35,12 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
       - name: run tests v0
         run: |
+          set -o pipefail
           make vm-tests-v0-ci | tee test_v0.out
       - name: run tests v1
         run: |
           make vm-tests-v1-ci | tee test_v1.out
+          set +o pipefail
       - name: Retrieve ef-tests execution resources
         run: python scripts/compute_resources.py
         env:

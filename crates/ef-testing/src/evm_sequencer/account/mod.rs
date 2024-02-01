@@ -8,6 +8,7 @@ use starknet_api::{
     hash::StarkFelt,
     state::StorageKey,
 };
+use starknet_crypto::FieldElement;
 
 #[macro_export]
 macro_rules! starknet_storage {
@@ -75,5 +76,31 @@ pub mod kkrt_account {
                 account_type: AccountType::EOA,
             })
         }
+    }
+}
+
+/// Splits a byte array into 31-byte chunks and converts each chunk to a StarkFelt.
+pub fn split_bytecode_to_starkfelt(bytecode: &[u8]) -> impl Iterator<Item = StarkFelt> + '_ {
+    bytecode.chunks(31).filter_map(|bytes| {
+        let f = FieldElement::from_byte_slice_be(bytes);
+        f.map(StarkFelt::from).ok()
+    })
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use reth_primitives::Bytes;
+
+    #[test]
+    fn test_split_bytecode_to_starkfelt() {
+        // Given
+        let bytes = Bytes::from([0x01, 0x02, 0x03, 0x04, 0x05]);
+
+        // When
+        let result: Vec<_> = split_bytecode_to_starkfelt(&bytes).collect();
+
+        // Then
+        assert_eq!(result, vec![StarkFelt::from(0x0102030405u64)]);
     }
 }

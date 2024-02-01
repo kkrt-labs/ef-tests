@@ -57,9 +57,9 @@ pub fn split_u256(value: U256) -> [u128; 2] {
     ]
 }
 
-/// Converts the high 16 bytes of a FieldElement to a byte array.
-pub fn high_16_bytes_of_felt_to_bytes(felt: &FieldElement, len: usize) -> Bytes {
-    Bytes::from(&felt.to_bytes_be()[16..len + 16])
+/// Converts a FieldElement to a byte array.
+pub fn felt_to_bytes(felt: &FieldElement, start: usize) -> Bytes {
+    Bytes::from(&felt.to_bytes_be()[start..])
 }
 
 /// Converts an signed transaction and a signature to a Starknet-rs transaction.
@@ -138,14 +138,14 @@ mod tests {
     use super::*;
 
     macro_rules! test_felt_to_bytes {
-        ($input: expr, $output: expr, $len: expr, $test_name: ident) => {
+        ($input: expr, $output: expr, $start: expr, $test_name: ident) => {
             #[test]
             fn $test_name() {
                 // Given
                 let felt = FieldElement::from_hex_be($input).unwrap();
 
                 // When
-                let bytes = high_16_bytes_of_felt_to_bytes(&felt, $len);
+                let bytes = felt_to_bytes(&felt, $start);
 
                 // Then
                 let expected = Bytes::from($output);
@@ -155,26 +155,27 @@ mod tests {
     }
 
     test_felt_to_bytes!(
-        "0x1234567890abcdef1234567890abcdef",
+        "0x34567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
         vec![
-            0x12, 0x34, 0x56, 0x78, 0x90, 0xab, 0xcd, 0xef, 0x12, 0x34, 0x56, 0x78, 0x90, 0xab,
-            0xcd, 0xef
+            0x34, 0x56, 0x78, 0x90, 0xab, 0xcd, 0xef, 0x12, 0x34, 0x56, 0x78, 0x90, 0xab, 0xcd,
+            0xef, 0x12, 0x34, 0x56, 0x78, 0x90, 0xab, 0xcd, 0xef, 0x12, 0x34, 0x56, 0x78, 0x90,
+            0xab, 0xcd, 0xef
         ],
-        16,
+        1,
         test_felt_to_bytes_full
     );
 
     test_felt_to_bytes!(
-        "0x12345678900000000000000000000000",
+        "0x00000000000000000000000000000000000000000000000000001234567890",
         vec![0x12, 0x34, 0x56, 0x78, 0x90],
-        5,
+        27,
         test_felt_to_bytes_partial
     );
 
     test_felt_to_bytes!(
         "0x12345678900000000000000000000000",
         vec![],
-        0,
+        32,
         test_felt_to_bytes_empty
     );
 }
