@@ -8,7 +8,7 @@ use starknet_api::{
     StarknetApiError,
 };
 
-use super::{AccountType, KakarotAccount};
+use super::{split_bytecode_to_starkfelt, AccountType, KakarotAccount};
 use crate::evm_sequencer::{
     constants::{
         kkrt_constants_v0::{CONTRACT_ACCOUNT_CLASS_HASH, EOA_CLASS_HASH},
@@ -64,7 +64,7 @@ impl KakarotAccount {
         // Initialize the bytecode storage var.
         let mut bytecode_storage = split_bytecode_to_starkfelt(code)
             .enumerate()
-            .map(|(i, bytes)| starknet_storage!("bytecode_", [StarkFelt::from(i as u32)], bytes))
+            .map(|(i, bytes)| (StorageKey::from(i as u32), bytes))
             .collect();
         storage.append(&mut bytecode_storage);
 
@@ -89,13 +89,4 @@ impl KakarotAccount {
             nonce: Nonce(nonce),
         })
     }
-}
-
-/// Splits a byte array into 16-byte chunks and converts each chunk to a StarkFelt.
-pub fn split_bytecode_to_starkfelt(bytecode: &Bytes) -> impl Iterator<Item = StarkFelt> + '_ {
-    bytecode.chunks(16).map(|x| {
-        let mut storage_value = [0u8; 16];
-        storage_value[..x.len()].copy_from_slice(x);
-        StarkFelt::from(u128::from_be_bytes(storage_value))
-    })
 }

@@ -9,6 +9,7 @@ use starknet_api::{
 };
 use starknet_crypto::{poseidon_hash_many, FieldElement};
 
+use super::split_bytecode_to_starkfelt;
 use super::{AccountType, KakarotAccount};
 use crate::evm_sequencer::{
     constants::CHAIN_ID,
@@ -129,28 +130,5 @@ impl KakarotAccount {
             evm_address,
             nonce: Nonce(nonce),
         })
-    }
-}
-
-fn split_bytecode_to_starkfelt(bytecode: &[u8]) -> impl Iterator<Item = StarkFelt> + '_ {
-    bytecode
-        .chunks(31)
-        .map(|bytes| StarkFelt::from(FieldElement::from_byte_slice_be(bytes).unwrap()))
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_split_bytecode_to_starkfelt() {
-        // Given
-        let bytes = Bytes::from([0x01, 0x02, 0x03, 0x04, 0x05]);
-
-        // When
-        let result: Vec<_> = split_bytecode_to_starkfelt(&bytes).collect();
-
-        // Then
-        assert_eq!(result, vec![StarkFelt::from(0x0102030405u64)]);
     }
 }

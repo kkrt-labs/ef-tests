@@ -10,6 +10,7 @@ use sequencer::execution::Execution as _;
 use sequencer::transaction::BroadcastedTransactionWrapper;
 use starknet::core::types::{BroadcastedTransaction, FieldElement};
 use starknet_api::hash::StarkFelt;
+use starknet_api::state::StorageKey;
 
 use super::Evm;
 use crate::evm_sequencer::account::{AccountType, KakarotAccount};
@@ -20,8 +21,7 @@ use crate::evm_sequencer::constants::KAKAROT_ADDRESS;
 use crate::evm_sequencer::constants::{CHAIN_ID, ETH_FEE_TOKEN_ADDRESS};
 use crate::evm_sequencer::sequencer::KakarotSequencer;
 use crate::evm_sequencer::utils::{
-    compute_starknet_address, high_16_bytes_of_felt_to_bytes, split_u256,
-    to_broadcasted_starknet_transaction,
+    compute_starknet_address, felt_to_bytes, split_u256, to_broadcasted_starknet_transaction,
 };
 
 impl Evm for KakarotSequencer {
@@ -133,7 +133,7 @@ impl Evm for KakarotSequencer {
 
     /// Returns the bytecode of the given address. For an EOA, the bytecode_len_ storage variable will return 0,
     /// and the function will return an empty vector. For a contract account, the function will return the bytecode
-    /// stored in the bytecode_ storage variables. The function assumes that the bytecode is stored in 16 byte big-endian chunks.
+    /// stored in the bytecode_ storage variables. The function assumes that the bytecode is stored in 31 byte big-endian chunks.
     fn code_at(&mut self, evm_address: &Address) -> StateResult<Bytes> {
         let starknet_address = compute_starknet_address(evm_address);
 
@@ -146,21 +146,20 @@ impl Evm for KakarotSequencer {
             return Ok(Bytes::default());
         }
 
-        // Assumes that the bytecode is stored in 16 byte chunks.
-        let num_chunks = bytecode_len / 16;
+        // Assumes that the bytecode is stored in 31 byte chunks.
+        let num_chunks = bytecode_len / 31;
         let mut bytecode: Vec<u8> = Vec::new();
 
         for chunk_index in 0..num_chunks {
-            let key = get_storage_var_address("bytecode_", &[StarkFelt::from(chunk_index)]);
+            let key = StorageKey::from(chunk_index);
             let code = (&mut self.state).get_storage_at(starknet_address.try_into()?, key)?;
-            bytecode.append(&mut high_16_bytes_of_felt_to_bytes(&code.into(), 16).to_vec());
+            bytecode.append(&mut felt_to_bytes(&code.into(), 1).to_vec());
         }
 
-        let remainder = bytecode_len % 16;
-        let key = get_storage_var_address("bytecode_", &[StarkFelt::from(num_chunks)]);
+        let remainder = bytecode_len % 31;
+        let key = StorageKey::from(num_chunks);
         let code = (&mut self.state).get_storage_at(starknet_address.try_into()?, key)?;
-        bytecode
-            .append(&mut high_16_bytes_of_felt_to_bytes(&code.into(), remainder as usize).to_vec());
+        bytecode.append(&mut felt_to_bytes(&code.into(), (32 - remainder) as usize).to_vec());
 
         Ok(Bytes::from(bytecode))
     }
