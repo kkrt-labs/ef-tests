@@ -1,7 +1,7 @@
 use std::collections::BTreeMap;
 
 use ef_tests::models::{Account, State};
-use reth_primitives::{Bytes, JsonU256, U256, Address};
+use reth_primitives::{Address, Bytes, JsonU256, U256};
 
 pub(crate) fn update_post_state(
     mut post_state: BTreeMap<Address, Account>,

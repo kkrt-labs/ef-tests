@@ -4,7 +4,7 @@ pub mod result;
 
 use std::str::FromStr;
 
-use reth_primitives::{Bytes, U64,  B256, U256, Address};
+use reth_primitives::{Address, Bytes, B256, U256, U64};
 use serde::{self, de, Deserialize, Deserializer};
 
 #[derive(Debug, PartialEq, Eq, Deserialize)]
