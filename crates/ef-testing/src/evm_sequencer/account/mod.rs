@@ -53,8 +53,7 @@ pub enum AccountType {
 #[cfg(not(any(feature = "v0", feature = "v1")))]
 pub mod kkrt_account {
     use super::{AccountType, KakarotAccount};
-    use reth_primitives::{Address, Bytes};
-    use revm_primitives::U256;
+    use reth_primitives::{Address, Bytes, U256};
     use starknet_api::{
         core::{ContractAddress, Nonce},
         hash::StarkFelt,

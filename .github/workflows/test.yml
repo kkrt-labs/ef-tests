@@ -25,6 +25,7 @@ jobs:
           profile: minimal
           components: llvm-tools-preview
           override: true
+          toolchain: 1.75.0
       - name: Retrieve cached dependencies
         uses: Swatinem/rust-cache@v2
       - name: fetch ef tests

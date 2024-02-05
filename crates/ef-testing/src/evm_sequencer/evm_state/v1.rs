@@ -15,8 +15,7 @@ use blockifier::{
 };
 use cairo_vm::felt::Felt252;
 use num_integer::Integer;
-use reth_primitives::{Address, Bytes, TransactionSigned};
-use revm_primitives::U256;
+use reth_primitives::{Address, Bytes, TransactionSigned, U256};
 use sequencer::{execution::Execution as _, transaction::BroadcastedTransactionWrapper};
 use starknet::core::types::BroadcastedTransaction;
 use starknet_api::{
@@ -282,8 +281,10 @@ mod tests {
         tests::{PRIVATE_KEY, PUBLIC_KEY, TEST_CONTRACT_ADDRESS},
         CHAIN_ID,
     };
-    use reth_primitives::{sign_message, AccessList, Signature, TransactionSigned, TxEip1559};
-    use revm_primitives::B256;
+    use reth_primitives::{
+        sign_message, AccessList, Signature, TransactionSigned, TxEip1559, TxValue, B256,
+    };
+    use ruint::aliases::U160;
     use starknet::core::types::FieldElement;
     use starknet_api::hash::StarkFelt;
 
@@ -310,7 +311,7 @@ mod tests {
     #[test]
     fn test_store_bytecode() {
         // Given
-        let mut sequencer = KakarotSequencer::new(Address::from(1234u64), 0, 0);
+        let mut sequencer = KakarotSequencer::new(Address::from(U160::from(1234u64)), 0, 0);
         let bytecode = Bytes::from(vec![
             0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e,
             0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e,
@@ -336,7 +337,7 @@ mod tests {
     #[test]
     fn test_execute_simple_contract() {
         // Given
-        let mut sequencer = KakarotSequencer::new(Address::from(1234u64), 0, 0);
+        let mut sequencer = KakarotSequencer::new(Address::from(U160::from(1234u64)), 0, 0);
 
         let mut transaction = TransactionSigned {
             hash: B256::default(),
@@ -348,7 +349,7 @@ mod tests {
                 max_fee_per_gas: 0,
                 max_priority_fee_per_gas: 0,
                 to: reth_primitives::TransactionKind::Call(*TEST_CONTRACT_ADDRESS),
-                value: 0,
+                value: TxValue::from(U256::ZERO),
                 access_list: AccessList::default(),
                 input: Bytes::default(),
             }),

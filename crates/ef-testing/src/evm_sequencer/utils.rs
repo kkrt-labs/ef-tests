@@ -1,8 +1,7 @@
 use super::constants::KAKAROT_ADDRESS;
 use super::types::felt::FeltSequencer;
 use bytes::BytesMut;
-use reth_primitives::{Address, Bytes, TransactionSigned, TxType};
-use revm_primitives::U256;
+use reth_primitives::{Address, Bytes, TransactionSigned, TxType, U256};
 use starknet::core::{
     types::{BroadcastedInvokeTransaction, FieldElement},
     utils::get_contract_address,
@@ -59,7 +58,7 @@ pub fn split_u256(value: U256) -> [u128; 2] {
 
 /// Converts a FieldElement to a byte array.
 pub fn felt_to_bytes(felt: &FieldElement, start: usize) -> Bytes {
-    Bytes::from(&felt.to_bytes_be()[start..])
+    Bytes::from(felt.to_bytes_be()[start..].to_vec())
 }
 
 /// Converts an signed transaction and a signature to a Starknet-rs transaction.

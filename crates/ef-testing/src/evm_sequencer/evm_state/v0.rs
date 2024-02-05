@@ -4,8 +4,7 @@ use blockifier::execution::errors::EntryPointExecutionError;
 use blockifier::state::state_api::{State, StateReader, StateResult};
 use blockifier::transaction::errors::TransactionExecutionError;
 use blockifier::transaction::objects::{TransactionExecutionInfo, TransactionExecutionResult};
-use reth_primitives::{Address, Bytes, TransactionSigned};
-use revm_primitives::U256;
+use reth_primitives::{Address, Bytes, TransactionSigned, U256};
 use sequencer::execution::Execution as _;
 use sequencer::transaction::BroadcastedTransactionWrapper;
 use starknet::core::types::{BroadcastedTransaction, FieldElement};
@@ -210,15 +209,20 @@ mod tests {
         CHAIN_ID,
     };
     use blockifier::{abi::abi_utils::get_storage_var_address, state::state_api::StateReader};
-    use reth_primitives::{sign_message, AccessList, Signature, TransactionSigned, TxEip1559};
-    use revm_primitives::B256;
+    use reth_primitives::{
+        sign_message, AccessList, Signature, TransactionSigned, TxEip1559, TxValue, B256,
+    };
+    use ruint::aliases::U160;
     use starknet_api::hash::StarkFelt;
 
     #[test]
     fn test_execute_simple_contract() {
         // Given
-        let mut sequencer =
-            crate::evm_sequencer::sequencer::KakarotSequencer::new(Address::from(1234u64), 0, 0);
+        let mut sequencer = crate::evm_sequencer::sequencer::KakarotSequencer::new(
+            Address::from(U160::from(1234u64)),
+            0,
+            0,
+        );
 
         let mut transaction = TransactionSigned {
             hash: B256::default(),
@@ -230,7 +234,7 @@ mod tests {
                 max_fee_per_gas: 0,
                 max_priority_fee_per_gas: 0,
                 to: reth_primitives::TransactionKind::Call(*TEST_CONTRACT_ADDRESS),
-                value: 0,
+                value: TxValue::from(U256::ZERO),
                 access_list: AccessList::default(),
                 input: Bytes::default(),
             }),

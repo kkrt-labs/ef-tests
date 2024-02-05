@@ -104,8 +104,8 @@ pub mod tests {
     use std::str::FromStr;
 
     use lazy_static::lazy_static;
-    use reth_primitives::Address;
-    use revm_primitives::B256;
+    use reth_primitives::{Address, B256};
+    use ruint::aliases::U160;
 
     lazy_static! {
         pub static ref PRIVATE_KEY: B256 =
@@ -113,6 +113,6 @@ pub mod tests {
                 .unwrap();
         pub static ref PUBLIC_KEY: Address =
             Address::from_str("0x7513A12F74fFF533ee12F20EE524e4883CBd1945").unwrap();
-        pub static ref TEST_CONTRACT_ADDRESS: Address = Address::from_low_u64_be(10);
+        pub static ref TEST_CONTRACT_ADDRESS: Address = Address::from(U160::from(10));
     }
 }

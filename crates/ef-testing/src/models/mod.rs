@@ -4,8 +4,7 @@ pub mod result;
 
 use std::str::FromStr;
 
-use reth_primitives::{Bytes, U64};
-use revm_primitives::{B160, B256, U256};
+use reth_primitives::{Address, Bytes, B256, U256, U64};
 use serde::{self, de, Deserialize, Deserializer};
 
 #[derive(Debug, PartialEq, Eq, Deserialize)]
@@ -13,14 +12,14 @@ pub struct BlockchainTestTransaction {
     pub transaction: Transaction,
 }
 
-fn deserialize_b160_optional<'de, D>(deserializer: D) -> Result<Option<B160>, D::Error>
+fn deserialize_address_optional<'de, D>(deserializer: D) -> Result<Option<Address>, D::Error>
 where
     D: Deserializer<'de>,
 {
     let s: String = Deserialize::deserialize(deserializer)?;
     match s.as_str() {
         "" => Ok(None),
-        _ => B160::from_str(&s).map(Some).map_err(de::Error::custom), // Convert string to B160 or return an error
+        _ => Address::from_str(&s).map(Some).map_err(de::Error::custom), // Convert string to Address or return an error
     }
 }
 
@@ -32,9 +31,9 @@ pub struct Transaction {
     pub gas_price: Option<U256>,
     pub nonce: U64,
     pub secret_key: B256,
-    #[serde(deserialize_with = "deserialize_b160_optional")]
-    pub to: Option<B160>,
-    pub sender: B160,
+    #[serde(deserialize_with = "deserialize_address_optional")]
+    pub to: Option<Address>,
+    pub sender: Address,
     pub value: Vec<String>,
 }
 

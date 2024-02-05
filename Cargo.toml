@@ -25,13 +25,12 @@ incremental = true
 
 [workspace.dependencies]
 # Eth deps
-ef-tests = { git = "https://github.com/paradigmxyz/reth.git", tag = "v0.1.0-alpha.10", features = [
+alloy-rlp = { version = "0.3", default-features = false }
+ef-tests = { git = "https://github.com/paradigmxyz/reth.git", tag = "v0.1.0-alpha.16", features = [
   "ef-tests",
 ] }
 ethers-signers = { git = "https://github.com/gakonst/ethers-rs.git", tag = "v2.0" }
-reth-primitives = { git = "https://github.com/paradigmxyz/reth.git", tag = "v0.1.0-alpha.10" }
-revm-primitives = { git = "https://github.com/bluealloy/revm", rev = "516f62cc" }
-reth-rlp = { git = "https://github.com/paradigmxyz/reth.git", tag = "v0.1.0-alpha.10" }
+reth-primitives = { git = "https://github.com/paradigmxyz/reth.git", tag = "v0.1.0-alpha.16" }
 
 # Starknet deps
 cairo-lang-casm = { git = "https://github.com/kkrt-labs/cairo.git", branch = "v2.4.0", default-features = false }
@@ -62,6 +61,7 @@ rayon = "1.8.0"
 regex = "1.9.3"
 reqwest = { version = "0.11.20", features = ["gzip"] }
 rstest = "0.18.1"
+ruint = { version = "1.9.0", default-features = false }
 syn = "2.0"
 thiserror = "1.0.47"
 tokio = { version = "1.21.2", features = ["macros"] }

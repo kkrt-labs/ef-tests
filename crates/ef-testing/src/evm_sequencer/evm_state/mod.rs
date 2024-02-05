@@ -7,8 +7,7 @@ use blockifier::{
     state::state_api::StateResult,
     transaction::objects::{TransactionExecutionInfo, TransactionExecutionResult},
 };
-use reth_primitives::{Address, Bytes, TransactionSigned};
-use revm_primitives::U256;
+use reth_primitives::{Address, Bytes, TransactionSigned, U256};
 
 use super::account::KakarotAccount;
 
