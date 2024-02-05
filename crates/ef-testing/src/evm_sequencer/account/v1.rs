@@ -1,6 +1,5 @@
 use blockifier::abi::abi_utils::get_storage_var_address;
-use reth_primitives::{Address, Bytes};
-use revm_primitives::U256;
+use reth_primitives::{Address, Bytes, U256};
 use starknet_api::{
     core::{ContractAddress, Nonce, PatriciaKey},
     hash::StarkFelt,

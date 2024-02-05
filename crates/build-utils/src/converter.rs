@@ -119,8 +119,9 @@ impl<'a> EfTests<'a> {
         use ef_testing::models::case::BlockchainTestCase;
         use ef_testing::test_utils::setup;
         use ef_testing::traits::Case;
-        use ef_tests::models::{Block, RootOrState, State};
-        use revm_primitives::B256;
+        use ef_tests::models::{Block, Account, State};
+        use reth_primitives::{Address, B256};
+        use std::collections::BTreeMap;
         "
         .to_string()
     }
@@ -180,7 +181,7 @@ impl<'a> EfTests<'a> {
             setup();
             let block: Block = serde_json::from_str(r#"{block}"#).expect("Error while reading the block");
             let pre: State = serde_json::from_str(r#"{pre}"#).expect("Error while reading the pre state");
-            let post: RootOrState = serde_json::from_str(r#"{post}"#).expect("Error while reading the post state");
+            let post: Option<BTreeMap<Address, Account>> = serde_json::from_str(r#"{post}"#).expect("Error while reading the post state");
             let case = BlockchainTestCase::new("{case_name}".to_string(), "{parent_dir}".to_string(), block, pre, post, B256::from_str({secret_key}).expect("Error while reading  secret key"));
             case.run().expect("Error while running the test");
         "##

@@ -1,5 +1,6 @@
 use std::fmt::{Debug, Display};
 
+use alloy_rlp::Error;
 use blockifier::{state::errors::StateError, transaction::errors::TransactionExecutionError};
 use starknet::{
     core::{types::FromByteArrayError, utils::NonAsciiNameError},
@@ -12,7 +13,7 @@ use starknet_api::StarknetApiError;
 pub enum RunnerError {
     /// An error occurred while decoding RLP.
     #[error("An error occurred deserializing RLP")]
-    RlpDecodeError(#[from] reth_rlp::DecodeError),
+    RlpDecodeError(#[from] Error),
     /// Sequencer error
     #[error("An error occurred while running the sequencer: {0}")]
     SequencerError(#[from] StateError),

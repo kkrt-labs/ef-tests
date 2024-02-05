@@ -8,14 +8,15 @@ use crate::{
     traits::Case,
     utils::update_post_state,
 };
+use alloy_rlp::Decodable as _;
 use async_trait::async_trait;
+use ef_tests::models::Account;
 use ef_tests::models::Block;
-use ef_tests::models::{RootOrState, State};
+use ef_tests::models::State;
+use std::collections::BTreeMap;
 
 use ethers_signers::{LocalWallet, Signer};
-use reth_primitives::{sign_message, SealedBlock};
-use reth_rlp::Decodable as _;
-use revm_primitives::{B256, U256};
+use reth_primitives::{sign_message, Address, SealedBlock, B256, U256};
 
 #[derive(Debug)]
 pub struct BlockchainTestCase {
@@ -23,7 +24,7 @@ pub struct BlockchainTestCase {
     case_category: String,
     block: Block,
     pre: State,
-    post: RootOrState,
+    post: Option<BTreeMap<Address, Account>>,
     secret_key: B256,
 }
 
@@ -36,7 +37,7 @@ impl BlockchainTestCase {
         case_category: String,
         block: Block,
         pre: State,
-        post: RootOrState,
+        post: Option<BTreeMap<Address, Account>>,
         secret_key: B256,
     ) -> Self {
         Self {
@@ -143,12 +144,7 @@ impl BlockchainTestCase {
         let gas_price = gas_price | effective_gas_price;
         let transaction_cost = gas_price * gas_used;
 
-        let post_state = match self.post.clone() {
-            RootOrState::Root(_) => {
-                panic!("RootOrState::Root(_) not supported")
-            }
-            RootOrState::State(state) => state,
-        };
+        let post_state = self.post.clone().expect("Post state not found");
         let post_state = update_post_state(post_state, self.pre.clone());
 
         let mut diff: Vec<String> = vec![];

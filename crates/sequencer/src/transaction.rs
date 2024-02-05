@@ -44,7 +44,7 @@ impl BroadcastedTransactionWrapper {
                                 .map(Into::<StarkFelt>::into)
                                 .collect(),
                         ),
-                        nonce: Nonce(invoke.nonce.try_into()?),
+                        nonce: Nonce(invoke.nonce.into()),
                         sender_address: ContractAddress(TryInto::<PatriciaKey>::try_into(Into::<
                             StarkHash,
                         >::into(
