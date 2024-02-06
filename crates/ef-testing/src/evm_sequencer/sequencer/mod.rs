@@ -45,9 +45,7 @@ use super::{
 /// Kakarot wrapper around a sequencer.
 #[derive(Clone)]
 pub struct KakarotSequencer {
-    /// The sequencer.
     sequencer: Sequencer<State, Address>,
-    /// The environment.
     pub(crate) environment: KakarotEnvironment,
 }
 
@@ -83,23 +81,39 @@ impl KakarotEnvironment {
 }
 
 impl KakarotSequencer {
-    /// Sequencer address should be computed using `compute_starknet_address` with the
-    /// `kakarot_address`, `base_account_class_hash` and the account constructor arguments.
-    /// These can vary based on the version of the sequencer (`v0` or `v1`).
     pub fn new(
         initial_state: State,
         environment: KakarotEnvironment,
         coinbase_address: Address,
-        sequencer_address: ContractAddress,
         chain_id: u64,
         block_number: u64,
         block_timestamp: u64,
     ) -> Self {
+        let kakarot_address = (*environment.kakarot_address.0.key()).into();
+        let coinbase_constructor_args = {
+            #[cfg(feature = "v1")]
+            {
+                use crate::evm_sequencer::types::felt::FeltSequencer;
+                let evm_address: FeltSequencer = coinbase_address.try_into().unwrap(); // infallible
+                vec![kakarot_address, evm_address.into()]
+            }
+            #[cfg(not(feature = "v1"))]
+            {
+                vec![]
+            }
+        };
         let block_context = BlockContext {
             chain_id: ChainId(String::from_utf8(chain_id.to_be_bytes().to_vec()).unwrap()),
             block_number: BlockNumber(block_number),
             block_timestamp: BlockTimestamp(block_timestamp),
-            sequencer_address,
+            sequencer_address: compute_starknet_address(
+                &coinbase_address,
+                kakarot_address,
+                environment.base_account_class_hash.0.into(),
+                &coinbase_constructor_args,
+            )
+            .try_into()
+            .expect("Failed to convert to ContractAddress"),
             fee_token_addresses: FeeTokenAddresses {
                 eth_fee_token_address: *ETH_FEE_TOKEN_ADDRESS,
                 strk_fee_token_address: *STRK_FEE_TOKEN_ADDRESS,

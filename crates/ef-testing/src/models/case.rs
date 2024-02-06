@@ -8,9 +8,6 @@ use crate::evm_sequencer::evm_state::Evm;
 use crate::evm_sequencer::sequencer::{
     KakarotEnvironment, KakarotSequencer, INITIAL_SEQUENCER_STATE,
 };
-use crate::evm_sequencer::utils::{
-    account_constructor_args, compute_starknet_address, default_account_class_hash,
-};
 use crate::{
     evm_sequencer::{account::KakarotAccount, constants::CHAIN_ID},
     traits::Case,
@@ -222,12 +219,6 @@ impl Case for BlockchainTestCase {
         let maybe_block_header = self.block.block_header.as_ref();
 
         let coinbase_address = maybe_block_header.map(|b| b.coinbase).unwrap_or_default();
-        let sequencer_address = compute_starknet_address(
-            &coinbase_address,
-            (*KAKAROT_ADDRESS.0.key()).into(),
-            default_account_class_hash().0.into(),
-            &account_constructor_args(coinbase_address),
-        );
 
         let block_number = maybe_block_header.map(|b| b.number.0).unwrap_or_default();
         let block_number = TryInto::<u64>::try_into(block_number).unwrap_or_default();
@@ -247,7 +238,6 @@ impl Case for BlockchainTestCase {
             INITIAL_SEQUENCER_STATE.clone(),
             kakarot_environment,
             coinbase_address,
-            sequencer_address.try_into().unwrap(),
             *CHAIN_ID,
             block_number,
             block_timestamp,

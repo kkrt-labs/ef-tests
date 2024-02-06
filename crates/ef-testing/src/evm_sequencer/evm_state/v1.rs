@@ -322,7 +322,6 @@ mod tests {
             UNINITIALIZED_ACCOUNT_CLASS_HASH,
         },
         sequencer::{KakarotEnvironment, INITIAL_SEQUENCER_STATE},
-        utils::{account_constructor_args, compute_starknet_address},
     };
     use reth_primitives::{
         sign_message, AccessList, Signature, TransactionSigned, TxEip1559, TxValue, B256,
@@ -361,17 +360,10 @@ mod tests {
             *CONTRACT_ACCOUNT_CLASS_HASH,
         );
         let coinbase_address = Address::from(U160::from(1234u64));
-        let sequencer_address = compute_starknet_address(
-            &coinbase_address,
-            (*KAKAROT_ADDRESS.0.key()).into(),
-            UNINITIALIZED_ACCOUNT_CLASS_HASH.0.into(),
-            &account_constructor_args(coinbase_address),
-        );
         let mut sequencer = KakarotSequencer::new(
             INITIAL_SEQUENCER_STATE.clone(),
             kakarot_environment,
             coinbase_address,
-            sequencer_address.try_into().unwrap(),
             *CHAIN_ID,
             0,
             0,
@@ -408,17 +400,10 @@ mod tests {
             *CONTRACT_ACCOUNT_CLASS_HASH,
         );
         let coinbase_address = Address::from(U160::from(1234u64));
-        let sequencer_address = compute_starknet_address(
-            &coinbase_address,
-            (*KAKAROT_ADDRESS.0.key()).into(),
-            UNINITIALIZED_ACCOUNT_CLASS_HASH.0.into(),
-            &account_constructor_args(coinbase_address),
-        );
         let mut sequencer = KakarotSequencer::new(
             INITIAL_SEQUENCER_STATE.clone(),
             kakarot_environment,
             coinbase_address,
-            sequencer_address.try_into().unwrap(),
             *CHAIN_ID,
             0,
             0,

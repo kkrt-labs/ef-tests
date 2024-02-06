@@ -7,7 +7,6 @@ use starknet::core::{
 };
 #[cfg(any(feature = "v0", feature = "v1"))]
 use starknet::macros::selector;
-use starknet_api::core::ClassHash;
 
 /// Computes the Starknet address of a contract given its EVM address.
 pub fn compute_starknet_address(
@@ -24,34 +23,6 @@ pub fn compute_starknet_address(
         kakarot_address,
     );
     starknet_address.into()
-}
-
-pub(crate) fn default_account_class_hash() -> ClassHash {
-    #[cfg(feature = "v0")]
-    {
-        return *crate::evm_sequencer::constants::PROXY_CLASS_HASH;
-    }
-
-    #[cfg(feature = "v1")]
-    {
-        return *crate::evm_sequencer::constants::UNINITIALIZED_ACCOUNT_CLASS_HASH;
-    }
-    #[cfg(not(any(feature = "v0", feature = "v1")))]
-    ClassHash::default()
-}
-
-#[allow(clippy::missing_const_for_fn)]
-pub(crate) fn account_constructor_args(_evm_address: Address) -> Vec<FieldElement> {
-    #[cfg(feature = "v1")]
-    {
-        use crate::evm_sequencer::constants::KAKAROT_ADDRESS;
-        let evm_address: FeltSequencer = _evm_address.try_into().unwrap(); // infallible
-        return vec![(*KAKAROT_ADDRESS.0.key()).into(), evm_address.into()];
-    }
-    #[cfg(not(feature = "v1"))]
-    {
-        vec![]
-    }
 }
 
 /// Split a U256 into low and high u128.

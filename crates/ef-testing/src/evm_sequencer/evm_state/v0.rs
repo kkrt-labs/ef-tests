@@ -254,7 +254,8 @@ mod tests {
     use crate::evm_sequencer::{
         constants::{
             tests::{PRIVATE_KEY, PUBLIC_KEY, TEST_CONTRACT_ADDRESS},
-            CHAIN_ID, CONTRACT_ACCOUNT_CLASS_HASH, EOA_CLASS_HASH, PROXY_CLASS_HASH,
+            CHAIN_ID, CONTRACT_ACCOUNT_CLASS_HASH, EOA_CLASS_HASH, KAKAROT_ADDRESS,
+            PROXY_CLASS_HASH,
         },
         sequencer::{v0::INITIAL_SEQUENCER_STATE, KakarotEnvironment},
         utils::compute_starknet_address,
@@ -276,17 +277,10 @@ mod tests {
             *CONTRACT_ACCOUNT_CLASS_HASH,
         );
         let coinbase_address = Address::from(U160::from(1234u64));
-        let sequencer_address = compute_starknet_address(
-            &coinbase_address,
-            (*KAKAROT_ADDRESS.0.key()).into(),
-            PROXY_CLASS_HASH.0.into(),
-            &[],
-        );
         let mut sequencer = KakarotSequencer::new(
             INITIAL_SEQUENCER_STATE.clone(),
             kakarot_environment,
             coinbase_address,
-            sequencer_address.try_into().unwrap(),
             *CHAIN_ID,
             0,
             0,

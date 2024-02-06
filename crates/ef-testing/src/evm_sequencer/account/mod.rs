@@ -65,10 +65,6 @@ pub mod kkrt_account {
                 account_type: AccountType::EOA,
             })
         }
-
-        pub fn evm_address(&self) -> Address {
-            Address::default()
-        }
     }
 }
 
