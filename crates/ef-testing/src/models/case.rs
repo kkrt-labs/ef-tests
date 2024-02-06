@@ -220,6 +220,11 @@ impl Case for BlockchainTestCase {
 
         let coinbase_address = maybe_block_header.map(|b| b.coinbase).unwrap_or_default();
 
+        let base_fee = maybe_block_header
+            .and_then(|block_header| block_header.base_fee_per_gas)
+            .map(|base_fee| base_fee.0)
+            .unwrap_or_default();
+
         let block_number = maybe_block_header.map(|b| b.number.0).unwrap_or_default();
         let block_number = TryInto::<u64>::try_into(block_number).unwrap_or_default();
 
@@ -243,7 +248,7 @@ impl Case for BlockchainTestCase {
             block_timestamp,
         );
 
-        sequencer.setup_state()?;
+        sequencer.setup_state(base_fee)?;
 
         self.handle_pre_state(&mut sequencer)?;
 
