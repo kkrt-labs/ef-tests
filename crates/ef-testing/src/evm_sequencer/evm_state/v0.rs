@@ -13,7 +13,7 @@ use starknet_api::state::StorageKey;
 
 use super::Evm;
 use crate::evm_sequencer::account::{AccountType, KakarotAccount};
-use crate::evm_sequencer::constants::{ETH_FEE_TOKEN_ADDRESS, KAKAROT_ADDRESS};
+use crate::evm_sequencer::constants::ETH_FEE_TOKEN_ADDRESS;
 use crate::evm_sequencer::sequencer::KakarotSequencer;
 use crate::evm_sequencer::utils::{felt_to_bytes, split_u256, to_broadcasted_starknet_transaction};
 use crate::starknet_storage;
@@ -41,19 +41,22 @@ impl Evm for KakarotSequencer {
                 self.state_mut().set_nonce(starknet_address, account.nonce);
             }
             AccountType::Contract => {
-                storage.push(starknet_storage!(
-                    "_implementation",
-                    self.environment.contract_account_class_hash.0
-                ));
+                storage.append(&mut vec![
+                    starknet_storage!(
+                        "_implementation",
+                        self.environment.contract_account_class_hash.0
+                    ),
+                    starknet_storage!("Ownable_owner", *self.environment.kakarot_address.0.key()),
+                ]);
             }
             _ => {}
         }
 
-        // Set the Kakarot address and define it as the owner of the contract.
-        storage.append(&mut vec![
-            starknet_storage!("Ownable_owner", *self.environment.kakarot_address.0.key()),
-            starknet_storage!("kakarot_address", *self.environment.kakarot_address.0.key()),
-        ]);
+        // Set the Kakarot address.
+        storage.push(starknet_storage!(
+            "kakarot_address",
+            *self.environment.kakarot_address.0.key()
+        ));
 
         // Write all the storage vars to the sequencer state.
         for (k, v) in storage {
@@ -92,7 +95,10 @@ impl Evm for KakarotSequencer {
         // Initialize the allowance storage var.
         let allowance_key_low = get_storage_var_address(
             "ERC20_allowances",
-            &[*starknet_address.0.key(), *KAKAROT_ADDRESS.0.key()],
+            &[
+                *starknet_address.0.key(),
+                *self.environment.kakarot_address.0.key(),
+            ],
         );
         let allowance_key_high = next_storage_key(&allowance_key_low)?;
         storage.append(&mut vec![
