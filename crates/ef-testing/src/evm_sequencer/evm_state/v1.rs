@@ -38,7 +38,7 @@ use crate::{
 
 impl Evm for KakarotSequencer {
     /// Sets up the evm state (coinbase, block number, etc.)
-    fn setup_state(&mut self) -> StateResult<()> {
+    fn setup_state(&mut self, _base_fee: U256) -> StateResult<()> {
         let coinbase_address = *self.address();
         let coinbase = KakarotAccount::new(&coinbase_address, &Bytes::default(), U256::ZERO, &[])?;
         self.setup_account(coinbase)?;
@@ -429,7 +429,7 @@ mod tests {
         transaction.signature = signature;
 
         // When
-        sequencer.setup_state().unwrap();
+        sequencer.setup_state(U256::ZERO).unwrap();
         let bytecode = Bytes::from(vec![
             0x60, 0x01, 0x60, 0x00, 0x55, 0x60, 0x02, 0x60, 0x00, 0x53, 0x60, 0x01, 0x60, 0x00,
             0xf3,

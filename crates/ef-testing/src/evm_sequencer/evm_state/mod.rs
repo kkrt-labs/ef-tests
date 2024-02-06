@@ -17,7 +17,7 @@ use super::account::KakarotAccount;
 pub trait Evm {
     // TODO enforce using a marker type that you can only proceed
     // with execution if the state is initialized.
-    fn setup_state(&mut self) -> StateResult<()> {
+    fn setup_state(&mut self, _base_fee: U256) -> StateResult<()> {
         panic!("Not implemented, use features flag \"v0\" or \"v1\"")
     }
 

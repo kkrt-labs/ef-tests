@@ -15,12 +15,38 @@ use super::Evm;
 use crate::evm_sequencer::account::{AccountType, KakarotAccount};
 use crate::evm_sequencer::constants::ETH_FEE_TOKEN_ADDRESS;
 use crate::evm_sequencer::sequencer::KakarotSequencer;
+use crate::evm_sequencer::types::felt::FeltSequencer;
 use crate::evm_sequencer::utils::{felt_to_bytes, split_u256, to_broadcasted_starknet_transaction};
 use crate::starknet_storage;
 
 impl Evm for KakarotSequencer {
     /// Sets up the evm state (coinbase, block number, etc.)
-    fn setup_state(&mut self) -> StateResult<()> {
+    fn setup_state(&mut self, base_fee: U256) -> StateResult<()> {
+        let kakarot_address = self.environment.kakarot_address;
+        let coinbase_address: FeltSequencer = (*self.address()).try_into().unwrap(); // infallible
+
+        // Set the coinbase address.
+        self.state_mut().set_storage_at(
+            kakarot_address,
+            get_storage_var_address("coinbase", &[]),
+            coinbase_address.into(),
+        );
+
+        // Set the base fee.
+        let low_fee = base_fee & U256::from(u128::MAX);
+        let low_fee: u128 = low_fee.try_into().unwrap(); // safe unwrap <= U128::MAX.
+        let high_fee = base_fee >> U256::from(128);
+        let high_fee: u128 = high_fee.try_into().unwrap(); // safe unwrap <= U128::MAX.
+
+        let base_address = get_storage_var_address("base_fee", &[]);
+        self.state_mut()
+            .set_storage_at(kakarot_address, base_address, StarkFelt::from(low_fee));
+        self.state_mut().set_storage_at(
+            kakarot_address,
+            next_storage_key(&base_address)?,
+            StarkFelt::from(high_fee),
+        );
+
         Ok(())
     }
 
