@@ -44,6 +44,7 @@ pub(crate) fn default_account_class_hash() -> ClassHash {
 pub(crate) fn account_constructor_args(_evm_address: Address) -> Vec<FieldElement> {
     #[cfg(feature = "v1")]
     {
+        use crate::evm_sequencer::constants::KAKAROT_ADDRESS;
         let evm_address: FeltSequencer = _evm_address.try_into().unwrap(); // infallible
         return vec![(*KAKAROT_ADDRESS.0.key()).into(), evm_address.into()];
     }
@@ -81,6 +82,7 @@ pub fn to_broadcasted_starknet_transaction(
     let mut execute_calldata = {
         #[cfg(feature = "v0")]
         {
+            use crate::evm_sequencer::constants::KAKAROT_ADDRESS;
             vec![
                 FieldElement::ONE,                  // call array length
                 (*KAKAROT_ADDRESS.0.key()).into(),  // contract address
@@ -92,6 +94,7 @@ pub fn to_broadcasted_starknet_transaction(
         }
         #[cfg(feature = "v1")]
         {
+            use crate::evm_sequencer::constants::KAKAROT_ADDRESS;
             vec![
                 FieldElement::ONE,                  // call array length
                 (*KAKAROT_ADDRESS.0.key()).into(),  // contract address
