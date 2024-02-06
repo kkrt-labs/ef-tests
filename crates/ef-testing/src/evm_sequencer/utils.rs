@@ -1,4 +1,3 @@
-use super::constants::KAKAROT_ADDRESS;
 use super::types::felt::FeltSequencer;
 use bytes::BytesMut;
 use reth_primitives::{Address, Bytes, TransactionSigned, TxType, U256};

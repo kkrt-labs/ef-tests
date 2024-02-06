@@ -49,11 +49,7 @@ pub enum AccountType {
 pub mod kkrt_account {
     use super::{AccountType, KakarotAccount};
     use reth_primitives::{Address, Bytes, U256};
-    use starknet_api::{
-        core::{ContractAddress, Nonce},
-        hash::StarkFelt,
-        StarknetApiError,
-    };
+    use starknet_api::{core::Nonce, hash::StarkFelt, StarknetApiError};
 
     impl KakarotAccount {
         pub fn new(

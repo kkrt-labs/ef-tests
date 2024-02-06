@@ -9,6 +9,7 @@ use starknet::macros::selector;
 use starknet_api::transaction::EventContent;
 use tracing::{error, info, warn};
 
+#[allow(clippy::cognitive_complexity)]
 pub(crate) fn log_execution_result(
     result: TransactionExecutionResult<TransactionExecutionInfo>,
     case_name: &str,
