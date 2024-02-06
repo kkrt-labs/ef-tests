@@ -3,6 +3,19 @@ pub mod v0;
 #[cfg(feature = "v1")]
 pub mod v1;
 
+#[cfg(feature = "v0")]
+pub use v0::INITIAL_SEQUENCER_STATE;
+
+#[cfg(feature = "v1")]
+pub use v1::INITIAL_SEQUENCER_STATE;
+
+#[cfg(not(any(feature = "v0", feature = "v1")))]
+use lazy_static::lazy_static;
+#[cfg(not(any(feature = "v0", feature = "v1")))]
+lazy_static! {
+    pub static ref INITIAL_SEQUENCER_STATE: State = State::default();
+}
+
 use std::{
     ops::{Deref, DerefMut},
     sync::Arc,
@@ -11,6 +24,7 @@ use std::{
 use blockifier::{
     block_context::{BlockContext, FeeTokenAddresses, GasPrices},
     execution::contract_class::{ContractClass, ContractClassV0, ContractClassV1},
+    state::state_api::StateResult,
 };
 use cairo_lang_starknet::casm_contract_class::CasmContractClass;
 use cairo_vm::types::errors::program_errors::ProgramError;
@@ -19,43 +33,73 @@ use sequencer::{sequencer::Sequencer, state::State};
 use starknet::core::types::contract::{legacy::LegacyContractClass, CompiledClass};
 use starknet_api::{
     block::{BlockNumber, BlockTimestamp},
-    core::ChainId,
+    core::{ChainId, ClassHash, ContractAddress},
 };
 
 use super::{
-    constants::{CHAIN_ID, ETH_FEE_TOKEN_ADDRESS, STRK_FEE_TOKEN_ADDRESS, VM_RESOURCES},
+    constants::{ETH_FEE_TOKEN_ADDRESS, STRK_FEE_TOKEN_ADDRESS, VM_RESOURCES},
     types::contract_class::CasmContractClassWrapper,
     utils::compute_starknet_address,
 };
 
 /// Kakarot wrapper around a sequencer.
 #[derive(Clone)]
-pub(crate) struct KakarotSequencer(Sequencer<State, Address>);
+pub struct KakarotSequencer {
+    /// The sequencer.
+    sequencer: Sequencer<State, Address>,
+    /// The environment.
+    pub(crate) environment: KakarotEnvironment,
+}
+
+#[derive(Clone)]
+#[allow(dead_code)]
+pub struct KakarotEnvironment {
+    /// The address of the Kakarot contract.
+    pub(crate) kakarot_address: ContractAddress,
+    /// The class hash of the base account contract.
+    /// This is the proxy contract class in v0 and
+    /// the uninitialized account class in v1.
+    pub(crate) base_account_class_hash: ClassHash,
+    /// The class hash of the externally owned account contract.
+    pub(crate) eoa_class_hash: ClassHash,
+    /// The class hash of the contract account contract.
+    pub(crate) contract_account_class_hash: ClassHash,
+}
+
+impl KakarotEnvironment {
+    pub const fn new(
+        kakarot_address: ContractAddress,
+        base_account_class_hash: ClassHash,
+        eoa_class_hash: ClassHash,
+        contract_account_class_hash: ClassHash,
+    ) -> Self {
+        Self {
+            kakarot_address,
+            base_account_class_hash,
+            eoa_class_hash,
+            contract_account_class_hash,
+        }
+    }
+}
 
 impl KakarotSequencer {
-    pub fn new(coinbase_address: Address, block_number: u64, block_timestamp: u64) -> Self {
-        let initial_state = {
-            #[cfg(feature = "v0")]
-            {
-                v0::INITIAL_SEQUENCER_STATE.clone()
-            }
-            #[cfg(feature = "v1")]
-            {
-                v1::INITIAL_SEQUENCER_STATE.clone()
-            }
-            #[cfg(not(any(feature = "v0", feature = "v1")))]
-            {
-                State::default()
-            }
-        };
-
+    /// Sequencer address should be computed using `compute_starknet_address` with the
+    /// `kakarot_address`, `base_account_class_hash` and the account constructor arguments.
+    /// These can vary based on the version of the sequencer (`v0` or `v1`).
+    pub fn new(
+        initial_state: State,
+        environment: KakarotEnvironment,
+        coinbase_address: Address,
+        sequencer_address: ContractAddress,
+        chain_id: u64,
+        block_number: u64,
+        block_timestamp: u64,
+    ) -> Self {
         let block_context = BlockContext {
-            chain_id: ChainId(String::from_utf8(CHAIN_ID.to_be_bytes().to_vec()).unwrap()),
+            chain_id: ChainId(String::from_utf8(chain_id.to_be_bytes().to_vec()).unwrap()),
             block_number: BlockNumber(block_number),
             block_timestamp: BlockTimestamp(block_timestamp),
-            sequencer_address: compute_starknet_address(&coinbase_address)
-                .try_into()
-                .expect("Failed to convert coinbase address to contract address"),
+            sequencer_address,
             fee_token_addresses: FeeTokenAddresses {
                 eth_fee_token_address: *ETH_FEE_TOKEN_ADDRESS,
                 strk_fee_token_address: *STRK_FEE_TOKEN_ADDRESS,
@@ -70,7 +114,50 @@ impl KakarotSequencer {
             max_recursion_depth: 8192,
         };
         let sequencer = Sequencer::new(block_context, initial_state, coinbase_address);
-        Self(sequencer)
+        Self {
+            sequencer,
+            environment,
+        }
+    }
+
+    pub const fn sequencer(&self) -> &Sequencer<State, Address> {
+        &self.sequencer
+    }
+
+    pub const fn environment(&self) -> &KakarotEnvironment {
+        &self.environment
+    }
+
+    pub fn chain_id(&self) -> u64 {
+        // Safety: chain_id is always 8 bytes.
+        let chain_id = &self.block_context().chain_id.0.as_bytes()[..8];
+        u64::from_be_bytes(chain_id.try_into().unwrap())
+    }
+
+    pub fn compute_starknet_address(&self, evm_address: &Address) -> StateResult<ContractAddress> {
+        let kakarot_address = (*self.environment.kakarot_address.0.key()).into();
+        let base_class_hash = self.environment.base_account_class_hash.0.into();
+
+        let constructor_args = {
+            #[cfg(feature = "v1")]
+            {
+                use crate::evm_sequencer::types::felt::FeltSequencer;
+                let evm_address: FeltSequencer = (*evm_address).try_into().unwrap(); // infallible
+                vec![kakarot_address, evm_address.into()]
+            }
+            #[cfg(not(feature = "v1"))]
+            {
+                vec![]
+            }
+        };
+
+        Ok(compute_starknet_address(
+            evm_address,
+            kakarot_address,
+            base_class_hash,
+            &constructor_args,
+        )
+        .try_into()?)
     }
 }
 
@@ -78,13 +165,13 @@ impl Deref for KakarotSequencer {
     type Target = Sequencer<State, Address>;
 
     fn deref(&self) -> &Self::Target {
-        &self.0
+        &self.sequencer
     }
 }
 
 impl DerefMut for KakarotSequencer {
     fn deref_mut(&mut self) -> &mut Self::Target {
-        &mut self.0
+        &mut self.sequencer
     }
 }
 

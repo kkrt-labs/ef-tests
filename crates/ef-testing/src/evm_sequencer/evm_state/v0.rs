@@ -13,15 +13,10 @@ use starknet_api::state::StorageKey;
 
 use super::Evm;
 use crate::evm_sequencer::account::{AccountType, KakarotAccount};
-use crate::evm_sequencer::constants::kkrt_constants_v0::{
-    CONTRACT_ACCOUNT_CLASS_HASH, EOA_CLASS_HASH, PROXY_CLASS_HASH,
-};
-use crate::evm_sequencer::constants::KAKAROT_ADDRESS;
-use crate::evm_sequencer::constants::{CHAIN_ID, ETH_FEE_TOKEN_ADDRESS};
+use crate::evm_sequencer::constants::{ETH_FEE_TOKEN_ADDRESS, KAKAROT_ADDRESS};
 use crate::evm_sequencer::sequencer::KakarotSequencer;
-use crate::evm_sequencer::utils::{
-    compute_starknet_address, felt_to_bytes, split_u256, to_broadcasted_starknet_transaction,
-};
+use crate::evm_sequencer::utils::{felt_to_bytes, split_u256, to_broadcasted_starknet_transaction};
+use crate::starknet_storage;
 
 impl Evm for KakarotSequencer {
     /// Sets up the evm state (coinbase, block number, etc.)
@@ -30,36 +25,64 @@ impl Evm for KakarotSequencer {
     }
 
     /// Sets up an EOA or contract account. Writes nonce, code and storage to the sequencer storage.
+    /// Uses the KakarotSequencer environment to set the class hash, contract owner and Kakarot address.
     fn setup_account(&mut self, account: KakarotAccount) -> StateResult<()> {
-        if matches!(account.account_type, AccountType::EOA) {
-            self.state
-                .set_nonce(account.starknet_address, account.nonce);
+        let evm_address = account.evm_address();
+        let mut storage = account.storage;
+        let starknet_address = self.compute_starknet_address(&evm_address)?;
+
+        // Set up the account implementation.
+        match account.account_type {
+            AccountType::EOA => {
+                storage.push(starknet_storage!(
+                    "_implementation",
+                    self.environment.eoa_class_hash.0
+                ));
+                self.state_mut().set_nonce(starknet_address, account.nonce);
+            }
+            AccountType::Contract => {
+                storage.push(starknet_storage!(
+                    "_implementation",
+                    self.environment.contract_account_class_hash.0
+                ));
+            }
+            _ => {}
         }
 
-        for (k, v) in account.storage {
-            (&mut self.state).set_storage_at(account.starknet_address, k, v);
+        // Set the Kakarot address and define it as the owner of the contract.
+        storage.append(&mut vec![
+            starknet_storage!("Ownable_owner", *self.environment.kakarot_address.0.key()),
+            starknet_storage!("kakarot_address", *self.environment.kakarot_address.0.key()),
+        ]);
+
+        // Write all the storage vars to the sequencer state.
+        for (k, v) in storage {
+            self.state_mut().set_storage_at(starknet_address, k, v);
         }
 
         // Set up the contract class hash.
-        (&mut self.state).set_class_hash_at(account.starknet_address, *PROXY_CLASS_HASH)?;
+        let proxy_class_hash = self.environment.base_account_class_hash;
+        self.state_mut()
+            .set_class_hash_at(starknet_address, proxy_class_hash)?;
 
         // Add the address to the Kakarot evm to starknet mapping
-        (&mut self.state).set_storage_at(
-            *KAKAROT_ADDRESS,
+        let kakarot_address = self.environment.kakarot_address;
+        self.state_mut().set_storage_at(
+            kakarot_address,
             get_storage_var_address("evm_to_starknet_address", &[account.evm_address]),
-            *account.starknet_address.0.key(),
+            *starknet_address.0.key(),
         );
         Ok(())
     }
 
     /// Funds an EOA or contract account. Also gives allowance to the Kakarot contract.
     fn fund(&mut self, evm_address: &Address, balance: U256) -> StateResult<()> {
-        let starknet_address = compute_starknet_address(evm_address);
+        let starknet_address = self.compute_starknet_address(evm_address)?;
         let balance_values = split_u256(balance);
         let mut storage = vec![];
 
         // Initialize the balance storage var.
-        let balance_low_key = get_fee_token_var_address(&starknet_address.try_into()?);
+        let balance_low_key = get_fee_token_var_address(&starknet_address);
         let balance_high_key = next_storage_key(&balance_low_key)?;
         storage.append(&mut vec![
             (balance_low_key, StarkFelt::from(balance_values[0])),
@@ -69,7 +92,7 @@ impl Evm for KakarotSequencer {
         // Initialize the allowance storage var.
         let allowance_key_low = get_storage_var_address(
             "ERC20_allowances",
-            &[starknet_address.into(), *KAKAROT_ADDRESS.0.key()],
+            &[*starknet_address.0.key(), *KAKAROT_ADDRESS.0.key()],
         );
         let allowance_key_high = next_storage_key(&allowance_key_low)?;
         storage.append(&mut vec![
@@ -79,7 +102,8 @@ impl Evm for KakarotSequencer {
 
         // Write all the storage vars to the sequencer state.
         for (k, v) in storage {
-            (&mut self.state).set_storage_at(*ETH_FEE_TOKEN_ADDRESS, k, v);
+            self.state_mut()
+                .set_storage_at(*ETH_FEE_TOKEN_ADDRESS, k, v);
         }
         Ok(())
     }
@@ -90,10 +114,12 @@ impl Evm for KakarotSequencer {
         let key_low = get_storage_var_address("storage_", &keys);
         let key_high = next_storage_key(&key_low)?;
 
-        let starknet_address = compute_starknet_address(evm_address);
+        let starknet_address = self.compute_starknet_address(evm_address)?;
 
-        let low = (&mut self.state).get_storage_at(starknet_address.try_into()?, key_low)?;
-        let high = (&mut self.state).get_storage_at(starknet_address.try_into()?, key_high)?;
+        let low = self.state_mut().get_storage_at(starknet_address, key_low)?;
+        let high = self
+            .state_mut()
+            .get_storage_at(starknet_address, key_high)?;
 
         let low = U256::from_be_bytes(Into::<FieldElement>::into(low).to_bytes_be());
         let high = U256::from_be_bytes(Into::<FieldElement>::into(high).to_bytes_be());
@@ -104,22 +130,21 @@ impl Evm for KakarotSequencer {
     /// Returns the nonce of the given address. For an EOA, uses the protocol level nonce.
     /// For a contract account, uses the Kakarot managed nonce stored in the contract account's storage.
     fn nonce_at(&mut self, evm_address: &Address) -> StateResult<U256> {
-        let starknet_address = compute_starknet_address(evm_address);
+        let starknet_address = self.compute_starknet_address(evm_address)?;
 
-        let implementation = (&mut self.state)
+        let implementation = self
+            .state_mut()
             .get_storage_at(
-                starknet_address.try_into()?,
+                starknet_address,
                 get_storage_var_address("_implementation", &[]),
             )
             .unwrap();
 
-        let nonce = if implementation == EOA_CLASS_HASH.0 {
-            (&mut self.state)
-                .get_nonce_at(starknet_address.try_into()?)?
-                .0
-        } else if implementation == CONTRACT_ACCOUNT_CLASS_HASH.0 {
+        let nonce = if implementation == self.environment.eoa_class_hash.0 {
+            self.state_mut().get_nonce_at(starknet_address)?.0
+        } else if implementation == self.environment.contract_account_class_hash.0 {
             let key = get_storage_var_address("nonce", &[]);
-            (&mut self.state).get_storage_at(starknet_address.try_into()?, key)?
+            self.state_mut().get_storage_at(starknet_address, key)?
         } else {
             // We can't throw an error here, because it could just be an uninitialized account.
             StarkFelt::from(0_u8)
@@ -134,10 +159,10 @@ impl Evm for KakarotSequencer {
     /// and the function will return an empty vector. For a contract account, the function will return the bytecode
     /// stored in the bytecode_ storage variables. The function assumes that the bytecode is stored in 31 byte big-endian chunks.
     fn code_at(&mut self, evm_address: &Address) -> StateResult<Bytes> {
-        let starknet_address = compute_starknet_address(evm_address);
+        let starknet_address = self.compute_starknet_address(evm_address)?;
 
-        let bytecode_len = (&mut self.state).get_storage_at(
-            starknet_address.try_into()?,
+        let bytecode_len = self.state_mut().get_storage_at(
+            starknet_address,
             get_storage_var_address("bytecode_len_", &[]),
         )?;
         let bytecode_len: u64 = bytecode_len.try_into()?;
@@ -151,13 +176,13 @@ impl Evm for KakarotSequencer {
 
         for chunk_index in 0..num_chunks {
             let key = StorageKey::from(chunk_index);
-            let code = (&mut self.state).get_storage_at(starknet_address.try_into()?, key)?;
+            let code = self.state_mut().get_storage_at(starknet_address, key)?;
             bytecode.append(&mut felt_to_bytes(&code.into(), 1).to_vec());
         }
 
         let remainder = bytecode_len % 31;
         let key = StorageKey::from(num_chunks);
-        let code = (&mut self.state).get_storage_at(starknet_address.try_into()?, key)?;
+        let code = self.state_mut().get_storage_at(starknet_address, key)?;
         bytecode.append(&mut felt_to_bytes(&code.into(), (32 - remainder) as usize).to_vec());
 
         Ok(Bytes::from(bytecode))
@@ -166,9 +191,10 @@ impl Evm for KakarotSequencer {
     /// Returns the balance of native tokens at the given address.
     /// Makes use of the default StateReader implementation from Blockifier.
     fn balance_at(&mut self, evm_address: &Address) -> StateResult<U256> {
-        let starknet_address = compute_starknet_address(evm_address);
-        let (low, high) = (&mut self.state)
-            .get_fee_token_balance(&starknet_address.try_into()?, &ETH_FEE_TOKEN_ADDRESS)?;
+        let starknet_address = self.compute_starknet_address(evm_address)?;
+        let (low, high) = self
+            .state_mut()
+            .get_fee_token_balance(&starknet_address, &ETH_FEE_TOKEN_ADDRESS)?;
 
         let low = U256::from_be_bytes(Into::<FieldElement>::into(low).to_bytes_be());
         let high = U256::from_be_bytes(Into::<FieldElement>::into(high).to_bytes_be());
@@ -181,9 +207,23 @@ impl Evm for KakarotSequencer {
         &mut self,
         transaction: TransactionSigned,
     ) -> TransactionExecutionResult<TransactionExecutionInfo> {
+        let evm_address = transaction.recover_signer().ok_or_else(|| {
+            TransactionExecutionError::ValidateTransactionError(
+                EntryPointExecutionError::InvalidExecutionInput {
+                    input_descriptor: String::from("Signed transaction"),
+                    info: "Missing signer in signed transaction".to_string(),
+                },
+            )
+        })?;
+        let starknet_address = self.compute_starknet_address(&evm_address)?;
+
         let starknet_transaction =
             BroadcastedTransactionWrapper::new(BroadcastedTransaction::Invoke(
-                to_broadcasted_starknet_transaction(&transaction).map_err(|err| {
+                to_broadcasted_starknet_transaction(
+                    &transaction,
+                    (*starknet_address.0.key()).into(),
+                )
+                .map_err(|err| {
                     TransactionExecutionError::ValidateTransactionError(
                         EntryPointExecutionError::InvalidExecutionInput {
                             input_descriptor: String::from("Signed transaction"),
@@ -193,9 +233,10 @@ impl Evm for KakarotSequencer {
                 })?,
             ));
 
+        let chain_id = self.chain_id();
         self.execute(
             starknet_transaction
-                .try_into_execution_transaction(FieldElement::from(*CHAIN_ID))
+                .try_into_execution_transaction(FieldElement::from(chain_id))
                 .unwrap(),
         )
     }
@@ -204,9 +245,13 @@ impl Evm for KakarotSequencer {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::evm_sequencer::constants::{
-        tests::{PRIVATE_KEY, PUBLIC_KEY, TEST_CONTRACT_ADDRESS},
-        CHAIN_ID,
+    use crate::evm_sequencer::{
+        constants::{
+            tests::{PRIVATE_KEY, PUBLIC_KEY, TEST_CONTRACT_ADDRESS},
+            CHAIN_ID, CONTRACT_ACCOUNT_CLASS_HASH, EOA_CLASS_HASH, PROXY_CLASS_HASH,
+        },
+        sequencer::{v0::INITIAL_SEQUENCER_STATE, KakarotEnvironment},
+        utils::compute_starknet_address,
     };
     use blockifier::{abi::abi_utils::get_storage_var_address, state::state_api::StateReader};
     use reth_primitives::{
@@ -218,8 +263,25 @@ mod tests {
     #[test]
     fn test_execute_simple_contract() {
         // Given
-        let mut sequencer = crate::evm_sequencer::sequencer::KakarotSequencer::new(
-            Address::from(U160::from(1234u64)),
+        let kakarot_environment = KakarotEnvironment::new(
+            *KAKAROT_ADDRESS,
+            *PROXY_CLASS_HASH,
+            *EOA_CLASS_HASH,
+            *CONTRACT_ACCOUNT_CLASS_HASH,
+        );
+        let coinbase_address = Address::from(U160::from(1234u64));
+        let sequencer_address = compute_starknet_address(
+            &coinbase_address,
+            (*KAKAROT_ADDRESS.0.key()).into(),
+            PROXY_CLASS_HASH.0.into(),
+            &[],
+        );
+        let mut sequencer = KakarotSequencer::new(
+            INITIAL_SEQUENCER_STATE.clone(),
+            kakarot_environment,
+            coinbase_address,
+            sequencer_address.try_into().unwrap(),
+            *CHAIN_ID,
             0,
             0,
         );
@@ -253,10 +315,16 @@ mod tests {
         sequencer.execute_transaction(transaction).unwrap();
 
         // Then
-        let contract_starknet_address = compute_starknet_address(&TEST_CONTRACT_ADDRESS)
-            .try_into()
-            .unwrap();
-        let storage = (&mut sequencer.state)
+        let contract_starknet_address = compute_starknet_address(
+            &TEST_CONTRACT_ADDRESS,
+            (*KAKAROT_ADDRESS.0.key()).into(),
+            PROXY_CLASS_HASH.0.into(),
+            &[],
+        )
+        .try_into()
+        .unwrap();
+        let storage = sequencer
+            .state_mut()
             .get_storage_at(
                 contract_starknet_address,
                 get_storage_var_address("storage_", &[StarkFelt::from(0u8), StarkFelt::from(0u8)]),
