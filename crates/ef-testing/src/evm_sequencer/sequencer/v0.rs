@@ -6,13 +6,11 @@ use blockifier::state::state_api::{
 use lazy_static::lazy_static;
 
 use crate::evm_sequencer::{
-    constants::kkrt_constants_v0::{
-        CONTRACT_ACCOUNT_CLASS, CONTRACT_ACCOUNT_CLASS_HASH, EOA_CLASS, EOA_CLASS_HASH,
-        KAKAROT_CLASS, KAKAROT_CLASS_HASH, PROXY_CLASS, PROXY_CLASS_HASH,
-    },
     constants::{
+        CONTRACT_ACCOUNT_CLASS, CONTRACT_ACCOUNT_CLASS_HASH, EOA_CLASS, EOA_CLASS_HASH,
         ETH_FEE_TOKEN_ADDRESS, FEE_TOKEN_CLASS, FEE_TOKEN_CLASS_HASH, KAKAROT_ADDRESS,
-        KAKAROT_OWNER_ADDRESS, PRECOMPILES_CLASS, PRECOMPILES_CLASS_HASH,
+        KAKAROT_CLASS, KAKAROT_CLASS_HASH, KAKAROT_OWNER_ADDRESS, PRECOMPILES_CLASS,
+        PRECOMPILES_CLASS_HASH, PROXY_CLASS, PROXY_CLASS_HASH,
     },
     sequencer::{convert_contract_class_v0, convert_contract_class_v1},
 };

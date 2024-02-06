@@ -59,44 +59,47 @@ lazy_static! {
 }
 
 #[cfg(feature = "v0")]
-pub mod kkrt_constants_v0 {
-    use super::*;
+lazy_static! {
+    // Main contract classes v0
+    pub static ref KAKAROT_CLASS: LegacyContractClass = load_legacy_contract_class("../../build/v0/kakarot.json").expect("Failed to load Kakarot contract class");
+    pub static ref CONTRACT_ACCOUNT_CLASS: LegacyContractClass = load_legacy_contract_class("../../build/v0/contract_account.json").expect("Failed to load ContractAccount contract class");
+    pub static ref EOA_CLASS: LegacyContractClass = load_legacy_contract_class("../../build/v0/externally_owned_account.json").expect("Failed to load EOA contract class");
+    pub static ref PROXY_CLASS: LegacyContractClass = load_legacy_contract_class("../../build/v0/proxy.json").expect("Failed to load Proxy contract class");
 
-    lazy_static! {
-        // Main contract classes v0
-        pub static ref KAKAROT_CLASS: LegacyContractClass = load_legacy_contract_class("../../build/v0/kakarot.json").expect("Failed to load Kakarot contract class");
-        pub static ref CONTRACT_ACCOUNT_CLASS: LegacyContractClass = load_legacy_contract_class("../../build/v0/contract_account.json").expect("Failed to load ContractAccount contract class");
-        pub static ref EOA_CLASS: LegacyContractClass = load_legacy_contract_class("../../build/v0/externally_owned_account.json").expect("Failed to load EOA contract class");
-        pub static ref PROXY_CLASS: LegacyContractClass = load_legacy_contract_class("../../build/v0/proxy.json").expect("Failed to load Proxy contract class");
-
-        // Main class hashes
-        pub static ref KAKAROT_CLASS_HASH: ClassHash = ClassHash(KAKAROT_CLASS.class_hash().unwrap().into());
-        pub static ref CONTRACT_ACCOUNT_CLASS_HASH: ClassHash = ClassHash(CONTRACT_ACCOUNT_CLASS.class_hash().unwrap().into());
-        pub static ref EOA_CLASS_HASH: ClassHash = ClassHash(EOA_CLASS.class_hash().unwrap().into());
-        pub static ref PROXY_CLASS_HASH: ClassHash = ClassHash(PROXY_CLASS.class_hash().unwrap().into());
-    }
+    // Main class hashes
+    pub static ref KAKAROT_CLASS_HASH: ClassHash = ClassHash(KAKAROT_CLASS.class_hash().unwrap().into());
+    pub static ref CONTRACT_ACCOUNT_CLASS_HASH: ClassHash = ClassHash(CONTRACT_ACCOUNT_CLASS.class_hash().unwrap().into());
+    pub static ref EOA_CLASS_HASH: ClassHash = ClassHash(EOA_CLASS.class_hash().unwrap().into());
+    pub static ref PROXY_CLASS_HASH: ClassHash = ClassHash(PROXY_CLASS.class_hash().unwrap().into());
 }
 
 #[cfg(feature = "v1")]
-pub mod kkrt_constants_v1 {
-    use super::*;
+lazy_static! {
+    // Main contract classes v1
+    pub static ref KAKAROT_CLASS: CompiledClass = load_contract_class("../../build/v1/kakarot.json").expect("Failed to load Kakarot contract class");
+    pub static ref CONTRACT_ACCOUNT_CLASS: CompiledClass = load_contract_class("../../build/v1/contract_account.json").expect("Failed to load ContractAccount contract class");
+    pub static ref EOA_CLASS: CompiledClass = load_contract_class("../../build/v1/externally_owned_account.json").expect("Failed to load EOA contract class");
+    pub static ref UNINITIALIZED_ACCOUNT_CLASS: CompiledClass = load_contract_class("../../build/v1/uninitialized_account.json").expect("Failed to load uninitialized account contract class");
 
-    lazy_static! {
-        // Main contract classes v1
-        pub static ref KAKAROT_CLASS: CompiledClass = load_contract_class("../../build/v1/kakarot.json").expect("Failed to load Kakarot contract class");
-        pub static ref CONTRACT_ACCOUNT_CLASS: CompiledClass = load_contract_class("../../build/v1/contract_account.json").expect("Failed to load ContractAccount contract class");
-        pub static ref EOA_CLASS: CompiledClass = load_contract_class("../../build/v1/externally_owned_account.json").expect("Failed to load EOA contract class");
-        pub static ref UNINITIALIZED_ACCOUNT_CLASS: CompiledClass = load_contract_class("../../build/v1/uninitialized_account.json").expect("Failed to load uninitialized account contract class");
+    // Main class hashes
+    pub static ref KAKAROT_CLASS_HASH: ClassHash = ClassHash(KAKAROT_CLASS.class_hash().unwrap().into());
+    pub static ref CONTRACT_ACCOUNT_CLASS_HASH: ClassHash = ClassHash(CONTRACT_ACCOUNT_CLASS.class_hash().unwrap().into());
+    pub static ref EOA_CLASS_HASH: ClassHash = ClassHash(EOA_CLASS.class_hash().unwrap().into());
+    pub static ref UNINITIALIZED_ACCOUNT_CLASS_HASH: ClassHash = ClassHash(UNINITIALIZED_ACCOUNT_CLASS.class_hash().unwrap().into());
+    pub static ref PROXY_CLASS_HASH: ClassHash = *UNINITIALIZED_ACCOUNT_CLASS_HASH;
 
-        // Main class hashes
-        pub static ref KAKAROT_CLASS_HASH: ClassHash = ClassHash(KAKAROT_CLASS.class_hash().unwrap().into());
-        pub static ref CONTRACT_ACCOUNT_CLASS_HASH: ClassHash = ClassHash(CONTRACT_ACCOUNT_CLASS.class_hash().unwrap().into());
-        pub static ref EOA_CLASS_HASH: ClassHash = ClassHash(EOA_CLASS.class_hash().unwrap().into());
-        pub static ref UNINITIALIZED_ACCOUNT_CLASS_HASH: ClassHash = ClassHash(UNINITIALIZED_ACCOUNT_CLASS.class_hash().unwrap().into());
+    // v1 constants
+    pub static ref DEPLOY_FEE: StarkFelt = StarkFelt::from(0xabde1_u128);
+}
 
-        // v1 constants
-        pub static ref DEPLOY_FEE: StarkFelt = StarkFelt::from(0xabde1_u128);
-    }
+#[cfg(not(any(feature = "v0", feature = "v1")))]
+lazy_static! {
+    pub static ref CONTRACT_ACCOUNT_CLASS_HASH: ClassHash =
+        panic!("Contract account class hash not defined, use features flag \"v0\" or \"v1\"");
+    pub static ref EOA_CLASS_HASH: ClassHash =
+        panic!("EOA class hash not defined, use features flag \"v0\" or \"v1\"");
+    pub static ref PROXY_CLASS_HASH: ClassHash =
+        panic!("Proxy class hash not defined, use features flag \"v0\" or \"v1\"");
 }
 
 #[cfg(test)]

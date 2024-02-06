@@ -6,13 +6,13 @@ use starknet_api::hash::StarkFelt;
 
 use crate::evm_sequencer::{
     constants::{
-        kkrt_constants_v1::{
+        CHAIN_ID, ETH_FEE_TOKEN_ADDRESS, FEE_TOKEN_CLASS, FEE_TOKEN_CLASS_HASH, KAKAROT_ADDRESS,
+        KAKAROT_OWNER_ADDRESS,
+        {
             CONTRACT_ACCOUNT_CLASS, CONTRACT_ACCOUNT_CLASS_HASH, DEPLOY_FEE, EOA_CLASS,
             EOA_CLASS_HASH, KAKAROT_CLASS, KAKAROT_CLASS_HASH, UNINITIALIZED_ACCOUNT_CLASS,
             UNINITIALIZED_ACCOUNT_CLASS_HASH,
         },
-        CHAIN_ID, ETH_FEE_TOKEN_ADDRESS, FEE_TOKEN_CLASS, FEE_TOKEN_CLASS_HASH, KAKAROT_ADDRESS,
-        KAKAROT_OWNER_ADDRESS,
     },
     sequencer::{convert_contract_class_v0, convert_contract_class_v1},
 };

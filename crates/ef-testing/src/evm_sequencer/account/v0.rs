@@ -1,21 +1,9 @@
 use blockifier::abi::{abi_utils::get_storage_var_address, sierra_types::next_storage_key};
 use reth_primitives::{Address, Bytes, U256};
-use starknet_api::{
-    core::{ContractAddress, Nonce},
-    hash::StarkFelt,
-    state::StorageKey,
-    StarknetApiError,
-};
+use starknet_api::{core::Nonce, hash::StarkFelt, state::StorageKey, StarknetApiError};
 
 use super::{split_bytecode_to_starkfelt, AccountType, KakarotAccount};
-use crate::evm_sequencer::{
-    constants::{
-        kkrt_constants_v0::{CONTRACT_ACCOUNT_CLASS_HASH, EOA_CLASS_HASH},
-        KAKAROT_ADDRESS,
-    },
-    types::felt::FeltSequencer,
-    utils::{compute_starknet_address, split_u256},
-};
+use crate::evm_sequencer::{types::felt::FeltSequencer, utils::split_u256};
 use crate::starknet_storage;
 
 impl KakarotAccount {
@@ -31,9 +19,6 @@ impl KakarotAccount {
             }
         })?);
 
-        let starknet_address = compute_starknet_address(evm_address);
-        let starknet_address = ContractAddress::try_from(starknet_address)?;
-
         let evm_address = TryInto::<FeltSequencer>::try_into(*evm_address)
             .unwrap() // infallible
             .into();
@@ -41,22 +26,16 @@ impl KakarotAccount {
         let mut storage = vec![
             starknet_storage!("evm_address", evm_address),
             starknet_storage!("is_initialized_", 1u8),
-            starknet_storage!("Ownable_owner", *KAKAROT_ADDRESS.0.key()),
             starknet_storage!("bytecode_len_", code.len() as u32),
-            starknet_storage!("kakarot_address", *KAKAROT_ADDRESS.0.key()),
         ];
 
         // Initialize the implementation and nonce based on account type.
         // The account is an EOA if it has no bytecode and no storage (or all storage is zero).
         let has_code_or_storage = !code.is_empty() || evm_storage.iter().any(|x| x.1 != U256::ZERO);
         let account_type = if !has_code_or_storage {
-            storage.push(starknet_storage!("_implementation", EOA_CLASS_HASH.0));
             AccountType::EOA
         } else {
-            storage.append(&mut vec![
-                starknet_storage!("nonce", nonce),
-                starknet_storage!("_implementation", CONTRACT_ACCOUNT_CLASS_HASH.0),
-            ]);
+            storage.append(&mut vec![starknet_storage!("nonce", nonce)]);
             AccountType::Contract
         };
 
@@ -83,9 +62,13 @@ impl KakarotAccount {
         Ok(Self {
             account_type,
             storage,
-            starknet_address,
             evm_address,
             nonce: Nonce(nonce),
         })
+    }
+
+    pub fn evm_address(&self) -> Address {
+        let evm_address = &self.evm_address.bytes()[12..];
+        Address::from_slice(evm_address)
     }
 }

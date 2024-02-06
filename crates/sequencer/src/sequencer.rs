@@ -14,26 +14,15 @@ use blockifier::{
 use starknet_api::core::ContractAddress;
 
 /// Sequencer is the main struct of the sequencer crate.
-/// Using a trait bound for the state allows for better
-/// speed, as the type of the state is known at compile time.
-/// We bound S such that a mutable reference to S (&'a mut S)
-/// must implement State and `StateReader`. The `for` keyword
-/// indicates that the bound must hold for any lifetime 'any.
-/// For more details, check out [rust-lang docs](https://doc.rust-lang.org/nomicon/hrtb.html)
 #[derive(Clone)]
-pub struct Sequencer<S, A>
-where
-    for<'any> &'any mut S: State + StateReader,
-{
-    pub block_context: BlockContext,
-    pub state: S,
-    pub address: A,
+#[allow(dead_code)]
+pub struct Sequencer<S, A> {
+    pub(crate) block_context: BlockContext,
+    pub(crate) state: S,
+    pub(crate) address: A,
 }
 
-impl<S, A> Sequencer<S, A>
-where
-    for<'any> &'any mut S: State + StateReader,
-{
+impl<S, A> Sequencer<S, A> {
     /// Creates a new Sequencer instance.
     #[inline]
     #[must_use]
@@ -44,8 +33,33 @@ where
             address,
         }
     }
+
+    pub const fn block_context(&self) -> &BlockContext {
+        &self.block_context
+    }
+
+    /// Returns a reference to the state.
+    pub const fn state(&self) -> &S {
+        &self.state
+    }
+
+    /// Returns a mutable reference to the state.
+    pub fn state_mut(&mut self) -> &mut S {
+        &mut self.state
+    }
+
+    /// Returns the address of the sequencer.
+    pub const fn address(&self) -> &A {
+        &self.address
+    }
 }
 
+/// Using a trait bound for the state allows for better
+/// speed, as the type of the state is known at compile time.
+/// We bound S such that a mutable reference to S (&'a mut S)
+/// must implement State and `StateReader`. The `for` keyword
+/// indicates that the bound must hold for any lifetime 'any.
+/// For more details, check out [rust-lang docs](https://doc.rust-lang.org/nomicon/hrtb.html)
 impl<S, A> Execution for Sequencer<S, A>
 where
     for<'any> &'any mut S: State + StateReader + Committer<S>,

@@ -1,4 +1,3 @@
-use super::constants::KAKAROT_ADDRESS;
 use super::types::felt::FeltSequencer;
 use bytes::BytesMut;
 use reth_primitives::{Address, Bytes, TransactionSigned, TxType, U256};
@@ -8,44 +7,22 @@ use starknet::core::{
 };
 #[cfg(any(feature = "v0", feature = "v1"))]
 use starknet::macros::selector;
-use starknet_api::core::ClassHash;
 
 /// Computes the Starknet address of a contract given its EVM address.
-pub fn compute_starknet_address(evm_address: &Address) -> FeltSequencer {
+pub fn compute_starknet_address(
+    evm_address: &Address,
+    kakarot_address: FieldElement,
+    class_hash: FieldElement,
+    constructor_args: &[FieldElement],
+) -> FeltSequencer {
     let evm_address: FeltSequencer = (*evm_address).try_into().unwrap(); // infallible
     let starknet_address = get_contract_address(
         evm_address.into(),
-        default_account_class_hash().0.into(),
-        &account_constructor_args(evm_address.into()),
-        (*KAKAROT_ADDRESS.0.key()).into(),
+        class_hash,
+        constructor_args,
+        kakarot_address,
     );
     starknet_address.into()
-}
-
-fn default_account_class_hash() -> ClassHash {
-    #[cfg(feature = "v0")]
-    {
-        return *crate::evm_sequencer::constants::kkrt_constants_v0::PROXY_CLASS_HASH;
-    }
-
-    #[cfg(feature = "v1")]
-    {
-        return *crate::evm_sequencer::constants::kkrt_constants_v1::UNINITIALIZED_ACCOUNT_CLASS_HASH;
-    }
-    #[cfg(not(any(feature = "v0", feature = "v1")))]
-    ClassHash::default()
-}
-
-#[allow(clippy::missing_const_for_fn)]
-fn account_constructor_args(_evm_address: FieldElement) -> Vec<FieldElement> {
-    #[cfg(feature = "v1")]
-    {
-        return vec![(*KAKAROT_ADDRESS.0.key()).into(), _evm_address];
-    }
-    #[cfg(not(feature = "v1"))]
-    {
-        vec![]
-    }
 }
 
 /// Split a U256 into low and high u128.
@@ -64,13 +41,9 @@ pub fn felt_to_bytes(felt: &FieldElement, start: usize) -> Bytes {
 /// Converts an signed transaction and a signature to a Starknet-rs transaction.
 pub fn to_broadcasted_starknet_transaction(
     transaction: &TransactionSigned,
+    signer_starknet_address: FieldElement,
 ) -> Result<BroadcastedInvokeTransaction, eyre::Error> {
-    let evm_address = transaction
-        .recover_signer()
-        .ok_or_else(|| eyre::eyre!("Missing signer in signed transaction"))?;
-
     let nonce = FieldElement::from(transaction.nonce());
-    let starknet_address = compute_starknet_address(&evm_address);
 
     let mut bytes = BytesMut::new();
     transaction.transaction.encode_without_signature(&mut bytes);
@@ -80,6 +53,7 @@ pub fn to_broadcasted_starknet_transaction(
     let mut execute_calldata = {
         #[cfg(feature = "v0")]
         {
+            use crate::evm_sequencer::constants::KAKAROT_ADDRESS;
             vec![
                 FieldElement::ONE,                  // call array length
                 (*KAKAROT_ADDRESS.0.key()).into(),  // contract address
@@ -91,6 +65,7 @@ pub fn to_broadcasted_starknet_transaction(
         }
         #[cfg(feature = "v1")]
         {
+            use crate::evm_sequencer::constants::KAKAROT_ADDRESS;
             vec![
                 FieldElement::ONE,                  // call array length
                 (*KAKAROT_ADDRESS.0.key()).into(),  // contract address
@@ -124,7 +99,7 @@ pub fn to_broadcasted_starknet_transaction(
         max_fee: FieldElement::from(0u8),
         signature,
         nonce,
-        sender_address: starknet_address.into(),
+        sender_address: signer_starknet_address,
         calldata: execute_calldata,
         is_query: false,
     };

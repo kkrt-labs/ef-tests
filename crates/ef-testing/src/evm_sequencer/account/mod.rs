@@ -3,11 +3,7 @@ pub mod v0;
 #[cfg(feature = "v1")]
 pub mod v1;
 
-use starknet_api::{
-    core::{ContractAddress, Nonce},
-    hash::StarkFelt,
-    state::StorageKey,
-};
+use starknet_api::{core::Nonce, hash::StarkFelt, state::StorageKey};
 use starknet_crypto::FieldElement;
 
 #[macro_export]
@@ -35,7 +31,6 @@ macro_rules! starknet_storage {
 #[allow(dead_code)]
 #[derive(Debug, Clone, Default)]
 pub struct KakarotAccount {
-    pub(crate) starknet_address: ContractAddress,
     pub(crate) evm_address: StarkFelt,
     pub(crate) nonce: Nonce,
     pub(crate) storage: Vec<(StorageKey, StarkFelt)>,
@@ -54,11 +49,7 @@ pub enum AccountType {
 pub mod kkrt_account {
     use super::{AccountType, KakarotAccount};
     use reth_primitives::{Address, Bytes, U256};
-    use starknet_api::{
-        core::{ContractAddress, Nonce},
-        hash::StarkFelt,
-        StarknetApiError,
-    };
+    use starknet_api::{core::Nonce, hash::StarkFelt, StarknetApiError};
 
     impl KakarotAccount {
         pub fn new(
@@ -68,7 +59,6 @@ pub mod kkrt_account {
             _evm_storage: &[(U256, U256)],
         ) -> Result<Self, StarknetApiError> {
             Ok(Self {
-                starknet_address: ContractAddress::default(),
                 evm_address: StarkFelt::default(),
                 nonce: Nonce::default(),
                 storage: vec![],
