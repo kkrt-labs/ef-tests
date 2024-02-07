@@ -114,7 +114,6 @@ impl BlockchainTestCase {
         let sender_address = wallet.address().to_fixed_bytes();
 
         let eth_validation_failed = retdata
-            .clone()
             .map(|retdata| retdata == "Kakarot: eth validation failed")
             .unwrap_or_default();
 
