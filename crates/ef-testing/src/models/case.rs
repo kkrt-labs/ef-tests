@@ -1,6 +1,6 @@
 // Inspired by https://github.com/paradigmxyz/reth/tree/main/testing/ef-tests
 use super::error::RunnerError;
-use super::result::{log_execution_result, extract_execution_retdata};
+use super::result::{extract_execution_retdata, log_execution_result};
 use crate::evm_sequencer::constants::{
     CONTRACT_ACCOUNT_CLASS_HASH, EOA_CLASS_HASH, KAKAROT_ADDRESS, PROXY_CLASS_HASH,
 };
@@ -74,7 +74,10 @@ impl BlockchainTestCase {
         Ok(())
     }
 
-    fn handle_transaction(&self, sequencer: &mut KakarotSequencer) -> Result<Option<String>, RunnerError> {
+    fn handle_transaction(
+        &self,
+        sequencer: &mut KakarotSequencer,
+    ) -> Result<Option<String>, RunnerError> {
         // we extract the transaction from the block
         let block = &self.block;
         let block =
@@ -99,14 +102,19 @@ impl BlockchainTestCase {
         Ok(retdata)
     }
 
-    fn handle_post_state(&self, sequencer: &mut KakarotSequencer, retdata: Option<String>) -> Result<(), RunnerError> {
+    fn handle_post_state(
+        &self,
+        sequencer: &mut KakarotSequencer,
+        retdata: Option<String>,
+    ) -> Result<(), RunnerError> {
         let wallet = LocalWallet::from_bytes(&self.secret_key.0)
             .map_err(|err| RunnerError::Other(vec![err.to_string()].into()))?;
         let sender_address = wallet.address().to_fixed_bytes();
 
-        let eth_validation_failed = retdata.clone()
-        .map(|retdata| retdata == "Kakarot: eth validation failed")
-        .unwrap_or_default();
+        let eth_validation_failed = retdata
+            .clone()
+            .map(|retdata| retdata == "Kakarot: eth validation failed")
+            .unwrap_or_default();
 
         let maybe_block_header = self.block.block_header.as_ref();
         // Get gas used from block header

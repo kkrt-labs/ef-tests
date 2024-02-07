@@ -95,7 +95,12 @@ pub(crate) fn extract_execution_retdata(
         let retdata = &call_exec.retdata;
 
         // Skip the first byte which is the length of the return data
-        let retdata_bytes: Vec<u8> = retdata.0.iter().skip(1).map(|felt| felt.bytes()[31]).collect();
+        let retdata_bytes: Vec<u8> = retdata
+            .0
+            .iter()
+            .skip(1)
+            .map(|felt| felt.bytes()[31])
+            .collect();
 
         let retdata_str: String = retdata_bytes.iter().map(|&c| c as char).collect();
         return Some(retdata_str);
