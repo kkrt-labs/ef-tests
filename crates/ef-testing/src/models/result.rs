@@ -84,12 +84,8 @@ pub(crate) fn log_execution_result(
 }
 
 pub(crate) fn extract_execution_retdata(
-    result: TransactionExecutionResult<TransactionExecutionInfo>,
+    execution_info: TransactionExecutionInfo,
 ) -> Option<String> {
-    let info = match result {
-        TransactionExecutionResult::Ok(info) => info,
-        TransactionExecutionResult::Err(_) => return None,
-    };
     if let Some(call) = info.execute_call_info {
         let call_exec = &call.execution;
         let retdata = &call_exec.retdata;
@@ -99,7 +95,7 @@ pub(crate) fn extract_execution_retdata(
             .0
             .iter()
             .skip(1)
-            .map(|felt| felt.bytes()[31])
+            .map(|felt| felt.bytes().last().copied())
             .collect();
 
         let retdata_str: String = retdata_bytes.iter().map(|&c| c as char).collect();
