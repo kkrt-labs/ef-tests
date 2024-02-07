@@ -1,6 +1,6 @@
 // Inspired by https://github.com/paradigmxyz/reth/tree/main/testing/ef-tests
 use super::error::RunnerError;
-use super::result::log_execution_result;
+use super::result::{log_execution_result, extract_execution_retdata};
 use crate::evm_sequencer::constants::{
     CONTRACT_ACCOUNT_CLASS_HASH, EOA_CLASS_HASH, KAKAROT_ADDRESS, PROXY_CLASS_HASH,
 };
@@ -74,7 +74,7 @@ impl BlockchainTestCase {
         Ok(())
     }
 
-    fn handle_transaction(&self, sequencer: &mut KakarotSequencer) -> Result<(), RunnerError> {
+    fn handle_transaction(&self, sequencer: &mut KakarotSequencer) -> Result<Option<String>, RunnerError> {
         // we extract the transaction from the block
         let block = &self.block;
         let block =
@@ -92,15 +92,21 @@ impl BlockchainTestCase {
         tx_signed.signature = signature;
 
         let execution_result = sequencer.execute_transaction(tx_signed);
-        log_execution_result(execution_result, &self.case_name, &self.case_category);
+        log_execution_result(&execution_result, &self.case_name, &self.case_category);
 
-        Ok(())
+        let retdata = extract_execution_retdata(execution_result);
+
+        Ok(retdata)
     }
 
-    fn handle_post_state(&self, sequencer: &mut KakarotSequencer) -> Result<(), RunnerError> {
+    fn handle_post_state(&self, sequencer: &mut KakarotSequencer, retdata: Option<String>) -> Result<(), RunnerError> {
         let wallet = LocalWallet::from_bytes(&self.secret_key.0)
             .map_err(|err| RunnerError::Other(vec![err.to_string()].into()))?;
         let sender_address = wallet.address().to_fixed_bytes();
+
+        let eth_validation_failed = retdata.clone()
+        .map(|retdata| retdata == "Kakarot: eth validation failed")
+        .unwrap_or_default();
 
         let maybe_block_header = self.block.block_header.as_ref();
         // Get gas used from block header
@@ -167,7 +173,13 @@ impl BlockchainTestCase {
             }
 
             // Nonce
-            let actual = sequencer.nonce_at(address)?;
+            let mut actual = sequencer.nonce_at(address)?;
+            // If the transaction failed during ethereum validation, performed in __execute__, the nonce is incremented but should not.
+            // Substract 1 to the actual nonce.
+            if eth_validation_failed && address.0 == sender_address {
+                actual -= U256::from(1);
+            }
+
             if actual != expected_state.nonce.0 {
                 let nonce_diff = format!(
                     "nonce mismatch for {:#20x}: expected {:#32x}, got {:#32x}",
@@ -252,9 +264,9 @@ impl Case for BlockchainTestCase {
 
         self.handle_pre_state(&mut sequencer)?;
 
-        self.handle_transaction(&mut sequencer)?;
+        let retdata = self.handle_transaction(&mut sequencer)?;
 
-        self.handle_post_state(&mut sequencer)?;
+        self.handle_post_state(&mut sequencer, retdata)?;
         Ok(())
     }
 }
