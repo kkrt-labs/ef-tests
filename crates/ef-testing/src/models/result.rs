@@ -18,6 +18,7 @@ pub(crate) fn log_execution_result(
     let case = format!("{}::{}", case_category, case_name);
     match result {
         TransactionExecutionResult::Ok(info) => {
+            /* trunk-ignore(clippy/option_if_let_else) */
             if let Some(err) = info.revert_error.as_ref() {
                 warn!("{} reverted:\n{}", case, err.replace("\\n", "\n"));
             } else {

@@ -97,7 +97,7 @@ impl BlockchainTestCase {
         let execution_result = sequencer.execute_transaction(tx_signed);
         log_execution_result(&execution_result, &self.case_name, &self.case_category);
 
-     let retdata = execution_result
+        let retdata = execution_result
             .map(extract_execution_retdata)
             .unwrap_or_default();
 
