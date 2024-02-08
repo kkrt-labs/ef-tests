@@ -24,7 +24,7 @@ pub(crate) fn log_execution_result(
             } else {
                 info!("{} passed: {:?}", case, info.actual_resources);
                 #[cfg(feature = "v0")]
-                if let Some(call) = info.execute_call_info {
+                if let Some(call) = info.execute_call_info.as_ref() {
                     use starknet::core::types::FieldElement;
                     use starknet_api::hash::StarkFelt;
                     let events = kakarot_execution_events(&call);
@@ -37,7 +37,7 @@ pub(crate) fn log_execution_result(
                         return;
                     }
                     if events[0].data.0.last() == Some(&StarkFelt::ZERO) {
-                        let return_data = call.execution.retdata.0;
+                        let return_data = call.execution.retdata.0.clone();
 
                         let revert_message_len = return_data.first().cloned().unwrap_or_default();
                         let revert_message_len =
