@@ -9,8 +9,8 @@ use crate::evm_sequencer::{
         CHAIN_ID, ETH_FEE_TOKEN_ADDRESS, FEE_TOKEN_CLASS, FEE_TOKEN_CLASS_HASH, KAKAROT_ADDRESS,
         KAKAROT_OWNER_ADDRESS,
         {
-            CONTRACT_ACCOUNT_CLASS, CONTRACT_ACCOUNT_CLASS_HASH, DEPLOY_FEE, EOA_CLASS,
-            EOA_CLASS_HASH, KAKAROT_CLASS, KAKAROT_CLASS_HASH, UNINITIALIZED_ACCOUNT_CLASS,
+            CONTRACT_ACCOUNT_CLASS, CONTRACT_ACCOUNT_CLASS_HASH, EOA_CLASS, EOA_CLASS_HASH,
+            KAKAROT_CLASS, KAKAROT_CLASS_HASH, UNINITIALIZED_ACCOUNT_CLASS,
             UNINITIALIZED_ACCOUNT_CLASS_HASH,
         },
     },
@@ -26,7 +26,6 @@ lazy_static! {
             ("owner", *KAKAROT_OWNER_ADDRESS.0.key()),
             ("chain_id", StarkFelt::from(*CHAIN_ID)),
             ("native_token", *ETH_FEE_TOKEN_ADDRESS.0.key()),
-            ("deploy_fee", *DEPLOY_FEE),
             ("ca_class_hash", CONTRACT_ACCOUNT_CLASS_HASH.0),
             ("eoa_class_hash", EOA_CLASS_HASH.0),
             ("account_class_hash", UNINITIALIZED_ACCOUNT_CLASS_HASH.0),

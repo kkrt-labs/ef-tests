@@ -87,9 +87,6 @@ lazy_static! {
     pub static ref EOA_CLASS_HASH: ClassHash = ClassHash(EOA_CLASS.class_hash().unwrap().into());
     pub static ref UNINITIALIZED_ACCOUNT_CLASS_HASH: ClassHash = ClassHash(UNINITIALIZED_ACCOUNT_CLASS.class_hash().unwrap().into());
     pub static ref PROXY_CLASS_HASH: ClassHash = *UNINITIALIZED_ACCOUNT_CLASS_HASH;
-
-    // v1 constants
-    pub static ref DEPLOY_FEE: StarkFelt = StarkFelt::from(0xabde1_u128);
 }
 
 #[cfg(not(any(feature = "v0", feature = "v1")))]
