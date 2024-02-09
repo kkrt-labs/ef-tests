@@ -49,7 +49,8 @@ impl Evm for KakarotSequencer {
 
     /// Sets up an EOA or contract account. Writes nonce, code and storage to the sequencer storage.
     fn setup_account(&mut self, account: KakarotAccount) -> StateResult<()> {
-        let evm_address = account.evm_address();
+        let evm_address = &account.evm_address().bytes()[12..];
+        let evm_address = Address::from_slice(evm_address);
         let mut storage = account.storage;
         let starknet_address = self.compute_starknet_address(&evm_address)?;
 

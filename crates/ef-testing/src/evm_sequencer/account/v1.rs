@@ -112,9 +112,4 @@ impl KakarotAccount {
             nonce: Nonce(nonce),
         })
     }
-
-    pub fn evm_address(&self) -> Address {
-        let evm_address = &self.evm_address.bytes()[12..];
-        Address::from_slice(evm_address)
-    }
 }
