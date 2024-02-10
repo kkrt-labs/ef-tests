@@ -30,13 +30,13 @@ $(EF_TESTS_DIR):
 .PHONY: $(EF_TESTS_DIR) build
 setup: $(EF_TESTS_DIR)
 
-setup-kakarot-v0: clean-common clean-kakarot-v0
+setup-kakarot-v0: clean-kakarot-v0
 	@curl -sL -o kakarot-build.zip -H "Authorization: token $(GITHUB_TOKEN)" "$(KKRT_V0_BUILD_ARTIFACT_URL)"
 	unzip -o kakarot-build.zip -d build/v0
 	mv build/v0/fixtures/ERC20.json build/common/
 	rm -f kakarot-build.zip
 
-setup-kakarot-v1: clean-common clean-kakarot-v1
+setup-kakarot-v1: clean-kakarot-v1
 	@curl -sL -o dev-artifacts.zip -H "Authorization: token $(GITHUB_TOKEN)" "$(KKRT_V1_BUILD_ARTIFACT_URL)"
 	unzip -o dev-artifacts.zip -d build/temp
 	mv build/temp/contracts_ContractAccount.compiled_contract_class.json build/v1/contract_account.json
@@ -47,7 +47,7 @@ setup-kakarot-v1: clean-common clean-kakarot-v1
 	rm -fr build/temp
 	rm -f dev-artifacts.zip
 
-setup-kakarot: setup-kakarot-v0 setup-kakarot-v1
+setup-kakarot: clean-common setup-kakarot-v0 setup-kakarot-v1
 
 clean-common:
 	rm -rf build/common
