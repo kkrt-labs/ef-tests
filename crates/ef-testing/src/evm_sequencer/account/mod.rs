@@ -37,6 +37,24 @@ pub struct KakarotAccount {
     pub(crate) account_type: AccountType,
 }
 
+impl KakarotAccount {
+    pub const fn evm_address(&self) -> &StarkFelt {
+        &self.evm_address
+    }
+
+    pub const fn nonce(&self) -> &Nonce {
+        &self.nonce
+    }
+
+    pub fn storage(&self) -> &[(StorageKey, StarkFelt)] {
+        self.storage.as_slice()
+    }
+
+    pub const fn account_type(&self) -> &AccountType {
+        &self.account_type
+    }
+}
+
 #[derive(Debug, Default, Clone)]
 pub enum AccountType {
     #[default]
