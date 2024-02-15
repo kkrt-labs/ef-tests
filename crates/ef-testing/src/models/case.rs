@@ -60,15 +60,11 @@ impl BlockchainTestCase {
             let kakarot_account = KakarotAccount::new(
                 address,
                 &account.code,
-                account.nonce.0,
-                &account
-                    .storage
-                    .iter()
-                    .map(|(k, v)| (k.0, v.0))
-                    .collect::<Vec<_>>(),
+                account.nonce,
+                &account.storage.clone().into_iter().collect::<Vec<_>>()[..],
             )?;
             sequencer.setup_account(kakarot_account)?;
-            sequencer.fund(address, account.balance.0)?;
+            sequencer.fund(address, account.balance)?;
         }
 
         Ok(())
@@ -120,7 +116,7 @@ impl BlockchainTestCase {
         let maybe_block_header = self.block.block_header.as_ref();
         // Get gas used from block header
         let gas_used = maybe_block_header
-            .map(|block_header| block_header.gas_used.0)
+            .map(|block_header| block_header.gas_used)
             .unwrap_or_default();
 
         // Get coinbase address
@@ -131,7 +127,6 @@ impl BlockchainTestCase {
         // Get baseFeePerGas
         let base_fee_per_gas = maybe_block_header
             .and_then(|block_header| block_header.base_fee_per_gas)
-            .map(|base_fee| base_fee.0)
             .unwrap_or_default();
 
         // Get gas price from transaction
@@ -142,17 +137,14 @@ impl BlockchainTestCase {
             .and_then(|transactions| transactions.first());
         let gas_price = maybe_transaction
             .and_then(|transaction| transaction.gas_price)
-            .map(|gas_price| gas_price.0)
             .unwrap_or_default();
         let max_priority_fee_per_gas = maybe_transaction
             .and_then(|transaction| transaction.max_priority_fee_per_gas)
-            .map(|max_priority_fee_per_gas| max_priority_fee_per_gas.0)
             .unwrap_or_default();
         let effective_gas_price = maybe_transaction
             .and_then(|transaction| transaction.max_fee_per_gas)
             .map(|max_fee_per_gas| {
-                max_priority_fee_per_gas.min(max_fee_per_gas.0 - base_fee_per_gas)
-                    + base_fee_per_gas
+                max_priority_fee_per_gas.min(max_fee_per_gas - base_fee_per_gas) + base_fee_per_gas
             })
             .unwrap_or_default();
         // <https://eips.ethereum.org/EIPS/eip-1559>: priority fee is capped because the base fee is filled first
@@ -171,11 +163,11 @@ impl BlockchainTestCase {
         for (address, expected_state) in post_state.iter() {
             // Storage
             for (k, v) in expected_state.storage.iter() {
-                let actual = sequencer.storage_at(address, k.0)?;
-                if actual != v.0 {
+                let actual = sequencer.storage_at(address, *k)?;
+                if actual != *v {
                     let storage_diff = format!(
                         "storage mismatch for {:#20x} at {:#32x}: expected {:#32x}, got {:#32x}",
-                        address, k.0, v.0, actual
+                        address, k, v, actual
                     );
                     diff.push(storage_diff);
                 }
@@ -189,10 +181,10 @@ impl BlockchainTestCase {
                 actual -= U256::from(1);
             }
 
-            if actual != expected_state.nonce.0 {
+            if actual != expected_state.nonce {
                 let nonce_diff = format!(
                     "nonce mismatch for {:#20x}: expected {:#32x}, got {:#32x}",
-                    address, expected_state.nonce.0, actual
+                    address, expected_state.nonce, actual
                 );
                 diff.push(nonce_diff);
             }
@@ -217,10 +209,10 @@ impl BlockchainTestCase {
             if *address == coinbase {
                 actual += (gas_price - base_fee_per_gas) * gas_used;
             }
-            if actual != expected_state.balance.0 {
+            if actual != expected_state.balance {
                 let balance_diff = format!(
                     "balance mismatch for {:#20x}: expected {:#32x}, got {:#32x}",
-                    address, expected_state.balance.0, actual
+                    address, expected_state.balance, actual
                 );
                 diff.push(balance_diff);
             }
@@ -243,15 +235,12 @@ impl Case for BlockchainTestCase {
 
         let base_fee = maybe_block_header
             .and_then(|block_header| block_header.base_fee_per_gas)
-            .map(|base_fee| base_fee.0)
             .unwrap_or_default();
 
-        let block_number = maybe_block_header.map(|b| b.number.0).unwrap_or_default();
+        let block_number = maybe_block_header.map(|b| b.number).unwrap_or_default();
         let block_number = TryInto::<u64>::try_into(block_number).unwrap_or_default();
 
-        let block_timestamp = maybe_block_header
-            .map(|b| b.timestamp.0)
-            .unwrap_or_default();
+        let block_timestamp = maybe_block_header.map(|b| b.timestamp).unwrap_or_default();
         let block_timestamp = TryInto::<u64>::try_into(block_timestamp).unwrap_or_default();
 
         let kakarot_environment = KakarotEnvironment::new(
