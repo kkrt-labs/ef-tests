@@ -1,6 +1,7 @@
 // Inspired by https://github.com/paradigmxyz/reth/tree/main/testing/ef-tests
 use super::error::RunnerError;
 use super::result::{extract_execution_retdata, log_execution_result};
+use crate::evm_sequencer::account::AccountType;
 use crate::evm_sequencer::constants::{
     CONTRACT_ACCOUNT_CLASS_HASH, EOA_CLASS_HASH, KAKAROT_ADDRESS, PROXY_CLASS_HASH,
 };
@@ -56,13 +57,26 @@ impl BlockchainTestCase {
     }
 
     fn handle_pre_state(&self, sequencer: &mut KakarotSequencer) -> Result<(), RunnerError> {
+        let wallet = LocalWallet::from_bytes(&self.secret_key.0)
+            .map_err(|err| RunnerError::Other(vec![err.to_string()].into()))?;
+        let sender_address = wallet.address().to_fixed_bytes();
+
         for (address, account) in self.pre.iter() {
-            let kakarot_account = KakarotAccount::new(
+            let is_eoa = address.0 == sender_address;
+            let mut kakarot_account = KakarotAccount::new(
                 address,
                 &account.code,
                 account.nonce,
                 &account.storage.clone().into_iter().collect::<Vec<_>>()[..],
+                is_eoa,
             )?;
+            // Override the account type - in tests, only the sender is an EOA. All other accounts are contracts.
+            kakarot_account.account_type = if address.0 == sender_address {
+                AccountType::EOA
+            } else {
+                AccountType::Contract
+            };
+
             sequencer.setup_account(kakarot_account)?;
             sequencer.fund(address, account.balance)?;
         }

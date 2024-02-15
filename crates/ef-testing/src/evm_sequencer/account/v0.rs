@@ -12,6 +12,7 @@ impl KakarotAccount {
         code: &Bytes,
         nonce: U256,
         evm_storage: &[(U256, U256)],
+        is_eoa: bool,
     ) -> Result<Self, StarknetApiError> {
         let nonce = StarkFelt::from(TryInto::<u128>::try_into(nonce).map_err(|err| {
             StarknetApiError::OutOfRange {
@@ -30,9 +31,8 @@ impl KakarotAccount {
         ];
 
         // Initialize the implementation and nonce based on account type.
-        // The account is an EOA if it has no bytecode and no storage (or all storage is zero).
-        let has_code_or_storage = !code.is_empty() || evm_storage.iter().any(|x| x.1 != U256::ZERO);
-        let account_type = if !has_code_or_storage {
+        // In tests, only the sender is an EOA.
+        let account_type = if is_eoa {
             AccountType::EOA
         } else {
             storage.append(&mut vec![starknet_storage!("nonce", nonce)]);

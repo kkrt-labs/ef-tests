@@ -40,7 +40,8 @@ impl Evm for KakarotSequencer {
     /// Sets up the evm state (coinbase, block number, etc.)
     fn setup_state(&mut self, _base_fee: U256) -> StateResult<()> {
         let coinbase_address = *self.address();
-        let coinbase = KakarotAccount::new(&coinbase_address, &Bytes::default(), U256::ZERO, &[])?;
+        let coinbase =
+            KakarotAccount::new(&coinbase_address, &Bytes::default(), U256::ZERO, &[], true)?;
         self.setup_account(coinbase)?;
         self.fund(&coinbase_address, U256::ZERO)?;
 
@@ -383,7 +384,7 @@ mod tests {
 
         // When
         let account =
-            KakarotAccount::new(&TEST_CONTRACT_ADDRESS, &bytecode, U256::ZERO, &[]).unwrap();
+            KakarotAccount::new(&TEST_CONTRACT_ADDRESS, &bytecode, U256::ZERO, &[], false).unwrap();
         sequencer.setup_account(account).unwrap();
 
         // Then
@@ -437,8 +438,8 @@ mod tests {
         ]); // PUSH 01 PUSH 00 SSTORE
         let nonce = U256::from(0);
         let contract_account =
-            KakarotAccount::new(&TEST_CONTRACT_ADDRESS, &bytecode, nonce, &[]).unwrap();
-        let eoa = KakarotAccount::new(&PUBLIC_KEY, &Bytes::default(), nonce, &[]).unwrap();
+            KakarotAccount::new(&TEST_CONTRACT_ADDRESS, &bytecode, nonce, &[], false).unwrap();
+        let eoa = KakarotAccount::new(&PUBLIC_KEY, &Bytes::default(), nonce, &[], true).unwrap();
         sequencer.setup_account(contract_account).unwrap();
         sequencer.setup_account(eoa).unwrap();
         sequencer.execute_transaction(transaction).unwrap();
