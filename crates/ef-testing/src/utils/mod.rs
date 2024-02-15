@@ -1,7 +1,7 @@
 use std::collections::BTreeMap;
 
 use ef_tests::models::{Account, State};
-use reth_primitives::{Address, Bytes, JsonU256, U256};
+use reth_primitives::{Address, Bytes, U256};
 
 pub(crate) fn update_post_state(
     mut post_state: BTreeMap<Address, Account>,
@@ -28,7 +28,7 @@ pub(crate) fn update_post_state(
                         .get_mut(k)
                         .unwrap()
                         .storage
-                        .insert(*storage_key, U256::ZERO.into());
+                        .insert(*storage_key, U256::ZERO);
                 }
             }
         }
@@ -37,8 +37,8 @@ pub(crate) fn update_post_state(
             post_state.insert(
                 *k,
                 Account {
-                    nonce: JsonU256::default(),
-                    balance: JsonU256::default(),
+                    nonce: U256::ZERO,
+                    balance: U256::ZERO,
                     code: Bytes::default(),
                     storage: BTreeMap::new(),
                 },

@@ -27,7 +27,7 @@ pub(crate) fn log_execution_result(
                 if let Some(call) = info.execute_call_info.as_ref() {
                     use starknet::core::types::FieldElement;
                     use starknet_api::hash::StarkFelt;
-                    let events = kakarot_execution_events(&call);
+                    let events = kakarot_execution_events(call);
                     // Check only one execution event.
                     if events.len() != 1 {
                         warn!(
