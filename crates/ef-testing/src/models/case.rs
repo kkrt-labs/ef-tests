@@ -70,13 +70,6 @@ impl BlockchainTestCase {
                 &account.storage.clone().into_iter().collect::<Vec<_>>()[..],
                 is_eoa,
             )?;
-            // Override the account type - in tests, only the sender is an EOA. All other accounts are contracts.
-            kakarot_account.account_type = if address.0 == sender_address {
-                AccountType::EOA
-            } else {
-                AccountType::Contract
-            };
-
             sequencer.setup_account(kakarot_account)?;
             sequencer.fund(address, account.balance)?;
         }
