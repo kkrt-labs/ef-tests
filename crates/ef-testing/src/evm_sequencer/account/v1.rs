@@ -41,7 +41,7 @@ impl KakarotAccount {
         let account_type = if is_eoa {
             AccountType::EOA
         } else {
-            storage.append(&mut vec![starknet_storage!("nonce", nonce)]);
+            storage.push(starknet_storage!("contract_account_nonce", nonce));
             AccountType::Contract
         };
 

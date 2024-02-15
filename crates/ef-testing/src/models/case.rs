@@ -1,7 +1,6 @@
 // Inspired by https://github.com/paradigmxyz/reth/tree/main/testing/ef-tests
 use super::error::RunnerError;
 use super::result::{extract_execution_retdata, log_execution_result};
-use crate::evm_sequencer::account::AccountType;
 use crate::evm_sequencer::constants::{
     CONTRACT_ACCOUNT_CLASS_HASH, EOA_CLASS_HASH, KAKAROT_ADDRESS, PROXY_CLASS_HASH,
 };
@@ -63,7 +62,7 @@ impl BlockchainTestCase {
 
         for (address, account) in self.pre.iter() {
             let is_eoa = address.0 == sender_address;
-            let mut kakarot_account = KakarotAccount::new(
+            let kakarot_account = KakarotAccount::new(
                 address,
                 &account.code,
                 account.nonce,
