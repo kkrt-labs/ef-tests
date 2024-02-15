@@ -70,6 +70,11 @@ pub(crate) fn log_execution_result(
         TransactionExecutionResult::Err(TransactionExecutionError::ValidateTransactionError(
             EntryPointExecutionError::VirtualMachineExecutionErrorWithTrace { trace, .. },
         )) => {
+            // There are specific test cases where validation failed because the sender account has code.
+            // They're caught by EOA validation, and rejected with this specific error message.
+            if trace.contains("EOAs cannot have code") {
+                return;
+            }
             let re = regex::Regex::new(
                 r#"Error in the called contract \((0x[0-9a-zA-Z]+)\)[\s\S]*?EntryPointSelector\(StarkFelt\("(0x[0-9a-zA-Z]+)"\)\)"#,
             ).unwrap();
