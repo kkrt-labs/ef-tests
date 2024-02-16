@@ -56,12 +56,18 @@ impl BlockchainTestCase {
     }
 
     fn handle_pre_state(&self, sequencer: &mut KakarotSequencer) -> Result<(), RunnerError> {
+        let wallet = LocalWallet::from_bytes(&self.secret_key.0)
+            .map_err(|err| RunnerError::Other(vec![err.to_string()].into()))?;
+        let sender_address = wallet.address().to_fixed_bytes();
+
         for (address, account) in self.pre.iter() {
+            let is_eoa = address.0 == sender_address;
             let kakarot_account = KakarotAccount::new(
                 address,
                 &account.code,
                 account.nonce,
                 &account.storage.clone().into_iter().collect::<Vec<_>>()[..],
+                is_eoa,
             )?;
             sequencer.setup_account(kakarot_account)?;
             sequencer.fund(address, account.balance)?;
