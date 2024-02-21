@@ -400,7 +400,7 @@ mod tests {
         let mut state = State::default();
         std::env::set_var(
             "CAIRO_NATIVE_RUNTIME_LIBDIR",
-            "/Users/greg/code/rust/cairo_native/target/release",
+            "~/code/rust/cairo_native/target/release",
         );
 
         let cache = Rc::new(RefCell::new(ProgramCache::Aot(AotProgramCache::new(
