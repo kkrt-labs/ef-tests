@@ -14,12 +14,13 @@ use starknet_api::core::L2_ADDRESS_UPPER_BOUND;
 use starknet_crypto::{poseidon_hash_many, FieldElement};
 use starknet_in_rust::{
     core::errors::state_errors::StateError,
+    definitions::block_context::FeeType,
     execution::TransactionExecutionInfo,
     state::state_api::{State as _, StateReader},
-    transaction::error::TransactionError,
+    transaction::{error::TransactionError, ClassHash},
     utils::{
         felt_to_field_element, field_element_to_felt, get_erc20_balance_var_addresses,
-        get_storage_var_address, ClassHash,
+        get_storage_var_address,
     },
 };
 
@@ -61,6 +62,9 @@ impl Evm for KakarotSequencer {
         // Set up the contract class hash
         self.state
             .set_class_hash_at(account.starknet_address.clone(), class_hash)?;
+        let class_hash = Felt252::from_bytes_be(&class_hash.as_slice());
+        self.state
+            .set_compiled_class_hash(&class_hash, &class_hash)?;
 
         // Add the address tot the Kakarot evm to starknet mapping
         let registry_base_address =
@@ -231,9 +235,11 @@ impl Evm for KakarotSequencer {
     /// Makes use of the default StateReader implementation from Blockifier.
     fn balance_at(&mut self, evm_address: &Address) -> StateResult<U256> {
         let starknet_address = compute_starknet_address(evm_address);
-        let (low, high) = self
-            .state
-            .get_fee_token_balance(&BLOCK_CONTEXT.clone(), &starknet_address)?;
+        let (low, high) = self.state.get_fee_token_balance(
+            &BLOCK_CONTEXT.clone(),
+            &starknet_address,
+            &FeeType::Eth,
+        )?;
 
         let low = U256::from_be_bytes(low.to_bytes_be());
         let high = U256::from_be_bytes(high.to_bytes_be());

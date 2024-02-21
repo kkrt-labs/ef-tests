@@ -4,7 +4,7 @@ pub mod v0;
 pub mod v1;
 
 use cairo_vm::Felt252;
-use starknet_in_rust::utils::Address as StarknetAddress;
+use starknet_in_rust::transaction::Address as StarknetAddress;
 
 #[macro_export]
 macro_rules! starknet_storage {

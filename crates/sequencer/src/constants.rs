@@ -10,7 +10,10 @@ lazy_static! {
 #[cfg(test)]
 pub mod test_constants {
     use super::*;
-    use starknet_in_rust::utils::{Address, ClassHash};
+    use starknet_in_rust::{
+        definitions::block_context::FeeTokenAddresses,
+        transaction::{Address, ClassHash},
+    };
 
     lazy_static! {
         pub static ref ZERO: Felt252 = Felt252::from(0u8);
@@ -21,7 +24,12 @@ pub mod test_constants {
         pub static ref SENDER_ADDRESS: Felt252 = *TWO;
         pub static ref SEQUENCER_ADDRESS: Address = Address(Felt252::from(1234));
         pub static ref CHAIN_ID: Felt252 = Felt252::from(0x4b4b5254);
+        pub static ref FEE_TOKEN_ADDRESSES: FeeTokenAddresses = FeeTokenAddresses {
+            eth_fee_token_address: ETH_FEE_TOKEN_ADDRESS.clone(),
+            strk_fee_token_address: STARK_FEE_TOKEN_ADDRESS.clone(),
+        };
         pub static ref ETH_FEE_TOKEN_ADDRESS: Address = Address(Felt252::from(12345u16));
+        pub static ref STARK_FEE_TOKEN_ADDRESS: Address = Address(Felt252::from(123456u32));
         pub static ref ONE_CLASS_HASH: ClassHash = ClassHash::from(*ONE);
         pub static ref TWO_CLASS_HASH: ClassHash = ClassHash::from(*TWO);
     }

@@ -3,8 +3,7 @@ use std::{cell::RefCell, rc::Rc};
 use cairo_native::cache::ProgramCache;
 use starknet_in_rust::{
     execution::TransactionExecutionInfo,
-    transaction::{error::TransactionError, Transaction},
-    utils::ClassHash,
+    transaction::{error::TransactionError, ClassHash, Transaction},
 };
 
 pub type TransactionExecutionResult<T> = Result<T, TransactionError>;

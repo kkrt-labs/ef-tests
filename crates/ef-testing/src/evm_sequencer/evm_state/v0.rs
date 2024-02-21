@@ -249,7 +249,7 @@ mod tests {
         let eoa = KakarotAccount::new(&PUBLIC_KEY, &Bytes::default(), nonce, &[]).unwrap();
         sequencer.setup_account(contract).unwrap();
         sequencer.setup_account(eoa).unwrap();
-        dbg!(sequencer.execute_transaction(transaction).unwrap());
+        sequencer.execute_transaction(transaction).unwrap();
 
         // Then
         let contract_starknet_address = compute_starknet_address(&TEST_CONTRACT_ADDRESS);

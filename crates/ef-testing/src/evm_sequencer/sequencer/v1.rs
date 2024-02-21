@@ -34,6 +34,9 @@ lazy_static! {
 
         // Write the kakarot class and class hash.
         state.set_class_hash_at(KAKAROT_ADDRESS.clone(), *KAKAROT_CLASS_HASH).expect("Failed to set kakarot class hash");
+        let class_hash = Felt252::from_bytes_be(&KAKAROT_CLASS_HASH.as_slice());
+        state
+        .set_compiled_class_hash(&class_hash, &class_hash).expect("Failed to set kakarot class hash");
         state
             .set_contract_class(&KAKAROT_CLASS_HASH, &KAKAROT_CLASS).expect("Failed to set kakarot contract class");
 
@@ -47,6 +50,9 @@ lazy_static! {
             &FEE_TOKEN_CLASS,
         ).expect("Failed to set fee token contract class");
         state.set_class_hash_at(ETH_FEE_TOKEN_ADDRESS.clone(), *FEE_TOKEN_CLASS_HASH).expect("Failed to set fee token class hash");
+        let class_hash = Felt252::from_bytes_be(&FEE_TOKEN_CLASS_HASH.as_slice());
+        state
+        .set_compiled_class_hash(&class_hash, &class_hash).expect("Failed to set token class hash");
 
         state
     };

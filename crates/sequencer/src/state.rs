@@ -6,7 +6,7 @@ use starknet_in_rust::services::api::contract_classes::compiled_class::CompiledC
 use starknet_in_rust::state::state_api::{State as SequencerState, StateChangesCount, StateReader};
 use starknet_in_rust::state::state_cache::StorageEntry;
 use starknet_in_rust::state::StateDiff;
-use starknet_in_rust::utils::{Address, ClassHash, CompiledClassHash};
+use starknet_in_rust::transaction::{Address, ClassHash, CompiledClassHash};
 use starknet_in_rust::Felt252;
 
 use crate::commit::Committer;
@@ -109,16 +109,6 @@ impl SequencerState for State {
         class_hash: ClassHash,
     ) -> Result<(), StateError> {
         self.set_class_hash_at(contract_address, class_hash)
-    }
-
-    fn set_sierra_program(
-        &mut self,
-        compiled_class_hash: &Felt252,
-        sierra_program: Vec<BigUintAsHex>,
-    ) -> Result<(), StateError> {
-        self.sierra_programs
-            .insert(ClassHash::from(*compiled_class_hash), sierra_program);
-        Ok(())
     }
 
     fn apply_state_update(&mut self, state_updates: &StateDiff) -> Result<(), StateError> {
@@ -310,12 +300,18 @@ mod tests {
         state
             .set_contract_class(
                 &ONE_CLASS_HASH,
-                &CompiledClass::Casm(Arc::new(CasmContractClass::default())),
+                &CompiledClass::Casm {
+                    casm: Arc::new(CasmContractClass::default()),
+                    sierra: None,
+                },
             )
             .unwrap();
 
         // Then
-        let expected = CompiledClass::Casm(Arc::new(CasmContractClass::default()));
+        let expected = CompiledClass::Casm {
+            casm: Arc::new(CasmContractClass::default()),
+            sierra: None,
+        };
         let actual = state.get_contract_class(&ONE_CLASS_HASH).unwrap();
         assert_eq!(expected, actual);
     }

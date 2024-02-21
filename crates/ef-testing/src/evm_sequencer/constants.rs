@@ -6,11 +6,13 @@ use cairo_vm::Felt252;
 use lazy_static::lazy_static;
 use reth_primitives::Address;
 use starknet::core::types::contract::legacy::LegacyContractClass;
-use starknet_in_rust::definitions::block_context::{BlockContext, StarknetOsConfig};
+use starknet_in_rust::definitions::block_context::{
+    BlockContext, FeeTokenAddresses, GasPrices, StarknetOsConfig,
+};
 use starknet_in_rust::services::api::contract_classes::compiled_class::CompiledClass;
 use starknet_in_rust::services::api::contract_classes::deprecated_contract_class::ContractClass;
 use starknet_in_rust::state::BlockInfo;
-use starknet_in_rust::utils::{Address as StarknetAddress, ClassHash};
+use starknet_in_rust::transaction::{Address as StarknetAddress, ClassHash};
 
 fn read_contract_class_v0(path: &str) -> CompiledClass {
     let s = std::fs::read_to_string(path).expect("Failed to read v0 contract class");
@@ -49,13 +51,17 @@ lazy_static! {
     .collect();
 
     // StarknetOsConfig
-    pub static ref STARKNET_OS_CONFIG: StarknetOsConfig = StarknetOsConfig::new(Felt252::from(*CHAIN_ID), ETH_FEE_TOKEN_ADDRESS.clone(), 1);
+    pub static ref FEE_TOKEN_ADDRESSES: FeeTokenAddresses = FeeTokenAddresses {
+        eth_fee_token_address: ETH_FEE_TOKEN_ADDRESS.clone(),
+        strk_fee_token_address: STRK_FEE_TOKEN_ADDRESS.clone(),
+    };
+    pub static ref STARKNET_OS_CONFIG: StarknetOsConfig = StarknetOsConfig::new(Felt252::from(*CHAIN_ID), FEE_TOKEN_ADDRESSES.clone(), GasPrices::default());
 
     // BlockInfo
     pub static ref BLOCK_INFO: BlockInfo = BlockInfo {
         block_number:0,
         block_timestamp:0,
-        gas_price:1,
+        gas_price:GasPrices::default(),
         sequencer_address: SEQUENCER_ADDRESS.clone(),
     };
 
@@ -65,6 +71,7 @@ lazy_static! {
     // Main addresses
     pub static ref SEQUENCER_ADDRESS: StarknetAddress = compute_starknet_address(&COINBASE_ADDRESS);
     pub static ref ETH_FEE_TOKEN_ADDRESS: StarknetAddress = StarknetAddress(Felt252::from_hex("049D36570D4e46f48e99674bd3fcc84644DdD6b96F7C741B1562B82f9e004dC7").unwrap());
+    pub static ref STRK_FEE_TOKEN_ADDRESS: StarknetAddress = StarknetAddress(Felt252::from_hex("04718f5a0fc34cc1af16a1cdee98ffb20c31f5cd61d6ab07201858f4287c938d").unwrap());
     pub static ref KAKAROT_ADDRESS: StarknetAddress = StarknetAddress(Felt252::ONE);
     pub static ref KAKAROT_OWNER_ADDRESS: StarknetAddress = StarknetAddress(Felt252::from(2_u8));
 
@@ -97,43 +104,33 @@ pub mod kkrt_constants_v0 {
 pub mod kkrt_constants_v1 {
     use super::*;
     use cairo_lang_starknet::contract_class::ContractClass as SierraContractClass;
-    use starknet_in_rust::services::api::contract_classes::compiled_class::CompiledClass;
-    use std::sync::{Arc, Mutex};
+    use starknet_in_rust::{
+        services::api::contract_classes::compiled_class::CompiledClass, CasmContractClass,
+    };
+    use std::sync::Arc;
 
     fn load_contract_class(path: &str) -> Result<(CompiledClass, ClassHash), eyre::Error> {
         let s = std::fs::read_to_string(path).expect("Failed to read native contract class");
         let contract_class = serde_json::from_str::<SierraContractClass>(&s)
             .expect("Failed to parse contract class");
 
-        let mut class_hash = START_CLASS_HASH.lock().unwrap();
-        let old_class_hash = *class_hash;
-        *class_hash = ClassHash::from(Felt252::from_bytes_be(&class_hash.0) + Felt252::ONE);
+        let casm_contract_class =
+            CasmContractClass::from_contract_class(contract_class.clone(), true)?;
+        let class_hash = ClassHash::new(casm_contract_class.compiled_class_hash().to_be_bytes());
 
-        // let casm_contract_class =
-        //     CasmContractClass::from_contract_class(contract_class.clone(), true)?;
-        {
-            #[cfg(not(feature = "native"))]
-            {
-                Ok((
-                    CompiledClass::Casm(Arc::new(casm_contract_class)),
-                    old_class_hash,
-                ))
-            }
-            #[cfg(feature = "native")]
-            {
-                let sierra_program = contract_class.extract_sierra_program()?;
-                let entrypoints = contract_class.entry_points_by_type;
+        let sierra_program = contract_class.extract_sierra_program().unwrap();
+        let entrypoints = contract_class.entry_points_by_type.clone();
 
-                Ok((
-                    CompiledClass::Sierra(Arc::new((sierra_program, entrypoints))),
-                    old_class_hash,
-                ))
-            }
-        }
+        Ok((
+            CompiledClass::Casm {
+                casm: Arc::new(casm_contract_class),
+                sierra: Some(Arc::new((sierra_program, entrypoints))),
+            },
+            class_hash,
+        ))
     }
 
     lazy_static! {
-        static ref START_CLASS_HASH: Arc<Mutex<ClassHash>> = Arc::new(Mutex::new(ClassHash::from(Felt252::from(0x12355u32)))) ;
 
         static ref KAKAROT_CLASS_AND_HASH: (CompiledClass, ClassHash) = load_contract_class("../../build/v1/kakarot.json").expect("Failed to load Kakarot contract class");
         static ref CONTRACT_ACCOUNT_CLASS_AND_HASH: (CompiledClass, ClassHash) = load_contract_class("../../build/v1/contract_account.json").expect("Failed to load ContractAccount contract class");

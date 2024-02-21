@@ -9,7 +9,7 @@ use cairo_native::cache::ProgramCache;
 use reth_primitives::{Address, Bytes, TransactionSigned};
 use revm_primitives::U256;
 use sequencer::{execution::TransactionExecutionResult, state::StateResult};
-use starknet_in_rust::{execution::TransactionExecutionInfo, utils::ClassHash};
+use starknet_in_rust::{execution::TransactionExecutionInfo, transaction::ClassHash};
 
 use super::account::KakarotAccount;
 

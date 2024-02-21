@@ -13,8 +13,7 @@ use starknet_in_rust::{
         contract_class_cache::PermanentContractClassCache,
         state_api::{State, StateReader},
     },
-    transaction::Transaction,
-    utils::ClassHash,
+    transaction::{ClassHash, Transaction},
 };
 
 /// Sequencer is the main struct of the sequencer crate.
@@ -99,30 +98,28 @@ mod tests {
     use std::path::Path;
     use std::sync::Arc;
 
-    use cairo_lang_sierra::program::Program;
-    use cairo_lang_starknet::contract_class::{
-        ContractClass as SierraContractClass, ContractEntryPoints,
-    };
+    use cairo_lang_starknet::contract_class::ContractClass as SierraContractClass;
     use cairo_native::cache::AotProgramCache;
     use cairo_native::OptLevel;
     use starknet::core::types::contract::legacy::LegacyContractClass;
     use starknet::macros::selector;
-    use starknet_in_rust::definitions::block_context::StarknetOsConfig;
+    use starknet_in_rust::definitions::block_context::{GasPrices, StarknetOsConfig};
     use starknet_in_rust::definitions::constants::EXECUTE_ENTRY_POINT_SELECTOR;
     use starknet_in_rust::services::api::contract_classes::compiled_class::CompiledClass;
     use starknet_in_rust::services::api::contract_classes::deprecated_contract_class::ContractClass;
     use starknet_in_rust::state::state_api::State as _;
     use starknet_in_rust::state::BlockInfo;
-    use starknet_in_rust::transaction::InvokeFunction;
+    use starknet_in_rust::transaction::{Address, InvokeFunction, VersionSpecificAccountTxFields};
     use starknet_in_rust::utils::{
-        field_element_to_felt, get_native_context, get_storage_var_address, Address, ClassHash,
+        field_element_to_felt, get_native_context, get_storage_var_address,
     };
     use starknet_in_rust::CasmContractClass;
     use starknet_in_rust::Felt252;
 
     use super::*;
     use crate::constants::test_constants::{
-        CHAIN_ID, ETH_FEE_TOKEN_ADDRESS, ONE_CLASS_HASH, SEQUENCER_ADDRESS, TWO_CLASS_HASH, ZERO,
+        CHAIN_ID, ETH_FEE_TOKEN_ADDRESS, FEE_TOKEN_ADDRESSES, ONE_CLASS_HASH, SEQUENCER_ADDRESS,
+        TWO_CLASS_HASH, ZERO,
     };
     use crate::constants::test_constants::{TEST_ACCOUNT, TEST_CONTRACT};
     use crate::state::State;
@@ -155,18 +152,26 @@ mod tests {
 
         let casm_contract_class = CasmContractClass::from_contract_class(contract_class, true)
             .expect("Failed to get casm contract class");
-        CompiledClass::Casm(Arc::new(casm_contract_class))
+        CompiledClass::Casm {
+            casm: Arc::new(casm_contract_class),
+            sierra: None,
+        }
     }
 
-    fn read_contract_class_native(path: &Path) -> Arc<(Program, ContractEntryPoints)> {
+    fn read_contract_class_native(path: &Path) -> CompiledClass {
         let s = std::fs::read_to_string(path).expect("Failed to read native contract class");
         let contract_class = serde_json::from_str::<SierraContractClass>(&s)
             .expect("Failed to parse contract class");
 
         let sierra_program = contract_class.extract_sierra_program().unwrap();
-        let entrypoints = contract_class.entry_points_by_type;
+        let entrypoints = contract_class.entry_points_by_type.clone();
+        let casm_contract_class = CasmContractClass::from_contract_class(contract_class, true)
+            .expect("Failed to get casm contract class");
 
-        Arc::new((sierra_program, entrypoints))
+        CompiledClass::Casm {
+            casm: Arc::new(casm_contract_class),
+            sierra: Some(Arc::new((sierra_program, entrypoints))),
+        }
     }
 
     fn declare_and_deploy_contract(
@@ -182,26 +187,25 @@ mod tests {
             Version::V1 => read_contract_class_v1(path),
             Version::Native => {
                 let compiled_class = read_contract_class_native(path);
+                let program = match &compiled_class {
+                    CompiledClass::Casm {
+                        sierra: Some(program),
+                        ..
+                    } => program.0.clone(),
+                    _ => unreachable!("Should not be deprecated"),
+                };
                 if let Some(cache) = cache {
                     let cache = &mut *cache.borrow_mut();
                     match cache {
                         ProgramCache::Aot(cache) => {
-                            cache.compile_and_insert(
-                                class_hash,
-                                &compiled_class.0,
-                                OptLevel::Aggressive,
-                            );
+                            cache.compile_and_insert(class_hash, &program, OptLevel::Aggressive);
                         }
                         ProgramCache::Jit(cache) => {
-                            cache.compile_and_insert(
-                                class_hash,
-                                &compiled_class.0,
-                                OptLevel::Aggressive,
-                            );
+                            cache.compile_and_insert(class_hash, &program, OptLevel::Aggressive);
                         }
                     }
                 }
-                CompiledClass::Sierra(compiled_class)
+                compiled_class
             }
         };
 
@@ -230,11 +234,12 @@ mod tests {
     }
 
     fn block_context() -> BlockContext {
-        let starknet_os_config = StarknetOsConfig::new(*CHAIN_ID, ETH_FEE_TOKEN_ADDRESS.clone(), 1);
+        let starknet_os_config =
+            StarknetOsConfig::new(*CHAIN_ID, FEE_TOKEN_ADDRESSES.clone(), GasPrices::default());
         let block_info = BlockInfo {
             block_number: 0,
             block_timestamp: 0,
-            gas_price: 1,
+            gas_price: GasPrices::default(),
             sequencer_address: SEQUENCER_ADDRESS.clone(),
         };
         BlockContext::new(
@@ -278,7 +283,7 @@ mod tests {
             InvokeFunction::new(
                 TEST_ACCOUNT.clone(),
                 *EXECUTE_ENTRY_POINT_SELECTOR,
-                1_000_000,
+                VersionSpecificAccountTxFields::Deprecated(1_000_000),
                 Felt252::from(1),
                 vec![
                     TEST_CONTRACT.0, // destination

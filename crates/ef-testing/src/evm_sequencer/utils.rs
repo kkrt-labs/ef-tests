@@ -7,10 +7,11 @@ use sequencer::constants::EXECUTE_ENTRY_POINT_SELECTOR;
 use starknet::core::{types::FieldElement, utils::get_contract_address};
 #[cfg(any(feature = "v0", feature = "v1"))]
 use starknet::macros::selector;
+use starknet_in_rust::transaction::VersionSpecificAccountTxFields;
 use starknet_in_rust::utils::felt_to_field_element;
 use starknet_in_rust::{
-    transaction::{InvokeFunction, Transaction},
-    utils::{field_element_to_felt, Address as StarknetAddress, ClassHash},
+    transaction::{Address as StarknetAddress, ClassHash, InvokeFunction, Transaction},
+    utils::field_element_to_felt,
 };
 
 /// Computes the Starknet address of a contract given its EVM address.
@@ -31,12 +32,12 @@ pub fn compute_starknet_address(evm_address: &Address) -> StarknetAddress {
 fn default_account_class_hash() -> ClassHash {
     #[cfg(feature = "v0")]
     {
-        return *crate::evm_sequencer::constants::kkrt_constants_v0::PROXY_CLASS_HASH;
+        *crate::evm_sequencer::constants::kkrt_constants_v0::PROXY_CLASS_HASH
     }
 
     #[cfg(feature = "v1")]
     {
-        return *crate::evm_sequencer::constants::kkrt_constants_v1::UNINITIALIZED_ACCOUNT_CLASS_HASH;
+        *crate::evm_sequencer::constants::kkrt_constants_v1::UNINITIALIZED_ACCOUNT_CLASS_HASH
     }
     #[cfg(not(any(feature = "v0", feature = "v1")))]
     ClassHash::default()
@@ -46,10 +47,10 @@ fn default_account_class_hash() -> ClassHash {
 fn account_constructor_args(_evm_address: FieldElement) -> Vec<FieldElement> {
     #[cfg(feature = "v1")]
     {
-        return vec![
+        vec![
             felt_to_field_element(&KAKAROT_ADDRESS.0).unwrap(),
             _evm_address,
-        ];
+        ]
     }
     #[cfg(not(feature = "v1"))]
     {
@@ -132,7 +133,7 @@ pub fn to_starknet_transaction(
     let request = Transaction::InvokeFunction(InvokeFunction::new(
         starknet_address,
         *EXECUTE_ENTRY_POINT_SELECTOR,
-        0,
+        VersionSpecificAccountTxFields::Deprecated(0),
         Felt252::ONE,
         execute_calldata,
         signature,
@@ -140,7 +141,7 @@ pub fn to_starknet_transaction(
         Some(nonce),
     )?)
     // for now we ignore the fees
-    .create_for_simulation(false, false, true, true, false);
+    .create_for_simulation(false, true, true, true, false);
 
     Ok(request)
 }
