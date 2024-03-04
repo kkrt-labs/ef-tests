@@ -243,7 +243,7 @@ impl Case for BlockchainTestCase {
             .and_then(|block_header| block_header.base_fee_per_gas)
             .unwrap_or_default();
         let prev_randao = maybe_block_header
-            .map(|block_header| block_header.difficulty)
+            .map(|block_header| block_header.mix_hash)
             .unwrap_or_default();
         let block_gaslimit = maybe_block_header
             .map(|block_header| block_header.gas_limit)
