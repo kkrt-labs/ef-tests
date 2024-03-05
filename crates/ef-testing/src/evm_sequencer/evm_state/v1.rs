@@ -436,7 +436,9 @@ mod tests {
         transaction.signature = signature;
 
         // When
-        sequencer.setup_state(U256::ZERO, U256::ZERO, U256::ZERO).unwrap();
+        sequencer
+            .setup_state(U256::ZERO, U256::ZERO, U256::ZERO)
+            .unwrap();
         let bytecode = Bytes::from(vec![
             0x60, 0x01, 0x60, 0x00, 0x55, 0x60, 0x02, 0x60, 0x00, 0x53, 0x60, 0x01, 0x60, 0x00,
             0xf3,

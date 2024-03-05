@@ -19,7 +19,6 @@ use ef_tests::models::Account;
 use ef_tests::models::Block;
 use ef_tests::models::State;
 use std::collections::BTreeMap;
-use std::io::Read;
 
 use ethers_signers::{LocalWallet, Signer};
 use reth_primitives::{sign_message, Address, SealedBlock, B256, U256};
