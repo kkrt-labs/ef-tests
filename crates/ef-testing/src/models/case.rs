@@ -119,21 +119,14 @@ impl BlockchainTestCase {
             .map(|retdata| retdata == "Kakarot: eth validation failed")
             .unwrap_or_default();
 
-        let maybe_block_header = self.block.block_header.as_ref();
-        // Get gas used from block header
-        let gas_used = maybe_block_header
-            .map(|block_header| block_header.gas_used)
-            .unwrap_or_default();
+        // Get gas_used and base_fee from RLP block - as in some cases, the block header is not present in the test data.
+        let sealed_block = SealedBlock::decode(&mut self.block.rlp.as_ref())
+            .map_err(RunnerError::RlpDecodeError)?;
+        let sealed_header = sealed_block.header.unseal();
 
-        // Get coinbase address
-        let coinbase = maybe_block_header
-            .map(|block_header| block_header.coinbase)
-            .unwrap_or_default();
-
-        // Get baseFeePerGas
-        let base_fee_per_gas = maybe_block_header
-            .and_then(|block_header| block_header.base_fee_per_gas)
-            .unwrap_or_default();
+        let coinbase = sealed_header.beneficiary;
+        let gas_used: U256 = U256::from(sealed_header.gas_used);
+        let base_fee_per_gas: U256 = U256::from(sealed_header.base_fee_per_gas.unwrap_or_default());
 
         // Get gas price from transaction
         let maybe_transaction = self
@@ -235,24 +228,21 @@ impl BlockchainTestCase {
 #[async_trait]
 impl Case for BlockchainTestCase {
     fn run(&self) -> Result<(), RunnerError> {
-        let maybe_block_header = self.block.block_header.as_ref();
+        // Get gas_used and base_fee from RLP block - as in some cases, the block header is not present in the test data.
+        let sealed_block = SealedBlock::decode(&mut self.block.rlp.as_ref())
+            .map_err(RunnerError::RlpDecodeError)?;
+        let sealed_header = sealed_block.header.clone().unseal();
 
-        let coinbase_address = maybe_block_header.map(|b| b.coinbase).unwrap_or_default();
+        let coinbase_address = sealed_header.beneficiary;
 
-        let base_fee = maybe_block_header
-            .and_then(|block_header| block_header.base_fee_per_gas)
-            .unwrap_or_default();
-        let prev_randao = maybe_block_header
-            .map(|block_header| block_header.mix_hash)
-            .unwrap_or_default();
-        let block_gas_limit = maybe_block_header
-            .map(|block_header| block_header.gas_limit)
-            .unwrap_or_default();
+        let prev_randao: U256 = sealed_header.mix_hash.into();
+        let base_fee = U256::from(sealed_header.base_fee_per_gas.unwrap_or_default());
+        let block_gas_limit = U256::from(sealed_header.gas_limit);
 
-        let block_number = maybe_block_header.map(|b| b.number).unwrap_or_default();
+        let block_number = U256::from(sealed_header.number);
         let block_number = TryInto::<u64>::try_into(block_number).unwrap_or_default();
 
-        let block_timestamp = maybe_block_header.map(|b| b.timestamp).unwrap_or_default();
+        let block_timestamp = U256::from(sealed_block.timestamp);
         let block_timestamp = TryInto::<u64>::try_into(block_timestamp).unwrap_or_default();
 
         let kakarot_environment = KakarotEnvironment::new(
@@ -270,7 +260,7 @@ impl Case for BlockchainTestCase {
             block_timestamp,
         );
 
-        sequencer.setup_state(base_fee, prev_randao.into(), block_gas_limit)?;
+        sequencer.setup_state(base_fee, prev_randao, block_gas_limit)?;
 
         self.handle_pre_state(&mut sequencer)?;
 
