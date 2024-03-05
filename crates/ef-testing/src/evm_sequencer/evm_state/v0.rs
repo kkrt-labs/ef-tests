@@ -38,11 +38,7 @@ impl Evm for KakarotSequencer {
         );
 
         // Set the base fee.
-        let low_fee = base_fee & U256::from(u128::MAX);
-        let low_fee: u128 = low_fee.try_into().unwrap(); // safe unwrap <= U128::MAX.
-        let high_fee = base_fee >> U256::from(128);
-        let high_fee: u128 = high_fee.try_into().unwrap(); // safe unwrap <= U128::MAX.
-
+        let [low_fee, high_fee] = split_u256(base_fee);
         let basefee_address = get_storage_var_address("base_fee", &[]);
         self.state_mut()
             .set_storage_at(kakarot_address, basefee_address, StarkFelt::from(low_fee));
@@ -53,31 +49,27 @@ impl Evm for KakarotSequencer {
         );
 
         // Set the previous randao.
-        let prev_randao_low = prev_randao & U256::from(u128::MAX);
-        let prev_randao_low: u128 = prev_randao_low.try_into().unwrap(); // safe unwrap <= U128::MAX.
-        let prev_randao_high = prev_randao >> U256::from(128);
-        let prev_randao_high: u128 = prev_randao_high.try_into().unwrap(); // safe unwrap <= U128::MAX.
-
+        let [low_prev_randao, high_prev_randao] = split_u256(prev_randao);
         let prev_randao_address = get_storage_var_address("prev_randao", &[]);
         self.state_mut().set_storage_at(
             kakarot_address,
             prev_randao_address,
-            StarkFelt::from(prev_randao_low),
+            StarkFelt::from(low_prev_randao),
         );
         self.state_mut().set_storage_at(
             kakarot_address,
             next_storage_key(&prev_randao_address)?,
-            StarkFelt::from(prev_randao_high),
+            StarkFelt::from(high_prev_randao),
         );
 
-        // Set the block gas limit, using the 128 lower bits.
-        let block_gaslimit_low = block_gaslimit & U256::from(u128::MAX);
-        let block_gaslimit_low: u128 = block_gaslimit_low.try_into().unwrap(); // safe unwrap <= U128::MAX.
-        let block_gaslimit_address = get_storage_var_address("block_gaslimit", &[]);
+        // Set the block gas limit, considering it fits in a felt.
+        let block_gaslimit_as_hexstring = block_gaslimit.to_be_bytes();
+        let block_gaslimit = StarkFelt::new(block_gaslimit_as_hexstring).unwrap();
+        let block_gaslimit_address = get_storage_var_address("block_gas_limit", &[]);
         self.state_mut().set_storage_at(
             kakarot_address,
             block_gaslimit_address,
-            StarkFelt::from(block_gaslimit_low),
+            StarkFelt::from(block_gaslimit),
         );
 
         Ok(())

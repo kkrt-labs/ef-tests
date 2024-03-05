@@ -19,6 +19,7 @@ use ef_tests::models::Account;
 use ef_tests::models::Block;
 use ef_tests::models::State;
 use std::collections::BTreeMap;
+use std::io::Read;
 
 use ethers_signers::{LocalWallet, Signer};
 use reth_primitives::{sign_message, Address, SealedBlock, B256, U256};
@@ -248,6 +249,8 @@ impl Case for BlockchainTestCase {
         let block_gaslimit = maybe_block_header
             .map(|block_header| block_header.gas_limit)
             .unwrap_or_default();
+
+        let prev_randao = U256::try_from(prev_randao).unwrap_or_default();
 
         let block_number = maybe_block_header.map(|b| b.number).unwrap_or_default();
         let block_number = TryInto::<u64>::try_into(block_number).unwrap_or_default();
