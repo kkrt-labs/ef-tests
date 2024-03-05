@@ -21,7 +21,12 @@ use crate::starknet_storage;
 
 impl Evm for KakarotSequencer {
     /// Sets up the evm state (coinbase, block number, etc.)
-    fn setup_state(&mut self, base_fee: U256) -> StateResult<()> {
+    fn setup_state(
+        &mut self,
+        base_fee: U256,
+        prev_randao: U256,
+        block_gas_limit: U256,
+    ) -> StateResult<()> {
         let kakarot_address = self.environment.kakarot_address;
         let coinbase_address: FeltSequencer = (*self.address()).try_into().unwrap(); // infallible
 
@@ -33,18 +38,38 @@ impl Evm for KakarotSequencer {
         );
 
         // Set the base fee.
-        let low_fee = base_fee & U256::from(u128::MAX);
-        let low_fee: u128 = low_fee.try_into().unwrap(); // safe unwrap <= U128::MAX.
-        let high_fee = base_fee >> U256::from(128);
-        let high_fee: u128 = high_fee.try_into().unwrap(); // safe unwrap <= U128::MAX.
-
-        let base_address = get_storage_var_address("base_fee", &[]);
+        let [low_fee, high_fee] = split_u256(base_fee);
+        let basefee_address = get_storage_var_address("base_fee", &[]);
         self.state_mut()
-            .set_storage_at(kakarot_address, base_address, StarkFelt::from(low_fee));
+            .set_storage_at(kakarot_address, basefee_address, StarkFelt::from(low_fee));
         self.state_mut().set_storage_at(
             kakarot_address,
-            next_storage_key(&base_address)?,
+            next_storage_key(&basefee_address)?,
             StarkFelt::from(high_fee),
+        );
+
+        // Set the previous randao.
+        let [low_prev_randao, high_prev_randao] = split_u256(prev_randao);
+        let prev_randao_address = get_storage_var_address("prev_randao", &[]);
+        self.state_mut().set_storage_at(
+            kakarot_address,
+            prev_randao_address,
+            StarkFelt::from(low_prev_randao),
+        );
+        self.state_mut().set_storage_at(
+            kakarot_address,
+            next_storage_key(&prev_randao_address)?,
+            StarkFelt::from(high_prev_randao),
+        );
+
+        // Set the block gas limit, considering it fits in a felt.
+        let [block_gas_limit, _] = split_u256(block_gas_limit);
+        let block_gas_limit = StarkFelt::from(block_gas_limit);
+        let block_gas_limit_address = get_storage_var_address("block_gas_limit", &[]);
+        self.state_mut().set_storage_at(
+            kakarot_address,
+            block_gas_limit_address,
+            StarkFelt::from(block_gas_limit),
         );
 
         Ok(())
