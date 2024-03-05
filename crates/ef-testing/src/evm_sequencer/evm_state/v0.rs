@@ -63,7 +63,8 @@ impl Evm for KakarotSequencer {
         );
 
         // Set the block gas limit, considering it fits in a felt.
-        let block_gas_limit = StarkFelt::new(block_gas_limit.to_be_bytes()).unwrap();
+        let [block_gas_limit, _] = split_u256(block_gas_limit);
+        let block_gas_limit = StarkFelt::from(block_gas_limit);
         let block_gas_limit_address = get_storage_var_address("block_gas_limit", &[]);
         self.state_mut().set_storage_at(
             kakarot_address,

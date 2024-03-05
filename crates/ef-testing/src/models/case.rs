@@ -249,7 +249,7 @@ impl Case for BlockchainTestCase {
             .map(|block_header| block_header.gas_limit)
             .unwrap_or_default();
 
-        let prev_randao = U256::try_from(prev_randao).unwrap_or_default();
+        let prev_randao = U256::from_limbs_slice(prev_randao);
 
         let block_number = maybe_block_header.map(|b| b.number).unwrap_or_default();
         let block_number = TryInto::<u64>::try_into(block_number).unwrap_or_default();
