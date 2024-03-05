@@ -42,7 +42,7 @@ impl Evm for KakarotSequencer {
         &mut self,
         _base_fee: U256,
         _prev_randao: U256,
-        _block_gaslimit: U256,
+        _block_gas_limit: U256,
     ) -> StateResult<()> {
         let coinbase_address = *self.address();
         let coinbase =

@@ -245,7 +245,7 @@ impl Case for BlockchainTestCase {
         let prev_randao = maybe_block_header
             .map(|block_header| block_header.mix_hash)
             .unwrap_or_default();
-        let block_gaslimit = maybe_block_header
+        let block_gas_limit = maybe_block_header
             .map(|block_header| block_header.gas_limit)
             .unwrap_or_default();
 
@@ -272,7 +272,7 @@ impl Case for BlockchainTestCase {
             block_timestamp,
         );
 
-        sequencer.setup_state(base_fee, prev_randao, block_gaslimit)?;
+        sequencer.setup_state(base_fee, prev_randao, block_gas_limit)?;
 
         self.handle_pre_state(&mut sequencer)?;
 

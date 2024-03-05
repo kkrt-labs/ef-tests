@@ -21,7 +21,7 @@ pub trait Evm {
         &mut self,
         _base_fee: U256,
         _prev_randao: U256,
-        _block_gaslimit: U256,
+        _block_gas_limit: U256,
     ) -> StateResult<()> {
         panic!("Not implemented, use features flag \"v0\" or \"v1\"")
     }

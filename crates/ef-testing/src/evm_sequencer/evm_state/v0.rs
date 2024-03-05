@@ -25,7 +25,7 @@ impl Evm for KakarotSequencer {
         &mut self,
         base_fee: U256,
         prev_randao: U256,
-        block_gaslimit: U256,
+        block_gas_limit: U256,
     ) -> StateResult<()> {
         let kakarot_address = self.environment.kakarot_address;
         let coinbase_address: FeltSequencer = (*self.address()).try_into().unwrap(); // infallible
@@ -63,13 +63,12 @@ impl Evm for KakarotSequencer {
         );
 
         // Set the block gas limit, considering it fits in a felt.
-        let block_gaslimit_as_hexstring = block_gaslimit.to_be_bytes();
-        let block_gaslimit = StarkFelt::new(block_gaslimit_as_hexstring).unwrap();
-        let block_gaslimit_address = get_storage_var_address("block_gas_limit", &[]);
+        let block_gas_limit = StarkFelt::new(block_gas_limit.to_be_bytes()).unwrap();
+        let block_gas_limit_address = get_storage_var_address("block_gas_limit", &[]);
         self.state_mut().set_storage_at(
             kakarot_address,
-            block_gaslimit_address,
-            StarkFelt::from(block_gaslimit),
+            block_gas_limit_address,
+            StarkFelt::from(block_gas_limit),
         );
 
         Ok(())
