@@ -5,11 +5,12 @@ use blockifier::{
         objects::{TransactionExecutionInfo, TransactionExecutionResult},
     },
 };
+use eyre::{eyre, Result};
 use starknet::macros::selector;
 use starknet_api::transaction::{EventContent, EventData};
 use tracing::{error, info, warn};
 
-use std::convert::From;
+use std::convert::TryFrom;
 
 #[derive(Default, Debug)]
 pub struct EVMOutput {
@@ -18,26 +19,47 @@ pub struct EVMOutput {
     pub success: bool,
 }
 
-impl From<&EventData> for EVMOutput {
-    fn from(input: &EventData) -> Self {
-        let return_data_len: usize = input.0[0].try_into().unwrap();
+impl TryFrom<&EventData> for EVMOutput {
+    type Error = eyre::Report;
+
+    fn try_from(input: &EventData) -> Result<Self> {
+        let return_data_len: usize = (*input
+            .0
+            .first()
+            .ok_or_else(|| eyre!("Missing return_data_len value in input"))?)
+        .try_into()
+        .map_err(|_| eyre!("Error converting return_data_len to usize"))?;
+
         let return_data_bytes = input
             .0
             .iter()
             .skip(1)
             .take(return_data_len)
             .flat_map(|felt| felt.bytes().last().cloned())
-            .collect();
-        let return_data = String::from_utf8(return_data_bytes).unwrap();
+            .collect::<Vec<_>>();
 
-        let success: u64 = input.0[1 + return_data_len].try_into().unwrap();
-        let gas_used: u64 = input.0[input.0.len() - 1].try_into().unwrap();
+        let return_data = String::from_utf8(return_data_bytes)
+            .map_err(|_| eyre!("Error converting return_data_bytes to String"))?;
 
-        EVMOutput {
+        let success: u64 = (*input
+            .0
+            .get(1 + return_data_len)
+            .ok_or_else(|| eyre!("Error getting success value from input"))?)
+        .try_into()
+        .map_err(|_| eyre!("Error converting success value to u64"))?;
+
+        let gas_used: u64 = (*input
+            .0
+            .last()
+            .ok_or_else(|| eyre!("Error getting gas_used value from input"))?)
+        .try_into()
+        .map_err(|_| eyre!("Error converting gas_used value to u64"))?;
+
+        Ok(Self {
             return_data,
             gas_used,
             success: success == 1,
-        }
+        })
     }
 }
 
@@ -69,7 +91,7 @@ pub(crate) fn extract_output_and_log_execution_result(
                     );
                     return None;
                 }
-                let output = EVMOutput::from(&events[0].data);
+                let output = EVMOutput::try_from(&events[0].data).ok()?;
                 if events[0].data.0.last() == Some(&StarkFelt::ZERO) {
                     warn!("{} returned: {}", case, output.return_data);
                 }
