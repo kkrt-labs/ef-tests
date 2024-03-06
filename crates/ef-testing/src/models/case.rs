@@ -1,6 +1,6 @@
 // Inspired by https://github.com/paradigmxyz/reth/tree/main/testing/ef-tests
 use super::error::RunnerError;
-use super::result::{extract_execution_retdata, log_execution_result};
+use super::result::{extract_output_and_log_execution_result, EVMOutput};
 use crate::evm_sequencer::constants::{
     CONTRACT_ACCOUNT_CLASS_HASH, EOA_CLASS_HASH, KAKAROT_ADDRESS, PROXY_CLASS_HASH,
 };
@@ -79,7 +79,7 @@ impl BlockchainTestCase {
     fn handle_transaction(
         &self,
         sequencer: &mut KakarotSequencer,
-    ) -> Result<Option<String>, RunnerError> {
+    ) -> Result<EVMOutput, RunnerError> {
         // we extract the transaction from the block
         let block = &self.block;
         let block =
@@ -97,27 +97,26 @@ impl BlockchainTestCase {
         tx_signed.signature = signature;
 
         let execution_result = sequencer.execute_transaction(tx_signed);
-        log_execution_result(&execution_result, &self.case_name, &self.case_category);
+        let output = extract_output_and_log_execution_result(
+            &execution_result,
+            &self.case_name,
+            &self.case_category,
+        )
+        .unwrap_or_default();
 
-        let retdata = execution_result
-            .map(extract_execution_retdata)
-            .unwrap_or_default();
-
-        Ok(retdata)
+        Ok(output)
     }
 
     fn handle_post_state(
         &self,
         sequencer: &mut KakarotSequencer,
-        retdata: Option<String>,
+        output: EVMOutput,
     ) -> Result<(), RunnerError> {
         let wallet = LocalWallet::from_bytes(&self.secret_key.0)
             .map_err(|err| RunnerError::Other(vec![err.to_string()].into()))?;
         let sender_address = wallet.address().to_fixed_bytes();
 
-        let eth_validation_failed = retdata
-            .map(|retdata| retdata == "Kakarot: eth validation failed")
-            .unwrap_or_default();
+        let eth_validation_failed = output.return_data == "Kakarot: eth validation failed";
 
         // Get gas_used and base_fee from RLP block - as in some cases, the block header is not present in the test data.
         let sealed_block = SealedBlock::decode(&mut self.block.rlp.as_ref())
@@ -125,7 +124,7 @@ impl BlockchainTestCase {
         let sealed_header = sealed_block.header.unseal();
 
         let coinbase = sealed_header.beneficiary;
-        let gas_used: U256 = U256::from(sealed_header.gas_used);
+        let gas_used: U256 = U256::from(output.gas_used);
         let base_fee_per_gas: U256 = U256::from(sealed_header.base_fee_per_gas.unwrap_or_default());
 
         // Get gas price from transaction
@@ -264,9 +263,9 @@ impl Case for BlockchainTestCase {
 
         self.handle_pre_state(&mut sequencer)?;
 
-        let retdata = self.handle_transaction(&mut sequencer)?;
+        let output = self.handle_transaction(&mut sequencer)?;
 
-        self.handle_post_state(&mut sequencer, retdata)?;
+        self.handle_post_state(&mut sequencer, output)?;
         Ok(())
     }
 }

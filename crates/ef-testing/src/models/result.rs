@@ -6,66 +6,76 @@ use blockifier::{
     },
 };
 use starknet::macros::selector;
-use starknet_api::transaction::EventContent;
+use starknet_api::transaction::{EventContent, EventData};
 use tracing::{error, info, warn};
 
+use std::convert::From;
+
+#[derive(Default, Debug)]
+pub struct EVMOutput {
+    pub return_data: String,
+    pub gas_used: u64,
+    pub success: bool,
+}
+
+impl From<&EventData> for EVMOutput {
+    fn from(input: &EventData) -> Self {
+        let return_data_len: usize = input.0[0].try_into().unwrap();
+        let return_data_bytes = input
+            .0
+            .iter()
+            .skip(1)
+            .take(return_data_len)
+            .flat_map(|felt| felt.bytes().last().cloned())
+            .collect();
+        let return_data = String::from_utf8(return_data_bytes).unwrap();
+
+        let success: u64 = input.0[1 + return_data_len].try_into().unwrap();
+        let gas_used: u64 = input.0[input.0.len() - 1].try_into().unwrap();
+
+        EVMOutput {
+            return_data,
+            gas_used,
+            success: success == 1,
+        }
+    }
+}
+
 #[allow(clippy::cognitive_complexity)]
-pub(crate) fn log_execution_result(
+pub(crate) fn extract_output_and_log_execution_result(
     result: &TransactionExecutionResult<TransactionExecutionInfo>,
     case_name: &str,
     case_category: &str,
-) {
+) -> Option<EVMOutput> {
     let case = format!("{}::{}", case_category, case_name);
     match result {
         TransactionExecutionResult::Ok(info) => {
             /* trunk-ignore(clippy/option_if_let_else) */
             if let Some(err) = info.revert_error.as_ref() {
                 warn!("{} reverted:\n{}", case, err.replace("\\n", "\n"));
-            } else {
-                info!("{} passed: {:?}", case, info.actual_resources);
-                #[cfg(feature = "v0")]
-                if let Some(call) = info.execute_call_info.as_ref() {
-                    use starknet::core::types::FieldElement;
-                    use starknet_api::hash::StarkFelt;
-                    let events = kakarot_execution_events(call);
-                    // Check only one execution event.
-                    if events.len() != 1 {
-                        warn!(
-                            "{} failed to find the single execution event: {:?}",
-                            case, events
-                        );
-                        return;
-                    }
-                    if events[0].data.0.last() == Some(&StarkFelt::ZERO) {
-                        let return_data = call.execution.retdata.0.clone();
-
-                        let revert_message_len = return_data.first().cloned().unwrap_or_default();
-                        let revert_message_len =
-                            usize::try_from(revert_message_len).unwrap_or_default();
-
-                        let revert_message: String = return_data
-                            .into_iter()
-                            .skip(1)
-                            .filter_map(|d| u8::try_from(FieldElement::from(d)).ok())
-                            .map(|d| d as char)
-                            .collect();
-
-                        // Check that the length of the revert message matches the first element
-                        // in the return data
-                        // (https://github.com/kkrt-labs/kakarot/blob/main/src/kakarot/accounts/eoa/externally_owned_account.cairo#L67)
-                        if revert_message_len != revert_message.len() {
-                            warn!(
-                                "{} produced incorrect revert message length: expected {}, got {}",
-                                case,
-                                revert_message.len(),
-                                revert_message_len
-                            );
-                            return;
-                        }
-                        warn!("{} returned: {}", case, revert_message);
-                    }
-                }
+                return None;
             }
+
+            info!("{} passed: {:?}", case, info.actual_resources);
+            #[cfg(feature = "v0")]
+            if let Some(call) = info.execute_call_info.as_ref() {
+                use starknet_api::hash::StarkFelt;
+                let events = kakarot_execution_events(call);
+                // Check only one execution event.
+                if events.len() != 1 {
+                    warn!(
+                        "{} failed to find the single execution event: {:?}",
+                        case, events
+                    );
+                    return None;
+                }
+                let output = EVMOutput::from(&events[0].data);
+                if events[0].data.0.last() == Some(&StarkFelt::ZERO) {
+                    warn!("{} returned: {}", case, output.return_data);
+                }
+                return Some(output);
+            }
+            None
         }
         TransactionExecutionResult::Err(TransactionExecutionError::ValidateTransactionError(
             EntryPointExecutionError::VirtualMachineExecutionErrorWithTrace { trace, .. },
@@ -73,7 +83,7 @@ pub(crate) fn log_execution_result(
             // There are specific test cases where validation failed because the sender account has code.
             // They're caught by EOA validation, and rejected with this specific error message.
             if trace.contains("EOAs cannot have code") {
-                return;
+                return None;
             }
             let re = regex::Regex::new(
                 r#"Error in the called contract \((0x[0-9a-zA-Z]+)\)[\s\S]*?EntryPointSelector\(StarkFelt\("(0x[0-9a-zA-Z]+)"\)\)"#,
@@ -84,30 +94,13 @@ pub(crate) fn log_execution_result(
                 "Failed to find entrypoint {} for contract {}",
                 last_match.1[1], last_match.1[0]
             );
+            None
         }
-        TransactionExecutionResult::Err(err) => error!("{} failed with:\n{:?}", case, err),
+        TransactionExecutionResult::Err(err) => {
+            error!("{} failed with:\n{:?}", case, err);
+            None
+        }
     }
-}
-
-pub(crate) fn extract_execution_retdata(
-    execution_info: TransactionExecutionInfo,
-) -> Option<String> {
-    if let Some(call) = execution_info.execute_call_info {
-        let call_exec = &call.execution;
-        let retdata = &call_exec.retdata;
-
-        // Skip the first byte which is the length of the return data
-        let retdata_bytes: Vec<u8> = retdata
-            .0
-            .iter()
-            .skip(1)
-            .filter_map(|felt| felt.bytes().last().cloned())
-            .collect();
-
-        let retdata_str: String = retdata_bytes.iter().map(|&c| c as char).collect();
-        return Some(retdata_str);
-    }
-    None
 }
 
 #[allow(dead_code)]
