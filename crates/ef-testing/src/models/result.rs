@@ -14,7 +14,7 @@ use std::convert::TryFrom;
 
 #[derive(Default, Debug)]
 pub struct EVMOutput {
-    pub return_data: String,
+    pub return_data: Vec<u8>,
     pub gas_used: u64,
     pub success: bool,
 }
@@ -30,16 +30,13 @@ impl TryFrom<&EventData> for EVMOutput {
         .try_into()
         .map_err(|_| eyre!("Error converting return_data_len to usize"))?;
 
-        let return_data_bytes = input
+        let return_data = input
             .0
             .iter()
             .skip(1)
             .take(return_data_len)
             .flat_map(|felt| felt.bytes().last().cloned())
             .collect::<Vec<_>>();
-
-        let return_data = String::from_utf8(return_data_bytes)
-            .map_err(|_| eyre!("Error converting return_data_bytes to String"))?;
 
         let success: u64 = (*input
             .0
@@ -93,7 +90,11 @@ pub(crate) fn extract_output_and_log_execution_result(
                 }
                 let output = EVMOutput::try_from(&events[0].data).ok()?;
                 if events[0].data.0.last() == Some(&StarkFelt::ZERO) {
-                    warn!("{} returned: {}", case, output.return_data);
+                    warn!(
+                        "{} returned: {}",
+                        case,
+                        String::from_utf8(output.return_data.as_slice().to_vec()).unwrap()
+                    );
                 }
                 return Some(output);
             }
