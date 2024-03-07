@@ -117,11 +117,9 @@ impl BlockchainTestCase {
         let sender_address = wallet.address().to_fixed_bytes();
 
         let maybe_revert_reason = String::from_utf8(output.return_data.as_slice().to_vec());
-        let eth_validation_failed = if let Ok(revert_reason) = maybe_revert_reason {
+        let eth_validation_failed = maybe_revert_reason.map_or(false, |revert_reason| {
             revert_reason == "Kakarot: eth validation failed"
-        } else {
-            false
-        };
+        });
 
         // Get gas_used and base_fee from RLP block - as in some cases, the block header is not present in the test data.
         let sealed_block = SealedBlock::decode(&mut self.block.rlp.as_ref())
