@@ -1,6 +1,6 @@
 // Inspired by https://github.com/paradigmxyz/reth/tree/main/testing/ef-tests
 use super::error::RunnerError;
-use super::result::{extract_execution_retdata, log_execution_result};
+use super::result::{extract_output_and_log_execution_result, EVMOutput};
 use crate::evm_sequencer::constants::{
     CONTRACT_ACCOUNT_CLASS_HASH, EOA_CLASS_HASH, KAKAROT_ADDRESS, PROXY_CLASS_HASH,
 };
@@ -79,7 +79,7 @@ impl BlockchainTestCase {
     fn handle_transaction(
         &self,
         sequencer: &mut KakarotSequencer,
-    ) -> Result<Option<String>, RunnerError> {
+    ) -> Result<EVMOutput, RunnerError> {
         // we extract the transaction from the block
         let block = &self.block;
         let block =
@@ -90,34 +90,36 @@ impl BlockchainTestCase {
             RunnerError::Other(vec!["No transaction in pre state block".into()].into())
         })?;
 
-        tx_signed.transaction.set_chain_id(*CHAIN_ID);
+        tx_signed.transaction.set_chain_id(CHAIN_ID);
         let signature = sign_message(self.secret_key, tx_signed.signature_hash())
             .map_err(|err| RunnerError::Other(vec![err.to_string()].into()))?;
 
         tx_signed.signature = signature;
 
         let execution_result = sequencer.execute_transaction(tx_signed);
-        log_execution_result(&execution_result, &self.case_name, &self.case_category);
+        let output = extract_output_and_log_execution_result(
+            &execution_result,
+            &self.case_name,
+            &self.case_category,
+        )
+        .unwrap_or_default();
 
-        let retdata = execution_result
-            .map(extract_execution_retdata)
-            .unwrap_or_default();
-
-        Ok(retdata)
+        Ok(output)
     }
 
     fn handle_post_state(
         &self,
         sequencer: &mut KakarotSequencer,
-        retdata: Option<String>,
+        output: EVMOutput,
     ) -> Result<(), RunnerError> {
         let wallet = LocalWallet::from_bytes(&self.secret_key.0)
             .map_err(|err| RunnerError::Other(vec![err.to_string()].into()))?;
         let sender_address = wallet.address().to_fixed_bytes();
 
-        let eth_validation_failed = retdata
-            .map(|retdata| retdata == "Kakarot: eth validation failed")
-            .unwrap_or_default();
+        let maybe_revert_reason = String::from_utf8(output.return_data.as_slice().to_vec());
+        let eth_validation_failed = maybe_revert_reason.map_or(false, |revert_reason| {
+            revert_reason == "Kakarot: eth validation failed"
+        });
 
         // Get gas_used and base_fee from RLP block - as in some cases, the block header is not present in the test data.
         let sealed_block = SealedBlock::decode(&mut self.block.rlp.as_ref())
@@ -125,8 +127,9 @@ impl BlockchainTestCase {
         let sealed_header = sealed_block.header.unseal();
 
         let coinbase = sealed_header.beneficiary;
-        let gas_used: U256 = U256::from(sealed_header.gas_used);
         let base_fee_per_gas: U256 = U256::from(sealed_header.base_fee_per_gas.unwrap_or_default());
+
+        let expected_gas_used = U256::from(sealed_header.gas_used);
 
         // Get gas price from transaction
         let maybe_transaction = self
@@ -153,12 +156,21 @@ impl BlockchainTestCase {
             ));
         }
         let gas_price = gas_price | effective_gas_price;
-        let transaction_cost = gas_price * gas_used;
+        let transaction_cost = gas_price * expected_gas_used;
 
         let post_state = self.post.clone().expect("Post state not found");
         let post_state = update_post_state(post_state, self.pre.clone());
 
         let mut diff: Vec<String> = vec![];
+
+        let actual_gas_used = output.gas_used;
+        let expected_gas_u64: u64 = expected_gas_used.try_into().unwrap();
+        if expected_gas_u64 != actual_gas_used {
+            diff.push(format!(
+                "gas used mismatch: expected {expected_gas_u64}, got {actual_gas_used}"
+            ));
+        }
+
         for (address, expected_state) in post_state.iter() {
             // Storage
             for (k, v) in expected_state.storage.iter() {
@@ -206,7 +218,7 @@ impl BlockchainTestCase {
             }
             // Add priority fee to coinbase balance
             if *address == coinbase {
-                actual += (gas_price - base_fee_per_gas) * gas_used;
+                actual += (gas_price - base_fee_per_gas) * expected_gas_used;
             }
             if actual != expected_state.balance {
                 let balance_diff = format!(
@@ -255,7 +267,7 @@ impl Case for BlockchainTestCase {
             INITIAL_SEQUENCER_STATE.clone(),
             kakarot_environment,
             coinbase_address,
-            *CHAIN_ID,
+            CHAIN_ID,
             block_number,
             block_timestamp,
         );
@@ -264,9 +276,9 @@ impl Case for BlockchainTestCase {
 
         self.handle_pre_state(&mut sequencer)?;
 
-        let retdata = self.handle_transaction(&mut sequencer)?;
+        let output = self.handle_transaction(&mut sequencer)?;
 
-        self.handle_post_state(&mut sequencer, retdata)?;
+        self.handle_post_state(&mut sequencer, output)?;
         Ok(())
     }
 }

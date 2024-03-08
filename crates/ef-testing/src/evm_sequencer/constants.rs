@@ -22,10 +22,13 @@ fn load_contract_class(path: &str) -> Result<CompiledClass, eyre::Error> {
     Ok(class)
 }
 
-lazy_static! {
-    // Chain params
-    pub static ref CHAIN_ID: u64 = 0x4b4b5254;
+// Chain params
+pub const CHAIN_ID: u64 = 0x4b4b5254;
 
+// Block params
+pub const BLOCK_GAS_LIMIT: u64 = 20_000_000;
+
+lazy_static! {
     // Vm resources: maps resource name to fee cost.
     pub static ref VM_RESOURCES: HashMap<String, f64> = [
         (String::from("n_steps"), 1_f64),
