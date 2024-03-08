@@ -333,7 +333,7 @@ mod tests {
             INITIAL_SEQUENCER_STATE.clone(),
             kakarot_environment,
             coinbase_address,
-            *CHAIN_ID,
+            CHAIN_ID,
             0,
             0,
         );
@@ -342,7 +342,7 @@ mod tests {
             hash: B256::default(),
             signature: Signature::default(),
             transaction: reth_primitives::Transaction::Eip1559(TxEip1559 {
-                chain_id: *CHAIN_ID,
+                chain_id: CHAIN_ID,
                 nonce: 0,
                 gas_limit: 1_000_000,
                 max_fee_per_gas: 0,

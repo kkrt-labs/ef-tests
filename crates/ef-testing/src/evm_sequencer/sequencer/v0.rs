@@ -4,13 +4,14 @@ use blockifier::state::state_api::{
     State as BlockifierState, StateReader as BlockifierStateReader, StateResult,
 };
 use lazy_static::lazy_static;
+use starknet_api::hash::StarkFelt;
 
 use crate::evm_sequencer::{
     constants::{
-        CONTRACT_ACCOUNT_CLASS, CONTRACT_ACCOUNT_CLASS_HASH, EOA_CLASS, EOA_CLASS_HASH,
-        ETH_FEE_TOKEN_ADDRESS, FEE_TOKEN_CLASS, FEE_TOKEN_CLASS_HASH, KAKAROT_ADDRESS,
-        KAKAROT_CLASS, KAKAROT_CLASS_HASH, KAKAROT_OWNER_ADDRESS, PRECOMPILES_CLASS,
-        PRECOMPILES_CLASS_HASH, PROXY_CLASS, PROXY_CLASS_HASH,
+        BLOCK_GAS_LIMIT, CONTRACT_ACCOUNT_CLASS, CONTRACT_ACCOUNT_CLASS_HASH, EOA_CLASS,
+        EOA_CLASS_HASH, ETH_FEE_TOKEN_ADDRESS, FEE_TOKEN_CLASS, FEE_TOKEN_CLASS_HASH,
+        KAKAROT_ADDRESS, KAKAROT_CLASS, KAKAROT_CLASS_HASH, KAKAROT_OWNER_ADDRESS,
+        PRECOMPILES_CLASS, PRECOMPILES_CLASS_HASH, PROXY_CLASS, PROXY_CLASS_HASH,
     },
     sequencer::{convert_contract_class_v0, convert_contract_class_v1},
 };
@@ -27,6 +28,7 @@ lazy_static! {
             ("externally_owned_account_class_hash", EOA_CLASS_HASH.0),
             ("account_proxy_class_hash", PROXY_CLASS_HASH.0),
             ("precompiles_class_hash", PRECOMPILES_CLASS_HASH.0),
+            ("block_gas_limit", StarkFelt::from(BLOCK_GAS_LIMIT))
         ];
 
         // Write all the storage vars to the sequencer state.

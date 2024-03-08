@@ -24,7 +24,7 @@ lazy_static! {
 
         let storage = [
             ("owner", *KAKAROT_OWNER_ADDRESS.0.key()),
-            ("chain_id", StarkFelt::from(*CHAIN_ID)),
+            ("chain_id", StarkFelt::from(CHAIN_ID)),
             ("native_token", *ETH_FEE_TOKEN_ADDRESS.0.key()),
             ("ca_class_hash", CONTRACT_ACCOUNT_CLASS_HASH.0),
             ("eoa_class_hash", EOA_CLASS_HASH.0),

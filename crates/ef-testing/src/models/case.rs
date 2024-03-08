@@ -90,7 +90,7 @@ impl BlockchainTestCase {
             RunnerError::Other(vec!["No transaction in pre state block".into()].into())
         })?;
 
-        tx_signed.transaction.set_chain_id(*CHAIN_ID);
+        tx_signed.transaction.set_chain_id(CHAIN_ID);
         let signature = sign_message(self.secret_key, tx_signed.signature_hash())
             .map_err(|err| RunnerError::Other(vec![err.to_string()].into()))?;
 
@@ -127,8 +127,9 @@ impl BlockchainTestCase {
         let sealed_header = sealed_block.header.unseal();
 
         let coinbase = sealed_header.beneficiary;
-        let gas_used: U256 = U256::from(output.gas_used);
         let base_fee_per_gas: U256 = U256::from(sealed_header.base_fee_per_gas.unwrap_or_default());
+
+        let expected_gas_used = U256::from(sealed_header.gas_used);
 
         // Get gas price from transaction
         let maybe_transaction = self
@@ -155,12 +156,21 @@ impl BlockchainTestCase {
             ));
         }
         let gas_price = gas_price | effective_gas_price;
-        let transaction_cost = gas_price * gas_used;
+        let transaction_cost = gas_price * expected_gas_used;
 
         let post_state = self.post.clone().expect("Post state not found");
         let post_state = update_post_state(post_state, self.pre.clone());
 
         let mut diff: Vec<String> = vec![];
+
+        let actual_gas_used = output.gas_used;
+        let expected_gas_u64: u64 = expected_gas_used.try_into().unwrap();
+        if expected_gas_u64 != actual_gas_used {
+            diff.push(format!(
+                "gas used mismatch: expected {expected_gas_u64}, got {actual_gas_used}"
+            ));
+        }
+
         for (address, expected_state) in post_state.iter() {
             // Storage
             for (k, v) in expected_state.storage.iter() {
@@ -208,7 +218,7 @@ impl BlockchainTestCase {
             }
             // Add priority fee to coinbase balance
             if *address == coinbase {
-                actual += (gas_price - base_fee_per_gas) * gas_used;
+                actual += (gas_price - base_fee_per_gas) * expected_gas_used;
             }
             if actual != expected_state.balance {
                 let balance_diff = format!(
@@ -257,7 +267,7 @@ impl Case for BlockchainTestCase {
             INITIAL_SEQUENCER_STATE.clone(),
             kakarot_environment,
             coinbase_address,
-            *CHAIN_ID,
+            CHAIN_ID,
             block_number,
             block_timestamp,
         );
