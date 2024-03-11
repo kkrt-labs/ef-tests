@@ -8,12 +8,9 @@ def extract_runresource_failures(input_file):
     buffer = []
     with open(input_file, 'r') as file:
         for line in file:
-            # Add the current line to the buffer
             buffer.append(line)
-            # Ensure the buffer only keeps the last 8 lines
             if len(buffer) > 8:
                 buffer.pop(0)
-            # Check if the current line contains the specific error message
             if "RunResources has no remaining steps." in line:
                 # Extract the test name, which is 7 lines above the error message
                 try:
@@ -68,9 +65,9 @@ def parse_and_write_to_yaml(input_file, output_file):
         skip_dict[folder] = sorted(skip_dict[folder])
         for file in skip_dict[folder]:
             if file[5:] in runresources_errors:
-                skip += f" - {file[5:]}  #RunResources error\n"
+                skip += f"      - {file[5:]}  #RunResources error\n"
             else:
-                skip += f" - {file[5:]}\n"
+                skip += f"      - {file[5:]}\n"
 
     with open(output_file, "w") as f:
         f.write(skip)
