@@ -161,12 +161,12 @@ impl BlockchainTestCase {
         let post_state = self.post.clone().expect("Post state not found");
         let post_state = update_post_state(post_state, self.pre.clone());
 
-        let mut diff: Vec<String> = vec![];
+        let mut errors: Vec<String> = vec![];
 
         let actual_gas_used = output.gas_used;
         let expected_gas_u64: u64 = expected_gas_used.try_into().unwrap();
         if expected_gas_u64 != actual_gas_used {
-            diff.push(format!(
+            errors.push(format!(
                 "gas used mismatch: expected {expected_gas_u64}, got {actual_gas_used}"
             ));
         }
@@ -180,7 +180,7 @@ impl BlockchainTestCase {
                         "storage mismatch for {:#20x} at {:#32x}: expected {:#32x}, got {:#32x}",
                         address, k, v, actual
                     );
-                    diff.push(storage_diff);
+                    errors.push(storage_diff);
                 }
             }
 
@@ -197,7 +197,7 @@ impl BlockchainTestCase {
                     "nonce mismatch for {:#20x}: expected {:#32x}, got {:#32x}",
                     address, expected_state.nonce, actual
                 );
-                diff.push(nonce_diff);
+                errors.push(nonce_diff);
             }
 
             // Bytecode
@@ -207,7 +207,7 @@ impl BlockchainTestCase {
                     "code mismatch for {:#20x}: expected {:#x}, got {:#x}",
                     address, expected_state.code, actual
                 );
-                diff.push(bytecode_diff);
+                errors.push(bytecode_diff);
             }
 
             // Balance
@@ -225,15 +225,15 @@ impl BlockchainTestCase {
                     "balance mismatch for {:#20x}: expected {:#32x}, got {:#32x}",
                     address, expected_state.balance, actual
                 );
-                diff.push(balance_diff);
+                errors.push(balance_diff);
             }
         }
 
-        if !diff.is_empty() {
+        if !errors.is_empty() {
             if let Ok(revert_reason) = maybe_revert_reason {
-                diff.push(format!("revert reason: {}", revert_reason));
+                errors.push(format!("revert reason: {}", revert_reason));
             }
-            return Err(RunnerError::Other(diff.into()));
+            return Err(RunnerError::Other(errors.into()));
         }
 
         Ok(())
