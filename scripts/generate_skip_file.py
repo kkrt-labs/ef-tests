@@ -2,11 +2,12 @@ import argparse
 import re
 from collections import defaultdict
 
+
 def extract_runresource_failures(input_file):
     failing_tests = []
     # Buffer to keep track of the last 8 lines
     buffer = []
-    with open(input_file, 'r') as file:
+    with open(input_file, "r") as file:
         for line in file:
             buffer.append(line)
             if len(buffer) > 8:
@@ -14,16 +15,21 @@ def extract_runresource_failures(input_file):
             if "RunResources has no remaining steps." in line:
                 # Extract the test name, which is 7 lines above the error message
                 try:
-                    test_name_line = buffer[-8]  # The 8th item from the end is 7 lines above the error line
+                    test_name_line = buffer[
+                        -8
+                    ]  # The 8th item from the end is 7 lines above the error line
                     # Extract the test name from the line
                     if "reverted:" in test_name_line:
-                        test_name = test_name_line.split("reverted:")[0].split("::")[-1].strip()
+                        test_name = (
+                            test_name_line.split("reverted:")[0].split("::")[-1].strip()
+                        )
                         failing_tests.append(test_name)
                 except IndexError:
                     # This happens if the error is found within the first 7 lines of the file
                     # or the buffer doesn't have enough lines yet, just skip it
                     continue
     return failing_tests
+
 
 def parse_and_write_to_yaml(input_file, output_file):
     with open(input_file, "r") as f:
@@ -71,6 +77,7 @@ def parse_and_write_to_yaml(input_file, output_file):
 
     with open(output_file, "w") as f:
         f.write(skip)
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
