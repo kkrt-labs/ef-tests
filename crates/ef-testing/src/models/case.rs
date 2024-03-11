@@ -117,7 +117,7 @@ impl BlockchainTestCase {
         let sender_address = wallet.address().to_fixed_bytes();
 
         let maybe_revert_reason = String::from_utf8(output.return_data.as_slice().to_vec());
-        let eth_validation_failed = maybe_revert_reason.map_or(false, |revert_reason| {
+        let eth_validation_failed = maybe_revert_reason.as_ref().map_or(false, |revert_reason| {
             revert_reason == "Kakarot: eth validation failed"
         });
 
@@ -230,6 +230,9 @@ impl BlockchainTestCase {
         }
 
         if !diff.is_empty() {
+            if let Ok(revert_reason) = maybe_revert_reason {
+                diff.push(format!("revert reason: {}", revert_reason));
+            }
             return Err(RunnerError::Other(diff.into()));
         }
 
