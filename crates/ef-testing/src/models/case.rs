@@ -212,13 +212,10 @@ impl BlockchainTestCase {
 
             // Balance
             let mut actual = sequencer.balance_at(address)?;
-            // Subtract transaction cost to sender balance
-            if address.0 == sender_address {
-                actual -= transaction_cost;
-            }
-            // Add priority fee to coinbase balance
+
+            // Our coinbase should receive all of the txs fees, not only the priority fee.
             if *address == coinbase {
-                actual += (gas_price - base_fee_per_gas) * expected_gas_used;
+                actual -= base_fee_per_gas * expected_gas_used;
             }
             if actual != expected_state.balance {
                 let balance_diff = format!(
