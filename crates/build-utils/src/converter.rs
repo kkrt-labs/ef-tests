@@ -15,26 +15,26 @@ use crate::{
 ///
 /// Test location: BlockchainTests/GeneralStateTests/stRandom/
 /// List of tests: [randomStatetest0.json, randomStatetest1.json, ...]
-/// Inner tests: [`randomStatetest0_d0g0v0_Shanghai`, `randomStatetest0_d1g0v0_Shanghai`,
-/// ..., `randomStatetest1_d0g0v0_Shanghai`, `randomStatetest1_d1g0v0_Shanghai`, ...]
+/// Inner tests: [`randomStatetest0_d0g0v0_Cancun`, `randomStatetest0_d1g0v0_Cancun`,
+/// ..., `randomStatetest1_d0g0v0_Cancun`, `randomStatetest1_d1g0v0_Cancun`, ...]
 /// Generated String:
 /// r#"
 /// mod randomStatetest0 {
 ///   use super::*;
 ///   #[test]
-///   fn test_randomStatetest0_d0g0v0_Shanghai() {
+///   fn test_randomStatetest0_d0g0v0_Cancun() {
 ///     ...
 ///   }
 ///   #[test]
-///   fn test_randomStatetest0_d1g0v0_Shanghai() {
+///   fn test_randomStatetest0_d1g0v0_Cancun() {
 ///     ...
 ///   }
 ///   #[test]
-///   fn test_randomStatetest1_d0g0v0_Shanghai() {
+///   fn test_randomStatetest1_d0g0v0_Cancun() {
 ///     ...
 ///   }
 ///   #[test]
-///   fn test_randomStatetest1_d1g0v0_Shanghai() {
+///   fn test_randomStatetest1_d1g0v0_Cancun() {
 ///     ...
 ///   }
 ///   ...
@@ -96,9 +96,13 @@ impl<'a> EfTests<'a> {
                     if !case_name.contains(FORK) {
                         return Ok(String::new());
                     }
-                    let secret_key = ContentReader::secret_key(file_path.clone())?
-                        .ok_or_else(|| eyre::eyre!("Missing secret key"))?;
                     let is_skipped = self.filter.is_skipped(file_path, Some(case_name.clone()));
+                    let secret_key = if is_skipped {
+                        Value::default()
+                    } else {
+                        ContentReader::secret_key(file_path.clone())?
+                            .ok_or_else(|| eyre::eyre!("Missing secret key"))?
+                    };
                     Self::format_to_test(case_name, parent_dir, &secret_key, content, is_skipped)
                 })
                 .collect::<Result<Vec<String>, eyre::Error>>()?;
@@ -150,7 +154,8 @@ impl<'a> EfTests<'a> {
 
         let test_header = Self::format_test_header(is_skipped, test_content_err.err());
         let test_content = test_content.unwrap_or_default();
-        let test_name = Self::format_into_identifier(case_name);
+        let test_name_universal = Self::format_pyspec_tests(case_name);
+        let test_name = Self::format_into_identifier(&test_name_universal);
 
         Ok(format!(
             r#"
@@ -202,5 +207,27 @@ impl<'a> EfTests<'a> {
         s.replace('-', "_minus_")
             .replace('+', "_plus_")
             .replace('^', "_xor_")
+    }
+
+    /// Pyspec tests are in form test_src/GeneralStateTestsFillerFiller/Pyspecs/berlin/eip2930_access_list/test_acl.py::test_access_list[fork_Cancun_minus_blockchain_test]()
+    /// We only keep the test name, which is the part between brackets.
+    fn format_pyspec_tests(s: &str) -> String {
+        let fork_name = s.split('/').nth(3).unwrap_or_default();
+        let test_name = s.split('/').last().unwrap_or_default();
+
+        let test_name = test_name
+            .to_string()
+            .replace('(', "_lpar_")
+            .replace(')', "_rpar")
+            .replace("::", "_")
+            .replace(".py", "")
+            .replace(['[', ']'], "_")
+            .split(',')
+            .map(|part| part.trim())
+            .collect::<Vec<_>>()
+            .join("_");
+
+        // add the fork name after the test name
+        test_name + "_" + fork_name
     }
 }
