@@ -892,7 +892,7 @@ dependencies = [
 [[package]]
 name = "blockifier"
 version = "0.4.0-rc6"
-source = "git+https://github.com/kkrt-labs/blockifier.git?branch=v0.4.0-rc9.1#5bb1c72e943f558421a5f76e550bc9674a548013"
+source = "git+https://github.com/kkrt-labs/blockifier.git?branch=v0.4.0-rc9.1#3e7224de56cbdc2088e7d55a1f890487be6731b0"
 dependencies = [
  "ark-ec",
  "ark-ff 0.4.2",
@@ -1077,7 +1077,7 @@ dependencies = [
 [[package]]
 name = "cairo-felt"
 version = "0.9.1"
-source = "git+https://github.com/kkrt-labs/cairo-vm.git?branch=v0.9.1#e14bb1590ece9b4e960761ad89a85f52b419a4fb"
+source = "git+https://github.com/kkrt-labs/cairo-vm.git?branch=v0.9.1#99d231d26044b8b549649e375482cf954c034664"
 dependencies = [
  "lazy_static",
  "num-bigint",
@@ -1896,7 +1896,7 @@ dependencies = [
 [[package]]
 name = "cairo-vm"
 version = "0.9.1"
-source = "git+https://github.com/kkrt-labs/cairo-vm.git?branch=v0.9.1#e14bb1590ece9b4e960761ad89a85f52b419a4fb"
+source = "git+https://github.com/kkrt-labs/cairo-vm.git?branch=v0.9.1#99d231d26044b8b549649e375482cf954c034664"
 dependencies = [
  "anyhow",
  "bincode 2.0.0-rc.3",
@@ -3632,7 +3632,7 @@ dependencies = [
  "httpdate",
  "itoa",
  "pin-project-lite",
- "socket2 0.5.5",
+ "socket2 0.4.10",
  "tokio",
  "tower-service",
  "tracing",
