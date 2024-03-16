@@ -156,7 +156,6 @@ impl BlockchainTestCase {
             ));
         }
         let gas_price = gas_price | effective_gas_price;
-        let transaction_cost = gas_price * expected_gas_used;
 
         let post_state = self.post.clone().expect("Post state not found");
         let post_state = update_post_state(post_state, self.pre.clone());
