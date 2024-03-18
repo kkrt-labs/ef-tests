@@ -56,7 +56,7 @@ lazy_static! {
     pub static ref FEE_TOKEN_CLASS: LegacyContractClass = load_legacy_contract_class("../../build/common/ERC20.json").expect("Failed to load FeeToken contract class");
     pub static ref FEE_TOKEN_CLASS_HASH: ClassHash = ClassHash(FEE_TOKEN_CLASS.class_hash().unwrap().into());
 
-    pub static ref PRECOMPILES_CLASS: CompiledClass = load_contract_class("../../build/common/precompiles.json").expect("Failed to load precompiles contract class");
+    pub static ref PRECOMPILES_CLASS: CompiledClass = load_contract_class("../../build/common/cairo1_helpers").expect("Failed to load precompiles contract class");
     pub static ref PRECOMPILES_CLASS_HASH: ClassHash = ClassHash(PRECOMPILES_CLASS.class_hash().unwrap().into());
 
 }
