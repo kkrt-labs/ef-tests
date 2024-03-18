@@ -61,7 +61,12 @@ impl Filter {
 
     /// Returns the difference in keys (folders) between the two filters
     pub fn diff(&self, rhs: &Self) -> Vec<Folder> {
-        let mut diff = Vec::new();
+        // Allocate at most the sum of the lengths of the keys.
+        let capacity = std::cmp::max(self.filename.len(), rhs.filename.len())
+            + std::cmp::max(self.regex.len(), rhs.regex.len())
+            + std::cmp::max(self.test_name.len(), rhs.test_name.len());
+        let mut diff = Vec::with_capacity(capacity);
+
         diff.append(&mut diff_map(&self.filename, &rhs.filename));
         diff.append(&mut diff_map(&self.regex, &rhs.regex));
         diff.append(&mut diff_map(&self.test_name, &rhs.test_name));
@@ -70,7 +75,7 @@ impl Filter {
 }
 
 fn diff_map(lhs: &FilterMap, rhs: &FilterMap) -> Vec<Folder> {
-    let mut top = Vec::new();
+    let mut top = Vec::with_capacity(std::cmp::max(lhs.len(), rhs.len()));
     let diff = |top: &mut Vec<String>, lhs: &FilterMap, rhs: &FilterMap| {
         for (key, _) in lhs.iter() {
             if !rhs.contains_key(key) && !top.contains(key) {
