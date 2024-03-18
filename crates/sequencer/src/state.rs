@@ -1,10 +1,8 @@
+use blockifier::execution::contract_class::ContractClass;
 use blockifier::state::cached_state::CommitmentStateDiff;
 use blockifier::state::errors::StateError;
 use blockifier::state::state_api::{
     State as BlockifierState, StateReader as BlockifierStateReader, StateResult,
-};
-use blockifier::{
-    execution::contract_class::ContractClass, state::cached_state::ContractStorageKey,
 };
 use rustc_hash::FxHashMap;
 use starknet_api::core::CompiledClassHash;
@@ -18,6 +16,8 @@ use serde::{Deserialize, Serialize};
 
 use crate::commit::Committer;
 use crate::serde::SerializableState;
+
+pub type ContractStorageKey = (ContractAddress, StorageKey);
 
 /// Generic state structure for the sequencer.
 /// The use of `FxHashMap` allows for a better performance.
@@ -75,8 +75,9 @@ impl BlockifierState for &mut State {
         contract_address: ContractAddress,
         key: StorageKey,
         value: StarkFelt,
-    ) {
+    ) -> StateResult<()> {
         self.storage.insert((contract_address, key), value);
+        Ok(())
     }
 
     /// # Errors
@@ -119,10 +120,10 @@ impl BlockifierState for &mut State {
 
     fn set_contract_class(
         &mut self,
-        class_hash: &ClassHash,
+        class_hash: ClassHash,
         contract_class: ContractClass,
     ) -> StateResult<()> {
-        self.classes.insert(*class_hash, contract_class);
+        self.classes.insert(class_hash, contract_class);
         Ok(())
     }
 
@@ -138,6 +139,10 @@ impl BlockifierState for &mut State {
 
     fn to_state_diff(&mut self) -> CommitmentStateDiff {
         unreachable!("to_state_diff should not be called in the sequencer")
+    }
+
+    fn add_visited_pcs(&mut self, _class_hash: ClassHash, _pcs: &std::collections::HashSet<usize>) {
+        unreachable!("add_visited_pcs should not be called in the sequencer")
     }
 }
 
@@ -173,14 +178,11 @@ impl BlockifierStateReader for &mut State {
     /// # Errors
     ///
     /// If the compiled class is not declared.
-    fn get_compiled_contract_class(
-        &mut self,
-        class_hash: &ClassHash,
-    ) -> StateResult<ContractClass> {
+    fn get_compiled_contract_class(&mut self, class_hash: ClassHash) -> StateResult<ContractClass> {
         self.classes
-            .get(class_hash)
+            .get(&class_hash)
             .cloned()
-            .ok_or_else(|| StateError::UndeclaredClassHash(*class_hash))
+            .ok_or_else(|| StateError::UndeclaredClassHash(class_hash))
     }
 
     /// # Errors
@@ -210,7 +212,9 @@ mod tests {
         let mut state = &mut State::default();
 
         // When
-        state.set_storage_at(*TEST_CONTRACT, StorageKey(*ONE_PATRICIA), *ONE_FELT);
+        state
+            .set_storage_at(*TEST_CONTRACT, StorageKey(*ONE_PATRICIA), *ONE_FELT)
+            .expect("failed to set storage");
 
         // Then
         let expected = *ONE_FELT;
@@ -258,14 +262,14 @@ mod tests {
         // When
         state
             .set_contract_class(
-                &ONE_CLASS_HASH,
+                *ONE_CLASS_HASH,
                 ContractClass::V0(ContractClassV0::default()),
             )
             .unwrap();
 
         // Then
         let expected = ContractClass::V0(ContractClassV0::default());
-        let actual = state.get_compiled_contract_class(&ONE_CLASS_HASH).unwrap();
+        let actual = state.get_compiled_contract_class(*ONE_CLASS_HASH).unwrap();
         assert_eq!(expected, actual);
     }
 
@@ -276,7 +280,7 @@ mod tests {
         let mut state = &mut State::default();
 
         // When
-        state.get_compiled_contract_class(&ONE_CLASS_HASH).unwrap();
+        state.get_compiled_contract_class(*ONE_CLASS_HASH).unwrap();
     }
 
     #[test]

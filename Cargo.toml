@@ -33,16 +33,16 @@ ethers-signers = { git = "https://github.com/gakonst/ethers-rs.git", tag = "v2.0
 reth-primitives = { git = "https://github.com/paradigmxyz/reth.git", tag = "v0.1.0-alpha.18", default-features = false }
 
 # Starknet deps
-cairo-lang-casm = { git = "https://github.com/kkrt-labs/cairo.git", branch = "v2.4.0", default-features = false }
-cairo-lang-starknet = { git = "https://github.com/kkrt-labs/cairo.git", branch = "v2.4.0", default-features = false }
-cairo-lang-utils = { git = "https://github.com/kkrt-labs/cairo.git", branch = "v2.4.0", default-features = false }
-cairo-vm = { git = "https://github.com/kkrt-labs/cairo-vm.git", branch = "v0.9.1", features = [
+cairo-lang-casm = { git = "https://github.com/kkrt-labs/cairo.git", branch = "v2.5.4", default-features = false }
+cairo-lang-starknet = { git = "https://github.com/kkrt-labs/cairo.git", branch = "v2.5.4", default-features = false }
+cairo-lang-utils = { git = "https://github.com/kkrt-labs/cairo.git", branch = "v2.5.4", default-features = false }
+cairo-vm = { git = "https://github.com/kkrt-labs/cairo-vm.git", branch = "v0.9.2", features = [
   "print",
 ] }
-blockifier = { package = "blockifier", git = "https://github.com/kkrt-labs/blockifier.git", branch = "v0.4.0-rc9.1" }
+blockifier = { package = "blockifier", git = "https://github.com/kkrt-labs/blockifier.git", branch = "v0.4.1-rc.0" }
 starknet = "0.6.0"
 starknet-crypto = "0.6.0"
-starknet_api = "0.6.0-rc2"
+starknet_api = { git = "https://github.com/starkware-libs/starknet-api.git", tag = "v0.7.0-rc.0" }
 
 # Other
 async-trait = "0.1.58"
@@ -77,3 +77,8 @@ serde_yaml = "0.9.25"
 
 # Log
 log = "0.4.20"
+
+# we patch starknet_api because the version v0.7.0-rc.0 was removed from crates.io
+# we need v0.7.0-rc.0 to be compatible with dojo on the rpc.
+[patch.crates-io]
+starknet_api = { git = "https://github.com/starkware-libs/starknet-api.git", tag = "v0.7.0-rc.0" }

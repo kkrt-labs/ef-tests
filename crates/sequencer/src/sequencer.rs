@@ -119,7 +119,7 @@ mod tests {
     use std::sync::Arc;
 
     use blockifier::abi::abi_utils::get_storage_var_address;
-    use blockifier::block_context::{FeeTokenAddresses, GasPrices};
+    use blockifier::block_context::{BlockInfo, ChainInfo, FeeTokenAddresses, GasPrices};
     use blockifier::execution::contract_class::{ContractClass, ContractClassV0, ContractClassV1};
     use blockifier::state::state_api::State as BlockifierState;
     use blockifier::transaction::account_transaction::AccountTransaction;
@@ -185,17 +185,19 @@ mod tests {
         };
 
         state
-            .set_contract_class(&class_hash, contract_class)
+            .set_contract_class(class_hash, contract_class)
             .unwrap();
         state.set_class_hash_at(address, class_hash).unwrap();
     }
 
     fn fund(address: StarkFelt, mut state: &mut State) {
-        state.set_storage_at(
-            *ETH_FEE_TOKEN_ADDRESS,
-            get_storage_var_address("ERC20_balances", &[address]),
-            StarkFelt::from(u128::MAX),
-        );
+        state
+            .set_storage_at(
+                *ETH_FEE_TOKEN_ADDRESS,
+                get_storage_var_address("ERC20_balances", &[address]),
+                StarkFelt::from(u128::MAX),
+            )
+            .unwrap_or_else(|_| panic!("failed to fund account {}", address));
     }
 
     macro_rules! sequencer_test {
@@ -247,23 +249,30 @@ mod tests {
 
     fn block_context() -> BlockContext {
         BlockContext {
-            chain_id: ChainId("KKRT".into()),
-            block_number: *ONE_BLOCK_NUMBER,
-            block_timestamp: *ONE_BLOCK_TIMESTAMP,
-            sequencer_address: *SEQUENCER_ADDRESS,
-            fee_token_addresses: FeeTokenAddresses {
-                strk_fee_token_address: *STRK_FEE_TOKEN_ADDRESS,
-                eth_fee_token_address: *ETH_FEE_TOKEN_ADDRESS,
-            },
+            block_info: BlockInfo {
+                block_number: *ONE_BLOCK_NUMBER,
+                block_timestamp: *ONE_BLOCK_TIMESTAMP,
+                sequencer_address: *SEQUENCER_ADDRESS,
+                vm_resource_fee_cost: vm_resource_fee_cost(),
+                gas_prices: GasPrices {
+                    eth_l1_gas_price: 1,
+                    strk_l1_gas_price: 1,
+                    eth_l1_data_gas_price: 1,
+                    strk_l1_data_gas_price: 1,
+                },
+                use_kzg_da: false,
 
-            vm_resource_fee_cost: vm_resource_fee_cost(),
-            gas_prices: GasPrices {
-                eth_l1_gas_price: 1,
-                strk_l1_gas_price: 1,
+                invoke_tx_max_n_steps: 4_000_000,
+                validate_max_n_steps: 4_000_000,
+                max_recursion_depth: 1_000,
             },
-            invoke_tx_max_n_steps: 4_000_000,
-            validate_max_n_steps: 4_000_000,
-            max_recursion_depth: 1_000,
+            chain_info: ChainInfo {
+                chain_id: ChainId("KKRT".into()),
+                fee_token_addresses: FeeTokenAddresses {
+                    strk_fee_token_address: *STRK_FEE_TOKEN_ADDRESS,
+                    eth_fee_token_address: *ETH_FEE_TOKEN_ADDRESS,
+                },
+            },
         }
     }
 

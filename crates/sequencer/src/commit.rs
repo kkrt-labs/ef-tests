@@ -20,7 +20,7 @@ where
         }
         for (address, storage_updates) in diff.storage_updates {
             for (k, v) in storage_updates {
-                cached_state.state.set_storage_at(address, k, v);
+                cached_state.state.set_storage_at(address, k, v)?;
             }
         }
         for (class_hash, compiled_class_hash) in diff.class_hash_to_compiled_class_hash {

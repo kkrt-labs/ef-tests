@@ -80,7 +80,7 @@ impl Evm for KakarotSequencer {
             ),
         ]);
         for (k, v) in storage {
-            self.state_mut().set_storage_at(starknet_address, k, v);
+            self.state_mut().set_storage_at(starknet_address, k, v)?;
         }
 
         // Set up the contract class hash
@@ -95,12 +95,12 @@ impl Evm for KakarotSequencer {
             kakarot_address,
             registry_base_address,
             StarkFelt::from(account.account_type as u8),
-        );
+        )?;
         self.state_mut().set_storage_at(
             kakarot_address,
             offset_storage_key(registry_base_address, 1),
             *starknet_address.0.key(),
-        );
+        )?;
 
         Ok(())
     }
@@ -112,7 +112,7 @@ impl Evm for KakarotSequencer {
         let mut storage = vec![];
 
         // Initialize the balance storage var.
-        let balance_key_low = get_fee_token_var_address(&starknet_address);
+        let balance_key_low = get_fee_token_var_address(starknet_address);
         let balance_key_high = next_storage_key(&balance_key_low)?;
         storage.append(&mut vec![
             (balance_key_low, StarkFelt::from(balance_values[0])),
@@ -133,7 +133,7 @@ impl Evm for KakarotSequencer {
         // Write all the storage vars to the sequencer state.
         for (k, v) in storage {
             self.state_mut()
-                .set_storage_at(*ETH_FEE_TOKEN_ADDRESS, k, v);
+                .set_storage_at(*ETH_FEE_TOKEN_ADDRESS, k, v)?;
         }
         Ok(())
     }
@@ -209,7 +209,7 @@ impl Evm for KakarotSequencer {
         // Bytecode is stored in chunks of 31 bytes. At bytecode_base_address,
         // we store the number of chunks.
         let num_chunks = bytecode_len;
-        let mut bytecode: Vec<u8> = Vec::new();
+        let mut bytecode: Vec<u8> = Vec::with_capacity(bytecode_len as usize * 31);
 
         for chunk_index in 0..num_chunks {
             let index = chunk_index / 256;
@@ -242,7 +242,7 @@ impl Evm for KakarotSequencer {
         let starknet_address = self.compute_starknet_address(evm_address)?;
         let (low, high) = self
             .state_mut()
-            .get_fee_token_balance(&starknet_address, &ETH_FEE_TOKEN_ADDRESS)?;
+            .get_fee_token_balance(starknet_address, *ETH_FEE_TOKEN_ADDRESS)?;
 
         let low = U256::from_be_bytes(Into::<FieldElement>::into(low).to_bytes_be());
         let high = U256::from_be_bytes(Into::<FieldElement>::into(high).to_bytes_be());
