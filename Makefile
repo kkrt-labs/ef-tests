@@ -43,7 +43,7 @@ setup-kakarot-v1: clean-kakarot-v1
 	mv build/temp/contracts_ExternallyOwnedAccount.compiled_contract_class.json build/v1/externally_owned_account.json
 	mv build/temp/contracts_KakarotCore.compiled_contract_class.json build/v1/kakarot.json
 	mv build/temp/contracts_UninitializedAccount.compiled_contract_class.json build/v1/uninitialized_account.json
-	mv build/temp/contracts_Precompiles.compiled_contract_class.json build/common/precompiles.json
+	mv build/temp/contracts_Cairo1Helpers.compiled_contract_class.json build/common/cairo1_helpers.json
 	rm -fr build/temp
 	rm -f dev-artifacts.zip
 

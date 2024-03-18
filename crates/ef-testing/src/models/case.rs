@@ -155,8 +155,6 @@ impl BlockchainTestCase {
                 vec!["max_fee_per_gas and gas_price are both set".to_string()].into(),
             ));
         }
-        let gas_price = gas_price | effective_gas_price;
-
         let post_state = self.post.clone().expect("Post state not found");
         let post_state = update_post_state(post_state, self.pre.clone());
 

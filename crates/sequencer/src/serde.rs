@@ -1,17 +1,15 @@
 use std::{fs, io, path::Path};
 
-use crate::state::State;
-use blockifier::{
-    execution::contract_class::ContractClass, state::cached_state::ContractStorageKey,
-};
+use blockifier::execution::contract_class::ContractClass;
 use rustc_hash::FxHashMap;
 use serde::{Deserialize, Serialize};
 use starknet_api::{
     core::{ClassHash, CompiledClassHash, ContractAddress, Nonce},
     hash::StarkFelt,
 };
-
 use thiserror::Error;
+
+use crate::state::{ContractStorageKey, State};
 
 pub trait DumpLoad {
     fn dump_state_to_file(self, file_path: &Path) -> Result<(), SerializationError>;
@@ -61,13 +59,14 @@ pub struct SerializableState {
 }
 
 mod serialize_contract_storage {
-    use blockifier::state::cached_state::ContractStorageKey;
     use rustc_hash::{FxHashMap, FxHasher};
     use serde::de::{Deserializer, MapAccess, Visitor};
     use serde::ser::{SerializeMap, Serializer};
     use starknet_api::hash::StarkFelt;
     use std::fmt;
     use std::hash::BuildHasherDefault;
+
+    use crate::state::ContractStorageKey;
 
     pub fn serialize<S>(
         map: &FxHashMap<ContractStorageKey, StarkFelt>,
@@ -171,7 +170,7 @@ mod tests {
         let nonce = *TEST_NONCE;
 
         (&mut state)
-            .set_contract_class(&class_hash, contract_class)
+            .set_contract_class(class_hash, contract_class)
             .expect("failed to set contract class");
         (&mut state)
             .set_compiled_class_hash(class_hash, compiled_class_hash)
@@ -179,7 +178,10 @@ mod tests {
         (&mut state)
             .set_class_hash_at(contract_address, class_hash)
             .expect("failed to set class hash");
-        (&mut state).set_storage_at(contract_address, *TEST_STORAGE_KEY, storage_value);
+        (&mut state)
+            .set_storage_at(contract_address, *TEST_STORAGE_KEY, storage_value)
+            .expect("failed to set storage");
+        state.set_nonce(contract_address, nonce);
         state.set_nonce(contract_address, nonce);
 
         let temp_file = tempfile::NamedTempFile::new().expect("failed open named temp file");
