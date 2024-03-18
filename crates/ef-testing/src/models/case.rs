@@ -2,7 +2,8 @@
 use super::error::RunnerError;
 use super::result::{extract_output_and_log_execution_result, EVMOutput};
 use crate::evm_sequencer::constants::{
-    CONTRACT_ACCOUNT_CLASS_HASH, EOA_CLASS_HASH, KAKAROT_ADDRESS, PROXY_CLASS_HASH,
+    self, BEACON_ROOT_ADDRESS, CONTRACT_ACCOUNT_CLASS_HASH, EOA_CLASS_HASH, KAKAROT_ADDRESS,
+    PROXY_CLASS_HASH,
 };
 use crate::evm_sequencer::evm_state::Evm;
 use crate::evm_sequencer::sequencer::{
@@ -169,6 +170,13 @@ impl BlockchainTestCase {
         }
 
         for (address, expected_state) in post_state.iter() {
+            //TODO: this should not be a part of the post-state of EF-Tests and can
+            // be removed once we base ourself on the next EF-Tests release, which fixes this issue
+            // Beacon-related features are not supported in Kakarot
+            if *address == *BEACON_ROOT_ADDRESS {
+                continue;
+            }
+
             // Storage
             for (k, v) in expected_state.storage.iter() {
                 let actual = sequencer.storage_at(address, *k)?;

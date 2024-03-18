@@ -213,13 +213,12 @@ impl<'a> EfTests<'a> {
     /// We only keep the test name, which is the part between brackets.
     fn format_pyspec_tests(s: &str) -> String {
         let fork_name = s.split('/').nth(3).unwrap_or_default();
-        let test_name = s.split('/').last().unwrap_or_default();
+        let test_name = s.split('/').last().unwrap_or_default().split("::").last().unwrap_or_default();
 
         let test_name = test_name
             .to_string()
             .replace('(', "_lpar_")
             .replace(')', "_rpar")
-            .replace("::", "_")
             .replace(".py", "")
             .replace(['[', ']'], "_")
             .split(',')

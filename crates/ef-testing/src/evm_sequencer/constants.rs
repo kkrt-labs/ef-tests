@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 
 use lazy_static::lazy_static;
+use reth_primitives::alloy_primitives::{address, Address};
 use starknet::core::types::contract::legacy::LegacyContractClass;
 use starknet::core::types::contract::CompiledClass;
 use starknet_api::{
@@ -41,9 +42,12 @@ lazy_static! {
         ("ec_op_builtin".to_string(), 1_f64),
         ("keccak_builtin".to_string(), 1_f64),
         ("segment_arena_builtin".to_string(), 1_f64),
-    ]
-    .into_iter()
-    .collect();
+        ]
+        .into_iter()
+        .collect();
+
+    // EVM Addresses
+    pub static ref BEACON_ROOT_ADDRESS: Address = address!("000f3df6d732807ef1319fb7b8bb8522d0beac02");
 
     // Main addresses
     pub static ref ETH_FEE_TOKEN_ADDRESS: ContractAddress = contract_address!("0x049D36570D4e46f48e99674bd3fcc84644DdD6b96F7C741B1562B82f9e004dC7");
