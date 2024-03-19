@@ -203,7 +203,7 @@ impl<'a> EfTests<'a> {
                 ADDRESSES_KEYS
                     .get(&sender_addr)
                     .map(|addr| format!("\"{}\"", addr))
-                    .unwrap_or_default()
+                    .unwrap_or_else(|| panic!("No secret key found for {sender_addr}"))
             });
         let pre = ContentReader::pre_state(content)?;
         let post = ContentReader::post_state(content)?;
