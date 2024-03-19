@@ -97,7 +97,7 @@ impl<'a> EfTests<'a> {
             let file_contents = cases
                 .par_iter()
                 .map(|(case_name, content)| {
-                    if !case_name.contains(FORK) {
+                    if !case_name.ends_with(FORK) {
                         return Ok(String::new());
                     }
                     let is_skipped = self.filter.is_skipped(file_path, Some(case_name.clone()));
