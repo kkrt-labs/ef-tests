@@ -24,7 +24,11 @@ impl ContentReader {
     /// Secret key location: GeneralStateTests/stRandom/randomStatetest0.json
     pub fn secret_key(path: PathWrapper) -> Result<Option<Value>, eyre::Error> {
         let path = blockchain_tests_to_general_state_tests_path(path);
-        let content = path.read_file_to_string()?;
+        let maybe_content = path.read_file_to_string();
+        let content = match maybe_content {
+            Ok(content) => content,
+            Err(_) => return Ok(None),
+        };
 
         let cases: BTreeMap<String, Value> = serde_json::from_str(&content)?;
         let case = cases.into_values().next();
@@ -70,5 +74,32 @@ impl ContentReader {
 
         // Return a clone of the block
         Ok(first_block.clone())
+    }
+
+    pub fn transaction(test_case: &Value, block: &Value) -> Result<Value, eyre::Error> {
+        let maybe_transaction = block.get("transactions");
+
+        match maybe_transaction {
+            Some(transaction) => {
+                // Ensure it's an array
+                let transaction_array = transaction
+                    .as_array()
+                    .ok_or_else(|| eyre::eyre!("'transactions' is not an array"))?;
+
+                // Get the first transaction - multi-txs tests are not supported by the runner
+                let first_tx = transaction_array
+                    .first()
+                    .ok_or_else(|| eyre::eyre!("'transactions' array is empty"))?;
+
+                Ok(first_tx.clone())
+            }
+            None => {
+                let transaction = test_case
+                    .get("transaction")
+                    .ok_or_else(|| eyre::eyre!("key 'transaction' not found"))?;
+
+                Ok(transaction.clone())
+            }
+        }
     }
 }

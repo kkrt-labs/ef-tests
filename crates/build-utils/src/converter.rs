@@ -1,10 +1,14 @@
 use std::{collections::BTreeMap, sync::Arc};
 
 use rayon::prelude::*;
+use reth_primitives::{revm_primitives::FixedBytes, Address};
 use serde_json::Value;
 
 use crate::{
-    constants::FORK, content_reader::ContentReader, dir_reader::DirReader, filter::Filter,
+    constants::{ADDRESSES_KEYS, FORK},
+    content_reader::ContentReader,
+    dir_reader::DirReader,
+    filter::Filter,
     path::PathWrapper,
 };
 
@@ -98,10 +102,9 @@ impl<'a> EfTests<'a> {
                     }
                     let is_skipped = self.filter.is_skipped(file_path, Some(case_name.clone()));
                     let secret_key = if is_skipped {
-                        Value::default()
+                        Some(Value::default()) // secret key is not needed if the test is skipped
                     } else {
                         ContentReader::secret_key(file_path.clone())?
-                            .ok_or_else(|| eyre::eyre!("Missing secret key"))?
                     };
                     Self::format_to_test(case_name, parent_dir, &secret_key, content, is_skipped)
                 })
@@ -144,7 +147,7 @@ impl<'a> EfTests<'a> {
     fn format_to_test(
         case_name: &str,
         parent_dir: &str,
-        secret_key: &Value,
+        secret_key: &Option<Value>,
         content: &Value,
         is_skipped: bool,
     ) -> Result<String, eyre::Error> {
@@ -154,8 +157,11 @@ impl<'a> EfTests<'a> {
 
         let test_header = Self::format_test_header(is_skipped, test_content_err.err());
         let test_content = test_content.unwrap_or_default();
-        let test_name_universal = Self::format_pyspec_tests(case_name);
-        let test_name = Self::format_into_identifier(&test_name_universal);
+        let test_name = if case_name.contains("Pyspecs") {
+            Self::format_pyspec_tests(case_name)
+        } else {
+            Self::format_into_identifier(case_name)
+        };
 
         Ok(format!(
             r#"
@@ -171,7 +177,7 @@ impl<'a> EfTests<'a> {
     fn format_test_content(
         case_name: &str,
         parent_dir: &str,
-        secret_key: &Value,
+        secret_key: &Option<Value>,
         content: &Value,
         is_skipped: bool,
     ) -> Result<String, eyre::Error> {
@@ -179,6 +185,26 @@ impl<'a> EfTests<'a> {
             return Ok(String::default());
         }
         let block = ContentReader::block(content)?;
+        let transaction = ContentReader::transaction(content, &block)?;
+
+        let sender = transaction
+            .get("sender")
+            .ok_or_else(|| eyre::eyre!("Key 'sender' not found"))?
+            .as_str()
+            .ok_or_else(|| eyre::eyre!("Sender is not a string"))?;
+
+        let sender_addr: Address = sender.parse::<FixedBytes<20>>()?.into();
+
+        // If secret key is None, get it from ADDRESSES_KEYS mapping using sender as key
+        let secret_key = secret_key
+            .as_ref()
+            .map(ToString::to_string)
+            .unwrap_or_else(|| {
+                ADDRESSES_KEYS
+                    .get(&sender_addr)
+                    .map(|addr| format!("\"{}\"", addr))
+                    .unwrap_or_default()
+            });
         let pre = ContentReader::pre_state(content)?;
         let post = ContentReader::post_state(content)?;
         Ok(format!(
@@ -213,14 +239,21 @@ impl<'a> EfTests<'a> {
     /// We only keep the test name, which is the part between brackets.
     fn format_pyspec_tests(s: &str) -> String {
         let fork_name = s.split('/').nth(3).unwrap_or_default();
-        let test_name = s.split('/').last().unwrap_or_default().split("::").last().unwrap_or_default();
+        let test_name = s
+            .split('/')
+            .last()
+            .unwrap_or_default()
+            .split("::")
+            .last()
+            .unwrap_or_default();
 
         let test_name = test_name
             .to_string()
+            .replace("test_", "")
             .replace('(', "_lpar_")
             .replace(')', "_rpar")
-            .replace(".py", "")
             .replace(['[', ']'], "_")
+            .replace('-', "_minus_")
             .split(',')
             .map(|part| part.trim())
             .collect::<Vec<_>>()

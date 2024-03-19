@@ -951,6 +951,7 @@ dependencies = [
  "lazy_static",
  "rayon",
  "regex",
+ "reth-primitives",
  "serde",
  "serde_json",
  "serde_yaml",
