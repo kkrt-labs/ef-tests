@@ -19,6 +19,14 @@ pub struct EVMOutput {
     pub success: bool,
 }
 
+impl EVMOutput {
+    pub fn merge(&mut self, other: &Self) {
+        self.return_data.extend_from_slice(&other.return_data);
+        self.gas_used += other.gas_used;
+        self.success &= other.success;
+    }
+}
+
 impl TryFrom<&EventData> for EVMOutput {
     type Error = eyre::Report;
 
