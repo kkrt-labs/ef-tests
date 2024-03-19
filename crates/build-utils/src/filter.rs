@@ -1,6 +1,10 @@
 use regex::Regex;
 use serde::{Deserialize, Serialize};
-use std::{collections::BTreeMap, fs, path::{Path, PathBuf}};
+use std::{
+    collections::BTreeMap,
+    fs,
+    path::{Path, PathBuf},
+};
 
 use crate::path::PathWrapper;
 

@@ -2,7 +2,7 @@
 use super::error::RunnerError;
 use super::result::{extract_output_and_log_execution_result, EVMOutput};
 use crate::evm_sequencer::constants::{
-    self, BEACON_ROOT_ADDRESS, CONTRACT_ACCOUNT_CLASS_HASH, EOA_CLASS_HASH, KAKAROT_ADDRESS,
+    BEACON_ROOT_ADDRESS, CONTRACT_ACCOUNT_CLASS_HASH, EOA_CLASS_HASH, KAKAROT_ADDRESS,
     PROXY_CLASS_HASH,
 };
 use crate::evm_sequencer::evm_state::Evm;
