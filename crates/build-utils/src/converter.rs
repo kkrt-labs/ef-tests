@@ -97,7 +97,8 @@ impl<'a> EfTests<'a> {
             let file_contents = cases
                 .par_iter()
                 .map(|(case_name, content)| {
-                    if !case_name.ends_with(FORK) {
+                    if !(case_name.ends_with(FORK) || case_name.contains(&format!("fork_{}", FORK)))
+                    {
                         return Ok(String::new());
                     }
                     let is_skipped = self.filter.is_skipped(file_path, Some(case_name.clone()));
@@ -182,6 +183,7 @@ impl<'a> EfTests<'a> {
         is_skipped: bool,
     ) -> Result<String, eyre::Error> {
         if is_skipped {
+            println!("cargo:warning=Skipped test: {}", case_name);
             return Ok(String::default());
         }
         let block = ContentReader::block(content)?;

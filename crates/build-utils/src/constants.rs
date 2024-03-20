@@ -24,6 +24,10 @@ lazy_static! {
             address!("d02d72e067e77158444ef2020ff2d325f929b363"),
             "41f6e321b31e72173f8ff2e292359e1862f24fba42fe6f97efaf641980eff298",
         );
+        registry.insert(
+            address!("97a7cb1de3cc7d556d0aa32433b035067709e1fc"),
+            "0x0b2986cc45bd8a8d028c3fcf6f7a11a52f1df61f3ea5d63f05ca109dd73a3fa0"
+        );
         registry
     };
 }
