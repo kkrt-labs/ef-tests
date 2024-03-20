@@ -93,6 +93,7 @@ impl BlockchainTestCase {
             // Encode body as transaction
             let mut tx_signed = tx.clone();
             tx_signed.transaction.set_chain_id(CHAIN_ID);
+            // TODO: this will not support blocks with transactions from different senders (different secret key)
             let signature = sign_message(self.secret_key, tx_signed.signature_hash())
                 .map_err(|err| RunnerError::Other(vec![err.to_string()].into()))?;
             tx_signed.signature = signature;
