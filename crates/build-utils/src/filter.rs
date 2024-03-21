@@ -6,7 +6,7 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use crate::path::PathWrapper;
+use crate::{converter::EfTests, path::PathWrapper};
 
 type Folder = String;
 type FilterMap = BTreeMap<Folder, Vec<String>>;
@@ -78,10 +78,11 @@ impl Filter {
             .unwrap_or_default();
 
         if let Some(case_name) = case_name {
+            let test_identifier = &EfTests::format_into_identifier(&case_name);
             should_skip |= self
                 .test_name
                 .get(&dir_name)
-                .map(|tests| tests.iter().any(|test| test == &case_name))
+                .map(|tests| tests.iter().any(|test| test == test_identifier))
                 .unwrap_or_default();
         }
 

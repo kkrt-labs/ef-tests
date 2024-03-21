@@ -154,11 +154,7 @@ impl<'a> EfTests<'a> {
 
         let test_header = Self::format_test_header(is_skipped, test_content_err.err());
         let test_content = test_content.unwrap_or_default();
-        let test_name = if case_name.contains("Pyspecs") {
-            Self::format_pyspec_tests(case_name)
-        } else {
-            Self::format_into_identifier(case_name)
-        };
+        let test_name = Self::format_into_identifier(case_name);
 
         Ok(format!(
             r#"
@@ -206,37 +202,37 @@ impl<'a> EfTests<'a> {
     }
 
     /// Formats the given string into a valid rust identifier.
-    fn format_into_identifier(s: &str) -> String {
-        s.replace('-', "_minus_")
-            .replace('+', "_plus_")
-            .replace('^', "_xor_")
-    }
+    pub fn format_into_identifier(s: &str) -> String {
+        // Pyspec tests are in form test_src/GeneralStateTestsFillerFiller/Pyspecs/berlin/eip2930_access_list/test_acl.py::test_access_list[fork_Cancun_minus_blockchain_test]()
+        // We only keep the test name and its parameters.
+        if s.contains("Pyspecs") {
+            let test_name = s
+                .split('/')
+                .last()
+                .unwrap_or_default()
+                .split("::")
+                .last()
+                .unwrap_or_default();
 
-    /// Pyspec tests are in form test_src/GeneralStateTestsFillerFiller/Pyspecs/berlin/eip2930_access_list/test_acl.py::test_access_list[fork_Cancun_minus_blockchain_test]()
-    /// We only keep the test name, which is the part between brackets.
-    fn format_pyspec_tests(s: &str) -> String {
-        let fork_name = s.split('/').nth(3).unwrap_or_default();
-        let test_name = s
-            .split('/')
-            .last()
-            .unwrap_or_default()
-            .split("::")
-            .last()
-            .unwrap_or_default();
+            let test_name = test_name
+                .to_string()
+                .replace("test_", "")
+                .replace('(', "_lpar_")
+                .replace(')', "_rpar")
+                .replace('[', "__")
+                .replace(']', "")
+                .replace('-', "_minus_")
+                .split(',')
+                .map(|part| part.trim())
+                .collect::<Vec<_>>()
+                .join("_");
 
-        let test_name = test_name
-            .to_string()
-            .replace("test_", "")
-            .replace('(', "_lpar_")
-            .replace(')', "_rpar")
-            .replace(['[', ']'], "_")
-            .replace('-', "_minus_")
-            .split(',')
-            .map(|part| part.trim())
-            .collect::<Vec<_>>()
-            .join("_");
-
-        // add the fork name after the test name
-        test_name + "_" + fork_name
+            // add the fork name after the test name
+            test_name
+        } else {
+            s.replace('-', "_minus_")
+                .replace('+', "_plus_")
+                .replace('^', "_xor_")
+        }
     }
 }
