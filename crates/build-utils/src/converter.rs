@@ -1,14 +1,10 @@
 use std::{collections::BTreeMap, sync::Arc};
 
 use rayon::prelude::*;
-use reth_primitives::{revm_primitives::FixedBytes, Address};
 use serde_json::Value;
 
 use crate::{
-    constants::{ADDRESSES_KEYS, FORK},
-    content_reader::ContentReader,
-    dir_reader::DirReader,
-    filter::Filter,
+    constants::FORK, content_reader::ContentReader, dir_reader::DirReader, filter::Filter,
     path::PathWrapper,
 };
 
@@ -103,9 +99,9 @@ impl<'a> EfTests<'a> {
                     }
                     let is_skipped = self.filter.is_skipped(file_path, Some(case_name.clone()));
                     let secret_key = if is_skipped {
-                        Some(Value::default()) // secret key is not needed if the test is skipped
+                        String::default() // secret key is not needed if the test is skipped
                     } else {
-                        ContentReader::secret_key(file_path.clone())?
+                        ContentReader::secret_key(file_path.clone(), content)?
                     };
                     Self::format_to_test(case_name, parent_dir, &secret_key, content, is_skipped)
                 })
@@ -148,7 +144,7 @@ impl<'a> EfTests<'a> {
     fn format_to_test(
         case_name: &str,
         parent_dir: &str,
-        secret_key: &Option<Value>,
+        secret_key: &String,
         content: &Value,
         is_skipped: bool,
     ) -> Result<String, eyre::Error> {
@@ -178,35 +174,14 @@ impl<'a> EfTests<'a> {
     fn format_test_content(
         case_name: &str,
         parent_dir: &str,
-        secret_key: &Option<Value>,
+        secret_key: &String,
         content: &Value,
         is_skipped: bool,
     ) -> Result<String, eyre::Error> {
         if is_skipped {
-            println!("cargo:warning=Skipped test: {}", case_name);
             return Ok(String::default());
         }
         let block = ContentReader::block(content)?;
-        let transaction = ContentReader::transaction(content, &block)?;
-
-        let sender = transaction
-            .get("sender")
-            .ok_or_else(|| eyre::eyre!("Key 'sender' not found"))?
-            .as_str()
-            .ok_or_else(|| eyre::eyre!("Sender is not a string"))?;
-
-        let sender_addr: Address = sender.parse::<FixedBytes<20>>()?.into();
-
-        // If secret key is None, get it from ADDRESSES_KEYS mapping using sender as key
-        let secret_key = secret_key
-            .as_ref()
-            .map(ToString::to_string)
-            .unwrap_or_else(|| {
-                ADDRESSES_KEYS
-                    .get(&sender_addr)
-                    .map(|addr| format!("\"{}\"", addr))
-                    .unwrap_or_else(|| panic!("No secret key found for {sender_addr}"))
-            });
         let pre = ContentReader::pre_state(content)?;
         let post = ContentReader::post_state(content)?;
         Ok(format!(
