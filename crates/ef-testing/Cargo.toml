@@ -8,7 +8,6 @@ repository.workspace = true
 build = "build.rs"
 
 [dependencies]
-build-utils = { path = "../build-utils" }
 bytes = { workspace = true }
 
 # Eth deps

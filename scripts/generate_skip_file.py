@@ -2,22 +2,23 @@ import argparse
 import re
 from collections import defaultdict
 
+
 def format_into_identifier(s: str) -> str:
     if "Pyspec" in s:
         test_name = (
             s.split("::")[-1]
             .replace("test_", "")
-            .replace('(', "_lpar_")
-            .replace(')', "_rpar")
-            .replace('[', "__")
-            .replace(']', "")
-            .replace('-', "_minus_")
-            .split(',')
+            .replace("(", "_lpar_")
+            .replace(")", "_rpar")
+            .replace("[", "__")
+            .replace("]", "")
+            .replace("-", "_minus_")
+            .split(",")
         )
         test_name = "_".join(part.strip() for part in test_name)
         return test_name
     else:
-        return s.replace('-', "_minus_").replace('+', "_plus_").replace('^', "_xor_")
+        return s.replace("-", "_minus_").replace("+", "_plus_").replace("^", "_xor_")
 
 
 def extract_runresource_failures(input_file):
@@ -28,16 +29,16 @@ def extract_runresource_failures(input_file):
         for line in file:
             if "reverted:" in line:
                 test_name_line = line
-                test_name = (
-                    test_name_line.split("reverted:")[0].split("::")[-1].strip()
-                )
+                test_name = test_name_line.split("reverted:")[0].split("::")[-1].strip()
                 test_name = format_into_identifier(test_name)
                 last_reverted = test_name
             # If we find a line that says "RunResources has no remaining steps." after the last reverted test,
             # we know that the test failed due to a RunResources error
-            elif "RunResources has no remaining steps." in line and last_reverted is not None:
+            elif (
+                "RunResources has no remaining steps." in line
+                and last_reverted is not None
+            ):
                 failing_tests.append(last_reverted)
-                print(last_reverted)
                 last_reverted = None
 
     return failing_tests
@@ -53,12 +54,10 @@ def parse_and_write_to_yaml(input_file, output_file):
             .replace("_minus_", "-")
             .replace("_plus_", "+")
             .replace("_xor_", "^"),
-            m.split("::")[-1]
+            m.split("::")[-1],
         )
         for m in re.findall(r"thread '(.*)' panicked at", data)
     ]
-
-    print(matches_failed)
 
     summary = next(
         re.finditer(
@@ -66,8 +65,6 @@ def parse_and_write_to_yaml(input_file, output_file):
             data,
         )
     )
-
-    print(summary)
 
     if len(matches_failed) != int(summary["failed"]):
         raise ValueError("Failed to parse file")
