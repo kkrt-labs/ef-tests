@@ -15,26 +15,26 @@ use crate::{
 ///
 /// Test location: BlockchainTests/GeneralStateTests/stRandom/
 /// List of tests: [randomStatetest0.json, randomStatetest1.json, ...]
-/// Inner tests: [`randomStatetest0_d0g0v0_Shanghai`, `randomStatetest0_d1g0v0_Shanghai`,
-/// ..., `randomStatetest1_d0g0v0_Shanghai`, `randomStatetest1_d1g0v0_Shanghai`, ...]
+/// Inner tests: [`randomStatetest0_d0g0v0_Cancun`, `randomStatetest0_d1g0v0_Cancun`,
+/// ..., `randomStatetest1_d0g0v0_Cancun`, `randomStatetest1_d1g0v0_Cancun`, ...]
 /// Generated String:
 /// r#"
 /// mod randomStatetest0 {
 ///   use super::*;
 ///   #[test]
-///   fn test_randomStatetest0_d0g0v0_Shanghai() {
+///   fn test_randomStatetest0_d0g0v0_Cancun() {
 ///     ...
 ///   }
 ///   #[test]
-///   fn test_randomStatetest0_d1g0v0_Shanghai() {
+///   fn test_randomStatetest0_d1g0v0_Cancun() {
 ///     ...
 ///   }
 ///   #[test]
-///   fn test_randomStatetest1_d0g0v0_Shanghai() {
+///   fn test_randomStatetest1_d0g0v0_Cancun() {
 ///     ...
 ///   }
 ///   #[test]
-///   fn test_randomStatetest1_d1g0v0_Shanghai() {
+///   fn test_randomStatetest1_d1g0v0_Cancun() {
 ///     ...
 ///   }
 ///   ...
@@ -93,12 +93,16 @@ impl<'a> EfTests<'a> {
             let file_contents = cases
                 .par_iter()
                 .map(|(case_name, content)| {
-                    if !case_name.contains(FORK) {
+                    if !(case_name.ends_with(FORK) || case_name.contains(&format!("fork_{}", FORK)))
+                    {
                         return Ok(String::new());
                     }
-                    let secret_key = ContentReader::secret_key(file_path.clone())?
-                        .ok_or_else(|| eyre::eyre!("Missing secret key"))?;
                     let is_skipped = self.filter.is_skipped(file_path, Some(case_name.clone()));
+                    let secret_key = if is_skipped {
+                        String::default() // secret key is not needed if the test is skipped
+                    } else {
+                        ContentReader::secret_key(file_path.clone(), content)?
+                    };
                     Self::format_to_test(case_name, parent_dir, &secret_key, content, is_skipped)
                 })
                 .collect::<Result<Vec<String>, eyre::Error>>()?;
@@ -140,7 +144,7 @@ impl<'a> EfTests<'a> {
     fn format_to_test(
         case_name: &str,
         parent_dir: &str,
-        secret_key: &Value,
+        secret_key: &String,
         content: &Value,
         is_skipped: bool,
     ) -> Result<String, eyre::Error> {
@@ -166,7 +170,7 @@ impl<'a> EfTests<'a> {
     fn format_test_content(
         case_name: &str,
         parent_dir: &str,
-        secret_key: &Value,
+        secret_key: &String,
         content: &Value,
         is_skipped: bool,
     ) -> Result<String, eyre::Error> {
@@ -198,9 +202,37 @@ impl<'a> EfTests<'a> {
     }
 
     /// Formats the given string into a valid rust identifier.
-    fn format_into_identifier(s: &str) -> String {
-        s.replace('-', "_minus_")
-            .replace('+', "_plus_")
-            .replace('^', "_xor_")
+    pub fn format_into_identifier(s: &str) -> String {
+        // Pyspec tests are in form test_src/GeneralStateTestsFillerFiller/Pyspecs/berlin/eip2930_access_list/test_acl.py::test_access_list[fork_Cancun_minus_blockchain_test]()
+        // We only keep the test name and its parameters.
+        if s.contains("Pyspecs") {
+            let test_name = s
+                .split('/')
+                .last()
+                .unwrap_or_default()
+                .split("::")
+                .last()
+                .unwrap_or_default();
+
+            let test_name = test_name
+                .to_string()
+                .replace("test_", "")
+                .replace('(', "_lpar_")
+                .replace(')', "_rpar")
+                .replace('[', "__")
+                .replace(']', "")
+                .replace('-', "_minus_")
+                .split(',')
+                .map(|part| part.trim())
+                .collect::<Vec<_>>()
+                .join("_");
+
+            // add the fork name after the test name
+            test_name
+        } else {
+            s.replace('-', "_minus_")
+                .replace('+', "_plus_")
+                .replace('^', "_xor_")
+        }
     }
 }

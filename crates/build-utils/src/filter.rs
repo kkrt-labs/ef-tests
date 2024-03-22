@@ -1,8 +1,12 @@
 use regex::Regex;
 use serde::{Deserialize, Serialize};
-use std::{collections::BTreeMap, fs};
+use std::{
+    collections::BTreeMap,
+    fs,
+    path::{Path, PathBuf},
+};
 
-use crate::path::PathWrapper;
+use crate::{converter::EfTests, path::PathWrapper};
 
 type Folder = String;
 type FilterMap = BTreeMap<Folder, Vec<String>>;
@@ -10,6 +14,8 @@ type FilterMap = BTreeMap<Folder, Vec<String>>;
 /// Filter to be applied on the tests files
 #[derive(Deserialize, Default, Serialize)]
 pub struct Filter {
+    // List of directories that should be skipped. e.g.: Pyspecs.
+    directories: Vec<String>,
     /// Mapping containing the directories and the files that should be skipped
     filename: FilterMap,
     /// Mapping containing the directories and the regex patterns that should be skipped
@@ -27,8 +33,31 @@ impl Filter {
 
     /// Checks if the given path is inside the filter object
     pub fn is_skipped(&self, path: &PathWrapper, case_name: Option<String>) -> bool {
+        let pathb: PathBuf = (*path).clone().into();
+        let path_str = pathb.to_string_lossy();
+
+        let relative_path = path_str
+            .split_once("GeneralStateTests/")
+            .map(|(_, path)| path)
+            .unwrap_or(&path_str);
+
+        let relative_path = Path::new(relative_path)
+            .components()
+            .next()
+            .and_then(|c| c.as_os_str().to_str())
+            .map(ToString::to_string)
+            .unwrap_or_default();
+
         let dir_name = path.parent().file_stem_to_string();
         let file_name = path.file_stem_to_string();
+
+        if self
+            .directories
+            .iter()
+            .any(|dir| relative_path.contains(dir))
+        {
+            return true;
+        }
 
         let mut should_skip = self
             .filename
@@ -49,10 +78,11 @@ impl Filter {
             .unwrap_or_default();
 
         if let Some(case_name) = case_name {
+            let test_identifier = &EfTests::format_into_identifier(&case_name);
             should_skip |= self
                 .test_name
                 .get(&dir_name)
-                .map(|tests| tests.iter().any(|test| test == &case_name))
+                .map(|tests| tests.iter().any(|test| test == test_identifier))
                 .unwrap_or_default();
         }
 

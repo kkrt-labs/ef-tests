@@ -2,7 +2,8 @@
 use super::error::RunnerError;
 use super::result::{extract_output_and_log_execution_result, EVMOutput};
 use crate::evm_sequencer::constants::{
-    CONTRACT_ACCOUNT_CLASS_HASH, EOA_CLASS_HASH, KAKAROT_ADDRESS, PROXY_CLASS_HASH,
+    BEACON_ROOT_ADDRESS, CONTRACT_ACCOUNT_CLASS_HASH, EOA_CLASS_HASH, KAKAROT_ADDRESS,
+    PROXY_CLASS_HASH,
 };
 use crate::evm_sequencer::evm_state::Evm;
 use crate::evm_sequencer::sequencer::{
@@ -80,29 +81,35 @@ impl BlockchainTestCase {
         &self,
         sequencer: &mut KakarotSequencer,
     ) -> Result<EVMOutput, RunnerError> {
-        // we extract the transaction from the block
+        // we extract the transactions from the block
         let block = &self.block;
         let block =
             SealedBlock::decode(&mut block.rlp.as_ref()).map_err(RunnerError::RlpDecodeError)?;
 
-        // Encode body as transaction
-        let mut tx_signed = block.body.first().cloned().ok_or_else(|| {
-            RunnerError::Other(vec!["No transaction in pre state block".into()].into())
-        })?;
+        let mut output = EVMOutput::default();
 
-        tx_signed.transaction.set_chain_id(CHAIN_ID);
-        let signature = sign_message(self.secret_key, tx_signed.signature_hash())
-            .map_err(|err| RunnerError::Other(vec![err.to_string()].into()))?;
+        // Iterate over all transactions in the block
+        for tx in block.body.iter() {
+            // Encode body as transaction
+            let mut tx_signed = tx.clone();
+            tx_signed.transaction.set_chain_id(CHAIN_ID);
+            // TODO: this will not support blocks with transactions from different senders (different secret key)
+            let signature = sign_message(self.secret_key, tx_signed.signature_hash())
+                .map_err(|err| RunnerError::Other(vec![err.to_string()].into()))?;
+            tx_signed.signature = signature;
 
-        tx_signed.signature = signature;
+            let execution_result = sequencer.execute_transaction(tx_signed);
 
-        let execution_result = sequencer.execute_transaction(tx_signed);
-        let output = extract_output_and_log_execution_result(
-            &execution_result,
-            &self.case_name,
-            &self.case_category,
-        )
-        .unwrap_or_default();
+            // Update the output with the execution result of the current transaction
+            let tx_output = extract_output_and_log_execution_result(
+                &execution_result,
+                &self.case_name,
+                &self.case_category,
+            )
+            .unwrap_or_default();
+
+            output.merge(&tx_output);
+        }
 
         Ok(output)
     }
@@ -169,6 +176,13 @@ impl BlockchainTestCase {
         }
 
         for (address, expected_state) in post_state.iter() {
+            //TODO: this should not be a part of the post-state of EF-Tests and can
+            // be removed once we base ourself on the next EF-Tests release, which fixes this issue
+            // Beacon-related features are not supported in Kakarot
+            if *address == *BEACON_ROOT_ADDRESS {
+                continue;
+            }
+
             // Storage
             for (k, v) in expected_state.storage.iter() {
                 let actual = sequencer.storage_at(address, *k)?;
