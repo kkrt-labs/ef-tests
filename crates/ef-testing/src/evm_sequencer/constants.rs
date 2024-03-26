@@ -2,6 +2,7 @@ use std::collections::HashMap;
 
 use lazy_static::lazy_static;
 use reth_primitives::alloy_primitives::{address, Address};
+use serde::de::DeserializeOwned;
 use starknet::core::types::contract::legacy::LegacyContractClass;
 use starknet::core::types::contract::CompiledClass;
 use starknet_api::{
@@ -11,16 +12,11 @@ use starknet_api::{
     patricia_key,
 };
 
-fn load_legacy_contract_class(path: &str) -> Result<LegacyContractClass, eyre::Error> {
-    let content = std::fs::read_to_string(path)?;
-    let class = serde_json::from_str::<LegacyContractClass>(&content)?;
-    Ok(class)
-}
-
-fn load_contract_class(path: &str) -> Result<CompiledClass, eyre::Error> {
-    let content = std::fs::read_to_string(path)?;
-    let class = serde_json::from_str::<CompiledClass>(&content)?;
-    Ok(class)
+fn load_contract_class<T>(path: &str) -> Result<T, eyre::Error>
+where
+    T: DeserializeOwned,
+{
+    Ok(serde_json::from_str::<T>(&std::fs::read_to_string(path)?).map_err(eyre::Error::from)?)
 }
 
 // Chain params
@@ -57,7 +53,7 @@ lazy_static! {
     pub static ref KAKAROT_OWNER_ADDRESS: ContractAddress =
         ContractAddress(TryInto::<PatriciaKey>::try_into(StarkFelt::from(2_u8)).unwrap());
 
-    pub static ref FEE_TOKEN_CLASS: LegacyContractClass = load_legacy_contract_class("../../build/common/ERC20.json").expect("Failed to load FeeToken contract class");
+    pub static ref FEE_TOKEN_CLASS: LegacyContractClass = load_contract_class("../../build/common/ERC20.json").expect("Failed to load FeeToken contract class");
     pub static ref FEE_TOKEN_CLASS_HASH: ClassHash = ClassHash(FEE_TOKEN_CLASS.class_hash().unwrap().into());
 
     pub static ref PRECOMPILES_CLASS: CompiledClass = load_contract_class("../../build/common/cairo1_helpers.json").expect("Failed to load precompiles contract class");
@@ -68,10 +64,10 @@ lazy_static! {
 #[cfg(feature = "v0")]
 lazy_static! {
     // Main contract classes v0
-    pub static ref KAKAROT_CLASS: LegacyContractClass = load_legacy_contract_class("../../build/v0/kakarot.json").expect("Failed to load Kakarot contract class");
-    pub static ref CONTRACT_ACCOUNT_CLASS: LegacyContractClass = load_legacy_contract_class("../../build/v0/contract_account.json").expect("Failed to load ContractAccount contract class");
-    pub static ref EOA_CLASS: LegacyContractClass = load_legacy_contract_class("../../build/v0/externally_owned_account.json").expect("Failed to load EOA contract class");
-    pub static ref PROXY_CLASS: LegacyContractClass = load_legacy_contract_class("../../build/v0/proxy.json").expect("Failed to load Proxy contract class");
+    pub static ref KAKAROT_CLASS: LegacyContractClass = load_contract_class("../../build/v0/kakarot.json").expect("Failed to load Kakarot contract class");
+    pub static ref CONTRACT_ACCOUNT_CLASS: LegacyContractClass = load_contract_class("../../build/v0/contract_account.json").expect("Failed to load ContractAccount contract class");
+    pub static ref EOA_CLASS: LegacyContractClass = load_contract_class("../../build/v0/externally_owned_account.json").expect("Failed to load EOA contract class");
+    pub static ref PROXY_CLASS: LegacyContractClass = load_contract_class("../../build/v0/proxy.json").expect("Failed to load Proxy contract class");
 
     // Main class hashes
     pub static ref KAKAROT_CLASS_HASH: ClassHash = ClassHash(KAKAROT_CLASS.class_hash().unwrap().into());

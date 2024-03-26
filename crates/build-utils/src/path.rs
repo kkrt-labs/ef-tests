@@ -1,4 +1,4 @@
-use std::{io::Read, path::PathBuf};
+use std::{ops::Deref, ops::DerefMut, path::PathBuf};
 
 #[derive(Clone, Debug, Default)]
 pub struct PathWrapper(PathBuf);
@@ -9,17 +9,23 @@ impl From<PathBuf> for PathWrapper {
     }
 }
 
-impl From<PathWrapper> for PathBuf {
-    fn from(path: PathWrapper) -> Self {
-        path.0
+impl Deref for PathWrapper {
+    type Target = PathBuf;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+impl DerefMut for PathWrapper {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.0
     }
 }
 
 impl PathWrapper {
     pub fn read_file_to_string(&self) -> std::io::Result<String> {
-        let mut content = String::new();
-        std::fs::File::open(&self.0)?.read_to_string(&mut content)?;
-        Ok(content)
+        Ok(std::fs::read_to_string(&self.0)?)
     }
 
     pub fn parent(&self) -> Self {
