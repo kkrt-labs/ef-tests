@@ -9,14 +9,14 @@ use starknet_api::hash::StarkFelt;
 use crate::evm_sequencer::{
     constants::{
         storage_variables::{
-            KAKAROT_BLOCK_GAS_LIMIT, KAKAROT_CONTRACT_ACCOUNT_CLASS_HASH,
+            KAKAROT_BLOCK_GAS_LIMIT, KAKAROT_GENERIC_ACCOUNT_CLASS_HASH,
             KAKAROT_NATIVE_TOKEN_ADDRESS, KAKAROT_PRECOMPILES_CLASS_HASH,
             KAKAROT_UNINITIALIZED_ACCOUNT_CLASS_HASH, OWNABLE_OWNER,
         },
-        BLOCK_GAS_LIMIT, CONTRACT_ACCOUNT_CLASS, CONTRACT_ACCOUNT_CLASS_HASH,
-        ETH_FEE_TOKEN_ADDRESS, FEE_TOKEN_CLASS, FEE_TOKEN_CLASS_HASH, KAKAROT_ADDRESS,
-        KAKAROT_CLASS, KAKAROT_CLASS_HASH, KAKAROT_OWNER_ADDRESS, PRECOMPILES_CLASS,
-        PRECOMPILES_CLASS_HASH, UNINITIALIZED_ACCOUNT_CLASS, UNINITIALIZED_ACCOUNT_CLASS_HASH,
+        BLOCK_GAS_LIMIT, ETH_FEE_TOKEN_ADDRESS, FEE_TOKEN_CLASS, FEE_TOKEN_CLASS_HASH,
+        GENERIC_ACCOUNT_CLASS, GENERIC_ACCOUNT_CLASS_HASH, KAKAROT_ADDRESS, KAKAROT_CLASS,
+        KAKAROT_CLASS_HASH, KAKAROT_OWNER_ADDRESS, PRECOMPILES_CLASS, PRECOMPILES_CLASS_HASH,
+        UNINITIALIZED_ACCOUNT_CLASS, UNINITIALIZED_ACCOUNT_CLASS_HASH,
     },
     sequencer::{convert_contract_class_v0, convert_contract_class_v1},
 };
@@ -29,7 +29,7 @@ lazy_static! {
         let storage = [
             (OWNABLE_OWNER, *KAKAROT_OWNER_ADDRESS.0.key()),
             (KAKAROT_NATIVE_TOKEN_ADDRESS, *ETH_FEE_TOKEN_ADDRESS.0.key()),
-            (KAKAROT_CONTRACT_ACCOUNT_CLASS_HASH, CONTRACT_ACCOUNT_CLASS_HASH.0),
+            (KAKAROT_GENERIC_ACCOUNT_CLASS_HASH, GENERIC_ACCOUNT_CLASS_HASH.0),
             (KAKAROT_PRECOMPILES_CLASS_HASH, PRECOMPILES_CLASS_HASH.0),
             (KAKAROT_BLOCK_GAS_LIMIT, StarkFelt::from(BLOCK_GAS_LIMIT)),
             (KAKAROT_UNINITIALIZED_ACCOUNT_CLASS_HASH, UNINITIALIZED_ACCOUNT_CLASS_HASH.0),
@@ -47,8 +47,8 @@ lazy_static! {
 
         // Write contract account, uninitialized_account and erc20 classes and class hashes.
         (&mut state).set_contract_class(
-            *CONTRACT_ACCOUNT_CLASS_HASH,
-            convert_contract_class_v0(&CONTRACT_ACCOUNT_CLASS).expect("failed to convert CONTRACT ACCOUNT CLASS to contract class"),
+            *GENERIC_ACCOUNT_CLASS_HASH,
+            convert_contract_class_v0(&GENERIC_ACCOUNT_CLASS).expect("failed to convert CONTRACT ACCOUNT CLASS to contract class"),
         ).expect("failed to set contract account class");
         (&mut state)
             .set_contract_class(*UNINITIALIZED_ACCOUNT_CLASS_HASH, convert_contract_class_v0(&UNINITIALIZED_ACCOUNT_CLASS).expect("failed to convert EOA CLASS to contract class")).expect("failed to set eoa contract class");

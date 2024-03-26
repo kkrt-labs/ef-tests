@@ -2,8 +2,11 @@ use blockifier::abi::{abi_utils::get_storage_var_address, sierra_types::next_sto
 use reth_primitives::{Address, Bytes, U256};
 use starknet_api::{core::Nonce, hash::StarkFelt, state::StorageKey, StarknetApiError};
 
-use super::storage_variables::*;
 use super::{split_bytecode_to_starkfelt, AccountType, KakarotAccount};
+use crate::evm_sequencer::constants::storage_variables::{
+    ACCOUNT_BYTECODE_LEN, ACCOUNT_EVM_ADDRESS, ACCOUNT_IS_INITIALIZED, ACCOUNT_NONCE,
+    ACCOUNT_STORAGE,
+};
 use crate::evm_sequencer::{types::felt::FeltSequencer, utils::split_u256};
 use crate::starknet_storage;
 
