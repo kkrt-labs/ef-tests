@@ -8,6 +8,11 @@ use starknet_api::hash::StarkFelt;
 
 use crate::evm_sequencer::{
     constants::{
+        storage_variables::{
+            KAKAROT_BLOCK_GAS_LIMIT, KAKAROT_CONTRACT_ACCOUNT_CLASS_HASH,
+            KAKAROT_NATIVE_TOKEN_ADDRESS, KAKAROT_PRECOMPILES_CLASS_HASH,
+            KAKAROT_UNINITIALIZED_ACCOUNT_CLASS_HASH, OWNABLE_OWNER,
+        },
         BLOCK_GAS_LIMIT, CONTRACT_ACCOUNT_CLASS, CONTRACT_ACCOUNT_CLASS_HASH,
         ETH_FEE_TOKEN_ADDRESS, FEE_TOKEN_CLASS, FEE_TOKEN_CLASS_HASH, KAKAROT_ADDRESS,
         KAKAROT_CLASS, KAKAROT_CLASS_HASH, KAKAROT_OWNER_ADDRESS, PRECOMPILES_CLASS,
@@ -22,12 +27,12 @@ lazy_static! {
         let mut state = SequencerState::default();
 
         let storage = [
-            ("Ownable_owner", *KAKAROT_OWNER_ADDRESS.0.key()),
-            ("Kakarot_native_token_address", *ETH_FEE_TOKEN_ADDRESS.0.key()),
-            ("Kakarot_contract_account_class_hash", CONTRACT_ACCOUNT_CLASS_HASH.0),
-            ("Kakarot_precompiles_class_hash", PRECOMPILES_CLASS_HASH.0),
-            ("Kakarot_block_gas_limit", StarkFelt::from(BLOCK_GAS_LIMIT)),
-            ("Kakarot_uninitialized_account_class_hash", UNINITIALIZED_ACCOUNT_CLASS_HASH.0),
+            (OWNABLE_OWNER, *KAKAROT_OWNER_ADDRESS.0.key()),
+            (KAKAROT_NATIVE_TOKEN_ADDRESS, *ETH_FEE_TOKEN_ADDRESS.0.key()),
+            (KAKAROT_CONTRACT_ACCOUNT_CLASS_HASH, CONTRACT_ACCOUNT_CLASS_HASH.0),
+            (KAKAROT_PRECOMPILES_CLASS_HASH, PRECOMPILES_CLASS_HASH.0),
+            (KAKAROT_BLOCK_GAS_LIMIT, StarkFelt::from(BLOCK_GAS_LIMIT)),
+            (KAKAROT_UNINITIALIZED_ACCOUNT_CLASS_HASH, UNINITIALIZED_ACCOUNT_CLASS_HASH.0),
         ];
 
         // Write all the storage vars to the sequencer state.

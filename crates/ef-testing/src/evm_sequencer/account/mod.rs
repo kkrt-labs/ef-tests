@@ -25,16 +25,6 @@ macro_rules! starknet_storage {
     };
 }
 
-pub mod storage_variables {
-    pub const ACCOUNT_BYTECODE_LEN: &str = "Account_bytecode_len";
-    pub const ACCOUNT_STORAGE: &str = "Account_storage";
-    pub const ACCOUNT_IS_INITIALIZED: &str = "Account_is_initialized";
-    pub const ACCOUNT_EVM_ADDRESS: &str = "Account_evm_address";
-    pub const ACCOUNT_NONCE: &str = "Account_nonce";
-    pub const ACCOUNT_KAKAROT_ADDRESS: &str = "Account_kakarot_address";
-    pub const ACCOUNT_IMPLEMENTATION: &str = "Account_implementation";
-}
-
 /// Structure representing a Kakarot account.
 /// Contains a nonce, Starknet storage, account
 /// type, evm address and starknet address.

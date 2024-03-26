@@ -12,11 +12,12 @@ use starknet_api::hash::StarkFelt;
 use starknet_api::state::StorageKey;
 
 use super::Evm;
-use crate::evm_sequencer::account::storage_variables::{
-    ACCOUNT_BYTECODE_LEN, ACCOUNT_IMPLEMENTATION, ACCOUNT_KAKAROT_ADDRESS, ACCOUNT_NONCE,
-    ACCOUNT_STORAGE,
-};
 use crate::evm_sequencer::account::{AccountType, KakarotAccount};
+use crate::evm_sequencer::constants::storage_variables::{
+    ACCOUNT_BYTECODE_LEN, ACCOUNT_IMPLEMENTATION, ACCOUNT_KAKAROT_ADDRESS, ACCOUNT_NONCE,
+    ACCOUNT_STORAGE, KAKAROT_BASE_FEE, KAKAROT_BLOCK_GAS_LIMIT, KAKAROT_COINBASE,
+    KAKAROT_EVM_TO_STARKNET_ADDRESS, KAKAROT_PREV_RANDAO,
+};
 use crate::evm_sequencer::constants::ETH_FEE_TOKEN_ADDRESS;
 use crate::evm_sequencer::sequencer::KakarotSequencer;
 use crate::evm_sequencer::types::felt::FeltSequencer;
@@ -37,13 +38,13 @@ impl Evm for KakarotSequencer {
         // Set the coinbase address.
         self.state_mut().set_storage_at(
             kakarot_address,
-            get_storage_var_address("Kakarot_coinbase", &[]),
+            get_storage_var_address(KAKAROT_COINBASE, &[]),
             coinbase_address.into(),
         )?;
 
         // Set the base fee.
         let [low_fee, high_fee] = split_u256(base_fee);
-        let basefee_address = get_storage_var_address("Kakarot_base_fee", &[]);
+        let basefee_address = get_storage_var_address(KAKAROT_BASE_FEE, &[]);
         self.state_mut().set_storage_at(
             kakarot_address,
             basefee_address,
@@ -57,7 +58,7 @@ impl Evm for KakarotSequencer {
 
         // Set the previous randao.
         let [low_prev_randao, high_prev_randao] = split_u256(prev_randao);
-        let prev_randao_address = get_storage_var_address("Kakarot_prev_randao", &[]);
+        let prev_randao_address = get_storage_var_address(KAKAROT_PREV_RANDAO, &[]);
         self.state_mut().set_storage_at(
             kakarot_address,
             prev_randao_address,
@@ -72,7 +73,7 @@ impl Evm for KakarotSequencer {
         // Set the block gas limit, considering it fits in a felt.
         let [block_gas_limit, _] = split_u256(block_gas_limit);
         let block_gas_limit = StarkFelt::from(block_gas_limit);
-        let block_gas_limit_address = get_storage_var_address("Kakarot_block_gas_limit", &[]);
+        let block_gas_limit_address = get_storage_var_address(KAKAROT_BLOCK_GAS_LIMIT, &[]);
         self.state_mut().set_storage_at(
             kakarot_address,
             block_gas_limit_address,
@@ -121,7 +122,7 @@ impl Evm for KakarotSequencer {
         let kakarot_address = self.environment.kakarot_address;
         self.state_mut().set_storage_at(
             kakarot_address,
-            get_storage_var_address("Kakarot_evm_to_starknet_address", &[account.evm_address]),
+            get_storage_var_address(KAKAROT_EVM_TO_STARKNET_ADDRESS, &[account.evm_address]),
             *starknet_address.0.key(),
         )?;
         Ok(())
