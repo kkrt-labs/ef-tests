@@ -40,9 +40,10 @@ impl KakarotAccount {
         let account_type = if is_eoa {
             AccountType::EOA
         } else {
-            storage.append(&mut vec![starknet_storage!(ACCOUNT_NONCE, nonce)]);
             AccountType::Contract
         };
+        // In both cases, the nonce of the account is written to storage after each tx.
+        storage.append(&mut vec![starknet_storage!(ACCOUNT_NONCE, nonce)]);
 
         // Initialize the bytecode storage var.
         let mut bytecode_storage = split_bytecode_to_starkfelt(code)

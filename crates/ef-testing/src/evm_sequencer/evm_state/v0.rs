@@ -100,11 +100,6 @@ impl Evm for KakarotSequencer {
         storage.append(&mut vec![
             starknet_storage!(ACCOUNT_IMPLEMENTATION, self.environment.eoa_class_hash.0), // both EOA and CA CH are the same (for now)
             starknet_storage!(OWNABLE_OWNER, *self.environment.kakarot_address.0.key()),
-            // Set the Kakarot address.
-            starknet_storage!(
-                ACCOUNT_KAKAROT_ADDRESS,
-                *self.environment.kakarot_address.0.key()
-            ),
         ]);
 
         // Write all the storage vars to the sequencer state.
@@ -195,9 +190,8 @@ impl Evm for KakarotSequencer {
             )
             .unwrap();
 
-        let nonce = if implementation == self.environment.eoa_class_hash.0 {
-            self.state_mut().get_nonce_at(starknet_address)?.0
-        } else if implementation == self.environment.contract_account_class_hash.0 {
+        //TODO: remove CA - EOA distinction
+        let nonce = if implementation == self.environment.contract_account_class_hash.0 {
             let key = get_storage_var_address(ACCOUNT_NONCE, &[]);
             self.state_mut().get_storage_at(starknet_address, key)?
         } else {
