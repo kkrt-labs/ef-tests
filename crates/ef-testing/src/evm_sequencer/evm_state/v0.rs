@@ -297,7 +297,7 @@ mod tests {
     use crate::evm_sequencer::{
         constants::{
             tests::{PRIVATE_KEY, PUBLIC_KEY, TEST_CONTRACT_ADDRESS},
-            CHAIN_ID, GENERIC_ACCOUNT_CLASS_HASH, KAKAROT_ADDRESS,
+            ACCOUNT_CONTRACT_CLASS_HASH, CHAIN_ID, KAKAROT_ADDRESS,
             UNINITIALIZED_ACCOUNT_CLASS_HASH,
         },
         sequencer::{v0::INITIAL_SEQUENCER_STATE, KakarotEnvironment},
@@ -316,8 +316,8 @@ mod tests {
         let kakarot_environment = KakarotEnvironment::new(
             *KAKAROT_ADDRESS,
             *UNINITIALIZED_ACCOUNT_CLASS_HASH,
-            *GENERIC_ACCOUNT_CLASS_HASH,
-            *GENERIC_ACCOUNT_CLASS_HASH,
+            *ACCOUNT_CONTRACT_CLASS_HASH,
+            *ACCOUNT_CONTRACT_CLASS_HASH,
         );
         let coinbase_address = Address::from(U160::from(1234u64));
         let mut sequencer = KakarotSequencer::new(

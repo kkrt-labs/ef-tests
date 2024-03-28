@@ -69,12 +69,12 @@ lazy_static! {
 lazy_static! {
     // Main contract classes v0
     pub static ref KAKAROT_CLASS: LegacyContractClass = load_legacy_contract_class("../../build/v0/kakarot.json").expect("Failed to load Kakarot contract class");
-    pub static ref GENERIC_ACCOUNT_CLASS: LegacyContractClass = load_legacy_contract_class("../../build/v0/generic_account.json").expect("Failed to load ContractAccount contract class");
+    pub static ref ACCOUNT_CONTRACT_CLASS: LegacyContractClass = load_legacy_contract_class("../../build/v0/account_contract.json").expect("Failed to load ContractAccount contract class");
     pub static ref UNINITIALIZED_ACCOUNT_CLASS: LegacyContractClass = load_legacy_contract_class("../../build/v0/uninitialized_account.json").expect("Failed to load uninitialized account c contract class");
 
     // Main class hashes
     pub static ref KAKAROT_CLASS_HASH: ClassHash = ClassHash(KAKAROT_CLASS.class_hash().unwrap().into());
-    pub static ref GENERIC_ACCOUNT_CLASS_HASH: ClassHash = ClassHash(GENERIC_ACCOUNT_CLASS.class_hash().unwrap().into());
+    pub static ref ACCOUNT_CONTRACT_CLASS_HASH: ClassHash = ClassHash(ACCOUNT_CONTRACT_CLASS.class_hash().unwrap().into());
     pub static ref UNINITIALIZED_ACCOUNT_CLASS_HASH: ClassHash = ClassHash(UNINITIALIZED_ACCOUNT_CLASS.class_hash().unwrap().into());
 }
 
@@ -96,7 +96,7 @@ lazy_static! {
 
 #[cfg(not(any(feature = "v0", feature = "v1")))]
 lazy_static! {
-    pub static ref GENERIC_ACCOUNT_CLASS_HASH: ClassHash =
+    pub static ref ACCOUNT_CONTRACT_CLASS_HASH: ClassHash =
         panic!("Contract account class hash not defined, use features flag \"v0\" or \"v1\"");
     pub static ref EOA_CLASS_HASH: ClassHash =
         panic!("EOA class hash not defined, use features flag \"v0\" or \"v1\"");
@@ -123,7 +123,7 @@ pub mod storage_variables {
     pub const KAKAROT_UNINITIALIZED_ACCOUNT_CLASS_HASH: &str =
         "Kakarot_uninitialized_account_class_hash";
     pub const KAKAROT_PRECOMPILES_CLASS_HASH: &str = "Kakarot_precompiles_class_hash";
-    pub const KAKAROT_GENERIC_ACCOUNT_CLASS_HASH: &str = "Kakarot_generic_account_class_hash";
+    pub const KAKAROT_ACCOUNT_CONTRACT_CLASS_HASH: &str = "Kakarot_account_contract_class_hash";
     pub const KAKAROT_PREV_RANDAO: &str = "Kakarot_prev_randao";
 
     pub const OWNABLE_OWNER: &str = "Ownable_owner";
