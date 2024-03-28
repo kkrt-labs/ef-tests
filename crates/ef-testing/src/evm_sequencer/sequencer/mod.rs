@@ -55,8 +55,7 @@ pub struct KakarotEnvironment {
     /// The address of the Kakarot contract.
     pub(crate) kakarot_address: ContractAddress,
     /// The class hash of the base account contract.
-    /// This is the proxy contract class in v0 and
-    /// the uninitialized account class in v1.
+    /// This is the uninitialized account class in v1.
     pub(crate) base_account_class_hash: ClassHash,
     /// The class hash of the externally owned account contract.
     pub(crate) eoa_class_hash: ClassHash,
@@ -160,16 +159,9 @@ impl KakarotSequencer {
         let base_class_hash = self.environment.base_account_class_hash.0.into();
 
         let constructor_args = {
-            #[cfg(feature = "v1")]
-            {
-                use crate::evm_sequencer::types::felt::FeltSequencer;
-                let evm_address: FeltSequencer = (*evm_address).try_into().unwrap(); // infallible
-                vec![kakarot_address, evm_address.into()]
-            }
-            #[cfg(not(feature = "v1"))]
-            {
-                vec![]
-            }
+            use crate::evm_sequencer::types::felt::FeltSequencer;
+            let evm_address: FeltSequencer = (*evm_address).try_into().unwrap(); // infallible
+            vec![kakarot_address, evm_address.into()]
         };
 
         Ok(compute_starknet_address(
