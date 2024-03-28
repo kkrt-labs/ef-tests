@@ -35,7 +35,7 @@ pub fn split_u256(value: U256) -> [u128; 2] {
 
 /// Converts a FieldElement to a byte array.
 pub fn felt_to_bytes(felt: &FieldElement, start: usize) -> Bytes {
-    Bytes::from(felt.to_bytes_be()[start..].to_vec())
+    felt.to_bytes_be()[start..].to_vec().into()
 }
 
 /// Converts an signed transaction and a signature to a Starknet-rs transaction.
@@ -55,22 +55,22 @@ pub fn to_broadcasted_starknet_transaction(
         {
             use crate::evm_sequencer::constants::KAKAROT_ADDRESS;
             vec![
-                FieldElement::ONE,                  // call array length
-                (*KAKAROT_ADDRESS.0.key()).into(),  // contract address
-                selector!("eth_send_transaction"),  // selector
-                FieldElement::ZERO,                 // data offset
-                FieldElement::from(calldata.len()), // data length
-                FieldElement::from(calldata.len()), // calldata length
+                FieldElement::ONE,                 // call array length
+                (*KAKAROT_ADDRESS.0.key()).into(), // contract address
+                selector!("eth_send_transaction"), // selector
+                FieldElement::ZERO,                // data offset
+                calldata.len().into(),             // data length
+                calldata.len().into(),             // calldata length
             ]
         }
         #[cfg(feature = "v1")]
         {
             use crate::evm_sequencer::constants::KAKAROT_ADDRESS;
             vec![
-                FieldElement::ONE,                  // call array length
-                (*KAKAROT_ADDRESS.0.key()).into(),  // contract address
-                selector!("eth_send_transaction"),  // selector
-                FieldElement::from(calldata.len()), // calldata length
+                FieldElement::ONE,                 // call array length
+                (*KAKAROT_ADDRESS.0.key()).into(), // contract address
+                selector!("eth_send_transaction"), // selector
+                calldata.len().into(),             // calldata length
             ]
         }
         #[cfg(not(any(feature = "v0", feature = "v1")))]
@@ -88,15 +88,15 @@ pub fn to_broadcasted_starknet_transaction(
         _ => signature.odd_y_parity as u64,
     };
     let signature = vec![
-        FieldElement::from(r_low),
-        FieldElement::from(r_high),
-        FieldElement::from(s_low),
-        FieldElement::from(s_high),
-        FieldElement::from(v),
+        r_low.into(),
+        r_high.into(),
+        s_low.into(),
+        s_high.into(),
+        v.into(),
     ];
 
     let request = BroadcastedInvokeTransaction {
-        max_fee: FieldElement::from(0u8),
+        max_fee: FieldElement::ZERO,
         signature,
         nonce,
         sender_address: signer_starknet_address,

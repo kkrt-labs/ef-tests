@@ -1,5 +1,5 @@
 use std::collections::BTreeMap;
-use std::path::PathBuf;
+use std::path::Path;
 use std::sync::Arc;
 use std::sync::Mutex;
 
@@ -29,8 +29,8 @@ pub struct DirReader<'a> {
 impl<'a> DirReader<'a> {
     pub fn new(target: &'a Option<Vec<String>>) -> Self {
         Self {
-            sub_dirs: BTreeMap::default(),
-            files: Vec::default(),
+            sub_dirs: Default::default(),
+            files: Default::default(),
             target,
         }
     }
@@ -42,7 +42,8 @@ impl<'a> DirReader<'a> {
 
     /// Walks the given directory
     pub fn walk_dir(directory_path: PathWrapper) -> Vec<DirEntry> {
-        WalkDir::new(Into::<PathBuf>::into(directory_path))
+        let path_ref: &Path = &directory_path;
+        WalkDir::new(path_ref)
             .into_iter()
             .filter_map(Result::ok)
             .filter(|f| f.file_type().is_file())

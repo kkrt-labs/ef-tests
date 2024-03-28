@@ -1,10 +1,6 @@
 use regex::Regex;
 use serde::{Deserialize, Serialize};
-use std::{
-    collections::BTreeMap,
-    fs,
-    path::{Path, PathBuf},
-};
+use std::{collections::BTreeMap, fs, path::Path};
 
 use crate::{converter::EfTests, path::PathWrapper};
 
@@ -33,7 +29,7 @@ impl Filter {
 
     /// Checks if the given path is inside the filter object
     pub fn is_skipped(&self, path: &PathWrapper, case_name: Option<String>) -> bool {
-        let pathb: PathBuf = (*path).clone().into();
+        let pathb = (*path).clone();
         let path_str = pathb.to_string_lossy();
 
         let relative_path = path_str

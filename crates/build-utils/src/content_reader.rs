@@ -1,12 +1,11 @@
-use std::collections::BTreeMap;
-
-use reth_primitives::{revm_primitives::FixedBytes, Address};
-use serde_json::Value;
-
 use crate::{
     constants::ADDRESSES_KEYS, path::PathWrapper,
     utils::blockchain_tests_to_general_state_tests_path,
 };
+use eyre::eyre;
+use reth_primitives::{revm_primitives::FixedBytes, Address};
+use serde_json::Value;
+use std::collections::BTreeMap;
 
 /// The `ContentReader` is used to read the content of the ef-test tests files.
 /// The tests files are located in the `BlockchainTests` folder and contain
@@ -52,7 +51,7 @@ impl ContentReader {
                 let sender = transaction
                     .get("sender")
                     .and_then(|value| value.as_str())
-                    .ok_or_else(|| eyre::eyre!("Key 'sender' not found"))?;
+                    .ok_or_else(|| eyre!("Key 'sender' not found"))?;
 
                 let sender_address: Address = sender.parse::<FixedBytes<20>>()?.into();
                 ADDRESSES_KEYS
@@ -63,13 +62,12 @@ impl ContentReader {
         };
         Ok(key)
     }
-    // Ok(
-    // ))
+
     pub fn pre_state(test_case: &Value) -> Result<Value, eyre::Error> {
         Ok(serde_json::from_value(
             test_case
                 .get("pre")
-                .ok_or_else(|| eyre::eyre!("key 'preState' is empty"))?
+                .ok_or_else(|| eyre!("key 'preState' is empty"))?
                 .clone(),
         )?)
     }
@@ -77,7 +75,7 @@ impl ContentReader {
     pub fn post_state(test_case: &Value) -> Result<Value, eyre::Error> {
         Ok(test_case
             .get("postState")
-            .ok_or_else(|| eyre::eyre!("key 'postState' is empty"))?
+            .ok_or_else(|| eyre!("key 'postState' is empty"))?
             .clone())
     }
 
@@ -85,46 +83,42 @@ impl ContentReader {
         // Attempt to get the "blocks" value
         let blocks = test_case
             .get("blocks")
-            .ok_or_else(|| eyre::eyre!("key 'blocks' not found"))?;
+            .ok_or_else(|| eyre!("key 'blocks' not found"))?;
 
         // Ensure it's an array
         let blocks_array = blocks
             .as_array()
-            .ok_or_else(|| eyre::eyre!("'blocks' is not an array"))?;
+            .ok_or_else(|| eyre!("'blocks' is not an array"))?;
 
         // Get the first block
         let first_block = blocks_array
             .first()
-            .ok_or_else(|| eyre::eyre!("'blocks' array is empty"))?;
+            .ok_or_else(|| eyre!("'blocks' array is empty"))?;
 
         // Return a clone of the block
         Ok(first_block.clone())
     }
 
     pub fn transaction(test_case: &Value, block: &Value) -> Result<Value, eyre::Error> {
-        let maybe_transaction = block.get("transactions");
+        // Check if the block contains a field named "transactions"
+        Ok(if let Some(transaction) = block.get("transactions") {
+            // If the "transactions" field exists, try to convert its value to an array
+            let transaction_array = transaction
+                .as_array()
+                .ok_or_else(|| eyre!("'transactions' is not an array"))?;
 
-        match maybe_transaction {
-            Some(transaction) => {
-                // Ensure it's an array
-                let transaction_array = transaction
-                    .as_array()
-                    .ok_or_else(|| eyre::eyre!("'transactions' is not an array"))?;
-
-                // Get the first transaction - multi-txs tests are not supported by the runner
-                let first_tx = transaction_array
-                    .first()
-                    .ok_or_else(|| eyre::eyre!("'transactions' array is empty"))?;
-
-                Ok(first_tx.clone())
-            }
-            None => {
-                let transaction = test_case
-                    .get("transaction")
-                    .ok_or_else(|| eyre::eyre!("key 'transaction' not found"))?;
-
-                Ok(transaction.clone())
-            }
-        }
+            // Get the first transaction from the array
+            transaction_array
+                .first()
+                .ok_or_else(|| eyre!("'transactions' array is empty"))?
+                .clone() // Clone the transaction value
+        } else {
+            // If the block does not contain a "transactions" field,
+            // retrieve the transaction directly from the test case
+            test_case
+                .get("transaction")
+                .ok_or_else(|| eyre!("key 'transaction' not found"))?
+                .clone() // Clone the transaction value
+        })
     }
 }
