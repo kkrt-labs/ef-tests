@@ -86,15 +86,14 @@ impl<'a> DirReader<'a> {
     /// Inserts a file into the `DirReader` by recursively navigating the file's
     /// path and inserting the file into the correct sub directory.
     fn insert_file(&mut self, current_path: Vec<String>, full_path: PathWrapper) {
-        if let Some((root_name, rest)) = current_path.split_first() {
-            self.sub_dirs
-                .entry(root_name.clone())
-                .or_insert_with(|| Self {
-                    sub_dirs: Default::default(),
-                    files: Default::default(),
-                    target: self.target,
-                })
-                .insert_file(rest.to_vec(), full_path);
+        if current_path.len() > 1 {
+            let root_name = current_path.first().cloned().unwrap(); // safe unwrap
+            let sub_node = self.sub_dirs.entry(root_name).or_insert_with(|| Self {
+                sub_dirs: BTreeMap::default(),
+                files: Vec::default(),
+                target: self.target,
+            });
+            sub_node.insert_file(current_path.into_iter().skip(1).collect(), full_path);
         } else {
             self.files.push(full_path);
         }
