@@ -25,7 +25,7 @@ impl DerefMut for PathWrapper {
 
 impl PathWrapper {
     pub fn read_file_to_string(&self) -> std::io::Result<String> {
-        Ok(std::fs::read_to_string(&self.0)?)
+        std::fs::read_to_string(&self.0)
     }
 
     pub fn parent(&self) -> Self {

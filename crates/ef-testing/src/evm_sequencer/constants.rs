@@ -16,7 +16,7 @@ fn load_contract_class<T>(path: &str) -> Result<T, eyre::Error>
 where
     T: DeserializeOwned,
 {
-    Ok(serde_json::from_str::<T>(&std::fs::read_to_string(path)?).map_err(eyre::Error::from)?)
+    serde_json::from_str::<T>(&std::fs::read_to_string(path)?).map_err(eyre::Error::from)
 }
 
 // Chain params
