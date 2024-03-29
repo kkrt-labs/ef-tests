@@ -143,6 +143,6 @@ pub mod tests {
                 .unwrap();
         pub static ref PUBLIC_KEY: Address =
             Address::from_str("0x7513A12F74fFF533ee12F20EE524e4883CBd1945").unwrap();
-        pub static ref TEST_CONTRACT_ADDRESS: Address = Address::from(U160::from(10));
+        pub static ref TEST_CONTRACT_ADDRESS: Address = Address::from(U160::from(0xdeadbeefu64));
     }
 }

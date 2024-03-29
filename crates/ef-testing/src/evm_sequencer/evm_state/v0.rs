@@ -294,14 +294,17 @@ impl Evm for KakarotSequencer {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::evm_sequencer::{
-        constants::{
-            tests::{PRIVATE_KEY, PUBLIC_KEY, TEST_CONTRACT_ADDRESS},
-            ACCOUNT_CONTRACT_CLASS_HASH, CHAIN_ID, KAKAROT_ADDRESS,
-            UNINITIALIZED_ACCOUNT_CLASS_HASH,
+    use crate::{
+        evm_sequencer::{
+            constants::{
+                tests::{PRIVATE_KEY, PUBLIC_KEY, TEST_CONTRACT_ADDRESS},
+                ACCOUNT_CONTRACT_CLASS_HASH, CHAIN_ID, KAKAROT_ADDRESS,
+                UNINITIALIZED_ACCOUNT_CLASS_HASH,
+            },
+            sequencer::{v0::INITIAL_SEQUENCER_STATE, KakarotEnvironment},
+            utils::compute_starknet_address,
         },
-        sequencer::{v0::INITIAL_SEQUENCER_STATE, KakarotEnvironment},
-        utils::compute_starknet_address,
+        models::result::extract_output_and_log_execution_result,
     };
     use blockifier::{abi::abi_utils::get_storage_var_address, state::state_api::StateReader};
     use reth_primitives::{
@@ -319,7 +322,7 @@ mod tests {
             *ACCOUNT_CONTRACT_CLASS_HASH,
             *ACCOUNT_CONTRACT_CLASS_HASH,
         );
-        let coinbase_address = Address::from(U160::from(1234u64));
+        let coinbase_address = Address::from(U160::from(0xC01BA5Eu64));
         let mut sequencer = KakarotSequencer::new(
             INITIAL_SEQUENCER_STATE.clone(),
             kakarot_environment,
@@ -347,26 +350,47 @@ mod tests {
         let signature =
             sign_message(*PRIVATE_KEY, transaction.transaction.signature_hash()).unwrap();
         transaction.signature = signature;
-        let bytecode = Bytes::from(vec![96, 1, 96, 0, 85]); // PUSH 01 PUSH 00 SSTORE
-        let nonce = U256::from(0);
+        let eoa_nonce = U256::from(0);
+        let contract_bytecode = Bytes::from(vec![96, 1, 96, 0, 85]); // PUSH 01 PUSH 00 SSTORE
+        let contract_nonce = U256::from(1);
 
         // When
-        let contract =
-            KakarotAccount::new(&TEST_CONTRACT_ADDRESS, &bytecode, nonce, &[], false).unwrap();
-        let eoa = KakarotAccount::new(&PUBLIC_KEY, &Bytes::default(), nonce, &[], true).unwrap();
+        let contract = KakarotAccount::new(
+            &TEST_CONTRACT_ADDRESS,
+            &contract_bytecode,
+            contract_nonce,
+            &[],
+            false,
+        )
+        .unwrap();
+        let eoa =
+            KakarotAccount::new(&PUBLIC_KEY, &Bytes::default(), eoa_nonce, &[], true).unwrap();
         sequencer.setup_account(contract).unwrap();
         sequencer.setup_account(eoa).unwrap();
-        sequencer.execute_transaction(transaction).unwrap();
+        let execution_result = sequencer.execute_transaction(transaction);
+
+        // Update the output with the execution result of the current transaction
+        let tx_output = extract_output_and_log_execution_result(
+            &execution_result,
+            "test_case",
+            "test_category",
+        )
+        .unwrap_or_default();
+
+        assert!(tx_output.success);
 
         // Then
+        let evm_address: FeltSequencer = (*TEST_CONTRACT_ADDRESS).try_into().unwrap(); // infallible
+        let kakarot_address: FieldElement = (*KAKAROT_ADDRESS.0.key()).into();
         let contract_starknet_address = compute_starknet_address(
             &TEST_CONTRACT_ADDRESS,
-            (*KAKAROT_ADDRESS.0.key()).into(),
+            kakarot_address,
             UNINITIALIZED_ACCOUNT_CLASS_HASH.0.into(),
-            &[],
+            &[kakarot_address, evm_address.into()],
         )
         .try_into()
         .unwrap();
+
         let storage = sequencer
             .state_mut()
             .get_storage_at(

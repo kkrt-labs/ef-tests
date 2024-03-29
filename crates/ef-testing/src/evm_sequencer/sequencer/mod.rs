@@ -90,17 +90,11 @@ impl KakarotSequencer {
     ) -> Self {
         let kakarot_address = (*environment.kakarot_address.0.key()).into();
         let coinbase_constructor_args = {
-            #[cfg(feature = "v1")]
-            {
-                use crate::evm_sequencer::types::felt::FeltSequencer;
-                let evm_address: FeltSequencer = coinbase_address.try_into().unwrap(); // infallible
-                vec![kakarot_address, evm_address.into()]
-            }
-            #[cfg(not(feature = "v1"))]
-            {
-                vec![]
-            }
+            use crate::evm_sequencer::types::felt::FeltSequencer;
+            let evm_address: FeltSequencer = coinbase_address.try_into().unwrap(); // infallible
+            vec![kakarot_address, evm_address.into()]
         };
+
         let block_context = BlockContext {
             block_info: BlockInfo {
                 block_number: BlockNumber(block_number),
