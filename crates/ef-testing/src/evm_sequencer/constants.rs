@@ -60,8 +60,8 @@ lazy_static! {
     pub static ref FEE_TOKEN_CLASS: LegacyContractClass = load_legacy_contract_class("../../build/common/ERC20.json").expect("Failed to load FeeToken contract class");
     pub static ref FEE_TOKEN_CLASS_HASH: ClassHash = ClassHash(FEE_TOKEN_CLASS.class_hash().unwrap().into());
 
-    pub static ref PRECOMPILES_CLASS: CompiledClass = load_contract_class("../../build/common/cairo1_helpers.json").expect("Failed to load precompiles contract class");
-    pub static ref PRECOMPILES_CLASS_HASH: ClassHash = ClassHash(PRECOMPILES_CLASS.class_hash().unwrap().into());
+    pub static ref CAIRO1_HELPERS_CLASS: CompiledClass = load_contract_class("../../build/common/cairo1_helpers.json").expect("Failed to load precompiles contract class");
+    pub static ref CAIRO1_HELPERS_CLASS_HASH: ClassHash = ClassHash(CAIRO1_HELPERS_CLASS.class_hash().unwrap().into());
 
 }
 
@@ -122,7 +122,7 @@ pub mod storage_variables {
     pub const KAKAROT_NATIVE_TOKEN_ADDRESS: &str = "Kakarot_native_token_address";
     pub const KAKAROT_UNINITIALIZED_ACCOUNT_CLASS_HASH: &str =
         "Kakarot_uninitialized_account_class_hash";
-    pub const KAKAROT_PRECOMPILES_CLASS_HASH: &str = "Kakarot_precompiles_class_hash";
+    pub const KAKAROT_CAIRO1_HELPERS_CLASS_HASH: &str = "Kakarot_precompiles_class_hash";
     pub const KAKAROT_ACCOUNT_CONTRACT_CLASS_HASH: &str = "Kakarot_account_contract_class_hash";
     pub const KAKAROT_PREV_RANDAO: &str = "Kakarot_prev_randao";
 
@@ -143,6 +143,6 @@ pub mod tests {
                 .unwrap();
         pub static ref PUBLIC_KEY: Address =
             Address::from_str("0x7513A12F74fFF533ee12F20EE524e4883CBd1945").unwrap();
-        pub static ref TEST_CONTRACT_ADDRESS: Address = Address::from(U160::from(10));
+        pub static ref TEST_CONTRACT_ADDRESS: Address = Address::from(U160::from(0xdeadbeefu64));
     }
 }
