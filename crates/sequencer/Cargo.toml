@@ -20,8 +20,8 @@ starknet = { workspace = true }
 # Other
 eyre = { workspace = true }
 tracing = { workspace = true }
-rustc-hash = "1.1.0"
 thiserror = { workspace = true }
+hashbrown = {workspace = true}
 
 [dev-dependencies]
 lazy_static = { workspace = true }

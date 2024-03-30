@@ -4,7 +4,7 @@ use blockifier::state::errors::StateError;
 use blockifier::state::state_api::{
     State as BlockifierState, StateReader as BlockifierStateReader, StateResult,
 };
-use rustc_hash::FxHashMap;
+use hashbrown::HashMap;
 use starknet_api::core::CompiledClassHash;
 use starknet_api::state::StorageKey;
 use starknet_api::{
@@ -20,18 +20,18 @@ use crate::serde::SerializableState;
 pub type ContractStorageKey = (ContractAddress, StorageKey);
 
 /// Generic state structure for the sequencer.
-/// The use of `FxHashMap` allows for a better performance.
+/// The use of `HashMap` implementation from hashbrown allows for a better performance.
 /// This hash map is used by rustc. It uses a non cryptographic hash function
 /// which is faster than the default hash function. Think about changing
 /// if the test sequencer is used for tests outside of ef-tests.
 /// See [rustc-hash](https://crates.io/crates/rustc-hash) for more information.
 #[derive(Clone, Default, Debug, Serialize, Deserialize, PartialEq, Eq)]
 pub struct State {
-    classes: FxHashMap<ClassHash, ContractClass>,
-    compiled_class_hashes: FxHashMap<ClassHash, CompiledClassHash>,
-    contracts: FxHashMap<ContractAddress, ClassHash>,
-    storage: FxHashMap<ContractStorageKey, StarkFelt>,
-    nonces: FxHashMap<ContractAddress, Nonce>,
+    classes: HashMap<ClassHash, ContractClass>,
+    compiled_class_hashes: HashMap<ClassHash, CompiledClassHash>,
+    contracts: HashMap<ContractAddress, ClassHash>,
+    storage: HashMap<ContractStorageKey, StarkFelt>,
+    nonces: HashMap<ContractAddress, Nonce>,
 }
 
 impl From<State> for SerializableState {
