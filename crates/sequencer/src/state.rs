@@ -21,10 +21,7 @@ pub type ContractStorageKey = (ContractAddress, StorageKey);
 
 /// Generic state structure for the sequencer.
 /// The use of `HashMap` implementation from hashbrown allows for a better performance.
-/// This hash map is used by rustc. It uses a non cryptographic hash function
-/// which is faster than the default hash function. Think about changing
-/// if the test sequencer is used for tests outside of ef-tests.
-/// See [rustc-hash](https://crates.io/crates/rustc-hash) for more information.
+/// See [Performance](https://github.com/rust-lang/hashbrown?tab=readme-ov-file#performance)
 #[derive(Clone, Default, Debug, Serialize, Deserialize, PartialEq, Eq)]
 pub struct State {
     classes: HashMap<ClassHash, ContractClass>,

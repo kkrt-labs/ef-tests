@@ -60,7 +60,6 @@ pub struct SerializableState {
 
 mod serialize_contract_storage {
     use crate::state::ContractStorageKey;
-    use hashbrown::hash_map::DefaultHashBuilder;
     use hashbrown::HashMap;
     use serde::de::{Deserializer, MapAccess, Visitor};
     use serde::ser::{SerializeMap, Serializer};
@@ -115,9 +114,8 @@ mod serialize_contract_storage {
         where
             M: MapAccess<'de>,
         {
-            let mut map = HashMap::with_capacity_and_hasher(
-                access.size_hint().unwrap_or(0),
-                DefaultHashBuilder::default(),
+            let mut map = HashMap::with_capacity(
+                access.size_hint().unwrap_or(0)
             );
 
             // While there are entries remaining in the input, add them
