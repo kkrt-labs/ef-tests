@@ -114,9 +114,7 @@ mod serialize_contract_storage {
         where
             M: MapAccess<'de>,
         {
-            let mut map = HashMap::with_capacity(
-                access.size_hint().unwrap_or(0)
-            );
+            let mut map = HashMap::with_capacity(access.size_hint().unwrap_or(0));
 
             // While there are entries remaining in the input, add them
             // into our map.
