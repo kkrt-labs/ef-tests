@@ -20,7 +20,7 @@ pub fn compute_starknet_address(
         evm_address.into(),
         class_hash,
         constructor_args,
-        kakarot_address,
+        0_u32.into(),
     );
     starknet_address.into()
 }
