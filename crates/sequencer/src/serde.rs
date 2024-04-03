@@ -1,7 +1,7 @@
 use std::{fs, io, path::Path};
 
 use blockifier::execution::contract_class::ContractClass;
-use rustc_hash::FxHashMap;
+use hashbrown::HashMap;
 use serde::{Deserialize, Serialize};
 use starknet_api::{
     core::{ClassHash, CompiledClassHash, ContractAddress, Nonce},
@@ -50,26 +50,24 @@ pub enum SerializationError {
 
 #[derive(Clone, Debug, Serialize, Deserialize, Default)]
 pub struct SerializableState {
-    pub classes: FxHashMap<ClassHash, ContractClass>,
-    pub compiled_classes_hash: FxHashMap<ClassHash, CompiledClassHash>,
-    pub contracts: FxHashMap<ContractAddress, ClassHash>,
+    pub classes: HashMap<ClassHash, ContractClass>,
+    pub compiled_classes_hash: HashMap<ClassHash, CompiledClassHash>,
+    pub contracts: HashMap<ContractAddress, ClassHash>,
     #[serde(with = "serialize_contract_storage")]
-    pub storage: FxHashMap<ContractStorageKey, StarkFelt>,
-    pub nonces: FxHashMap<ContractAddress, Nonce>,
+    pub storage: HashMap<ContractStorageKey, StarkFelt>,
+    pub nonces: HashMap<ContractAddress, Nonce>,
 }
 
 mod serialize_contract_storage {
-    use rustc_hash::{FxHashMap, FxHasher};
+    use crate::state::ContractStorageKey;
+    use hashbrown::HashMap;
     use serde::de::{Deserializer, MapAccess, Visitor};
     use serde::ser::{SerializeMap, Serializer};
     use starknet_api::hash::StarkFelt;
     use std::fmt;
-    use std::hash::BuildHasherDefault;
-
-    use crate::state::ContractStorageKey;
 
     pub fn serialize<S>(
-        map: &FxHashMap<ContractStorageKey, StarkFelt>,
+        map: &HashMap<ContractStorageKey, StarkFelt>,
         serializer: S,
     ) -> Result<S::Ok, S::Error>
     where
@@ -91,7 +89,7 @@ mod serialize_contract_storage {
 
     pub fn deserialize<'de, D>(
         deserializer: D,
-    ) -> Result<FxHashMap<ContractStorageKey, StarkFelt>, D::Error>
+    ) -> Result<HashMap<ContractStorageKey, StarkFelt>, D::Error>
     where
         D: Deserializer<'de>,
     {
@@ -102,7 +100,7 @@ mod serialize_contract_storage {
 
     impl<'de> Visitor<'de> for MapContractStorageKeyVisitor {
         // The type that our Visitor is going to produce.
-        type Value = FxHashMap<ContractStorageKey, StarkFelt>;
+        type Value = HashMap<ContractStorageKey, StarkFelt>;
 
         // Format a message stating what data this Visitor expects to receive.
         fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
@@ -116,10 +114,7 @@ mod serialize_contract_storage {
         where
             M: MapAccess<'de>,
         {
-            let mut map = FxHashMap::with_capacity_and_hasher(
-                access.size_hint().unwrap_or(0),
-                BuildHasherDefault::<FxHasher>::default(),
-            );
+            let mut map = HashMap::with_capacity(access.size_hint().unwrap_or(0));
 
             // While there are entries remaining in the input, add them
             // into our map.

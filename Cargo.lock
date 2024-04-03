@@ -6484,8 +6484,8 @@ version = "0.1.0"
 dependencies = [
  "blockifier",
  "eyre",
+ "hashbrown 0.14.3",
  "lazy_static",
- "rustc-hash",
  "serde",
  "serde_json",
  "starknet",
