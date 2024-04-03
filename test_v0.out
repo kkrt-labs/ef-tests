@@ -1,0 +1,2 @@
+cargo build --release
+cargo test --test VMTests --lib --no-fail-fast --quiet --features "v0,ci"
