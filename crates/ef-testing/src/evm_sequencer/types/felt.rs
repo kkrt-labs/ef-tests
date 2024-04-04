@@ -28,8 +28,10 @@ impl TryFrom<Address> for FeltSequencer {
     type Error = Infallible;
 
     fn try_from(address: Address) -> Result<Self, Self::Error> {
-        let address = FieldElement::from_byte_slice_be(&address.0[..]).unwrap(); // safe unwrap since Address is 20 bytes
-        Ok(Self(address))
+        // safe unwrap since Address is 20 bytes
+        Ok(Self(
+            FieldElement::from_byte_slice_be(&address.0[..]).unwrap(),
+        ))
     }
 }
 
@@ -44,7 +46,6 @@ impl TryFrom<FeltSequencer> for ContractAddress {
 
     fn try_from(felt: FeltSequencer) -> Result<Self, Self::Error> {
         let felt: StarkFelt = felt.into();
-        let contract_address = Self(TryInto::<PatriciaKey>::try_into(felt)?);
-        Ok(contract_address)
+        Ok(Self(TryInto::<PatriciaKey>::try_into(felt)?))
     }
 }
