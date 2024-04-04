@@ -8,10 +8,15 @@ use starknet_api::hash::StarkFelt;
 
 use crate::evm_sequencer::{
     constants::{
-        BLOCK_GAS_LIMIT, CONTRACT_ACCOUNT_CLASS, CONTRACT_ACCOUNT_CLASS_HASH, EOA_CLASS,
-        EOA_CLASS_HASH, ETH_FEE_TOKEN_ADDRESS, FEE_TOKEN_CLASS, FEE_TOKEN_CLASS_HASH,
+        storage_variables::{
+            KAKAROT_ACCOUNT_CONTRACT_CLASS_HASH, KAKAROT_BLOCK_GAS_LIMIT,
+            KAKAROT_CAIRO1_HELPERS_CLASS_HASH, KAKAROT_NATIVE_TOKEN_ADDRESS,
+            KAKAROT_UNINITIALIZED_ACCOUNT_CLASS_HASH, OWNABLE_OWNER,
+        },
+        ACCOUNT_CONTRACT_CLASS, ACCOUNT_CONTRACT_CLASS_HASH, BLOCK_GAS_LIMIT, CAIRO1_HELPERS_CLASS,
+        CAIRO1_HELPERS_CLASS_HASH, ETH_FEE_TOKEN_ADDRESS, FEE_TOKEN_CLASS, FEE_TOKEN_CLASS_HASH,
         KAKAROT_ADDRESS, KAKAROT_CLASS, KAKAROT_CLASS_HASH, KAKAROT_OWNER_ADDRESS,
-        PRECOMPILES_CLASS, PRECOMPILES_CLASS_HASH, PROXY_CLASS, PROXY_CLASS_HASH,
+        UNINITIALIZED_ACCOUNT_CLASS, UNINITIALIZED_ACCOUNT_CLASS_HASH,
     },
     sequencer::{convert_contract_class_v0, convert_contract_class_v1},
 };
@@ -22,13 +27,12 @@ lazy_static! {
         let mut state = SequencerState::default();
 
         let storage = [
-            ("Ownable_owner", *KAKAROT_OWNER_ADDRESS.0.key()),
-            ("native_token_address", *ETH_FEE_TOKEN_ADDRESS.0.key()),
-            ("contract_account_class_hash", CONTRACT_ACCOUNT_CLASS_HASH.0),
-            ("externally_owned_account_class_hash", EOA_CLASS_HASH.0),
-            ("account_proxy_class_hash", PROXY_CLASS_HASH.0),
-            ("precompiles_class_hash", PRECOMPILES_CLASS_HASH.0),
-            ("block_gas_limit", StarkFelt::from(BLOCK_GAS_LIMIT))
+            (OWNABLE_OWNER, *KAKAROT_OWNER_ADDRESS.0.key()),
+            (KAKAROT_NATIVE_TOKEN_ADDRESS, *ETH_FEE_TOKEN_ADDRESS.0.key()),
+            (KAKAROT_ACCOUNT_CONTRACT_CLASS_HASH, ACCOUNT_CONTRACT_CLASS_HASH.0),
+            (KAKAROT_CAIRO1_HELPERS_CLASS_HASH, CAIRO1_HELPERS_CLASS_HASH.0),
+            (KAKAROT_BLOCK_GAS_LIMIT, StarkFelt::from(BLOCK_GAS_LIMIT)),
+            (KAKAROT_UNINITIALIZED_ACCOUNT_CLASS_HASH, UNINITIALIZED_ACCOUNT_CLASS_HASH.0),
         ];
 
         // Write all the storage vars to the sequencer state.
@@ -41,21 +45,20 @@ lazy_static! {
         (&mut state)
             .set_contract_class(*KAKAROT_CLASS_HASH, convert_contract_class_v0(&KAKAROT_CLASS).expect("failed to convert KAKAROT CLASS to contract class")).expect("failed to set kakarot contract class");
 
-        // Write proxy, eoa, contract account and erc20 classes and class hashes.
-        (&mut state)
-            .set_contract_class(*PROXY_CLASS_HASH, convert_contract_class_v0(&PROXY_CLASS).expect("failed to convert PROXY CLASS to contract class")).expect("failed to set proxy contract class");
+        // Write contract account, uninitialized_account and erc20 classes and class hashes.
         (&mut state).set_contract_class(
-            *CONTRACT_ACCOUNT_CLASS_HASH,
-            convert_contract_class_v0(&CONTRACT_ACCOUNT_CLASS).expect("failed to convert CONTRACT ACCOUNT CLASS to contract class"),
+            *ACCOUNT_CONTRACT_CLASS_HASH,
+            convert_contract_class_v0(&ACCOUNT_CONTRACT_CLASS).expect("failed to convert CONTRACT ACCOUNT CLASS to contract class"),
         ).expect("failed to set contract account class");
         (&mut state)
-            .set_contract_class(*EOA_CLASS_HASH, convert_contract_class_v0(&EOA_CLASS).expect("failed to convert EOA CLASS to contract class")).expect("failed to set eoa contract class");
+            .set_contract_class(*UNINITIALIZED_ACCOUNT_CLASS_HASH, convert_contract_class_v0(&UNINITIALIZED_ACCOUNT_CLASS).expect("failed to convert EOA CLASS to contract class")).expect("failed to set eoa contract class");
+
         (&mut state).set_contract_class(
             *FEE_TOKEN_CLASS_HASH,
             convert_contract_class_v0(&FEE_TOKEN_CLASS).expect("failed to convert FEE TOKEN CLASS to contract class"),
         ).expect("failed to set sequencer contract class");
         (&mut state).set_class_hash_at(*ETH_FEE_TOKEN_ADDRESS, *FEE_TOKEN_CLASS_HASH).expect("failed to set fee token class hash");
-        (&mut state).set_contract_class(*PRECOMPILES_CLASS_HASH, convert_contract_class_v1(&PRECOMPILES_CLASS).expect("failed to convert PRECOMPILES Class to contract class")).expect("failed to set precompiles contract class");
+        (&mut state).set_contract_class(*CAIRO1_HELPERS_CLASS_HASH, convert_contract_class_v1(&CAIRO1_HELPERS_CLASS).expect("failed to convert PRECOMPILES Class to contract class")).expect("failed to set precompiles contract class");
 
         state
     };

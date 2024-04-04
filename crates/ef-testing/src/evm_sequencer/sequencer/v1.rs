@@ -9,7 +9,7 @@ use crate::evm_sequencer::{
         CHAIN_ID, ETH_FEE_TOKEN_ADDRESS, FEE_TOKEN_CLASS, FEE_TOKEN_CLASS_HASH, KAKAROT_ADDRESS,
         KAKAROT_OWNER_ADDRESS,
         {
-            CONTRACT_ACCOUNT_CLASS, CONTRACT_ACCOUNT_CLASS_HASH, EOA_CLASS, EOA_CLASS_HASH,
+            ACCOUNT_CONTRACT_CLASS, ACCOUNT_CONTRACT_CLASS_HASH, EOA_CLASS, EOA_CLASS_HASH,
             KAKAROT_CLASS, KAKAROT_CLASS_HASH, UNINITIALIZED_ACCOUNT_CLASS,
             UNINITIALIZED_ACCOUNT_CLASS_HASH,
         },
@@ -44,7 +44,7 @@ lazy_static! {
         // Write eoa, contract account and uninitialized account.
         (&mut state).set_contract_class(
             *CONTRACT_ACCOUNT_CLASS_HASH,
-            convert_contract_class_v1(&CONTRACT_ACCOUNT_CLASS).expect("Failed to convert CONTRACT ACCOUNT CLASS to contract class"),
+            convert_contract_class_v1(&ACCOUNT_CONTRACT_CLASS).expect("Failed to convert CONTRACT ACCOUNT CLASS to contract class"),
         ).expect("Failed to set contract account class");
         (&mut state)
             .set_contract_class(*EOA_CLASS_HASH, convert_contract_class_v1(&EOA_CLASS).expect("Failed to convert EOA CLASS to contract class")).expect("Failed to set eoa contract class");
