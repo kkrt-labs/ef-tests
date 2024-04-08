@@ -58,7 +58,7 @@ lazy_static! {
             convert_contract_class_v0(&FEE_TOKEN_CLASS).expect("failed to convert FEE TOKEN CLASS to contract class"),
         ).expect("failed to set sequencer contract class");
         (&mut state).set_class_hash_at(*ETH_FEE_TOKEN_ADDRESS, *FEE_TOKEN_CLASS_HASH).expect("failed to set fee token class hash");
-        (&mut state).set_contract_class(*CAIRO1_HELPERS_CLASS_HASH, convert_contract_class_v1(&CAIRO1_HELPERS_CLASS).expect("failed to convert PRECOMPILES Class to contract class")).expect("failed to set precompiles contract class");
+        (&mut state).set_contract_class(*CAIRO1_HELPERS_CLASS_HASH, convert_contract_class_v1(&CAIRO1_HELPERS_CLASS).expect("failed to convert CAIRO1_HELPERS Class to contract class")).expect("failed to set cairo1_helpers contract class");
 
         state
     };
