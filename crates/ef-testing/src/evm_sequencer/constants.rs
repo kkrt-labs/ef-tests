@@ -118,7 +118,7 @@ pub mod storage_variables {
     pub const KAKAROT_NATIVE_TOKEN_ADDRESS: &str = "Kakarot_native_token_address";
     pub const KAKAROT_UNINITIALIZED_ACCOUNT_CLASS_HASH: &str =
         "Kakarot_uninitialized_account_class_hash";
-    pub const KAKAROT_CAIRO1_HELPERS_CLASS_HASH: &str = "Kakarot_precompiles_class_hash";
+    pub const KAKAROT_CAIRO1_HELPERS_CLASS_HASH: &str = "Kakarot_cairo1_helpers_class_hash";
     pub const KAKAROT_ACCOUNT_CONTRACT_CLASS_HASH: &str = "Kakarot_account_contract_class_hash";
     pub const KAKAROT_PREV_RANDAO: &str = "Kakarot_prev_randao";
 
