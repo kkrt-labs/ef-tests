@@ -14,9 +14,8 @@ EF_TESTS_DIR := ./crates/ef-testing/ethereum-tests
 KKRT_V0_ARTIFACTS_URL = $(shell curl -sL -H "Authorization: token $(GITHUB_TOKEN)" "https://api.github.com/repos/kkrt-labs/kakarot/actions/workflows/ci.yml/runs?per_page=1&branch=main&event=push&status=success" | jq -r '.workflow_runs[0].artifacts_url')
 KKRT_V0_BUILD_ARTIFACT_URL = $(shell curl -sL -H "Authorization: token $(GITHUB_TOKEN)" "$(KKRT_V0_ARTIFACTS_URL)" | jq -r '.artifacts[] | select(.name=="kakarot-build").url')/zip
 
-# Kakarot artifacts V1
-KKRT_V1_ARTIFACTS_URL = $(shell curl -sL -H "Authorization: token $(GITHUB_TOKEN)" "https://api.github.com/repos/kkrt-labs/kakarot-ssj/actions/workflows/artifacts.yml/runs?per_page=1&branch=main&event=push&status=success" | jq -r '.workflow_runs[0].artifacts_url')
-KKRT_V1_BUILD_ARTIFACT_URL = $(shell curl -sL -H "Authorization: token $(GITHUB_TOKEN)" "$(KKRT_V1_ARTIFACTS_URL)" | jq -r '.artifacts[] | select(.name=="dev-artifacts").url')/zip
+# Kakarot SSJ artifacts for precompiles
+KKRT_SSJ_BUILD_ARTIFACT_URL = $(shell curl -L https://api.github.com/repos/kkrt-labs/kakarot-ssj/releases/latest | jq -r '.assets[0].browser_download_url')
 
 # Downloads and unpacks Ethereum Foundation tests in the `$(EF_TESTS_DIR)` directory.
 # Requires `wget` and `tar`
@@ -37,7 +36,7 @@ setup-kakarot-v0: clean-kakarot-v0
 	rm -f kakarot-build.zip
 
 setup-kakarot-v1: clean-kakarot-v1
-	@curl -sL -o dev-artifacts.zip -H "Authorization: token $(GITHUB_TOKEN)" "$(KKRT_V1_BUILD_ARTIFACT_URL)"
+	@curl -sL -o dev-artifacts.zip "$(KKRT_SSJ_BUILD_ARTIFACT_URL)"
 	unzip -o dev-artifacts.zip -d build/temp
 	mv build/temp/contracts_ContractAccount.compiled_contract_class.json build/v1/contract_account.json
 	mv build/temp/contracts_ExternallyOwnedAccount.compiled_contract_class.json build/v1/externally_owned_account.json
@@ -66,7 +65,7 @@ unit:
 	cargo test --lib
 
 vm-tests-v0-ci: build
-	cargo test --test VMTests --lib --no-fail-fast --quiet --features "v0,ci"
+	cargo test --test VmTests --lib --no-fail-fast --quiet --features "v0,ci"
 
 vm-tests-v1-ci: build
 	cargo test --test VMTests --lib --no-fail-fast --quiet --features "v1,ci"

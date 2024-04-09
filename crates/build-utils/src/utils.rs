@@ -9,8 +9,7 @@ use crate::path::PathWrapper;
 /// Input: BlockchainTests/GeneralStateTests/stCallCreateCallCodeTest/Call1024PreCalls.json
 /// Output: GeneralStateTests/stCallCreateCallCodeTest/Call1024PreCalls.json
 pub fn blockchain_tests_to_general_state_tests_path(path: PathWrapper) -> PathWrapper {
-    Into::<PathBuf>::into(path)
-        .components()
+    path.components()
         .filter(|x| !x.as_os_str().eq_ignore_ascii_case("BlockchainTests"))
         .collect::<PathBuf>()
         .into()

@@ -3,6 +3,10 @@ use reth_primitives::{Address, Bytes, U256};
 use starknet_api::{core::Nonce, hash::StarkFelt, state::StorageKey, StarknetApiError};
 
 use super::{split_bytecode_to_starkfelt, AccountType, KakarotAccount};
+use crate::evm_sequencer::constants::storage_variables::{
+    ACCOUNT_BYTECODE_LEN, ACCOUNT_EVM_ADDRESS, ACCOUNT_IS_INITIALIZED, ACCOUNT_NONCE,
+    ACCOUNT_STORAGE,
+};
 use crate::evm_sequencer::{types::felt::FeltSequencer, utils::split_u256};
 use crate::starknet_storage;
 
@@ -25,19 +29,21 @@ impl KakarotAccount {
             .into();
 
         let mut storage = vec![
-            starknet_storage!("evm_address", evm_address),
-            starknet_storage!("is_initialized_", 1u8),
-            starknet_storage!("bytecode_len_", code.len() as u32),
+            starknet_storage!(ACCOUNT_EVM_ADDRESS, evm_address),
+            starknet_storage!(ACCOUNT_IS_INITIALIZED, 1u8),
+            starknet_storage!(ACCOUNT_BYTECODE_LEN, code.len() as u32),
         ];
 
         // Initialize the implementation and nonce based on account type.
         // In tests, only the sender is an EOA.
+        //TODO: remove CA - EOA distinction
         let account_type = if is_eoa {
             AccountType::EOA
         } else {
-            storage.append(&mut vec![starknet_storage!("nonce", nonce)]);
             AccountType::Contract
         };
+        // In both cases, the nonce of the account is written to storage after each tx.
+        storage.append(&mut vec![starknet_storage!(ACCOUNT_NONCE, nonce)]);
 
         // Initialize the bytecode storage var.
         let mut bytecode_storage = split_bytecode_to_starkfelt(code)
@@ -52,7 +58,7 @@ impl KakarotAccount {
             .flat_map(|(k, v)| {
                 let keys = split_u256(*k).map(Into::into);
                 let values = split_u256(*v).map(Into::<StarkFelt>::into);
-                let low_key = get_storage_var_address("storage_", &keys);
+                let low_key = get_storage_var_address(ACCOUNT_STORAGE, &keys);
                 let high_key = next_storage_key(&low_key).unwrap(); // can fail only if low is the max key
                 vec![(low_key, values[0]), (high_key, values[1])]
             })
