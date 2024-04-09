@@ -31,3 +31,6 @@ tmp*
 
 # Ignore the launch file
 launch.json
+
+# Ignore .out files
+.out
