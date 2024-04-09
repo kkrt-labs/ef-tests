@@ -14,9 +14,9 @@ use starknet_api::state::StorageKey;
 use super::Evm;
 use crate::evm_sequencer::account::{AccountType, KakarotAccount};
 use crate::evm_sequencer::constants::storage_variables::{
-    ACCOUNT_BYTECODE_LEN, ACCOUNT_IMPLEMENTATION, ACCOUNT_KAKAROT_ADDRESS, ACCOUNT_NONCE,
-    ACCOUNT_STORAGE, KAKAROT_BASE_FEE, KAKAROT_BLOCK_GAS_LIMIT, KAKAROT_COINBASE,
-    KAKAROT_EVM_TO_STARKNET_ADDRESS, KAKAROT_PREV_RANDAO, OWNABLE_OWNER,
+    ACCOUNT_BYTECODE_LEN, ACCOUNT_IMPLEMENTATION, ACCOUNT_NONCE, ACCOUNT_STORAGE, KAKAROT_BASE_FEE,
+    KAKAROT_BLOCK_GAS_LIMIT, KAKAROT_COINBASE, KAKAROT_EVM_TO_STARKNET_ADDRESS,
+    KAKAROT_PREV_RANDAO, OWNABLE_OWNER,
 };
 use crate::evm_sequencer::constants::ETH_FEE_TOKEN_ADDRESS;
 use crate::evm_sequencer::sequencer::KakarotSequencer;
@@ -308,7 +308,7 @@ mod tests {
     };
     use blockifier::{abi::abi_utils::get_storage_var_address, state::state_api::StateReader};
     use reth_primitives::{
-        sign_message, AccessList, Signature, TransactionSigned, TxEip1559, TxValue, B256,
+        sign_message, AccessList, Signature, TransactionSigned, TxEip1559, B256,
     };
     use ruint::aliases::U160;
     use starknet_api::hash::StarkFelt;
@@ -342,7 +342,7 @@ mod tests {
                 max_fee_per_gas: 0,
                 max_priority_fee_per_gas: 0,
                 to: reth_primitives::TransactionKind::Call(*TEST_CONTRACT_ADDRESS),
-                value: TxValue::from(U256::ZERO),
+                value: U256::ZERO,
                 access_list: AccessList::default(),
                 input: Bytes::default(),
             }),
