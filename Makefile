@@ -65,7 +65,7 @@ unit:
 	cargo test --lib
 
 vm-tests-v0-ci: build
-	cargo test --test VMTests --lib --no-fail-fast --quiet --features "v0,ci"
+	cargo test --test VmTests --lib --no-fail-fast --quiet --features "v0,ci"
 
 vm-tests-v1-ci: build
 	cargo test --test VMTests --lib --no-fail-fast --quiet --features "v1,ci"
