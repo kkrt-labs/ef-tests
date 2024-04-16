@@ -310,7 +310,6 @@ mod tests {
     use reth_primitives::{
         sign_message, AccessList, Signature, TransactionSigned, TxEip1559, B256,
     };
-    use ruint::aliases::U160;
     use starknet_api::hash::StarkFelt;
 
     #[test]
@@ -322,7 +321,7 @@ mod tests {
             *ACCOUNT_CONTRACT_CLASS_HASH,
             *ACCOUNT_CONTRACT_CLASS_HASH,
         );
-        let coinbase_address = Address::from(U160::from(0xC01BA5Eu64));
+        let coinbase_address = Address::left_padding_from(&0xC01BA5Eu64.to_be_bytes());
         let mut sequencer = KakarotSequencer::new(
             INITIAL_SEQUENCER_STATE.clone(),
             kakarot_environment,
