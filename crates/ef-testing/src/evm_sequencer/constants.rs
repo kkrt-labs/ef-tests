@@ -132,7 +132,6 @@ pub mod tests {
 
     use lazy_static::lazy_static;
     use reth_primitives::{Address, B256};
-    use ruint::aliases::U160;
 
     lazy_static! {
         pub static ref PRIVATE_KEY: B256 =
@@ -140,6 +139,7 @@ pub mod tests {
                 .unwrap();
         pub static ref PUBLIC_KEY: Address =
             Address::from_str("0x7513A12F74fFF533ee12F20EE524e4883CBd1945").unwrap();
-        pub static ref TEST_CONTRACT_ADDRESS: Address = Address::from(U160::from(0xdeadbeefu64));
+        pub static ref TEST_CONTRACT_ADDRESS: Address =
+            Address::left_padding_from(&0xdeadbeefu64.to_be_bytes());
     }
 }
