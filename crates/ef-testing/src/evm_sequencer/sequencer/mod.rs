@@ -61,6 +61,8 @@ pub struct KakarotEnvironment {
     pub(crate) eoa_class_hash: ClassHash,
     /// The class hash of the contract account contract.
     pub(crate) contract_account_class_hash: ClassHash,
+    /// The class hash of the cairo1 helpers class.
+    pub(crate) cairo1_helpers_class_hash: ClassHash,
 }
 
 impl KakarotEnvironment {
@@ -69,12 +71,14 @@ impl KakarotEnvironment {
         base_account_class_hash: ClassHash,
         eoa_class_hash: ClassHash,
         contract_account_class_hash: ClassHash,
+        cairo1_helpers_class_hash: ClassHash,
     ) -> Self {
         Self {
             kakarot_address,
             base_account_class_hash,
             eoa_class_hash,
             contract_account_class_hash,
+            cairo1_helpers_class_hash,
         }
     }
 }
