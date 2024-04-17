@@ -14,9 +14,9 @@ use starknet_api::state::StorageKey;
 use super::Evm;
 use crate::evm_sequencer::account::{AccountType, KakarotAccount};
 use crate::evm_sequencer::constants::storage_variables::{
-    ACCOUNT_BYTECODE_LEN, ACCOUNT_IMPLEMENTATION, ACCOUNT_NONCE, ACCOUNT_STORAGE, KAKAROT_BASE_FEE,
-    KAKAROT_BLOCK_GAS_LIMIT, KAKAROT_COINBASE, KAKAROT_EVM_TO_STARKNET_ADDRESS,
-    KAKAROT_PREV_RANDAO, OWNABLE_OWNER,
+    ACCOUNT_BYTECODE_LEN, ACCOUNT_CAIRO1_HELPERS_CLASS, ACCOUNT_IMPLEMENTATION, ACCOUNT_NONCE,
+    ACCOUNT_STORAGE, KAKAROT_BASE_FEE, KAKAROT_BLOCK_GAS_LIMIT, KAKAROT_COINBASE,
+    KAKAROT_EVM_TO_STARKNET_ADDRESS, KAKAROT_PREV_RANDAO, OWNABLE_OWNER,
 };
 use crate::evm_sequencer::constants::ETH_FEE_TOKEN_ADDRESS;
 use crate::evm_sequencer::sequencer::KakarotSequencer;
@@ -99,6 +99,10 @@ impl Evm for KakarotSequencer {
 
         storage.append(&mut vec![
             starknet_storage!(ACCOUNT_IMPLEMENTATION, self.environment.eoa_class_hash.0), // both EOA and CA CH are the same (for now)
+            starknet_storage!(
+                ACCOUNT_CAIRO1_HELPERS_CLASS,
+                self.environment.cairo1_helpers_class_hash.0
+            ), // both EOA and CA CH are the same (for now)
             starknet_storage!(OWNABLE_OWNER, *self.environment.kakarot_address.0.key()),
         ]);
 
@@ -298,7 +302,7 @@ mod tests {
         evm_sequencer::{
             constants::{
                 tests::{PRIVATE_KEY, PUBLIC_KEY, TEST_CONTRACT_ADDRESS},
-                ACCOUNT_CONTRACT_CLASS_HASH, CHAIN_ID, KAKAROT_ADDRESS,
+                ACCOUNT_CONTRACT_CLASS_HASH, CAIRO1_HELPERS_CLASS_HASH, CHAIN_ID, KAKAROT_ADDRESS,
                 UNINITIALIZED_ACCOUNT_CLASS_HASH,
             },
             sequencer::{v0::INITIAL_SEQUENCER_STATE, KakarotEnvironment},
@@ -321,6 +325,7 @@ mod tests {
             *UNINITIALIZED_ACCOUNT_CLASS_HASH,
             *ACCOUNT_CONTRACT_CLASS_HASH,
             *ACCOUNT_CONTRACT_CLASS_HASH,
+            *CAIRO1_HELPERS_CLASS_HASH,
         );
         let coinbase_address = Address::from(U160::from(0xC01BA5Eu64));
         let mut sequencer = KakarotSequencer::new(

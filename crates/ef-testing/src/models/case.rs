@@ -2,7 +2,7 @@
 use super::error::RunnerError;
 use super::result::{extract_output_and_log_execution_result, EVMOutput};
 use crate::evm_sequencer::constants::{
-    ACCOUNT_CONTRACT_CLASS_HASH, BEACON_ROOT_ADDRESS, KAKAROT_ADDRESS,
+    ACCOUNT_CONTRACT_CLASS_HASH, BEACON_ROOT_ADDRESS, CAIRO1_HELPERS_CLASS_HASH, KAKAROT_ADDRESS,
     UNINITIALIZED_ACCOUNT_CLASS_HASH,
 };
 use crate::evm_sequencer::evm_state::Evm;
@@ -273,6 +273,7 @@ impl Case for BlockchainTestCase {
             *UNINITIALIZED_ACCOUNT_CLASS_HASH,
             *ACCOUNT_CONTRACT_CLASS_HASH,
             *ACCOUNT_CONTRACT_CLASS_HASH,
+            *CAIRO1_HELPERS_CLASS_HASH,
         );
         let mut sequencer = KakarotSequencer::new(
             INITIAL_SEQUENCER_STATE.clone(),
