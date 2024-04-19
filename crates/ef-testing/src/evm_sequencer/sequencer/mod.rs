@@ -105,7 +105,6 @@ impl KakarotSequencer {
                 block_timestamp: BlockTimestamp(block_timestamp),
                 sequencer_address: compute_starknet_address(
                     &coinbase_address,
-                    kakarot_address,
                     environment.base_account_class_hash.0.into(),
                     &coinbase_constructor_args,
                 )
@@ -162,13 +161,7 @@ impl KakarotSequencer {
             vec![kakarot_address, evm_address.into()]
         };
 
-        Ok(compute_starknet_address(
-            evm_address,
-            kakarot_address,
-            base_class_hash,
-            &constructor_args,
-        )
-        .try_into()?)
+        Ok(compute_starknet_address(evm_address, base_class_hash, &constructor_args).try_into()?)
     }
 }
 

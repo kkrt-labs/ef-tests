@@ -181,27 +181,12 @@ impl Evm for KakarotSequencer {
         Ok(high << 128 | low)
     }
 
-    /// Returns the nonce of the given address. For an EOA, uses the protocol level nonce.
-    /// For a contract account, uses the Kakarot managed nonce stored in the contract account's storage.
+    /// Returns the nonce of the given address.
     fn nonce_at(&mut self, evm_address: &Address) -> StateResult<U256> {
         let starknet_address = self.compute_starknet_address(evm_address)?;
 
-        let implementation = self
-            .state_mut()
-            .get_storage_at(
-                starknet_address,
-                get_storage_var_address(ACCOUNT_IMPLEMENTATION, &[]),
-            )
-            .unwrap();
-
-        //TODO: remove CA - EOA distinction
-        let nonce = if implementation == self.environment.contract_account_class_hash.0 {
-            let key = get_storage_var_address(ACCOUNT_NONCE, &[]);
-            self.state_mut().get_storage_at(starknet_address, key)?
-        } else {
-            // We can't throw an error here, because it could just be an uninitialized account.
-            StarkFelt::from(0_u8)
-        };
+        let key = get_storage_var_address(ACCOUNT_NONCE, &[]);
+        let nonce = self.state_mut().get_storage_at(starknet_address, key)?;
 
         Ok(U256::from_be_bytes(
             Into::<FieldElement>::into(nonce).to_bytes_be(),
@@ -388,7 +373,6 @@ mod tests {
         let kakarot_address: FieldElement = (*KAKAROT_ADDRESS.0.key()).into();
         let contract_starknet_address = compute_starknet_address(
             &TEST_CONTRACT_ADDRESS,
-            kakarot_address,
             UNINITIALIZED_ACCOUNT_CLASS_HASH.0.into(),
             &[kakarot_address, evm_address.into()],
         )

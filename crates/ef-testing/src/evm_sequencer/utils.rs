@@ -11,7 +11,6 @@ use starknet::macros::selector;
 /// Computes the Starknet address of a contract given its EVM address.
 pub fn compute_starknet_address(
     evm_address: &Address,
-    kakarot_address: FieldElement,
     class_hash: FieldElement,
     constructor_args: &[FieldElement],
 ) -> FeltSequencer {
