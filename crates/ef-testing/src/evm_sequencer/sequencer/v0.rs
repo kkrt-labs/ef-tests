@@ -48,10 +48,10 @@ lazy_static! {
         // Write contract account, uninitialized_account and erc20 classes and class hashes.
         (&mut state).set_contract_class(
             *ACCOUNT_CONTRACT_CLASS_HASH,
-            convert_contract_class_v0(&ACCOUNT_CONTRACT_CLASS).expect("failed to convert CONTRACT ACCOUNT CLASS to contract class"),
+            convert_contract_class_v0(&ACCOUNT_CONTRACT_CLASS).expect("failed to convert ACCOUNT CONTRACT CLASS to contract class"),
         ).expect("failed to set contract account class");
         (&mut state)
-            .set_contract_class(*UNINITIALIZED_ACCOUNT_CLASS_HASH, convert_contract_class_v0(&UNINITIALIZED_ACCOUNT_CLASS).expect("failed to convert EOA CLASS to contract class")).expect("failed to set eoa contract class");
+            .set_contract_class(*UNINITIALIZED_ACCOUNT_CLASS_HASH, convert_contract_class_v0(&UNINITIALIZED_ACCOUNT_CLASS).expect("failed to convert UNINITIALIZED ACCOUNT CLASS to contract class")).expect("failed to set eoa contract class");
 
         (&mut state).set_contract_class(
             *FEE_TOKEN_CLASS_HASH,

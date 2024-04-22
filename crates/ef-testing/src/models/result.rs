@@ -84,7 +84,6 @@ pub(crate) fn extract_output_and_log_execution_result(
             }
 
             info!("{} passed: {:?}", case, info.actual_resources);
-            #[cfg(feature = "v0")]
             if let Some(call) = info.execute_call_info.as_ref() {
                 use starknet_api::hash::StarkFelt;
                 let events = kakarot_execution_events(call);
