@@ -388,7 +388,6 @@ mod tests {
         let kakarot_address: FieldElement = (*KAKAROT_ADDRESS.0.key()).into();
         let contract_starknet_address = compute_starknet_address(
             &TEST_CONTRACT_ADDRESS,
-            kakarot_address,
             UNINITIALIZED_ACCOUNT_CLASS_HASH.0.into(),
             &[kakarot_address, evm_address.into()],
         )

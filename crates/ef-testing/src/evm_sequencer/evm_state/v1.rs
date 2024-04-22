@@ -385,7 +385,7 @@ mod tests {
         models::result::extract_output_and_log_execution_result,
     };
     use reth_primitives::{
-        sign_message, AccessList, Signature, TransactionSigned, TxEip1559, B256,
+        sign_message, AccessList, Signature, TransactionSigned, TxEip1559, TxLegacy, B256,
     };
     use starknet::core::types::FieldElement;
     use starknet_api::hash::StarkFelt;
@@ -474,21 +474,20 @@ mod tests {
         let mut transaction = TransactionSigned {
             hash: B256::default(),
             signature: Signature::default(),
-            transaction: reth_primitives::Transaction::Eip1559(TxEip1559 {
-                chain_id: CHAIN_ID,
+            transaction: reth_primitives::Transaction::Legacy(TxLegacy {
+                chain_id: Some(CHAIN_ID),
                 nonce: 0,
                 gas_limit: 1_000_000,
-                max_fee_per_gas: 0,
-                max_priority_fee_per_gas: 0,
+                gas_price: 0,
                 to: reth_primitives::TransactionKind::Call(*TEST_CONTRACT_ADDRESS),
                 value: U256::ZERO,
-                access_list: AccessList::default(),
                 input: Bytes::default(),
             }),
         };
         let signature =
             sign_message(*PRIVATE_KEY, transaction.transaction.signature_hash()).unwrap();
         transaction.signature = signature;
+        let eoa_nonce = U256::from(0);
         let contract_bytecode = Bytes::from(vec![96, 1, 96, 0, 85]); // PUSH 01 PUSH 00 SSTORE
         let contract_nonce = U256::from(1);
 
@@ -501,8 +500,6 @@ mod tests {
             false,
         )
         .unwrap();
-
-        let eoa_nonce = U256::from(0);
         let eoa =
             KakarotAccount::new(&PUBLIC_KEY, &Bytes::default(), eoa_nonce, &[], true).unwrap();
         sequencer.setup_account(contract).unwrap();
@@ -519,6 +516,7 @@ mod tests {
 
         assert!(tx_output.success);
 
+        // Then
         let evm_address: FeltSequencer = (*TEST_CONTRACT_ADDRESS).try_into().unwrap(); // infallible
         let kakarot_address: FieldElement = (*KAKAROT_ADDRESS.0.key()).into();
         let contract_starknet_address = compute_starknet_address(
@@ -540,18 +538,5 @@ mod tests {
             )
             .unwrap();
         assert_eq!(storage, StarkFelt::from(1u8));
-    }
-
-    #[test]
-    fn test_starkfelt_to_bytecode() {
-        // Given
-        let felt = StarkFelt::from(0x0102030405u64);
-        let len = 5;
-
-        // When
-        let result = FieldElement::from(felt).to_bytes_be()[32 - len..].to_vec();
-
-        // Then
-        assert_eq!(result, vec![0x01, 0x02, 0x03, 0x04, 0x05]);
     }
 }

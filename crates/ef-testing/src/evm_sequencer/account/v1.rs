@@ -128,26 +128,28 @@ mod tests {
     fn test_prepare_bytearray_storage() {
         // Given
         let code = Bytes::from(vec![0x01, 0x02, 0x03, 0x04, 0x05]);
-        let bytecode_base_address: StarkFelt =
-            get_storage_var_address(ACCOUNT_BYTECODE, &[]).into();
+        let bytecode_base_address = get_storage_var_address(ACCOUNT_BYTECODE, &[]);
 
         // When
         let result = prepare_bytearray_storage(&code);
 
         // Then
-        let expected_result = vec![(
-            offset_storage_key(
-                StorageKey(
-                    PatriciaKey::try_from(StarkFelt::from(inner_byte_array_pointer(
-                        FieldElement::from(bytecode_base_address),
-                        FieldElement::from(0_u32),
-                    )))
-                    .unwrap(),
+        let expected_result = vec![
+            (bytecode_base_address, StarkFelt::from(code.len() as u128)),
+            (
+                offset_storage_key(
+                    StorageKey(
+                        PatriciaKey::try_from(StarkFelt::from(inner_byte_array_pointer(
+                            FieldElement::from(*bytecode_base_address.0.key()),
+                            FieldElement::from(0_u32),
+                        )))
+                        .unwrap(),
+                    ),
+                    0,
                 ),
-                0,
+                StarkFelt::from(0x0102030405u64),
             ),
-            StarkFelt::from(0x0102030405u64),
-        )];
+        ];
 
         assert_eq!(result, expected_result);
     }
