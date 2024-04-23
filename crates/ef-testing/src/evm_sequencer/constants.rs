@@ -77,15 +77,13 @@ lazy_static! {
 #[cfg(feature = "v1")]
 lazy_static! {
     // Main contract classes v1
-    pub static ref KAKAROT_CLASS: CompiledClass = load_contract_class("../../build/v1/kakarot.json").expect("Failed to load Kakarot contract class");
-    pub static ref CONTRACT_ACCOUNT_CLASS: CompiledClass = load_contract_class("../../build/v1/contract_account.json").expect("Failed to load ContractAccount contract class");
-    pub static ref EOA_CLASS: CompiledClass = load_contract_class("../../build/v1/externally_owned_account.json").expect("Failed to load EOA contract class");
-    pub static ref UNINITIALIZED_ACCOUNT_CLASS: CompiledClass = load_contract_class("../../build/v1/uninitialized_account.json").expect("Failed to load uninitialized account contract class");
+    pub static ref KAKAROT_CLASS: CompiledClass = load_contract_class("../../build/v1/contracts_KakarotCore.compiled_contract_class.json").expect("Failed to load Kakarot contract class");
+    pub static ref ACCOUNT_CONTRACT_CLASS: CompiledClass = load_contract_class("../../build/v1/contracts_AccountContract.compiled_contract_class.json").expect("Failed to load ContractAccount contract class");
+    pub static ref UNINITIALIZED_ACCOUNT_CLASS: CompiledClass = load_contract_class("../../build/v1/contracts_UninitializedAccount.compiled_contract_class.json").expect("Failed to load uninitialized account c contract class");
 
     // Main class hashes
     pub static ref KAKAROT_CLASS_HASH: ClassHash = ClassHash(KAKAROT_CLASS.class_hash().unwrap().into());
-    pub static ref CONTRACT_ACCOUNT_CLASS_HASH: ClassHash = ClassHash(CONTRACT_ACCOUNT_CLASS.class_hash().unwrap().into());
-    pub static ref EOA_CLASS_HASH: ClassHash = ClassHash(EOA_CLASS.class_hash().unwrap().into());
+    pub static ref ACCOUNT_CONTRACT_CLASS_HASH: ClassHash = ClassHash(ACCOUNT_CONTRACT_CLASS.class_hash().unwrap().into());
     pub static ref UNINITIALIZED_ACCOUNT_CLASS_HASH: ClassHash = ClassHash(UNINITIALIZED_ACCOUNT_CLASS.class_hash().unwrap().into());
     pub static ref PROXY_CLASS_HASH: ClassHash = *UNINITIALIZED_ACCOUNT_CLASS_HASH;
 }
@@ -103,6 +101,7 @@ lazy_static! {
 }
 
 pub mod storage_variables {
+    pub const ACCOUNT_BYTECODE: &str = "Account_bytecode";
     pub const ACCOUNT_BYTECODE_LEN: &str = "Account_bytecode_len";
     pub const ACCOUNT_STORAGE: &str = "Account_storage";
     pub const ACCOUNT_IS_INITIALIZED: &str = "Account_is_initialized";

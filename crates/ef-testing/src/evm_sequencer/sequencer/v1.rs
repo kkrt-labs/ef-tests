@@ -6,13 +6,14 @@ use starknet_api::hash::StarkFelt;
 
 use crate::evm_sequencer::{
     constants::{
-        CHAIN_ID, ETH_FEE_TOKEN_ADDRESS, FEE_TOKEN_CLASS, FEE_TOKEN_CLASS_HASH, KAKAROT_ADDRESS,
-        KAKAROT_OWNER_ADDRESS,
-        {
-            ACCOUNT_CONTRACT_CLASS, ACCOUNT_CONTRACT_CLASS_HASH, EOA_CLASS, EOA_CLASS_HASH,
-            KAKAROT_CLASS, KAKAROT_CLASS_HASH, UNINITIALIZED_ACCOUNT_CLASS,
-            UNINITIALIZED_ACCOUNT_CLASS_HASH,
+        storage_variables::{
+            KAKAROT_ACCOUNT_CONTRACT_CLASS_HASH, KAKAROT_BLOCK_GAS_LIMIT,
+            KAKAROT_NATIVE_TOKEN_ADDRESS, KAKAROT_UNINITIALIZED_ACCOUNT_CLASS_HASH, OWNABLE_OWNER,
         },
+        ACCOUNT_CONTRACT_CLASS, ACCOUNT_CONTRACT_CLASS_HASH, BLOCK_GAS_LIMIT,
+        ETH_FEE_TOKEN_ADDRESS, FEE_TOKEN_CLASS, FEE_TOKEN_CLASS_HASH, KAKAROT_ADDRESS,
+        KAKAROT_CLASS, KAKAROT_CLASS_HASH, KAKAROT_OWNER_ADDRESS, UNINITIALIZED_ACCOUNT_CLASS,
+        UNINITIALIZED_ACCOUNT_CLASS_HASH,
     },
     sequencer::{convert_contract_class_v0, convert_contract_class_v1},
 };
@@ -23,12 +24,11 @@ lazy_static! {
         let mut state = SequencerState::default();
 
         let storage = [
-            ("owner", *KAKAROT_OWNER_ADDRESS.0.key()),
-            ("chain_id", StarkFelt::from(CHAIN_ID)),
-            ("native_token", *ETH_FEE_TOKEN_ADDRESS.0.key()),
-            ("ca_class_hash", CONTRACT_ACCOUNT_CLASS_HASH.0),
-            ("eoa_class_hash", EOA_CLASS_HASH.0),
-            ("account_class_hash", UNINITIALIZED_ACCOUNT_CLASS_HASH.0),
+            (OWNABLE_OWNER, *KAKAROT_OWNER_ADDRESS.0.key()),
+            (KAKAROT_NATIVE_TOKEN_ADDRESS, *ETH_FEE_TOKEN_ADDRESS.0.key()),
+            (KAKAROT_ACCOUNT_CONTRACT_CLASS_HASH, ACCOUNT_CONTRACT_CLASS_HASH.0),
+            (KAKAROT_BLOCK_GAS_LIMIT, StarkFelt::from(BLOCK_GAS_LIMIT)),
+            (KAKAROT_UNINITIALIZED_ACCOUNT_CLASS_HASH, UNINITIALIZED_ACCOUNT_CLASS_HASH.0),
         ];
 
         // Write all the storage vars to the sequencer state.
@@ -43,11 +43,9 @@ lazy_static! {
 
         // Write eoa, contract account and uninitialized account.
         (&mut state).set_contract_class(
-            *CONTRACT_ACCOUNT_CLASS_HASH,
-            convert_contract_class_v1(&ACCOUNT_CONTRACT_CLASS).expect("Failed to convert CONTRACT ACCOUNT CLASS to contract class"),
+            *ACCOUNT_CONTRACT_CLASS_HASH,
+            convert_contract_class_v1(&ACCOUNT_CONTRACT_CLASS).expect("Failed to convert ACCOUNT CONTRACT CLASS to contract class"),
         ).expect("Failed to set contract account class");
-        (&mut state)
-            .set_contract_class(*EOA_CLASS_HASH, convert_contract_class_v1(&EOA_CLASS).expect("Failed to convert EOA CLASS to contract class")).expect("Failed to set eoa contract class");
         (&mut state).set_contract_class(
             *UNINITIALIZED_ACCOUNT_CLASS_HASH,
             convert_contract_class_v1(&UNINITIALIZED_ACCOUNT_CLASS).expect("Failed to convert UNINITIALIZED ACCOUNT CLASS to contract class"),

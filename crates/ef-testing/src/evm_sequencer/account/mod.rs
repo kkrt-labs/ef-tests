@@ -3,8 +3,9 @@ pub mod v0;
 #[cfg(feature = "v1")]
 pub mod v1;
 
+use starknet::core::utils::cairo_short_string_to_felt;
 use starknet_api::{core::Nonce, hash::StarkFelt, state::StorageKey};
-use starknet_crypto::FieldElement;
+use starknet_crypto::{poseidon_permute_comp, FieldElement};
 
 #[macro_export]
 macro_rules! starknet_storage {
@@ -95,9 +96,35 @@ pub fn split_bytecode_to_starkfelt(bytecode: &[u8]) -> impl Iterator<Item = Star
     })
 }
 
+/// Computes the inner pointer of a byte array in storage.
+///
+/// The pointer is determined by the hash of:
+/// - The base address of the byte array.
+/// - The storage segment.
+/// - The short string `ByteArray`.
+///
+/// # Arguments
+/// * `base_address` - The base address of the byte array.
+/// * `storage_segment` - The index of the storage segment to compute the pointer for. Each segment should store at most 256 * 31 bytes
+///
+/// # Returns
+/// The inner pointer of the byte array.
+pub fn inner_byte_array_pointer(
+    base_address: FieldElement,
+    storage_segment: FieldElement,
+) -> FieldElement {
+    let suffix = cairo_short_string_to_felt("ByteArray").unwrap();
+    let mut state = [base_address, storage_segment, suffix];
+    poseidon_permute_comp(&mut state);
+    state[0]
+}
+
 #[cfg(test)]
 mod tests {
+    use crate::evm_sequencer::constants::storage_variables::ACCOUNT_BYTECODE;
+
     use super::*;
+    use blockifier::abi::abi_utils::get_storage_var_address;
     use reth_primitives::Bytes;
 
     #[test]
@@ -110,5 +137,24 @@ mod tests {
 
         // Then
         assert_eq!(result, vec![StarkFelt::from(0x0102030405u64)]);
+    }
+
+    #[test]
+    fn test_inner_byte_array_pointer() {
+        // Given
+        let base_address: StarkFelt = get_storage_var_address(ACCOUNT_BYTECODE, &[]).into();
+        let chunk = FieldElement::ZERO;
+
+        // When
+        let result = inner_byte_array_pointer(base_address.into(), chunk);
+
+        // Then
+        assert_eq!(
+            result,
+            FieldElement::from_hex_be(
+                "0x030dc4fd6786155d4743a0f56ea73bea9521eba2552a2ca5080b830ad047907a"
+            )
+            .unwrap()
+        );
     }
 }

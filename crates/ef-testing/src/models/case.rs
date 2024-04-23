@@ -133,7 +133,6 @@ impl BlockchainTestCase {
             .map_err(RunnerError::RlpDecodeError)?;
         let sealed_header = sealed_block.header.unseal();
 
-        let coinbase = sealed_header.beneficiary;
         let base_fee_per_gas: U256 = U256::from(sealed_header.base_fee_per_gas.unwrap_or_default());
 
         let expected_gas_used = U256::from(sealed_header.gas_used);
@@ -222,18 +221,23 @@ impl BlockchainTestCase {
             }
 
             // Balance
-            let mut actual = sequencer.balance_at(address)?;
 
-            // Our coinbase should receive all of the txs fees, not only the priority fee.
-            if *address == coinbase {
-                actual -= base_fee_per_gas * expected_gas_used;
-            }
-            if actual != expected_state.balance {
-                let balance_diff = format!(
-                    "balance mismatch for {:#20x}: expected {:#32x}, got {:#32x}",
-                    address, expected_state.balance, actual
-                );
-                errors.push(balance_diff);
+            #[cfg(feature = "v0")]
+            //TODO Charging fees is not enabled yet for SSJ
+            {
+                let coinbase = sealed_header.beneficiary;
+                let mut actual = sequencer.balance_at(address)?;
+                // Our coinbase should receive all of the txs fees, not only the priority fee.
+                if *address == coinbase {
+                    actual -= base_fee_per_gas * expected_gas_used;
+                }
+                if actual != expected_state.balance {
+                    let balance_diff = format!(
+                        "balance mismatch for {:#20x}: expected {:#32x}, got {:#32x}",
+                        address, expected_state.balance, actual
+                    );
+                    errors.push(balance_diff);
+                }
             }
         }
 
