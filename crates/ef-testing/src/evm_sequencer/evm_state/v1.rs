@@ -33,10 +33,9 @@ use crate::{
         account::{inner_byte_array_pointer, AccountType, KakarotAccount},
         constants::{
             storage_variables::{
-                ACCOUNT_BYTECODE, ACCOUNT_CAIRO1_HELPERS_CLASS, ACCOUNT_IMPLEMENTATION,
-                ACCOUNT_NONCE, ACCOUNT_STORAGE, KAKAROT_BASE_FEE, KAKAROT_BLOCK_GAS_LIMIT,
-                KAKAROT_COINBASE, KAKAROT_EVM_TO_STARKNET_ADDRESS, KAKAROT_PREV_RANDAO,
-                OWNABLE_OWNER,
+                ACCOUNT_BYTECODE, ACCOUNT_IMPLEMENTATION, ACCOUNT_NONCE, ACCOUNT_STORAGE,
+                KAKAROT_BASE_FEE, KAKAROT_BLOCK_GAS_LIMIT, KAKAROT_COINBASE,
+                KAKAROT_EVM_TO_STARKNET_ADDRESS, KAKAROT_PREV_RANDAO, OWNABLE_OWNER,
             },
             ETH_FEE_TOKEN_ADDRESS, KAKAROT_ADDRESS,
         },
@@ -267,8 +266,8 @@ impl Evm for KakarotSequencer {
             let storage_chunk_index = num_chunks / 256;
             let offset_in_chunk = num_chunks % 256;
             let storage_pointer = inner_byte_array_pointer(
-                FieldElement::from(*bytecode_base_address.0.key()),
-                FieldElement::from(storage_chunk_index),
+                (*bytecode_base_address.0.key()).into(),
+                storage_chunk_index.into(),
             );
             let key = offset_storage_key(
                 StorageKey(PatriciaKey::try_from(StarkFelt::from(storage_pointer)).unwrap()),
@@ -380,13 +379,10 @@ mod tests {
                 UNINITIALIZED_ACCOUNT_CLASS_HASH,
             },
             sequencer::{KakarotEnvironment, INITIAL_SEQUENCER_STATE},
-            utils::compute_starknet_address,
         },
         models::result::extract_output_and_log_execution_result,
     };
-    use reth_primitives::{
-        sign_message, AccessList, Signature, TransactionSigned, TxEip1559, TxLegacy, B256,
-    };
+    use reth_primitives::{sign_message, Signature, TransactionSigned, TxLegacy, B256};
     use starknet::core::types::FieldElement;
     use starknet_api::hash::StarkFelt;
 
@@ -476,12 +472,9 @@ mod tests {
             signature: Signature::default(),
             transaction: reth_primitives::Transaction::Legacy(TxLegacy {
                 chain_id: Some(CHAIN_ID),
-                nonce: 0,
                 gas_limit: 1_000_000,
-                gas_price: 0,
                 to: reth_primitives::TransactionKind::Call(*TEST_CONTRACT_ADDRESS),
-                value: U256::ZERO,
-                input: Bytes::default(),
+                ..Default::default()
             }),
         };
         let signature =
@@ -517,26 +510,10 @@ mod tests {
         assert!(tx_output.success);
 
         // Then
-        let evm_address: FeltSequencer = (*TEST_CONTRACT_ADDRESS).try_into().unwrap(); // infallible
-        let kakarot_address: FieldElement = (*KAKAROT_ADDRESS.0.key()).into();
-        let contract_starknet_address = compute_starknet_address(
-            &TEST_CONTRACT_ADDRESS,
-            UNINITIALIZED_ACCOUNT_CLASS_HASH.0.into(),
-            &[kakarot_address, evm_address.into()],
-        )
-        .try_into()
-        .unwrap();
-
         let storage = sequencer
-            .state_mut()
-            .get_storage_at(
-                contract_starknet_address,
-                get_storage_var_address(
-                    ACCOUNT_STORAGE,
-                    &[StarkFelt::from(0u8), StarkFelt::from(0u8)],
-                ),
-            )
+            .storage_at(&TEST_CONTRACT_ADDRESS, U256::ZERO)
             .unwrap();
-        assert_eq!(storage, StarkFelt::from(1u8));
+
+        assert_eq!(storage, U256::from(1_u64));
     }
 }

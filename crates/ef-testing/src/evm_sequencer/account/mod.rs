@@ -3,6 +3,7 @@ pub mod v0;
 #[cfg(feature = "v1")]
 pub mod v1;
 
+use starknet::core::utils::cairo_short_string_to_felt;
 use starknet_api::{core::Nonce, hash::StarkFelt, state::StorageKey};
 use starknet_crypto::{poseidon_permute_comp, FieldElement};
 
@@ -112,22 +113,10 @@ pub fn inner_byte_array_pointer(
     base_address: FieldElement,
     storage_segment: FieldElement,
 ) -> FieldElement {
-    let suffix = FieldElement::from_bytes_be(&string_to_bytes32("ByteArray").unwrap()).unwrap();
+    let suffix = cairo_short_string_to_felt("ByteArray").unwrap();
     let mut state = [base_address, storage_segment, suffix];
     poseidon_permute_comp(&mut state);
     state[0]
-}
-
-fn string_to_bytes32(s: &str) -> Result<[u8; 32], String> {
-    if s.len() > 32 {
-        return Err(format!("String length exceeds 32 bytes: {}", s.len()));
-    }
-
-    let mut bytes = [0u8; 32];
-    let string_bytes = s.as_bytes();
-    let start_index = 32 - string_bytes.len();
-    bytes[start_index..].copy_from_slice(string_bytes);
-    Ok(bytes)
 }
 
 #[cfg(test)]

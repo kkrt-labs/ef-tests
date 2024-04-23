@@ -6,7 +6,7 @@ use starknet_api::{
     state::StorageKey,
     StarknetApiError,
 };
-use starknet_crypto::{poseidon_hash_many, FieldElement};
+use starknet_crypto::FieldElement;
 use tracing::field::Field;
 
 use super::{inner_byte_array_pointer, split_bytecode_to_starkfelt};
@@ -35,15 +35,13 @@ fn prepare_bytearray_storage(code: &Bytes) -> Vec<(StorageKey, StarkFelt)> {
     let bytecode_base_address = get_storage_var_address(ACCOUNT_BYTECODE, &[]);
     let mut bytearray = vec![(bytecode_base_address, StarkFelt::from(code.len() as u128))];
 
-    let mut bytecode_storage = split_bytecode_to_starkfelt(&code)
+    let bytecode_storage: Vec<_> = split_bytecode_to_starkfelt(&code)
         .enumerate()
         .map(|(index, b)| {
             let offset = index % 256;
             let index = index / 256;
-            let key = inner_byte_array_pointer(
-                (*bytecode_base_address.0.key()).into(),
-                index.into(),
-            );
+            let key =
+                inner_byte_array_pointer((*bytecode_base_address.0.key()).into(), index.into());
             (
                 offset_storage_key(
                     StorageKey(PatriciaKey::try_from(StarkFelt::from(key)).unwrap()),
@@ -140,7 +138,7 @@ mod tests {
                 offset_storage_key(
                     StorageKey(
                         PatriciaKey::try_from(StarkFelt::from(inner_byte_array_pointer(
-                           (*bytecode_base_address.0.key()).into(),
+                            (*bytecode_base_address.0.key()).into(),
                             FieldElement::ZERO,
                         )))
                         .unwrap(),
