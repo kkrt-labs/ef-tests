@@ -41,8 +41,8 @@ fn prepare_bytearray_storage(code: &Bytes) -> Vec<(StorageKey, StarkFelt)> {
             let offset = index % 256;
             let index = index / 256;
             let key = inner_byte_array_pointer(
-                FieldElement::from(*bytecode_base_address.0.key()),
-                FieldElement::from(index),
+                (*bytecode_base_address.0.key()).into(),
+                index.into(),
             );
             (
                 offset_storage_key(
@@ -52,7 +52,7 @@ fn prepare_bytearray_storage(code: &Bytes) -> Vec<(StorageKey, StarkFelt)> {
                 b,
             )
         })
-        .collect::<Vec<_>>();
+        .collect();
     bytearray.extend(bytecode_storage);
 
     bytearray
@@ -140,8 +140,8 @@ mod tests {
                 offset_storage_key(
                     StorageKey(
                         PatriciaKey::try_from(StarkFelt::from(inner_byte_array_pointer(
-                            FieldElement::from(*bytecode_base_address.0.key()),
-                            FieldElement::from(0_u32),
+                           (*bytecode_base_address.0.key()).into(),
+                            FieldElement::ZERO,
                         )))
                         .unwrap(),
                     ),

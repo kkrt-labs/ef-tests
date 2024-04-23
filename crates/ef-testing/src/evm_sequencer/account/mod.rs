@@ -154,10 +154,10 @@ mod tests {
     fn test_inner_byte_array_pointer() {
         // Given
         let base_address: StarkFelt = get_storage_var_address(ACCOUNT_BYTECODE, &[]).into();
-        let chunk = FieldElement::from(0_u32);
+        let chunk = FieldElement::ZERO;
 
         // When
-        let result = inner_byte_array_pointer(FieldElement::from(base_address), chunk);
+        let result = inner_byte_array_pointer(base_address.into(), chunk);
 
         // Then
         assert_eq!(
