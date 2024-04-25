@@ -2,7 +2,7 @@ use blockifier::abi::{abi_utils::get_storage_var_address, sierra_types::next_sto
 use reth_primitives::{Address, Bytes, U256};
 use starknet_api::{core::Nonce, hash::StarkFelt, state::StorageKey, StarknetApiError};
 
-use super::{split_bytecode_to_starkfelt, AccountType, KakarotAccount};
+use super::{split_bytecode_to_starkfelt, KakarotAccount};
 use crate::evm_sequencer::constants::storage_variables::{
     ACCOUNT_BYTECODE_LEN, ACCOUNT_EVM_ADDRESS, ACCOUNT_IS_INITIALIZED, ACCOUNT_NONCE,
     ACCOUNT_STORAGE,
@@ -36,12 +36,6 @@ impl KakarotAccount {
 
         // Initialize the implementation and nonce based on account type.
         // In tests, only the sender is an EOA.
-        //TODO: remove CA - EOA distinction
-        let account_type = if is_eoa {
-            AccountType::EOA
-        } else {
-            AccountType::Contract
-        };
         // In both cases, the nonce of the account is written to storage after each tx.
         storage.append(&mut vec![starknet_storage!(ACCOUNT_NONCE, nonce)]);
 
@@ -66,7 +60,6 @@ impl KakarotAccount {
         storage.append(&mut evm_storage_storage);
 
         Ok(Self {
-            account_type,
             storage,
             evm_address,
             nonce: Nonce(nonce),

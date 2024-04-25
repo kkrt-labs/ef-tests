@@ -9,8 +9,8 @@ use starknet_api::{
 use starknet_crypto::FieldElement;
 use tracing::field::Field;
 
+use super::KakarotAccount;
 use super::{inner_byte_array_pointer, split_bytecode_to_starkfelt};
-use super::{AccountType, KakarotAccount};
 use crate::evm_sequencer::constants::storage_variables::{
     ACCOUNT_BYTECODE_LEN, ACCOUNT_EVM_ADDRESS, ACCOUNT_IS_INITIALIZED, ACCOUNT_NONCE,
     ACCOUNT_STORAGE,
@@ -81,12 +81,6 @@ impl KakarotAccount {
 
         // Initialize the implementation and nonce based on account type.
         // In tests, only the sender is an EOA.
-        //TODO: remove CA - EOA distinction
-        let account_type = if is_eoa {
-            AccountType::EOA
-        } else {
-            AccountType::Contract
-        };
         // In both cases, the nonce of the account is written to storage after each tx.
         storage.append(&mut vec![starknet_storage!(ACCOUNT_NONCE, nonce)]);
 
@@ -110,7 +104,6 @@ impl KakarotAccount {
         storage.append(&mut evm_storage_storage);
 
         Ok(Self {
-            account_type,
             storage,
             evm_address,
             nonce: Nonce(nonce),

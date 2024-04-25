@@ -35,7 +35,6 @@ pub struct KakarotAccount {
     pub(crate) evm_address: StarkFelt,
     pub(crate) nonce: Nonce,
     pub(crate) storage: Vec<(StorageKey, StarkFelt)>,
-    pub(crate) account_type: AccountType,
 }
 
 impl KakarotAccount {
@@ -50,10 +49,6 @@ impl KakarotAccount {
     pub fn storage(&self) -> &[(StorageKey, StarkFelt)] {
         self.storage.as_slice()
     }
-
-    pub const fn account_type(&self) -> &AccountType {
-        &self.account_type
-    }
 }
 
 #[derive(Debug, Default, Clone)]
@@ -66,7 +61,7 @@ pub enum AccountType {
 
 #[cfg(not(any(feature = "v0", feature = "v1")))]
 pub mod kkrt_account {
-    use super::{AccountType, KakarotAccount};
+    use super::KakarotAccount;
     use reth_primitives::{Address, Bytes, U256};
     use starknet_api::{core::Nonce, hash::StarkFelt, StarknetApiError};
 
@@ -82,7 +77,6 @@ pub mod kkrt_account {
                 evm_address: StarkFelt::default(),
                 nonce: Nonce::default(),
                 storage: vec![],
-                account_type: AccountType::EOA,
             })
         }
     }
