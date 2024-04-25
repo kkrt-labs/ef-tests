@@ -11,8 +11,7 @@ EF_TESTS_URL := https://github.com/ethereum/tests/archive/refs/tags/$(EF_TESTS_T
 EF_TESTS_DIR := ./crates/ef-testing/ethereum-tests
 
 # Kakarot artifacts V0
-KKRT_V0_ARTIFACTS_URL = $(shell curl -sL -H "Authorization: token $(GITHUB_TOKEN)" "https://api.github.com/repos/kkrt-labs/kakarot/actions/workflows/ci.yml/runs?per_page=1&branch=main&event=push&status=success" | jq -r '.workflow_runs[0].artifacts_url')
-KKRT_V0_BUILD_ARTIFACT_URL = $(shell curl -sL -H "Authorization: token $(GITHUB_TOKEN)" "$(KKRT_V0_ARTIFACTS_URL)" | jq -r '.artifacts[] | select(.name=="kakarot-build").url')/zip
+KKRT_V0_BUILD_ARTIFACT_URL = $(shell curl -L https://api.github.com/repos/kkrt-labs/kakarot/releases/latest | jq -r '.assets[0].browser_download_url')
 
 # Kakarot SSJ artifacts for precompiles
 KKRT_SSJ_BUILD_ARTIFACT_URL = $(shell curl -L https://api.github.com/repos/kkrt-labs/kakarot-ssj/releases/latest | jq -r '.assets[0].browser_download_url')
@@ -30,8 +29,9 @@ $(EF_TESTS_DIR):
 setup: $(EF_TESTS_DIR)
 
 setup-kakarot-v0: clean-kakarot-v0
-	@curl -sL -o kakarot-build.zip -H "Authorization: token $(GITHUB_TOKEN)" "$(KKRT_V0_BUILD_ARTIFACT_URL)"
+	@curl -sL -o kakarot-build.zip "$(KKRT_V0_BUILD_ARTIFACT_URL)"
 	unzip -o kakarot-build.zip -d build/v0
+	mv build/v0/build/* build/v0
 	mv build/v0/fixtures/ERC20.json build/common/
 	rm -f kakarot-build.zip
 
