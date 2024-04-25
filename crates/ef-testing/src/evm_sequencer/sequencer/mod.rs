@@ -57,28 +57,23 @@ pub struct KakarotEnvironment {
     /// The class hash of the base account contract.
     /// This is the uninitialized account class in v1.
     pub(crate) base_account_class_hash: ClassHash,
-    /// The class hash of the externally owned account contract.
-    pub(crate) eoa_class_hash: ClassHash,
-    /// The class hash of the contract account contract.
-    pub(crate) contract_account_class_hash: ClassHash,
     /// The class hash of the cairo1 helpers class.
     pub(crate) cairo1_helpers_class_hash: ClassHash,
+    pub(crate) account_contract_class_hash: ClassHash,
 }
 
 impl KakarotEnvironment {
     pub const fn new(
         kakarot_address: ContractAddress,
         base_account_class_hash: ClassHash,
-        eoa_class_hash: ClassHash,
-        contract_account_class_hash: ClassHash,
         cairo1_helpers_class_hash: ClassHash,
+        account_contract_class_hash: ClassHash,
     ) -> Self {
         Self {
             kakarot_address,
             base_account_class_hash,
-            eoa_class_hash,
-            contract_account_class_hash,
             cairo1_helpers_class_hash,
+            account_contract_class_hash,
         }
     }
 }
