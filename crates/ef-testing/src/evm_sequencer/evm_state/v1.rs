@@ -117,29 +117,29 @@ impl Evm for KakarotSequencer {
         if matches!(account.account_type, AccountType::EOA) {
             self.state_mut().set_nonce(starknet_address, account.nonce);
 
-        storage.append(&mut vec![
-            starknet_storage!(ACCOUNT_IMPLEMENTATION, self.environment.eoa_class_hash.0), // both EOA and CA CH are the same (for now)
-            starknet_storage!(OWNABLE_OWNER, *self.environment.kakarot_address.0.key()),
-        ]);
+            storage.append(&mut vec![
+                starknet_storage!(ACCOUNT_IMPLEMENTATION, self.environment.eoa_class_hash.0), // both EOA and CA CH are the same (for now)
+                starknet_storage!(OWNABLE_OWNER, *self.environment.kakarot_address.0.key()),
+            ]);
 
-        // Write all the storage vars to the sequencer state.
-        for (k, v) in storage {
-            self.state_mut().set_storage_at(starknet_address, k, v)?;
+            // Write all the storage vars to the sequencer state.
+            for (k, v) in storage {
+                self.state_mut().set_storage_at(starknet_address, k, v)?;
+            }
+
+            let class_hash = self.environment.contract_account_class_hash;
+            // Set up the contract class hash
+            self.state_mut()
+                .set_class_hash_at(starknet_address, class_hash)?;
+
+            // Add the address to the Kakarot evm to starknet mapping
+            let kakarot_address = self.environment.kakarot_address;
+            self.state_mut().set_storage_at(
+                kakarot_address,
+                get_storage_var_address(KAKAROT_EVM_TO_STARKNET_ADDRESS, &[account.evm_address]),
+                *starknet_address.0.key(),
+            )?;
         }
-
-        let class_hash = self.environment.contract_account_class_hash;
-        // Set up the contract class hash
-        self.state_mut()
-            .set_class_hash_at(starknet_address, class_hash)?;
-
-        // Add the address to the Kakarot evm to starknet mapping
-        let kakarot_address = self.environment.kakarot_address;
-        self.state_mut().set_storage_at(
-            kakarot_address,
-            get_storage_var_address(KAKAROT_EVM_TO_STARKNET_ADDRESS, &[account.evm_address]),
-            *starknet_address.0.key(),
-        )?;
-
         Ok(())
     }
 
