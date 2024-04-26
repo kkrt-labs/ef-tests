@@ -122,163 +122,164 @@ impl Evm for KakarotSequencer {
                 get_storage_var_address(KAKAROT_EVM_TO_STARKNET_ADDRESS, &[account.evm_address]),
                 *starknet_address.0.key(),
             )?;
-            Ok(())
+        }
+        Ok(());
+    }
+
+    /// Funds an EOA or contract account. Also gives allowance to the Kakarot contract.
+    fn fund(&mut self, evm_address: &Address, balance: U256) -> StateResult<()> {
+        let starknet_address = self.compute_starknet_address(evm_address)?;
+        let balance_values = split_u256(balance);
+        let mut storage = vec![];
+
+        // Initialize the balance storage var.
+        let balance_low_key = get_fee_token_var_address(starknet_address);
+        let balance_high_key = next_storage_key(&balance_low_key)?;
+        storage.append(&mut vec![
+            (balance_low_key, StarkFelt::from(balance_values[0])),
+            (balance_high_key, StarkFelt::from(balance_values[1])),
+        ]);
+
+        // Initialize the allowance storage var.
+        let allowance_key_low = get_storage_var_address(
+            "ERC20_allowances",
+            &[
+                *starknet_address.0.key(),
+                *self.environment.kakarot_address.0.key(),
+            ],
+        );
+        let allowance_key_high = next_storage_key(&allowance_key_low)?;
+        storage.append(&mut vec![
+            (allowance_key_low, StarkFelt::from(u128::MAX)),
+            (allowance_key_high, StarkFelt::from(u128::MAX)),
+        ]);
+
+        // Write all the storage vars to the sequencer state.
+        for (k, v) in storage {
+            self.state_mut()
+                .set_storage_at(*ETH_FEE_TOKEN_ADDRESS, k, v)?;
+        }
+        Ok(())
+    }
+
+    /// Returns the storage value at the given key evm storage key.
+    fn storage_at(&mut self, evm_address: &Address, key: U256) -> StateResult<U256> {
+        let keys = split_u256(key).map(Into::into);
+        let key_low = get_storage_var_address(ACCOUNT_STORAGE, &keys);
+        let key_high = next_storage_key(&key_low)?;
+
+        let starknet_address = self.compute_starknet_address(evm_address)?;
+
+        let low = self.state_mut().get_storage_at(starknet_address, key_low)?;
+        let high = self
+            .state_mut()
+            .get_storage_at(starknet_address, key_high)?;
+
+        let low = U256::from_be_bytes(Into::<FieldElement>::into(low).to_bytes_be());
+        let high = U256::from_be_bytes(Into::<FieldElement>::into(high).to_bytes_be());
+
+        Ok(high << 128 | low)
+    }
+
+    /// Returns the nonce of the given address.
+    fn nonce_at(&mut self, evm_address: &Address) -> StateResult<U256> {
+        let starknet_address = self.compute_starknet_address(evm_address)?;
+
+        let key = get_storage_var_address(ACCOUNT_NONCE, &[]);
+        let nonce = self.state_mut().get_storage_at(starknet_address, key)?;
+
+        Ok(U256::from_be_bytes(
+            Into::<FieldElement>::into(nonce).to_bytes_be(),
+        ))
+    }
+
+    /// Returns the bytecode of the given address. For an EOA, the bytecode_len_ storage variable will return 0,
+    /// and the function will return an empty vector. For a contract account, the function will return the bytecode
+    /// stored in the bytecode_ storage variables. The function assumes that the bytecode is stored in 31 byte big-endian chunks.
+    fn code_at(&mut self, evm_address: &Address) -> StateResult<Bytes> {
+        let starknet_address = self.compute_starknet_address(evm_address)?;
+
+        let bytecode_len = self.state_mut().get_storage_at(
+            starknet_address,
+            get_storage_var_address(ACCOUNT_BYTECODE_LEN, &[]),
+        )?;
+        let bytecode_len: u64 = bytecode_len.try_into()?;
+        if bytecode_len == 0 {
+            return Ok(Bytes::default());
         }
 
-        /// Funds an EOA or contract account. Also gives allowance to the Kakarot contract.
-        fn fund(&mut self, evm_address: &Address, balance: U256) -> StateResult<()> {
-            let starknet_address = self.compute_starknet_address(evm_address)?;
-            let balance_values = split_u256(balance);
-            let mut storage = vec![];
+        // Assumes that the bytecode is stored in 31 byte chunks.
+        let num_chunks = bytecode_len / 31;
+        let mut bytecode: Vec<u8> = Vec::with_capacity(bytecode_len as usize);
 
-            // Initialize the balance storage var.
-            let balance_low_key = get_fee_token_var_address(starknet_address);
-            let balance_high_key = next_storage_key(&balance_low_key)?;
-            storage.append(&mut vec![
-                (balance_low_key, StarkFelt::from(balance_values[0])),
-                (balance_high_key, StarkFelt::from(balance_values[1])),
-            ]);
-
-            // Initialize the allowance storage var.
-            let allowance_key_low = get_storage_var_address(
-                "ERC20_allowances",
-                &[
-                    *starknet_address.0.key(),
-                    *self.environment.kakarot_address.0.key(),
-                ],
-            );
-            let allowance_key_high = next_storage_key(&allowance_key_low)?;
-            storage.append(&mut vec![
-                (allowance_key_low, StarkFelt::from(u128::MAX)),
-                (allowance_key_high, StarkFelt::from(u128::MAX)),
-            ]);
-
-            // Write all the storage vars to the sequencer state.
-            for (k, v) in storage {
-                self.state_mut()
-                    .set_storage_at(*ETH_FEE_TOKEN_ADDRESS, k, v)?;
-            }
-            Ok(())
-        }
-
-        /// Returns the storage value at the given key evm storage key.
-        fn storage_at(&mut self, evm_address: &Address, key: U256) -> StateResult<U256> {
-            let keys = split_u256(key).map(Into::into);
-            let key_low = get_storage_var_address(ACCOUNT_STORAGE, &keys);
-            let key_high = next_storage_key(&key_low)?;
-
-            let starknet_address = self.compute_starknet_address(evm_address)?;
-
-            let low = self.state_mut().get_storage_at(starknet_address, key_low)?;
-            let high = self
-                .state_mut()
-                .get_storage_at(starknet_address, key_high)?;
-
-            let low = U256::from_be_bytes(Into::<FieldElement>::into(low).to_bytes_be());
-            let high = U256::from_be_bytes(Into::<FieldElement>::into(high).to_bytes_be());
-
-            Ok(high << 128 | low)
-        }
-
-        /// Returns the nonce of the given address.
-        fn nonce_at(&mut self, evm_address: &Address) -> StateResult<U256> {
-            let starknet_address = self.compute_starknet_address(evm_address)?;
-
-            let key = get_storage_var_address(ACCOUNT_NONCE, &[]);
-            let nonce = self.state_mut().get_storage_at(starknet_address, key)?;
-
-            Ok(U256::from_be_bytes(
-                Into::<FieldElement>::into(nonce).to_bytes_be(),
-            ))
-        }
-
-        /// Returns the bytecode of the given address. For an EOA, the bytecode_len_ storage variable will return 0,
-        /// and the function will return an empty vector. For a contract account, the function will return the bytecode
-        /// stored in the bytecode_ storage variables. The function assumes that the bytecode is stored in 31 byte big-endian chunks.
-        fn code_at(&mut self, evm_address: &Address) -> StateResult<Bytes> {
-            let starknet_address = self.compute_starknet_address(evm_address)?;
-
-            let bytecode_len = self.state_mut().get_storage_at(
-                starknet_address,
-                get_storage_var_address(ACCOUNT_BYTECODE_LEN, &[]),
-            )?;
-            let bytecode_len: u64 = bytecode_len.try_into()?;
-            if bytecode_len == 0 {
-                return Ok(Bytes::default());
-            }
-
-            // Assumes that the bytecode is stored in 31 byte chunks.
-            let num_chunks = bytecode_len / 31;
-            let mut bytecode: Vec<u8> = Vec::with_capacity(bytecode_len as usize);
-
-            for chunk_index in 0..num_chunks {
-                let key = StorageKey::from(chunk_index);
-                let code = self.state_mut().get_storage_at(starknet_address, key)?;
-                bytecode.append(&mut felt_to_bytes(&code.into(), 1).to_vec());
-            }
-
-            let remainder = bytecode_len % 31;
-            let key = StorageKey::from(num_chunks);
+        for chunk_index in 0..num_chunks {
+            let key = StorageKey::from(chunk_index);
             let code = self.state_mut().get_storage_at(starknet_address, key)?;
-            bytecode.append(&mut felt_to_bytes(&code.into(), (32 - remainder) as usize).to_vec());
-
-            Ok(Bytes::from(bytecode))
+            bytecode.append(&mut felt_to_bytes(&code.into(), 1).to_vec());
         }
 
-        /// Returns the balance of native tokens at the given address.
-        /// Makes use of the default StateReader implementation from Blockifier.
-        fn balance_at(&mut self, evm_address: &Address) -> StateResult<U256> {
-            let starknet_address = self.compute_starknet_address(evm_address)?;
-            let (low, high) = self
-                .state_mut()
-                .get_fee_token_balance(starknet_address, *ETH_FEE_TOKEN_ADDRESS)?;
+        let remainder = bytecode_len % 31;
+        let key = StorageKey::from(num_chunks);
+        let code = self.state_mut().get_storage_at(starknet_address, key)?;
+        bytecode.append(&mut felt_to_bytes(&code.into(), (32 - remainder) as usize).to_vec());
 
-            let low = U256::from_be_bytes(Into::<FieldElement>::into(low).to_bytes_be());
-            let high = U256::from_be_bytes(Into::<FieldElement>::into(high).to_bytes_be());
+        Ok(Bytes::from(bytecode))
+    }
 
-            Ok(high << 128 | low)
-        }
+    /// Returns the balance of native tokens at the given address.
+    /// Makes use of the default StateReader implementation from Blockifier.
+    fn balance_at(&mut self, evm_address: &Address) -> StateResult<U256> {
+        let starknet_address = self.compute_starknet_address(evm_address)?;
+        let (low, high) = self
+            .state_mut()
+            .get_fee_token_balance(starknet_address, *ETH_FEE_TOKEN_ADDRESS)?;
 
-        /// Converts the given signed transaction to a Starknet-rs transaction and executes it.
-        fn execute_transaction(
-            &mut self,
-            transaction: TransactionSigned,
-        ) -> TransactionExecutionResult<TransactionExecutionInfo> {
-            let evm_address = transaction.recover_signer().ok_or_else(|| {
-                TransactionExecutionError::ValidateTransactionError(
-                    EntryPointExecutionError::InvalidExecutionInput {
-                        input_descriptor: String::from("Signed transaction"),
-                        info: "Missing signer in signed transaction".to_string(),
-                    },
-                )
-            })?;
-            let starknet_address = self.compute_starknet_address(&evm_address)?;
+        let low = U256::from_be_bytes(Into::<FieldElement>::into(low).to_bytes_be());
+        let high = U256::from_be_bytes(Into::<FieldElement>::into(high).to_bytes_be());
 
-            let starknet_transaction =
-                BroadcastedTransactionWrapper::new(BroadcastedTransaction::Invoke(
-                    to_broadcasted_starknet_transaction(
-                        &transaction,
-                        (*starknet_address.0.key()).into(),
-                    )
-                    .map_err(|err| {
-                        TransactionExecutionError::ValidateTransactionError(
-                            EntryPointExecutionError::InvalidExecutionInput {
-                                input_descriptor: String::from("Signed transaction"),
-                                info: err.to_string(),
-                            },
-                        )
-                    })?,
-                ));
+        Ok(high << 128 | low)
+    }
 
-            let chain_id = self.chain_id();
-            self.execute(
-                starknet_transaction
-                    .try_into_execution_transaction(FieldElement::from(chain_id))
-                    .unwrap(),
+    /// Converts the given signed transaction to a Starknet-rs transaction and executes it.
+    fn execute_transaction(
+        &mut self,
+        transaction: TransactionSigned,
+    ) -> TransactionExecutionResult<TransactionExecutionInfo> {
+        let evm_address = transaction.recover_signer().ok_or_else(|| {
+            TransactionExecutionError::ValidateTransactionError(
+                EntryPointExecutionError::InvalidExecutionInput {
+                    input_descriptor: String::from("Signed transaction"),
+                    info: "Missing signer in signed transaction".to_string(),
+                },
             )
-        }
+        })?;
+        let starknet_address = self.compute_starknet_address(&evm_address)?;
+
+        let starknet_transaction =
+            BroadcastedTransactionWrapper::new(BroadcastedTransaction::Invoke(
+                to_broadcasted_starknet_transaction(
+                    &transaction,
+                    (*starknet_address.0.key()).into(),
+                )
+                .map_err(|err| {
+                    TransactionExecutionError::ValidateTransactionError(
+                        EntryPointExecutionError::InvalidExecutionInput {
+                            input_descriptor: String::from("Signed transaction"),
+                            info: err.to_string(),
+                        },
+                    )
+                })?,
+            ));
+
+        let chain_id = self.chain_id();
+        self.execute(
+            starknet_transaction
+                .try_into_execution_transaction(FieldElement::from(chain_id))
+                .unwrap(),
+        )
     }
 }
+
 #[cfg(test)]
 mod tests {
     use super::*;
