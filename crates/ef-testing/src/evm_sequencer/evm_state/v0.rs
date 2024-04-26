@@ -12,7 +12,7 @@ use starknet_api::hash::StarkFelt;
 use starknet_api::state::StorageKey;
 
 use super::Evm;
-use crate::evm_sequencer::account::{AccountType, KakarotAccount};
+use crate::evm_sequencer::account::KakarotAccount;
 use crate::evm_sequencer::constants::storage_variables::{
     ACCOUNT_BYTECODE_LEN, ACCOUNT_CAIRO1_HELPERS_CLASS, ACCOUNT_IMPLEMENTATION, ACCOUNT_NONCE,
     ACCOUNT_STORAGE, KAKAROT_BASE_FEE, KAKAROT_BLOCK_GAS_LIMIT, KAKAROT_COINBASE,
@@ -92,38 +92,38 @@ impl Evm for KakarotSequencer {
         let starknet_address = self.compute_starknet_address(&evm_address)?;
 
         // Pick the class hash based on the account type.
-        //TODO: remove account distinction
-        if matches!(account.account_type, AccountType::EOA) {
-            self.state_mut().set_nonce(starknet_address, account.nonce);
+        self.state_mut().set_nonce(starknet_address, account.nonce);
 
-            storage.append(&mut vec![
-                starknet_storage!(ACCOUNT_IMPLEMENTATION, self.environment.eoa_class_hash.0), // both EOA and CA CH are the same (for now)
-                starknet_storage!(
-                    ACCOUNT_CAIRO1_HELPERS_CLASS,
-                    self.environment.cairo1_helpers_class_hash.0
-                ), // both EOA and CA CH are the same (for now)
-                starknet_storage!(OWNABLE_OWNER, *self.environment.kakarot_address.0.key()),
-            ]);
+        storage.append(&mut vec![
+            starknet_storage!(
+                ACCOUNT_IMPLEMENTATION,
+                self.environment.account_contract_class_hash.0
+            ), // both EOA and CA CH are the same (for now)
+            starknet_storage!(
+                ACCOUNT_CAIRO1_HELPERS_CLASS,
+                self.environment.cairo1_helpers_class_hash.0
+            ), // both EOA and CA CH are the same (for now)
+            starknet_storage!(OWNABLE_OWNER, *self.environment.kakarot_address.0.key()),
+        ]);
 
-            // Write all the storage vars to the sequencer state.
-            for (k, v) in storage {
-                self.state_mut().set_storage_at(starknet_address, k, v)?;
-            }
-
-            let class_hash = self.environment.contract_account_class_hash;
-            // Set up the contract class hash
-            self.state_mut()
-                .set_class_hash_at(starknet_address, class_hash)?;
-
-            // Add the address to the Kakarot evm to starknet mapping
-            let kakarot_address = self.environment.kakarot_address;
-            self.state_mut().set_storage_at(
-                kakarot_address,
-                get_storage_var_address(KAKAROT_EVM_TO_STARKNET_ADDRESS, &[account.evm_address]),
-                *starknet_address.0.key(),
-            )?;
+        // Write all the storage vars to the sequencer state.
+        for (k, v) in storage {
+            self.state_mut().set_storage_at(starknet_address, k, v)?;
         }
-        Ok(());
+
+        let class_hash = self.environment.account_contract_class_hash;
+        // Set up the contract class hash
+        self.state_mut()
+            .set_class_hash_at(starknet_address, class_hash)?;
+
+        // Add the address to the Kakarot evm to starknet mapping
+        let kakarot_address = self.environment.kakarot_address;
+        self.state_mut().set_storage_at(
+            kakarot_address,
+            get_storage_var_address(KAKAROT_EVM_TO_STARKNET_ADDRESS, &[account.evm_address]),
+            *starknet_address.0.key(),
+        )?;
+        Ok(())
     }
 
     /// Funds an EOA or contract account. Also gives allowance to the Kakarot contract.
