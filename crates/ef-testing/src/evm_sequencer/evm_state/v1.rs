@@ -208,15 +208,6 @@ impl Evm for KakarotSequencer {
             )
             .unwrap();
 
-        //TODO: remove CA - EOA distinction
-        let nonce = if implementation == self.environment.contract_account_class_hash.0 {
-            let key = get_storage_var_address(ACCOUNT_NONCE, &[]);
-            self.state_mut().get_storage_at(starknet_address, key)?
-        } else {
-            // We can't throw an error here, because it could just be an uninitialized account.
-            StarkFelt::from(0_u8)
-        };
-
         Ok(U256::from_be_bytes(
             Into::<FieldElement>::into(nonce).to_bytes_be(),
         ))
