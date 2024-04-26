@@ -30,7 +30,7 @@ use starknet_crypto::{poseidon_hash_many, FieldElement};
 use super::Evm;
 use crate::{
     evm_sequencer::{
-        account::{inner_byte_array_pointer, AccountType, KakarotAccount},
+        account::{inner_byte_array_pointer, KakarotAccount},
         constants::{
             storage_variables::{
                 ACCOUNT_BYTECODE, ACCOUNT_IMPLEMENTATION, ACCOUNT_NONCE, ACCOUNT_STORAGE,
@@ -113,33 +113,33 @@ impl Evm for KakarotSequencer {
         let starknet_address = self.compute_starknet_address(&evm_address)?;
 
         // Pick the class hash based on the account type.
-        //TODO: remove account distinction
-        if matches!(account.account_type, AccountType::EOA) {
-            self.state_mut().set_nonce(starknet_address, account.nonce);
+        self.state_mut().set_nonce(starknet_address, account.nonce);
 
-            storage.append(&mut vec![
-                starknet_storage!(ACCOUNT_IMPLEMENTATION, self.environment.eoa_class_hash.0), // both EOA and CA CH are the same (for now)
-                starknet_storage!(OWNABLE_OWNER, *self.environment.kakarot_address.0.key()),
-            ]);
+        storage.append(&mut vec![
+            starknet_storage!(
+                ACCOUNT_IMPLEMENTATION,
+                self.environment.account_contract_class_hash.0
+            ), // both EOA and CA CH are the same (for now)
+            starknet_storage!(OWNABLE_OWNER, *self.environment.kakarot_address.0.key()),
+        ]);
 
-            // Write all the storage vars to the sequencer state.
-            for (k, v) in storage {
-                self.state_mut().set_storage_at(starknet_address, k, v)?;
-            }
-
-            let class_hash = self.environment.contract_account_class_hash;
-            // Set up the contract class hash
-            self.state_mut()
-                .set_class_hash_at(starknet_address, class_hash)?;
-
-            // Add the address to the Kakarot evm to starknet mapping
-            let kakarot_address = self.environment.kakarot_address;
-            self.state_mut().set_storage_at(
-                kakarot_address,
-                get_storage_var_address(KAKAROT_EVM_TO_STARKNET_ADDRESS, &[account.evm_address]),
-                *starknet_address.0.key(),
-            )?;
+        // Write all the storage vars to the sequencer state.
+        for (k, v) in storage {
+            self.state_mut().set_storage_at(starknet_address, k, v)?;
         }
+
+        let class_hash = self.environment.account_contract_class_hash;
+        // Set up the contract class hash
+        self.state_mut()
+            .set_class_hash_at(starknet_address, class_hash)?;
+
+        // Add the address to the Kakarot evm to starknet mapping
+        let kakarot_address = self.environment.kakarot_address;
+        self.state_mut().set_storage_at(
+            kakarot_address,
+            get_storage_var_address(KAKAROT_EVM_TO_STARKNET_ADDRESS, &[account.evm_address]),
+            *starknet_address.0.key(),
+        )?;
         Ok(())
     }
 
@@ -209,7 +209,7 @@ impl Evm for KakarotSequencer {
             .unwrap();
 
         Ok(U256::from_be_bytes(
-            Into::<FieldElement>::into(nonce).to_bytes_be(),
+            Into::<FieldElement>::into(implementation).to_bytes_be(),
         ))
     }
 
