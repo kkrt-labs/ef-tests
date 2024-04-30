@@ -112,14 +112,13 @@ impl Evm for KakarotSequencer {
         let mut storage = account.storage;
         let starknet_address = self.compute_starknet_address(&evm_address)?;
 
-        // Pick the class hash based on the account type.
         self.state_mut().set_nonce(starknet_address, account.nonce);
 
         storage.append(&mut vec![
             starknet_storage!(
                 ACCOUNT_IMPLEMENTATION,
                 self.environment.account_contract_class_hash.0
-            ), // both EOA and CA CH are the same (for now)
+            ),
             starknet_storage!(OWNABLE_OWNER, *self.environment.kakarot_address.0.key()),
         ]);
 
@@ -195,12 +194,12 @@ impl Evm for KakarotSequencer {
         Ok(high << 128 | low)
     }
 
-    /// Returns the nonce of the given address. For an EOA, uses the protocol level nonce.
-    /// For a contract account, uses the Kakarot managed nonce stored in the contract account's storage.
+    /// Returns the nonce of the given address.
+    /// Uses the Kakarot managed nonce stored in the contract account's storage.
     fn nonce_at(&mut self, evm_address: &Address) -> StateResult<U256> {
         let starknet_address = self.compute_starknet_address(evm_address)?;
 
-        let implementation = self
+        let nonce = self
             .state_mut()
             .get_storage_at(
                 starknet_address,
@@ -209,7 +208,7 @@ impl Evm for KakarotSequencer {
             .unwrap();
 
         Ok(U256::from_be_bytes(
-            Into::<FieldElement>::into(implementation).to_bytes_be(),
+            Into::<FieldElement>::into(nonce).to_bytes_be(),
         ))
     }
 

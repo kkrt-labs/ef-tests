@@ -91,14 +91,13 @@ impl Evm for KakarotSequencer {
         let mut storage = account.storage;
         let starknet_address = self.compute_starknet_address(&evm_address)?;
 
-        // Pick the class hash based on the account type.
         self.state_mut().set_nonce(starknet_address, account.nonce);
 
         storage.append(&mut vec![
             starknet_storage!(
                 ACCOUNT_IMPLEMENTATION,
                 self.environment.account_contract_class_hash.0
-            ), // both EOA and CA CH are the same (for now)
+            ),
             starknet_storage!(
                 ACCOUNT_CAIRO1_HELPERS_CLASS,
                 self.environment.cairo1_helpers_class_hash.0
