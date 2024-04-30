@@ -204,7 +204,7 @@ impl Evm for KakarotSequencer {
             .state_mut()
             .get_storage_at(
                 starknet_address,
-                get_storage_var_address(ACCOUNT_IMPLEMENTATION, &[]),
+                get_storage_var_address(ACCOUNT_NONCE, &[]),
             )
             .unwrap();
 
