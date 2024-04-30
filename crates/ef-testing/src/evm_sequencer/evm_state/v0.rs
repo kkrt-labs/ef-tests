@@ -12,7 +12,7 @@ use starknet_api::hash::StarkFelt;
 use starknet_api::state::StorageKey;
 
 use super::Evm;
-use crate::evm_sequencer::account::{AccountType, KakarotAccount};
+use crate::evm_sequencer::account::KakarotAccount;
 use crate::evm_sequencer::constants::storage_variables::{
     ACCOUNT_BYTECODE_LEN, ACCOUNT_CAIRO1_HELPERS_CLASS, ACCOUNT_IMPLEMENTATION, ACCOUNT_NONCE,
     ACCOUNT_STORAGE, KAKAROT_BASE_FEE, KAKAROT_BLOCK_GAS_LIMIT, KAKAROT_COINBASE,
@@ -91,14 +91,13 @@ impl Evm for KakarotSequencer {
         let mut storage = account.storage;
         let starknet_address = self.compute_starknet_address(&evm_address)?;
 
-        // Pick the class hash based on the account type.
-        //TODO: remove account distinction
-        if matches!(account.account_type, AccountType::EOA) {
-            self.state_mut().set_nonce(starknet_address, account.nonce);
-        }
+        self.state_mut().set_nonce(starknet_address, account.nonce);
 
         storage.append(&mut vec![
-            starknet_storage!(ACCOUNT_IMPLEMENTATION, self.environment.eoa_class_hash.0), // both EOA and CA CH are the same (for now)
+            starknet_storage!(
+                ACCOUNT_IMPLEMENTATION,
+                self.environment.account_contract_class_hash.0
+            ),
             starknet_storage!(
                 ACCOUNT_CAIRO1_HELPERS_CLASS,
                 self.environment.cairo1_helpers_class_hash.0
@@ -111,7 +110,7 @@ impl Evm for KakarotSequencer {
             self.state_mut().set_storage_at(starknet_address, k, v)?;
         }
 
-        let class_hash = self.environment.contract_account_class_hash;
+        let class_hash = self.environment.account_contract_class_hash;
         // Set up the contract class hash
         self.state_mut()
             .set_class_hash_at(starknet_address, class_hash)?;
@@ -307,9 +306,8 @@ mod tests {
         let kakarot_environment = KakarotEnvironment::new(
             *KAKAROT_ADDRESS,
             *UNINITIALIZED_ACCOUNT_CLASS_HASH,
-            *ACCOUNT_CONTRACT_CLASS_HASH,
-            *ACCOUNT_CONTRACT_CLASS_HASH,
             *CAIRO1_HELPERS_CLASS_HASH,
+            *ACCOUNT_CONTRACT_CLASS_HASH,
         );
         let coinbase_address = Address::left_padding_from(&0xC01BA5Eu64.to_be_bytes());
         let mut sequencer = KakarotSequencer::new(

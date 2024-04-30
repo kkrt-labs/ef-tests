@@ -275,9 +275,8 @@ impl Case for BlockchainTestCase {
         let kakarot_environment = KakarotEnvironment::new(
             *KAKAROT_ADDRESS,
             *UNINITIALIZED_ACCOUNT_CLASS_HASH,
-            *ACCOUNT_CONTRACT_CLASS_HASH,
-            *ACCOUNT_CONTRACT_CLASS_HASH,
             *CAIRO1_HELPERS_CLASS_HASH,
+            *ACCOUNT_CONTRACT_CLASS_HASH,
         );
         let mut sequencer = KakarotSequencer::new(
             INITIAL_SEQUENCER_STATE.clone(),
