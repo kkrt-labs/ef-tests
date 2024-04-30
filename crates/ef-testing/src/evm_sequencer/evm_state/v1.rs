@@ -208,7 +208,7 @@ impl Evm for KakarotSequencer {
             .unwrap();
 
         Ok(U256::from_be_bytes(
-            Into::<FieldElement>::into(implementation).to_bytes_be(),
+            Into::<FieldElement>::into(nonce).to_bytes_be(),
         ))
     }
 
