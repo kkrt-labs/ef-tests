@@ -34,9 +34,7 @@ impl KakarotAccount {
             starknet_storage!(ACCOUNT_BYTECODE_LEN, code.len() as u32),
         ];
 
-        // Initialize the implementation and nonce based on account type.
-        // In tests, only the sender is an EOA.
-        // In both cases, the nonce of the account is written to storage after each tx.
+        // Write the nonce of the account is written to storage after each tx.
         storage.append(&mut vec![starknet_storage!(ACCOUNT_NONCE, nonce)]);
 
         // Initialize the bytecode storage var.
