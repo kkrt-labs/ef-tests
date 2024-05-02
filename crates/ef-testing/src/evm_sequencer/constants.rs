@@ -110,7 +110,7 @@ pub mod storage_variables {
     pub const ACCOUNT_KAKAROT_ADDRESS: &str = "Account_kakarot_address";
     pub const ACCOUNT_IMPLEMENTATION: &str = "Account_implementation";
     pub const ACCOUNT_CAIRO1_HELPERS_CLASS: &str = "Account_cairo1_helpers_class_hash";
-    pub const ACCOUNT_JUMPDESTS : &str = "Account_jumpdests";
+    pub const ACCOUNT_VALID_JUMPDESTS : &str = "Account_valid_jumpdests";
 
     pub const KAKAROT_COINBASE: &str = "Kakarot_coinbase";
     pub const KAKAROT_BASE_FEE: &str = "Kakarot_base_fee";

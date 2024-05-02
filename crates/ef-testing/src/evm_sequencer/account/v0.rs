@@ -6,8 +6,8 @@ use starknet_crypto::FieldElement;
 
 use super::{split_bytecode_to_starkfelt, KakarotAccount};
 use crate::evm_sequencer::constants::storage_variables::{
-    ACCOUNT_BYTECODE_LEN, ACCOUNT_EVM_ADDRESS, ACCOUNT_IS_INITIALIZED, ACCOUNT_JUMPDESTS,
-    ACCOUNT_NONCE, ACCOUNT_STORAGE,
+    ACCOUNT_BYTECODE_LEN, ACCOUNT_EVM_ADDRESS, ACCOUNT_IS_INITIALIZED, ACCOUNT_NONCE,
+    ACCOUNT_STORAGE, ACCOUNT_VALID_JUMPDESTS,
 };
 use crate::evm_sequencer::{types::felt::FeltSequencer, utils::split_u256};
 use crate::starknet_storage;
@@ -48,7 +48,7 @@ impl KakarotAccount {
 
         // Initialize the bytecode jumpdests.
         let mut valid_jumpdests = analyze(code);
-        let jumdpests_storage_address = get_storage_var_address(ACCOUNT_JUMPDESTS, &[]);
+        let jumdpests_storage_address = get_storage_var_address(ACCOUNT_VALID_JUMPDESTS, &[]);
         valid_jumpdests.iter().for_each(|index| {
             storage.push((
                 StorageKey(
