@@ -1,5 +1,7 @@
 use blockifier::abi::{abi_utils::get_storage_var_address, sierra_types::next_storage_key};
-use reth_primitives::{Address, Bytes, U256};
+use reth_primitives::{Address, U256};
+use revm_interpreter::analysis::to_analysed;
+use revm_primitives::{Bytecode, BytecodeState, Bytes, JumpMap};
 use starknet_api::core::PatriciaKey;
 use starknet_api::{core::Nonce, hash::StarkFelt, state::StorageKey, StarknetApiError};
 use starknet_crypto::FieldElement;
@@ -18,7 +20,6 @@ impl KakarotAccount {
         code: &Bytes,
         nonce: U256,
         evm_storage: &[(U256, U256)],
-        is_eoa: bool,
     ) -> Result<Self, StarknetApiError> {
         let nonce = StarkFelt::from(TryInto::<u128>::try_into(nonce).map_err(|err| {
             StarknetApiError::OutOfRange {
@@ -47,7 +48,12 @@ impl KakarotAccount {
         storage.append(&mut bytecode_storage);
 
         // Initialize the bytecode jumpdests.
-        let mut valid_jumpdests = analyze(code);
+        let mut bytecode = to_analysed(Bytecode::new_raw(code.clone()));
+        let valid_jumpdests = match bytecode.state {
+            BytecodeState::Raw | BytecodeState::Checked { .. } => Vec::new(),
+            BytecodeState::Analysed { jump_map, .. } => Vec::from(jump_map.as_slice()),
+        };
+
         let jumdpests_storage_address = get_storage_var_address(ACCOUNT_VALID_JUMPDESTS, &[]);
         valid_jumpdests.iter().for_each(|index| {
             storage.push((
@@ -81,34 +87,4 @@ impl KakarotAccount {
             nonce: Nonce(nonce),
         })
     }
-}
-
-/// Analyze bytecode to build a jump map.
-/// author: REVM <https://github.com/bluealloy/revm/blob/main/crates/interpreter/src/interpreter/analysis.rs#L50>
-fn analyze(code: &Bytes) -> Vec<usize> {
-    let mut jumps: Vec<usize> = Vec::new();
-
-    let range = code.as_ptr_range();
-    let start = range.start;
-    let mut iterator = start;
-    let end = range.end;
-    while iterator < end {
-        let opcode = unsafe { *iterator };
-        if 0x5b == opcode {
-            // SAFETY: jumps are max length of the code
-            unsafe { jumps.push(iterator.offset_from(start) as usize) }
-            iterator = unsafe { iterator.offset(1) };
-        } else {
-            let push_offset = opcode.wrapping_sub(0x60);
-            if push_offset < 32 {
-                // SAFETY: iterator access range is checked in the while loop
-                iterator = unsafe { iterator.offset((push_offset + 2) as isize) };
-            } else {
-                // SAFETY: iterator access range is checked in the while loop
-                iterator = unsafe { iterator.offset(1) };
-            }
-        }
-    }
-
-    jumps
 }
