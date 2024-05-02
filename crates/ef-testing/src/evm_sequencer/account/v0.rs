@@ -1,11 +1,13 @@
 use blockifier::abi::{abi_utils::get_storage_var_address, sierra_types::next_storage_key};
 use reth_primitives::{Address, Bytes, U256};
+use starknet_api::core::PatriciaKey;
 use starknet_api::{core::Nonce, hash::StarkFelt, state::StorageKey, StarknetApiError};
+use starknet_crypto::FieldElement;
 
 use super::{split_bytecode_to_starkfelt, KakarotAccount};
 use crate::evm_sequencer::constants::storage_variables::{
-    ACCOUNT_BYTECODE_LEN, ACCOUNT_EVM_ADDRESS, ACCOUNT_IS_INITIALIZED, ACCOUNT_NONCE,
-    ACCOUNT_STORAGE,
+    ACCOUNT_BYTECODE_LEN, ACCOUNT_EVM_ADDRESS, ACCOUNT_IS_INITIALIZED, ACCOUNT_JUMPDESTS,
+    ACCOUNT_NONCE, ACCOUNT_STORAGE,
 };
 use crate::evm_sequencer::{types::felt::FeltSequencer, utils::split_u256};
 use crate::starknet_storage;
@@ -44,6 +46,22 @@ impl KakarotAccount {
             .collect();
         storage.append(&mut bytecode_storage);
 
+        // Initialize the bytecode jumpdests.
+        let mut valid_jumpdests = analyze(code);
+        let jumdpests_storage_address = get_storage_var_address(ACCOUNT_JUMPDESTS, &[]);
+        valid_jumpdests.iter().for_each(|index| {
+            storage.push((
+                StorageKey(
+                    PatriciaKey::try_from(StarkFelt::from(
+                        FieldElement::from(*jumdpests_storage_address.0.key())
+                            + FieldElement::from(*index),
+                    ))
+                    .unwrap(),
+                ),
+                StarkFelt::from_u128(1),
+            ));
+        });
+
         // Initialize the storage vars.
         let mut evm_storage_storage: Vec<(StorageKey, StarkFelt)> = evm_storage
             .iter()
@@ -63,4 +81,34 @@ impl KakarotAccount {
             nonce: Nonce(nonce),
         })
     }
+}
+
+/// Analyze bytecode to build a jump map.
+/// author: REVM <https://github.com/bluealloy/revm/blob/main/crates/interpreter/src/interpreter/analysis.rs#L50>
+fn analyze(code: &Bytes) -> Vec<usize> {
+    let mut jumps: Vec<usize> = Vec::new();
+
+    let range = code.as_ptr_range();
+    let start = range.start;
+    let mut iterator = start;
+    let end = range.end;
+    while iterator < end {
+        let opcode = unsafe { *iterator };
+        if 0x5b == opcode {
+            // SAFETY: jumps are max length of the code
+            unsafe { jumps.push(iterator.offset_from(start) as usize) }
+            iterator = unsafe { iterator.offset(1) };
+        } else {
+            let push_offset = opcode.wrapping_sub(0x60);
+            if push_offset < 32 {
+                // SAFETY: iterator access range is checked in the while loop
+                iterator = unsafe { iterator.offset((push_offset + 2) as isize) };
+            } else {
+                // SAFETY: iterator access range is checked in the while loop
+                iterator = unsafe { iterator.offset(1) };
+            }
+        }
+    }
+
+    jumps
 }
