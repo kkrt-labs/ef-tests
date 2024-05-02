@@ -68,7 +68,6 @@ impl BlockchainTestCase {
                 &account.code,
                 account.nonce,
                 &account.storage.clone().into_iter().collect::<Vec<_>>()[..],
-                is_eoa,
             )?;
             sequencer.setup_account(kakarot_account)?;
             sequencer.fund(address, account.balance)?;
