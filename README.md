@@ -23,6 +23,8 @@ our own simplified test runner based on Reth's ef-tests runner.
     [GitHub token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens)
     and add it inside the `.env` file (make sure you have selected the
     `public_repo` scope in the `repo` category).
+- Install `jq` from its
+  [official website](https://jqlang.github.io/jq/download/)
 
 ## Setup
 
