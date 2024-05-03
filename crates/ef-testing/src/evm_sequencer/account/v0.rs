@@ -1,7 +1,7 @@
 use blockifier::abi::{abi_utils::get_storage_var_address, sierra_types::next_storage_key};
 use reth_primitives::{Address, U256};
 use revm_interpreter::analysis::to_analysed;
-use revm_primitives::{Bytecode, BytecodeState, Bytes, JumpMap};
+use revm_primitives::{Bytecode, BytecodeState, Bytes};
 use starknet_api::core::PatriciaKey;
 use starknet_api::{core::Nonce, hash::StarkFelt, state::StorageKey, StarknetApiError};
 use starknet_crypto::FieldElement;
@@ -48,24 +48,23 @@ impl KakarotAccount {
         storage.append(&mut bytecode_storage);
 
         // Initialize the bytecode jumpdests.
-        let mut bytecode = to_analysed(Bytecode::new_raw(code.clone()));
+        let bytecode = to_analysed(Bytecode::new_raw(code.clone()));
         let valid_jumpdests = match bytecode.state {
-            BytecodeState::Raw | BytecodeState::Checked { .. } => Vec::new(),
-            BytecodeState::Analysed { jump_map, .. } => Vec::from(jump_map.as_slice()),
+            BytecodeState::Analysed { jump_map, .. } => jump_map.as_slice().to_vec(),
+            _ => unreachable!("Bytecode should be analysed"),
         };
-
         let jumdpests_storage_address = get_storage_var_address(ACCOUNT_VALID_JUMPDESTS, &[]);
-        valid_jumpdests.iter().for_each(|index| {
+        let jumdpests_storage_address = FieldElement::from(*jumdpests_storage_address.0.key());
+        valid_jumpdests.into_iter().for_each(|index| {
             storage.push((
                 StorageKey(
                     PatriciaKey::try_from(StarkFelt::from(
-                        FieldElement::from(*jumdpests_storage_address.0.key())
-                            + FieldElement::from(*index),
+                        jumdpests_storage_address + index.into(),
                     ))
                     .unwrap(),
                 ),
-                StarkFelt::from_u128(1),
-            ));
+                StarkFelt::ONE,
+            ))
         });
 
         // Initialize the storage vars.

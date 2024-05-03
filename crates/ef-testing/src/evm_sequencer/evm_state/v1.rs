@@ -1,5 +1,3 @@
-use core::num;
-
 use blockifier::{
     abi::{
         abi_utils::{get_fee_token_var_address, get_storage_var_address, starknet_keccak},
@@ -99,7 +97,7 @@ impl Evm for KakarotSequencer {
         self.state_mut().set_storage_at(
             kakarot_address,
             block_gas_limit_address,
-            StarkFelt::from(block_gas_limit),
+            block_gas_limit,
         )?;
 
         Ok(())
@@ -479,8 +477,7 @@ mod tests {
             &[],
         )
         .unwrap();
-        let eoa =
-            KakarotAccount::new(&PUBLIC_KEY, &Bytes::default(), eoa_nonce, &[]).unwrap();
+        let eoa = KakarotAccount::new(&PUBLIC_KEY, &Bytes::default(), eoa_nonce, &[]).unwrap();
         sequencer.setup_account(contract).unwrap();
         sequencer.setup_account(eoa).unwrap();
         let execution_result = sequencer.execute_transaction(transaction);
