@@ -49,10 +49,16 @@ impl KakarotAccount {
 
         // Initialize the bytecode jumpdests.
         let bytecode = to_analysed(Bytecode::new_raw(code.clone()));
-        let valid_jumpdests = match bytecode.state {
-            BytecodeState::Analysed { jump_map, .. } => jump_map.as_slice().to_vec(),
+        let valid_jumpdests: Vec<usize> = match bytecode.state {
+            BytecodeState::Analysed { jump_map, .. } => jump_map
+                .0
+                .iter()
+                .enumerate()
+                .filter_map(|(index, bit)| bit.as_ref().then(|| index))
+                .collect(),
             _ => unreachable!("Bytecode should be analysed"),
         };
+
         let jumdpests_storage_address = get_storage_var_address(ACCOUNT_VALID_JUMPDESTS, &[]);
         let jumdpests_storage_address = FieldElement::from(*jumdpests_storage_address.0.key());
         valid_jumpdests.into_iter().for_each(|index| {
