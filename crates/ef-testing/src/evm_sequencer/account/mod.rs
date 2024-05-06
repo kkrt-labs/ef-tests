@@ -71,7 +71,6 @@ pub mod kkrt_account {
             _code: &Bytes,
             _nonce: U256,
             _evm_storage: &[(U256, U256)],
-            _is_eoa: bool,
         ) -> Result<Self, StarknetApiError> {
             Ok(Self {
                 evm_address: StarkFelt::default(),

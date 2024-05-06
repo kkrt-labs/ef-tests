@@ -1,11 +1,15 @@
 use blockifier::abi::{abi_utils::get_storage_var_address, sierra_types::next_storage_key};
-use reth_primitives::{Address, Bytes, U256};
+use reth_primitives::{Address, U256};
+use revm_interpreter::analysis::to_analysed;
+use revm_primitives::{Bytecode, BytecodeState, Bytes};
+use starknet_api::core::PatriciaKey;
 use starknet_api::{core::Nonce, hash::StarkFelt, state::StorageKey, StarknetApiError};
+use starknet_crypto::FieldElement;
 
 use super::{split_bytecode_to_starkfelt, KakarotAccount};
 use crate::evm_sequencer::constants::storage_variables::{
     ACCOUNT_BYTECODE_LEN, ACCOUNT_EVM_ADDRESS, ACCOUNT_IS_INITIALIZED, ACCOUNT_NONCE,
-    ACCOUNT_STORAGE,
+    ACCOUNT_STORAGE, ACCOUNT_VALID_JUMPDESTS,
 };
 use crate::evm_sequencer::{types::felt::FeltSequencer, utils::split_u256};
 use crate::starknet_storage;
@@ -16,7 +20,6 @@ impl KakarotAccount {
         code: &Bytes,
         nonce: U256,
         evm_storage: &[(U256, U256)],
-        is_eoa: bool,
     ) -> Result<Self, StarknetApiError> {
         let nonce = StarkFelt::from(TryInto::<u128>::try_into(nonce).map_err(|err| {
             StarknetApiError::OutOfRange {
@@ -43,6 +46,32 @@ impl KakarotAccount {
             .map(|(i, bytes)| (StorageKey::from(i as u32), bytes))
             .collect();
         storage.append(&mut bytecode_storage);
+
+        // Initialize the bytecode jumpdests.
+        let bytecode = to_analysed(Bytecode::new_raw(code.clone()));
+        let valid_jumpdests: Vec<usize> = match bytecode.state {
+            BytecodeState::Analysed { jump_map, .. } => jump_map
+                .0
+                .iter()
+                .enumerate()
+                .filter_map(|(index, bit)| bit.as_ref().then(|| index))
+                .collect(),
+            _ => unreachable!("Bytecode should be analysed"),
+        };
+
+        let jumdpests_storage_address = get_storage_var_address(ACCOUNT_VALID_JUMPDESTS, &[]);
+        let jumdpests_storage_address = FieldElement::from(*jumdpests_storage_address.0.key());
+        valid_jumpdests.into_iter().for_each(|index| {
+            storage.push((
+                StorageKey(
+                    PatriciaKey::try_from(StarkFelt::from(
+                        jumdpests_storage_address + index.into(),
+                    ))
+                    .unwrap(),
+                ),
+                StarkFelt::ONE,
+            ))
+        });
 
         // Initialize the storage vars.
         let mut evm_storage_storage: Vec<(StorageKey, StarkFelt)> = evm_storage

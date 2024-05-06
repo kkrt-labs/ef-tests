@@ -3296,6 +3296,8 @@ dependencies = [
  "regex",
  "reqwest 0.12.3",
  "reth-primitives",
+ "revm-interpreter 4.0.0 (git+https://github.com/bluealloy/revm?tag=v35)",
+ "revm-primitives 3.1.1 (git+https://github.com/bluealloy/revm?tag=v35)",
  "sequencer",
  "serde",
  "serde_json",
@@ -7314,7 +7316,7 @@ dependencies = [
  "reth-primitives",
  "reth-rpc-types",
  "reth-rpc-types-compat",
- "revm-primitives",
+ "revm-primitives 3.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde",
  "sha2 0.10.8",
 ]
@@ -7368,7 +7370,7 @@ dependencies = [
  "reth-interfaces",
  "reth-primitives",
  "revm",
- "revm-primitives",
+ "revm-primitives 3.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
@@ -7381,7 +7383,7 @@ dependencies = [
  "reth-primitives",
  "reth-provider",
  "reth-revm",
- "revm-primitives",
+ "revm-primitives 3.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "tracing",
 ]
 
@@ -7807,7 +7809,7 @@ dependencies = [
  "reth-ethereum-forks",
  "reth-rpc-types",
  "revm",
- "revm-primitives",
+ "revm-primitives 3.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "roaring",
  "secp256k1 0.27.0",
  "serde",
@@ -7922,7 +7924,7 @@ dependencies = [
  "reth-transaction-pool",
  "revm",
  "revm-inspectors",
- "revm-primitives",
+ "revm-primitives 3.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "schnellru",
  "secp256k1 0.27.0",
  "serde",
@@ -8221,7 +8223,7 @@ dependencies = [
  "auto_impl",
  "cfg-if",
  "dyn-clone",
- "revm-interpreter",
+ "revm-interpreter 4.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "revm-precompile",
  "serde",
  "serde_json",
@@ -8251,8 +8253,16 @@ version = "4.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d322f2730cd300e99d271a1704a2dfb8973d832428f5aa282aaa40e2473b5eec"
 dependencies = [
- "revm-primitives",
+ "revm-primitives 3.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde",
+]
+
+[[package]]
+name = "revm-interpreter"
+version = "4.0.0"
+source = "git+https://github.com/bluealloy/revm?tag=v35#1640b8f6989d0d4a19dfeb343e7967d501f6e195"
+dependencies = [
+ "revm-primitives 3.1.1 (git+https://github.com/bluealloy/revm?tag=v35)",
 ]
 
 [[package]]
@@ -8265,7 +8275,7 @@ dependencies = [
  "c-kzg",
  "k256 0.13.3",
  "once_cell",
- "revm-primitives",
+ "revm-primitives 3.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "ripemd",
  "secp256k1 0.28.2",
  "sha2 0.10.8",
@@ -8291,6 +8301,22 @@ dependencies = [
  "hex",
  "once_cell",
  "serde",
+]
+
+[[package]]
+name = "revm-primitives"
+version = "3.1.1"
+source = "git+https://github.com/bluealloy/revm?tag=v35#1640b8f6989d0d4a19dfeb343e7967d501f6e195"
+dependencies = [
+ "alloy-primitives",
+ "auto_impl",
+ "bitflags 2.5.0",
+ "bitvec 1.0.1",
+ "cfg-if",
+ "dyn-clone",
+ "enumn",
+ "hashbrown 0.14.3",
+ "hex",
 ]
 
 [[package]]

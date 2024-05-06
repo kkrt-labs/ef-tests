@@ -6,14 +6,11 @@ use starknet_api::{
     state::StorageKey,
     StarknetApiError,
 };
-use starknet_crypto::FieldElement;
-use tracing::field::Field;
 
 use super::KakarotAccount;
 use super::{inner_byte_array_pointer, split_bytecode_to_starkfelt};
 use crate::evm_sequencer::constants::storage_variables::{
-    ACCOUNT_BYTECODE_LEN, ACCOUNT_EVM_ADDRESS, ACCOUNT_IS_INITIALIZED, ACCOUNT_NONCE,
-    ACCOUNT_STORAGE,
+    ACCOUNT_EVM_ADDRESS, ACCOUNT_IS_INITIALIZED, ACCOUNT_NONCE, ACCOUNT_STORAGE,
 };
 use crate::evm_sequencer::{
     constants::storage_variables::ACCOUNT_BYTECODE, types::felt::FeltSequencer, utils::split_u256,
@@ -35,7 +32,7 @@ fn prepare_bytearray_storage(code: &Bytes) -> Vec<(StorageKey, StarkFelt)> {
     let bytecode_base_address = get_storage_var_address(ACCOUNT_BYTECODE, &[]);
     let mut bytearray = vec![(bytecode_base_address, StarkFelt::from(code.len() as u128))];
 
-    let bytecode_storage: Vec<_> = split_bytecode_to_starkfelt(&code)
+    let bytecode_storage: Vec<_> = split_bytecode_to_starkfelt(code)
         .enumerate()
         .map(|(index, b)| {
             let offset = index % 256;
@@ -62,7 +59,6 @@ impl KakarotAccount {
         code: &Bytes,
         nonce: U256,
         evm_storage: &[(U256, U256)],
-        is_eoa: bool,
     ) -> Result<Self, StarknetApiError> {
         let nonce = StarkFelt::from(TryInto::<u128>::try_into(nonce).map_err(|err| {
             StarknetApiError::OutOfRange {
@@ -112,6 +108,7 @@ impl KakarotAccount {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use starknet::core::types::FieldElement;
 
     #[test]
     fn test_prepare_bytearray_storage() {

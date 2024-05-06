@@ -31,6 +31,8 @@ ef-tests = { git = "https://github.com/paradigmxyz/reth.git", tag = "v0.2.0-beta
 ] }
 ethers-signers = { git = "https://github.com/gakonst/ethers-rs.git", tag = "v2.0" }
 reth-primitives = { git = "https://github.com/paradigmxyz/reth.git", tag = "v0.2.0-beta.6", default-features = false }
+revm-interpreter = { git = "https://github.com/bluealloy/revm", tag = "v35", default-features = false }
+revm-primitives = { git = "https://github.com/bluealloy/revm", tag = "v35", default-features = false }
 
 # Starknet deps
 cairo-lang-casm = { git = "https://github.com/kkrt-labs/cairo.git", branch = "v2.5.4", default-features = false }
