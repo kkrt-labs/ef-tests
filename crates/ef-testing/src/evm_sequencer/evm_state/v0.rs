@@ -328,7 +328,7 @@ mod tests {
                 gas_limit: 1_000_000,
                 max_fee_per_gas: 0,
                 max_priority_fee_per_gas: 0,
-                to: reth_primitives::TransactionKind::Call(*TEST_CONTRACT_ADDRESS),
+                to: reth_primitives::TxKind::Call(*TEST_CONTRACT_ADDRESS),
                 value: U256::ZERO,
                 access_list: AccessList::default(),
                 input: Bytes::default(),
