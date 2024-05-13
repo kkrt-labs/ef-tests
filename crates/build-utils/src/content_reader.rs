@@ -4,7 +4,7 @@ use crate::{
 };
 use alloy_rlp::Decodable;
 use eyre::eyre;
-use reth_primitives::{address, hex, revm_primitives::FixedBytes, Address, Block};
+use reth_primitives::{address, hex, Address, Block};
 use serde_json::Value;
 use std::collections::BTreeMap;
 
@@ -41,10 +41,10 @@ impl ContentReader {
             Err(_) => Some(case_without_secret.clone()),
         };
 
-        match get_secret_key_from_case(case.as_ref()) {
-            Some(key) => Ok(format!("\"{}\"", key)),
-            None => get_secret_key_from_block(case_without_secret),
-        }
+        get_secret_key_from_case(case.as_ref()).map_or_else(
+            || get_secret_key_from_block(case_without_secret),
+            |key| Ok(format!("\"{}\"", key)),
+        )
     }
 
     pub fn pre_state(test_case: &Value) -> Result<Value, eyre::Error> {
@@ -84,10 +84,9 @@ impl ContentReader {
     }
 
     pub fn transaction(test_case: &Value, block: &Value) -> Result<Value, eyre::Error> {
-        let block_data = match block.get("rlp_decoded") {
-            Some(block) => Ok(block),
-            None => Err(eyre!("key 'rlp_decoded' not found")),
-        }?;
+        let block_data = block
+            .get("rlp_decoded")
+            .map_or_else(|| Err(eyre!("key 'rlp_decoded' not found")), Ok)?;
 
         // Check if the block contains a field named "transactions"
         Ok(if let Some(transaction) = block_data.get("transactions") {
@@ -129,8 +128,7 @@ fn get_secret_key_from_block(case_without_secret: &Value) -> Result<String, eyre
                 .get("sender")
                 .and_then(|value| value.as_str())
                 .ok_or_else(|| eyre!("Key 'sender' not found"))?;
-            let sender_address: Address = sender.parse::<FixedBytes<20>>()?.into();
-            sender_address
+            sender.parse::<Address>()?
         }
         Err(_) => {
             // If the block is invalid, it's not possible to get the secret key from transactions.
