@@ -2,8 +2,9 @@ use crate::{
     constants::ADDRESSES_KEYS, path::PathWrapper,
     utils::blockchain_tests_to_general_state_tests_path,
 };
+use alloy_rlp::Decodable;
 use eyre::eyre;
-use reth_primitives::{revm_primitives::FixedBytes, Address};
+use reth_primitives::{address, hex, revm_primitives::FixedBytes, Address, Block};
 use serde_json::Value;
 use std::collections::BTreeMap;
 
@@ -18,6 +19,7 @@ pub struct ContentReader;
 
 impl ContentReader {
     /// Reads the secret key from the given path for the `GeneralStateTests`.
+    ///
     /// All tests are taken from the `BlockchainTests` folder,
     /// but the secret key is taken from the `GeneralStateTests` folder.
     ///
@@ -30,8 +32,8 @@ impl ContentReader {
         case_without_secret: &Value,
     ) -> Result<String, eyre::Error> {
         let path = blockchain_tests_to_general_state_tests_path(path);
-        let maybe_content_with_secret = path.read_file_to_string();
-        let case = match maybe_content_with_secret {
+
+        let case = match path.read_file_to_string() {
             Ok(content) => {
                 let cases: BTreeMap<String, Value> = serde_json::from_str(&content)?;
                 cases.into_values().next()
@@ -39,28 +41,10 @@ impl ContentReader {
             Err(_) => Some(case_without_secret.clone()),
         };
 
-        let key = match case
-            .as_ref()
-            .and_then(|value| value.get("transaction"))
-            .and_then(|value| value.get("secretKey"))
-        {
-            Some(key) => key.to_string(),
-            None => {
-                let block = Self::block(case_without_secret)?;
-                let transaction = Self::transaction(case_without_secret, &block)?;
-                let sender = transaction
-                    .get("sender")
-                    .and_then(|value| value.as_str())
-                    .ok_or_else(|| eyre!("Key 'sender' not found"))?;
-
-                let sender_address: Address = sender.parse::<FixedBytes<20>>()?.into();
-                ADDRESSES_KEYS
-                    .get(&sender_address)
-                    .map(|addr| format!("\"{}\"", addr))
-                    .unwrap_or_else(|| panic!("No secret key found for {sender_address}"))
-            }
-        };
-        Ok(key)
+        match get_secret_key_from_case(case.as_ref()) {
+            Some(key) => Ok(format!("\"{}\"", key)),
+            None => get_secret_key_from_block(case_without_secret),
+        }
     }
 
     pub fn pre_state(test_case: &Value) -> Result<Value, eyre::Error> {
@@ -100,8 +84,13 @@ impl ContentReader {
     }
 
     pub fn transaction(test_case: &Value, block: &Value) -> Result<Value, eyre::Error> {
+        let block_data = match block.get("rlp_decoded") {
+            Some(block) => Ok(block),
+            None => Err(eyre!("key 'rlp_decoded' not found")),
+        }?;
+
         // Check if the block contains a field named "transactions"
-        Ok(if let Some(transaction) = block.get("transactions") {
+        Ok(if let Some(transaction) = block_data.get("transactions") {
             // If the "transactions" field exists, try to convert its value to an array
             let transaction_array = transaction
                 .as_array()
@@ -121,4 +110,55 @@ impl ContentReader {
                 .clone() // Clone the transaction value
         })
     }
+}
+
+fn get_secret_key_from_case(case: Option<&Value>) -> Option<&str> {
+    case.and_then(|value| value.get("transaction"))
+        .and_then(|value| value.get("secretKey"))
+        .and_then(|value| value.as_str())
+}
+
+fn get_secret_key_from_block(case_without_secret: &Value) -> Result<String, eyre::Error> {
+    let block = ContentReader::block(case_without_secret)?;
+
+    let transaction = ContentReader::transaction(case_without_secret, &block);
+
+    let sender_address = match transaction {
+        Ok(transaction) => {
+            let sender = transaction
+                .get("sender")
+                .and_then(|value| value.as_str())
+                .ok_or_else(|| eyre!("Key 'sender' not found"))?;
+            let sender_address: Address = sender.parse::<FixedBytes<20>>()?.into();
+            sender_address
+        }
+        Err(_) => {
+            // If the block is invalid, it's not possible to get the secret key from transactions.
+            // We need to try rlp-decoding the block; and if the encoding is invalid, optimistically assume sender
+            // is             address!("a94f5374fce5edbc8e2a8697c15331677e6ebf0b"),
+            //TODO: there should be a deeper refactor to simply skip transactionless tests.
+            let block_rlp = match block.get("rlp").unwrap() {
+                Value::String(s) => hex::decode(s),
+                _ => panic!("test"),
+            }
+            .unwrap();
+
+            let sender_address = match Block::decode(&mut block_rlp.as_slice()) {
+                Ok(block) => block
+                    .senders()
+                    .unwrap()
+                    .first()
+                    .cloned()
+                    .ok_or_else(|| eyre!("No sender address found"))?,
+                Err(_) => address!("a94f5374fce5edbc8e2a8697c15331677e6ebf0b"),
+            };
+
+            sender_address
+        }
+    };
+
+    ADDRESSES_KEYS
+        .get(&sender_address)
+        .map(|addr| format!("\"{}\"", addr))
+        .ok_or_else(|| eyre!("No secret key found for {}", sender_address))
 }

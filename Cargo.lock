@@ -1327,6 +1327,7 @@ dependencies = [
 name = "build-utils"
 version = "0.1.0"
 dependencies = [
+ "alloy-rlp",
  "eyre",
  "lazy_static",
  "rayon",
