@@ -6,8 +6,8 @@ ifneq ("$(wildcard .env)","")
 endif
 
 # The release tag of https://github.com/ethereum/tests to use for EF tests
-EF_TESTS_TAG := v13.2
-EF_TESTS_URL := https://github.com/ethereum/tests/archive/refs/tags/$(EF_TESTS_TAG).tar.gz
+EF_TESTS_TAG := v13.3-kkrt
+EF_TESTS_URL := https://github.com/kkrt-labs/tests/archive/refs/tags/$(EF_TESTS_TAG).tar.gz
 EF_TESTS_DIR := ./crates/ef-testing/ethereum-tests
 
 # Kakarot artifacts V0
