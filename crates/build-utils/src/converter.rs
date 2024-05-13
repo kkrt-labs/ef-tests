@@ -205,7 +205,7 @@ impl<'a> EfTests<'a> {
     pub fn format_into_identifier(s: &str) -> String {
         // Pyspec tests are in form test_src/GeneralStateTestsFillerFiller/Pyspecs/berlin/eip2930_access_list/test_acl.py::test_access_list[fork_Cancun_minus_blockchain_test]()
         // We only keep the test name and its parameters.
-        if s.contains("Pyspecs") {
+        if s.contains(".py") {
             let test_name = s
                 .split('/')
                 .last()
