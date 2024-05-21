@@ -8,8 +8,8 @@ use starknet_crypto::FieldElement;
 
 use super::{split_bytecode_to_starkfelt, KakarotAccount};
 use crate::evm_sequencer::constants::storage_variables::{
-    ACCOUNT_BYTECODE_LEN, ACCOUNT_EVM_ADDRESS, ACCOUNT_IS_INITIALIZED, ACCOUNT_NONCE,
-    ACCOUNT_STORAGE, ACCOUNT_VALID_JUMPDESTS,
+    ACCOUNT_BYTECODE_LEN, ACCOUNT_EVM_ADDRESS, ACCOUNT_IS_INITIALIZED,
+    ACCOUNT_JUMPDESTS_INITIALIZED, ACCOUNT_NONCE, ACCOUNT_STORAGE, ACCOUNT_VALID_JUMPDESTS,
 };
 use crate::evm_sequencer::{types::felt::FeltSequencer, utils::split_u256};
 use crate::starknet_storage;
@@ -35,6 +35,7 @@ impl KakarotAccount {
             starknet_storage!(ACCOUNT_EVM_ADDRESS, evm_address),
             starknet_storage!(ACCOUNT_IS_INITIALIZED, 1u8),
             starknet_storage!(ACCOUNT_BYTECODE_LEN, code.len() as u32),
+            starknet_storage!(ACCOUNT_JUMPDESTS_INITIALIZED, 1u8),
         ];
 
         // Write the nonce of the account is written to storage after each tx.
