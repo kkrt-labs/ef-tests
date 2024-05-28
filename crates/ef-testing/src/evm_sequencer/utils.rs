@@ -92,6 +92,7 @@ pub fn to_broadcasted_starknet_transaction(
         s_low.into(),
         s_high.into(),
         v.into(),
+        FieldElement::ZERO,
     ];
 
     let request = BroadcastedInvokeTransaction {
