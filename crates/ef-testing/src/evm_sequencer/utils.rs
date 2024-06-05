@@ -62,7 +62,7 @@ pub fn to_broadcasted_starknet_transaction(
                 .chain(packed_data)
                 .collect()
         }
-        #[cfg(feature = "v1")]
+        #[cfg(not(feature = "v0"))]
         {
             bytes.into_iter().map(FieldElement::from).collect()
         }
