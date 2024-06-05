@@ -1,5 +1,3 @@
-use crate::evm_sequencer::account::pack_byte_array_to_starkfelt_array;
-
 use super::types::felt::FeltSequencer;
 use bytes::BytesMut;
 use reth_primitives::{Address, Bytes, TransactionSigned, TxType, U256};
