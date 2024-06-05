@@ -1,7 +1,7 @@
 use blockifier::abi::{abi_utils::get_storage_var_address, sierra_types::next_storage_key};
 use reth_primitives::{Address, U256};
 use revm_interpreter::analysis::to_analysed;
-use revm_primitives::{Bytecode, BytecodeState, Bytes};
+use revm_primitives::{Bytecode, Bytes};
 use starknet_api::core::PatriciaKey;
 use starknet_api::{core::Nonce, hash::StarkFelt, state::StorageKey, StarknetApiError};
 use starknet_crypto::FieldElement;
@@ -50,8 +50,9 @@ impl KakarotAccount {
 
         // Initialize the bytecode jumpdests.
         let bytecode = to_analysed(Bytecode::new_raw(code.clone()));
-        let valid_jumpdests: Vec<usize> = match bytecode.state {
-            BytecodeState::Analysed { jump_map, .. } => jump_map
+        let valid_jumpdests: Vec<usize> = match bytecode {
+            Bytecode::LegacyAnalyzed(legacy_analyzed_bytecode) => legacy_analyzed_bytecode
+                .jump_table()
                 .0
                 .iter()
                 .enumerate()
