@@ -8,7 +8,7 @@ use starknet_api::{
 };
 
 use super::KakarotAccount;
-use super::{inner_byte_array_pointer, split_bytecode_to_starkfelt};
+use super::{inner_byte_array_pointer, pack_byte_array_to_starkfelt_array};
 use crate::evm_sequencer::constants::storage_variables::{
     ACCOUNT_EVM_ADDRESS, ACCOUNT_IS_INITIALIZED, ACCOUNT_NONCE, ACCOUNT_STORAGE,
 };
@@ -32,7 +32,7 @@ fn prepare_bytearray_storage(code: &Bytes) -> Vec<(StorageKey, StarkFelt)> {
     let bytecode_base_address = get_storage_var_address(ACCOUNT_BYTECODE, &[]);
     let mut bytearray = vec![(bytecode_base_address, StarkFelt::from(code.len() as u128))];
 
-    let bytecode_storage: Vec<_> = split_bytecode_to_starkfelt(code)
+    let bytecode_storage: Vec<_> = pack_byte_array_to_starkfelt_array(code)
         .enumerate()
         .map(|(index, b)| {
             let offset = index % 256;

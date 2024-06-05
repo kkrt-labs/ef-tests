@@ -1,3 +1,5 @@
+use crate::evm_sequencer::account::pack_byte_array_to_starkfelt_array;
+
 use super::types::felt::FeltSequencer;
 use bytes::BytesMut;
 use reth_primitives::{Address, Bytes, TransactionSigned, TxType, U256};
@@ -47,7 +49,24 @@ pub fn to_broadcasted_starknet_transaction(
     let mut bytes = BytesMut::new();
     transaction.transaction.encode_without_signature(&mut bytes);
 
-    let mut calldata: Vec<_> = bytes.into_iter().map(FieldElement::from).collect();
+    let mut calldata: Vec<FieldElement> = {
+        // Pack the calldata in 31-byte chunks.
+        #[cfg(feature = "v0")]
+        {
+            let bytes_u8: Vec<u8> = bytes.into_iter().collect();
+            let bytes_len = bytes_u8.len();
+            let packed_data: Vec<_> = pack_byte_array_to_starkfelt_array(bytes_u8.as_slice())
+                .map(FieldElement::from)
+                .collect();
+            std::iter::once(FieldElement::from(bytes_len))
+                .chain(packed_data)
+                .collect()
+        }
+        #[cfg(feature = "v1")]
+        {
+            bytes.into_iter().map(FieldElement::from).collect()
+        }
+    };
 
     let mut execute_calldata = {
         #[cfg(feature = "v0")]
