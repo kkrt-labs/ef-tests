@@ -6,7 +6,7 @@ use starknet_api::core::PatriciaKey;
 use starknet_api::{core::Nonce, hash::StarkFelt, state::StorageKey, StarknetApiError};
 use starknet_crypto::FieldElement;
 
-use super::{split_bytecode_to_starkfelt, KakarotAccount};
+use super::{pack_byte_array_to_starkfelt_array, KakarotAccount};
 use crate::evm_sequencer::constants::storage_variables::{
     ACCOUNT_BYTECODE_LEN, ACCOUNT_EVM_ADDRESS, ACCOUNT_IS_INITIALIZED,
     ACCOUNT_JUMPDESTS_INITIALIZED, ACCOUNT_NONCE, ACCOUNT_STORAGE, ACCOUNT_VALID_JUMPDESTS,
@@ -42,7 +42,7 @@ impl KakarotAccount {
         storage.append(&mut vec![starknet_storage!(ACCOUNT_NONCE, nonce)]);
 
         // Initialize the bytecode storage var.
-        let mut bytecode_storage = split_bytecode_to_starkfelt(code)
+        let mut bytecode_storage = pack_byte_array_to_starkfelt_array(code)
             .enumerate()
             .map(|(i, bytes)| (StorageKey::from(i as u32), bytes))
             .collect();

@@ -82,9 +82,9 @@ pub mod kkrt_account {
 }
 
 /// Splits a byte array into 31-byte chunks and converts each chunk to a StarkFelt.
-pub fn split_bytecode_to_starkfelt(bytecode: &[u8]) -> impl Iterator<Item = StarkFelt> + '_ {
-    bytecode.chunks(31).filter_map(|bytes| {
-        let f = FieldElement::from_byte_slice_be(bytes);
+pub fn pack_byte_array_to_starkfelt_array(bytes: &[u8]) -> impl Iterator<Item = StarkFelt> + '_ {
+    bytes.chunks(31).filter_map(|chunk_bytes| {
+        let f = FieldElement::from_byte_slice_be(chunk_bytes);
         f.map(StarkFelt::from).ok()
     })
 }
@@ -121,12 +121,12 @@ mod tests {
     use reth_primitives::Bytes;
 
     #[test]
-    fn test_split_bytecode_to_starkfelt() {
+    fn test_pack_byte_array_to_starkfelt_array() {
         // Given
         let bytes = Bytes::from([0x01, 0x02, 0x03, 0x04, 0x05]);
 
         // When
-        let result: Vec<_> = split_bytecode_to_starkfelt(&bytes).collect();
+        let result: Vec<_> = pack_byte_array_to_starkfelt_array(&bytes).collect();
 
         // Then
         assert_eq!(result, vec![StarkFelt::from(0x0102030405u64)]);

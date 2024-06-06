@@ -458,7 +458,7 @@ mod tests {
             transaction: reth_primitives::Transaction::Legacy(TxLegacy {
                 chain_id: Some(CHAIN_ID),
                 gas_limit: 1_000_000,
-                to: reth_primitives::TransactionKind::Call(*TEST_CONTRACT_ADDRESS),
+                to: reth_primitives::TxKind::Call(*TEST_CONTRACT_ADDRESS),
                 ..Default::default()
             }),
         };
