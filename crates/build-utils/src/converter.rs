@@ -75,7 +75,7 @@ impl<'a> EfTests<'a> {
             acc += &self.convert_folders(sub_node, dir_name)?;
             acc += "}";
         }
-        acc += &self.convert_files(&node.files, parent_dir)?.as_str();
+        acc += self.convert_files(&node.files, parent_dir)?.as_str();
         Ok(acc)
     }
 
