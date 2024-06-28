@@ -16,17 +16,17 @@ lazy_static! {
     pub static ref INITIAL_SEQUENCER_STATE: State = State::default();
 }
 
-use std::{
-    ops::{Deref, DerefMut},
-    sync::Arc,
-};
+use std::ops::{Deref, DerefMut};
 
+use blockifier::blockifier::block::{BlockInfo, GasPrices};
+use blockifier::context::ChainInfo;
+use blockifier::context::{BlockContext, FeeTokenAddresses};
+use blockifier::versioned_constants::VersionedConstants;
 use blockifier::{
-    block_context::{BlockContext, BlockInfo, ChainInfo, FeeTokenAddresses, GasPrices},
     execution::contract_class::{ContractClass, ContractClassV0, ContractClassV1},
     state::state_api::StateResult,
 };
-use cairo_lang_starknet::casm_contract_class::CasmContractClass;
+use cairo_lang_starknet_classes::casm_contract_class::CasmContractClass;
 use cairo_vm::types::errors::program_errors::ProgramError;
 use reth_primitives::Address;
 use sequencer::{sequencer::Sequencer, state::State};
@@ -35,9 +35,10 @@ use starknet_api::{
     block::{BlockNumber, BlockTimestamp},
     core::{ChainId, ClassHash, ContractAddress},
 };
+use std::num::NonZeroU128;
 
 use super::{
-    constants::{ETH_FEE_TOKEN_ADDRESS, STRK_FEE_TOKEN_ADDRESS, VM_RESOURCES},
+    constants::{ETH_FEE_TOKEN_ADDRESS, STRK_FEE_TOKEN_ADDRESS},
     types::contract_class::CasmContractClassWrapper,
     utils::compute_starknet_address,
 };
@@ -94,37 +95,99 @@ impl KakarotSequencer {
             vec![kakarot_address, evm_address.into()]
         };
 
-        let block_context = BlockContext {
-            block_info: BlockInfo {
-                block_number: BlockNumber(block_number),
-                block_timestamp: BlockTimestamp(block_timestamp),
-                sequencer_address: compute_starknet_address(
-                    &coinbase_address,
-                    environment.base_account_class_hash.0.into(),
-                    &coinbase_constructor_args,
-                )
-                .try_into()
-                .expect("Failed to convert to ContractAddress"),
-                vm_resource_fee_cost: Arc::new(VM_RESOURCES.clone()),
-                gas_prices: GasPrices {
-                    eth_l1_gas_price: 1,
-                    strk_l1_gas_price: 1,
-                    eth_l1_data_gas_price: 1,
-                    strk_l1_data_gas_price: 1,
-                },
-                use_kzg_da: false,
-                invoke_tx_max_n_steps: 50_000_000,
-                validate_max_n_steps: 50_000_000,
-                max_recursion_depth: 8192,
+        let block_info = BlockInfo {
+            block_number: BlockNumber(block_number),
+            block_timestamp: BlockTimestamp(block_timestamp),
+            sequencer_address: compute_starknet_address(
+                &coinbase_address,
+                environment.base_account_class_hash.0.into(),
+                &coinbase_constructor_args,
+            )
+            .try_into()
+            .expect("Failed to convert to ContractAddress"),
+            gas_prices: GasPrices {
+                eth_l1_gas_price: NonZeroU128::new(1).unwrap(),
+                strk_l1_gas_price: NonZeroU128::new(1).unwrap(),
+                eth_l1_data_gas_price: NonZeroU128::new(1).unwrap(),
+                strk_l1_data_gas_price: NonZeroU128::new(1).unwrap(),
             },
-            chain_info: ChainInfo {
-                chain_id: ChainId(String::from_utf8(chain_id.to_be_bytes().to_vec()).unwrap()),
-                fee_token_addresses: FeeTokenAddresses {
-                    eth_fee_token_address: *ETH_FEE_TOKEN_ADDRESS,
-                    strk_fee_token_address: *STRK_FEE_TOKEN_ADDRESS,
-                },
+            use_kzg_da: false,
+        };
+
+        let chain_info = ChainInfo {
+            chain_id: ChainId(String::from_utf8(chain_id.to_be_bytes().to_vec()).unwrap()),
+            fee_token_addresses: FeeTokenAddresses {
+                eth_fee_token_address: *ETH_FEE_TOKEN_ADDRESS,
+                strk_fee_token_address: *STRK_FEE_TOKEN_ADDRESS,
             },
         };
+
+        // let versioned_constants = VersionedConstants {
+        //     tx_event_limits: Default::default(),
+        //     invoke_tx_max_n_steps: 50_000_000,
+        //     l2_resource_gas_costs: Default::default(),
+        //     max_recursion_depth: 8192,
+        //     validate_max_n_steps: 50_000_000,
+        //     os_constants: Arc::new(Default::default()),
+        //     os_resources: Arc::new(Default::default()),
+        //     vm_resource_fee_cost: Arc::new(VM_RESOURCES.clone()),
+        // };
+
+        let versioned_constants = VersionedConstants::latest_constants().clone();
+
+        let bouncer_config = Default::default();
+
+        let concurrency_mode = Default::default();
+
+        let block_context = BlockContext::new(
+            block_info,
+            chain_info,
+            versioned_constants,
+            bouncer_config,
+            concurrency_mode,
+        );
+
+        // let block_context = BlockContext {
+        //     block_info: BlockInfo {
+        //         block_number: BlockNumber(block_number),
+        //         block_timestamp: BlockTimestamp(block_timestamp),
+        //         sequencer_address: compute_starknet_address(
+        //             &coinbase_address,
+        //             environment.base_account_class_hash.0.into(),
+        //             &coinbase_constructor_args,
+        //         )
+        //         .try_into()
+        //         .expect("Failed to convert to ContractAddress"),
+        //         vm_resource_fee_cost: Arc::new(VM_RESOURCES.clone()),
+        //         gas_prices: GasPrices {
+        //             eth_l1_gas_price: 1,
+        //             strk_l1_gas_price: 1,
+        //             eth_l1_data_gas_price: 1,
+        //             strk_l1_data_gas_price: 1,
+        //         },
+        //         use_kzg_da: false,
+        //         invoke_tx_max_n_steps: 50_000_000,
+        //         validate_max_n_steps: 50_000_000,
+        //         max_recursion_depth: 8192,
+        //     },
+        //     chain_info: ChainInfo {
+        //         chain_id: ChainId(String::from_utf8(chain_id.to_be_bytes().to_vec()).unwrap()),
+        //         fee_token_addresses: FeeTokenAddresses {
+        //             eth_fee_token_address: *ETH_FEE_TOKEN_ADDRESS,
+        //             strk_fee_token_address: *STRK_FEE_TOKEN_ADDRESS,
+        //         },
+        //     },
+        //     versioned_constants: VersionedConstants {
+        //         tx_event_limits: Default::default(),
+        //         invoke_tx_max_n_steps: 50_000_000,
+        //         l2_resource_gas_costs: Default::default(),
+        //         max_recursion_depth: 8192,
+        //         validate_max_n_steps: 50_000_000,
+        //     },
+        //     bouncer_config: Default::default(),
+        //     concurrency_mode: Default::default(),
+        // };
+
         let sequencer = Sequencer::new(block_context, initial_state, coinbase_address);
         Self {
             sequencer,
@@ -142,7 +205,7 @@ impl KakarotSequencer {
 
     pub fn chain_id(&self) -> u64 {
         // Safety: chain_id is always 8 bytes.
-        let chain_id = &self.block_context().chain_info.chain_id.0.as_bytes()[..8];
+        let chain_id = &self.block_context().chain_info().chain_id.0.as_bytes()[..8];
         u64::from_be_bytes(chain_id.try_into().unwrap())
     }
 

@@ -1,5 +1,5 @@
 use cairo_lang_casm::hints::Hint;
-use cairo_lang_starknet::casm_contract_class::{
+use cairo_lang_starknet_classes::casm_contract_class::{
     CasmContractClass, CasmContractEntryPoint, CasmContractEntryPoints,
 };
 use cairo_lang_utils::bigint::BigUintAsHex;
@@ -93,6 +93,7 @@ impl TryFrom<&CompiledClass> for CasmContractClassWrapper {
             hints,
             pythonic_hints: None,
             entry_points_by_type,
+            bytecode_segment_lengths: None,
         }))
     }
 }
