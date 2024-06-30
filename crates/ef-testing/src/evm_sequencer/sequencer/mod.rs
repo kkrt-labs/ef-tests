@@ -123,19 +123,6 @@ impl KakarotSequencer {
             },
         };
 
-        // let versioned_constants = VersionedConstants {
-        //     tx_event_limits: Default::default(),
-        //     invoke_tx_max_n_steps: 50_000_000,
-        //     l2_resource_gas_costs: Default::default(),
-        //     max_recursion_depth: 8192,
-        //     validate_max_n_steps: 50_000_000,
-        //     os_constants: Arc::new(Default::default()),
-        //     os_resources: Arc::new(Default::default()),
-        //     vm_resource_fee_cost: Arc::new(VM_RESOURCES.clone()),
-        // };
-
-        // let versioned_constants = VersionedConstants::latest_constants().clone();
-
         let versioned_constants: VersionedConstants =
             serde_json::from_str(include_str!("./resources/versioned_constants.json"))
                 .expect("failed to parse versioned constants");
@@ -151,47 +138,6 @@ impl KakarotSequencer {
             bouncer_config,
             concurrency_mode,
         );
-
-        // let block_context = BlockContext {
-        //     block_info: BlockInfo {
-        //         block_number: BlockNumber(block_number),
-        //         block_timestamp: BlockTimestamp(block_timestamp),
-        //         sequencer_address: compute_starknet_address(
-        //             &coinbase_address,
-        //             environment.base_account_class_hash.0.into(),
-        //             &coinbase_constructor_args,
-        //         )
-        //         .try_into()
-        //         .expect("Failed to convert to ContractAddress"),
-        //         vm_resource_fee_cost: Arc::new(VM_RESOURCES.clone()),
-        //         gas_prices: GasPrices {
-        //             eth_l1_gas_price: 1,
-        //             strk_l1_gas_price: 1,
-        //             eth_l1_data_gas_price: 1,
-        //             strk_l1_data_gas_price: 1,
-        //         },
-        //         use_kzg_da: false,
-        //         invoke_tx_max_n_steps: 50_000_000,
-        //         validate_max_n_steps: 50_000_000,
-        //         max_recursion_depth: 8192,
-        //     },
-        //     chain_info: ChainInfo {
-        //         chain_id: ChainId(String::from_utf8(chain_id.to_be_bytes().to_vec()).unwrap()),
-        //         fee_token_addresses: FeeTokenAddresses {
-        //             eth_fee_token_address: *ETH_FEE_TOKEN_ADDRESS,
-        //             strk_fee_token_address: *STRK_FEE_TOKEN_ADDRESS,
-        //         },
-        //     },
-        //     versioned_constants: VersionedConstants {
-        //         tx_event_limits: Default::default(),
-        //         invoke_tx_max_n_steps: 50_000_000,
-        //         l2_resource_gas_costs: Default::default(),
-        //         max_recursion_depth: 8192,
-        //         validate_max_n_steps: 50_000_000,
-        //     },
-        //     bouncer_config: Default::default(),
-        //     concurrency_mode: Default::default(),
-        // };
 
         let sequencer = Sequencer::new(block_context, initial_state, coinbase_address);
         Self {
