@@ -3,6 +3,7 @@ pub mod v0;
 #[cfg(feature = "v1")]
 pub mod v1;
 
+use blockifier::bouncer::BouncerConfig;
 #[cfg(feature = "v0")]
 pub use v0::INITIAL_SEQUENCER_STATE;
 
@@ -133,9 +134,13 @@ impl KakarotSequencer {
         //     vm_resource_fee_cost: Arc::new(VM_RESOURCES.clone()),
         // };
 
-        let versioned_constants = VersionedConstants::latest_constants().clone();
+        // let versioned_constants = VersionedConstants::latest_constants().clone();
 
-        let bouncer_config = Default::default();
+        let versioned_constants: VersionedConstants =
+            serde_json::from_str(include_str!("./resources/versioned_constants.json"))
+                .expect("failed to parse versioned constants");
+
+        let bouncer_config = BouncerConfig::max();
 
         let concurrency_mode = Default::default();
 

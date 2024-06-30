@@ -119,6 +119,7 @@ mod tests {
 
     use blockifier::abi::abi_utils::get_storage_var_address;
     use blockifier::blockifier::block::{BlockInfo, GasPrices};
+    use blockifier::bouncer::BouncerConfig;
     use blockifier::context::ChainInfo;
     use blockifier::context::{BlockContext, FeeTokenAddresses};
     use blockifier::execution::contract_class::{ContractClass, ContractClassV0, ContractClassV1};
@@ -271,9 +272,11 @@ mod tests {
             },
         };
 
-        let versioned_constants = VersionedConstants::latest_constants().clone();
+        let versioned_constants: VersionedConstants =
+            serde_json::from_str(include_str!("./resources/versioned_constants.json"))
+                .expect("failed to parse versioned constants");
 
-        let bouncer_config = Default::default();
+        let bouncer_config = BouncerConfig::max();
 
         let concurrency_mode = Default::default();
 
