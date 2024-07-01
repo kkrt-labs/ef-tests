@@ -81,8 +81,3 @@ serde_yaml = "0.9.34"
 hashbrown = "0.14.3"
 # Log
 log = "0.4.21"
-
-# # we patch starknet_api because the version v0.7.0-rc.0 was removed from crates.io
-# # we need v0.7.0-rc.0 to be compatible with dojo on the rpc.
-# [patch.crates-io]
-# starknet_api = { git = "https://github.com/starkware-libs/starknet-api.git", tag = "v0.7.0-rc.0" }
