@@ -1,5 +1,4 @@
 use blockifier::execution::contract_class::ContractClass;
-use blockifier::state::cached_state::CommitmentStateDiff;
 use blockifier::state::errors::StateError;
 use blockifier::state::state_api::{
     State as BlockifierState, StateReader as BlockifierStateReader, StateResult,
@@ -134,10 +133,6 @@ impl BlockifierState for &mut State {
         Ok(())
     }
 
-    fn to_state_diff(&mut self) -> CommitmentStateDiff {
-        unreachable!("to_state_diff should not be called in the sequencer")
-    }
-
     fn add_visited_pcs(&mut self, _class_hash: ClassHash, _pcs: &std::collections::HashSet<usize>) {
         unreachable!("add_visited_pcs should not be called in the sequencer")
     }
@@ -145,7 +140,7 @@ impl BlockifierState for &mut State {
 
 impl BlockifierStateReader for &mut State {
     fn get_storage_at(
-        &mut self,
+        &self,
         contract_address: ContractAddress,
         key: StorageKey,
     ) -> StateResult<StarkFelt> {
@@ -156,7 +151,7 @@ impl BlockifierStateReader for &mut State {
             .unwrap_or_default())
     }
 
-    fn get_nonce_at(&mut self, contract_address: ContractAddress) -> StateResult<Nonce> {
+    fn get_nonce_at(&self, contract_address: ContractAddress) -> StateResult<Nonce> {
         Ok(self
             .nonces
             .get(&contract_address)
@@ -164,7 +159,7 @@ impl BlockifierStateReader for &mut State {
             .unwrap_or_default())
     }
 
-    fn get_class_hash_at(&mut self, contract_address: ContractAddress) -> StateResult<ClassHash> {
+    fn get_class_hash_at(&self, contract_address: ContractAddress) -> StateResult<ClassHash> {
         Ok(self
             .contracts
             .get(&contract_address)
@@ -175,7 +170,7 @@ impl BlockifierStateReader for &mut State {
     /// # Errors
     ///
     /// If the compiled class is not declared.
-    fn get_compiled_contract_class(&mut self, class_hash: ClassHash) -> StateResult<ContractClass> {
+    fn get_compiled_contract_class(&self, class_hash: ClassHash) -> StateResult<ContractClass> {
         self.classes
             .get(&class_hash)
             .cloned()
@@ -185,7 +180,7 @@ impl BlockifierStateReader for &mut State {
     /// # Errors
     ///
     /// If the compiled class hash is not declared.
-    fn get_compiled_class_hash(&mut self, class_hash: ClassHash) -> StateResult<CompiledClassHash> {
+    fn get_compiled_class_hash(&self, class_hash: ClassHash) -> StateResult<CompiledClassHash> {
         self.compiled_class_hashes
             .get(&class_hash)
             .copied()
@@ -274,7 +269,7 @@ mod tests {
     #[should_panic(expected = "UndeclaredClassHash")]
     fn test_uninitialized_contract_class() {
         // Given
-        let mut state = &mut State::default();
+        let state = &mut State::default();
 
         // When
         state.get_compiled_contract_class(*ONE_CLASS_HASH).unwrap();
@@ -300,7 +295,7 @@ mod tests {
     #[should_panic(expected = "UndeclaredClassHash")]
     fn test_uninitialized_compiled_class_hash() {
         // Given
-        let mut state = &mut State::default();
+        let state = &mut State::default();
 
         // When
         state.get_compiled_class_hash(*ONE_CLASS_HASH).unwrap();
