@@ -1,9 +1,6 @@
 use blockifier::{
-    execution::{call_info::CallInfo, errors::EntryPointExecutionError},
-    transaction::{
-        errors::TransactionExecutionError,
-        objects::{TransactionExecutionInfo, TransactionExecutionResult},
-    },
+    execution::call_info::CallInfo,
+    transaction::objects::{TransactionExecutionInfo, TransactionExecutionResult},
 };
 use eyre::{eyre, Result};
 use starknet::macros::selector;
@@ -83,7 +80,7 @@ pub(crate) fn extract_output_and_log_execution_result(
                 return None;
             }
 
-            info!("{} passed: {:?}", case, info.actual_resources);
+            info!("{} passed: {:?}", case, info.transaction_receipt.resources);
             if let Some(call) = info.execute_call_info.as_ref() {
                 use starknet_api::hash::StarkFelt;
                 let events = kakarot_execution_events(call);
@@ -107,25 +104,6 @@ pub(crate) fn extract_output_and_log_execution_result(
             }
             None
         }
-        TransactionExecutionResult::Err(TransactionExecutionError::ValidateTransactionError(
-            EntryPointExecutionError::VirtualMachineExecutionErrorWithTrace { trace, .. },
-        )) => {
-            // There are specific test cases where validation failed because the sender account has code.
-            // They're caught by EOA validation, and rejected with this specific error message.
-            if trace.contains("EOAs cannot have code") {
-                return None;
-            }
-            let re = regex::Regex::new(
-                r#"Error in the called contract \((0x[0-9a-zA-Z]+)\)[\s\S]*?EntryPointSelector\(StarkFelt\("(0x[0-9a-zA-Z]+)"\)\)"#,
-            ).unwrap();
-            let matches: Vec<_> = re.captures_iter(trace).map(|c| c.extract::<2>()).collect();
-            let last_match = matches.last().cloned().unwrap_or_default();
-            warn!(
-                "Failed to find entrypoint {} for contract {}",
-                last_match.1[1], last_match.1[0]
-            );
-            None
-        }
         TransactionExecutionResult::Err(err) => {
             error!("{} failed with:\n{:?}", case, err);
             None
@@ -136,7 +114,7 @@ pub(crate) fn extract_output_and_log_execution_result(
 #[allow(dead_code)]
 fn kakarot_execution_events(call_info: &CallInfo) -> Vec<EventContent> {
     let mut events = Vec::new();
-    for c in call_info.into_iter() {
+    for c in call_info.iter() {
         let mut filtered_events = c
             .execution
             .events

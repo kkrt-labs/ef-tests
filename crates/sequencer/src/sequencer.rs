@@ -1,8 +1,8 @@
 use crate::{commit::Committer, execution::Execution};
 use blockifier::{
-    block_context::BlockContext,
+    context::BlockContext,
     state::{
-        cached_state::{CachedState, GlobalContractCache},
+        cached_state::CachedState,
         state_api::{State, StateReader},
     },
     transaction::{
@@ -86,7 +86,7 @@ where
             Transaction::L1HandlerTransaction(_) => ContractAddress::from(0u8),
         };
 
-        let mut cached_state = CachedState::new(&mut self.state, GlobalContractCache::default());
+        let mut cached_state = CachedState::new(&mut self.state);
         let charge_fee = false;
         let validate = true;
         let res = transaction.execute(&mut cached_state, &self.block_context, charge_fee, validate);
@@ -113,17 +113,20 @@ where
 
 #[cfg(test)]
 mod tests {
-    use std::collections::HashMap;
     use std::fmt::Display;
     use std::fs::File;
-    use std::sync::Arc;
+    use std::num::NonZeroU128;
 
     use blockifier::abi::abi_utils::get_storage_var_address;
-    use blockifier::block_context::{BlockInfo, ChainInfo, FeeTokenAddresses, GasPrices};
+    use blockifier::blockifier::block::{BlockInfo, GasPrices};
+    use blockifier::bouncer::BouncerConfig;
+    use blockifier::context::ChainInfo;
+    use blockifier::context::{BlockContext, FeeTokenAddresses};
     use blockifier::execution::contract_class::{ContractClass, ContractClassV0, ContractClassV1};
     use blockifier::state::state_api::State as BlockifierState;
     use blockifier::transaction::account_transaction::AccountTransaction;
     use blockifier::transaction::transactions::InvokeTransaction as BlockifierInvokeTransaction;
+    use blockifier::versioned_constants::VersionedConstants;
     use starknet::macros::selector;
     use starknet_api::core::{ChainId, ClassHash, ContractAddress, Nonce};
     use starknet_api::hash::StarkFelt;
@@ -248,51 +251,41 @@ mod tests {
     }
 
     fn block_context() -> BlockContext {
-        BlockContext {
-            block_info: BlockInfo {
-                block_number: *ONE_BLOCK_NUMBER,
-                block_timestamp: *ONE_BLOCK_TIMESTAMP,
-                sequencer_address: *SEQUENCER_ADDRESS,
-                vm_resource_fee_cost: vm_resource_fee_cost(),
-                gas_prices: GasPrices {
-                    eth_l1_gas_price: 1,
-                    strk_l1_gas_price: 1,
-                    eth_l1_data_gas_price: 1,
-                    strk_l1_data_gas_price: 1,
-                },
-                use_kzg_da: false,
-
-                invoke_tx_max_n_steps: 4_000_000,
-                validate_max_n_steps: 4_000_000,
-                max_recursion_depth: 1_000,
+        let block_info = BlockInfo {
+            block_number: *ONE_BLOCK_NUMBER,
+            block_timestamp: *ONE_BLOCK_TIMESTAMP,
+            sequencer_address: *SEQUENCER_ADDRESS,
+            gas_prices: GasPrices {
+                eth_l1_gas_price: NonZeroU128::new(1).unwrap(),
+                strk_l1_gas_price: NonZeroU128::new(1).unwrap(),
+                eth_l1_data_gas_price: NonZeroU128::new(1).unwrap(),
+                strk_l1_data_gas_price: NonZeroU128::new(1).unwrap(),
             },
-            chain_info: ChainInfo {
-                chain_id: ChainId("KKRT".into()),
-                fee_token_addresses: FeeTokenAddresses {
-                    strk_fee_token_address: *STRK_FEE_TOKEN_ADDRESS,
-                    eth_fee_token_address: *ETH_FEE_TOKEN_ADDRESS,
-                },
-            },
-        }
-    }
+            use_kzg_da: false,
+        };
 
-    /// Maps builtins and steps to a single cost unit of reference (gas).
-    fn vm_resource_fee_cost() -> Arc<HashMap<String, f64>> {
-        Arc::new(
-            [
-                (String::from("n_steps"), 1_f64),
-                ("pedersen_builtin".to_string(), 1_f64),
-                ("range_check_builtin".to_string(), 1_f64),
-                ("ecdsa_builtin".to_string(), 1_f64),
-                ("bitwise_builtin".to_string(), 1_f64),
-                ("poseidon_builtin".to_string(), 1_f64),
-                ("output_builtin".to_string(), 1_f64),
-                ("ec_op_builtin".to_string(), 1_f64),
-                ("keccak_builtin".to_string(), 1_f64),
-                ("segment_arena_builtin".to_string(), 1_f64),
-            ]
-            .into_iter()
-            .collect(),
+        let chain_info = ChainInfo {
+            chain_id: ChainId("KKRT".into()),
+            fee_token_addresses: FeeTokenAddresses {
+                strk_fee_token_address: *STRK_FEE_TOKEN_ADDRESS,
+                eth_fee_token_address: *ETH_FEE_TOKEN_ADDRESS,
+            },
+        };
+
+        let versioned_constants: VersionedConstants =
+            serde_json::from_str(include_str!("./resources/versioned_constants.json"))
+                .expect("failed to parse versioned constants");
+
+        let bouncer_config = BouncerConfig::max();
+
+        let concurrency_mode = Default::default();
+
+        BlockContext::new(
+            block_info,
+            chain_info,
+            versioned_constants,
+            bouncer_config,
+            concurrency_mode,
         )
     }
 
