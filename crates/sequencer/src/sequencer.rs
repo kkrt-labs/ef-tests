@@ -287,54 +287,7 @@ mod tests {
             bouncer_config,
             concurrency_mode,
         )
-
-        // BlockContext {
-        //     block_info: BlockInfo {
-        //         block_number: *ONE_BLOCK_NUMBER,
-        //         block_timestamp: *ONE_BLOCK_TIMESTAMP,
-        //         sequencer_address: *SEQUENCER_ADDRESS,
-        //         vm_resource_fee_cost: vm_resource_fee_cost(),
-        //         gas_prices: GasPrices {
-        //             eth_l1_gas_price: 1,
-        //             strk_l1_gas_price: 1,
-        //             eth_l1_data_gas_price: 1,
-        //             strk_l1_data_gas_price: 1,
-        //         },
-        //         use_kzg_da: false,
-
-        //         invoke_tx_max_n_steps: 4_000_000,
-        //         validate_max_n_steps: 4_000_000,
-        //         max_recursion_depth: 1_000,
-        //     },
-        //     chain_info: ChainInfo {
-        //         chain_id: ChainId("KKRT".into()),
-        //         fee_token_addresses: FeeTokenAddresses {
-        //             strk_fee_token_address: *STRK_FEE_TOKEN_ADDRESS,
-        //             eth_fee_token_address: *ETH_FEE_TOKEN_ADDRESS,
-        //         },
-        //     },
-        // }
     }
-
-    // /// Maps builtins and steps to a single cost unit of reference (gas).
-    // fn vm_resource_fee_cost() -> Arc<HashMap<String, f64>> {
-    //     Arc::new(
-    //         [
-    //             (String::from("n_steps"), 1_f64),
-    //             ("pedersen_builtin".to_string(), 1_f64),
-    //             ("range_check_builtin".to_string(), 1_f64),
-    //             ("ecdsa_builtin".to_string(), 1_f64),
-    //             ("bitwise_builtin".to_string(), 1_f64),
-    //             ("poseidon_builtin".to_string(), 1_f64),
-    //             ("output_builtin".to_string(), 1_f64),
-    //             ("ec_op_builtin".to_string(), 1_f64),
-    //             ("keccak_builtin".to_string(), 1_f64),
-    //             ("segment_arena_builtin".to_string(), 1_f64),
-    //         ]
-    //         .into_iter()
-    //         .collect(),
-    //     )
-    // }
 
     fn test_transaction() -> Transaction {
         Transaction::AccountTransaction(AccountTransaction::Invoke(BlockifierInvokeTransaction {
