@@ -26,11 +26,11 @@ incremental = true
 [workspace.dependencies]
 # Eth deps
 alloy-rlp = { version = "0.3.4", default-features = false }
-ef-tests = { git = "https://github.com/paradigmxyz/reth.git", tag = "v1.0.0", default-features = false, features = [
+ef-tests = { git = "https://github.com/paradigmxyz/reth.git", tag = "v1.0.1", default-features = false, features = [
   "ef-tests",
 ] }
 ethers-signers = { git = "https://github.com/gakonst/ethers-rs.git", tag = "v2.0" }
-reth-primitives = { git = "https://github.com/paradigmxyz/reth.git", tag = "v1.0.0", default-features = true, features = [
+reth-primitives = { git = "https://github.com/paradigmxyz/reth.git", tag = "v1.0.1", default-features = true, features = [
   "std",
 ] }
 revm-interpreter = { version = "6.0.0", default-features = false }
