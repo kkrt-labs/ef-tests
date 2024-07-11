@@ -1,10 +1,13 @@
+use super::constants::RELAYER_SIGNING_KEY;
 use super::types::felt::FeltSequencer;
 use bytes::BytesMut;
 use reth_primitives::{Address, Bytes, TransactionSigned, TxType, U256};
+use starknet::core::crypto::compute_hash_on_elements;
 use starknet::core::{
     types::{BroadcastedInvokeTransaction, BroadcastedInvokeTransactionV1, Felt},
     utils::get_contract_address,
 };
+
 #[cfg(any(feature = "v0", feature = "v1"))]
 use starknet::macros::selector;
 
@@ -65,13 +68,17 @@ pub fn to_broadcasted_starknet_transaction(
     let mut execute_calldata = {
         #[cfg(feature = "v0")]
         {
-            use crate::evm_sequencer::constants::KAKAROT_ADDRESS;
+            use crate::evm_sequencer::constants::RELAYER_ADDRESS;
             vec![
+                signer_starknet_address,           // caller -- OutsideExecution
+                Felt::ZERO,                        // nonce (not used)
+                Felt::ZERO,                        // execute after (not used in EF test)
+                Felt::MAX,                         // execute_before(not used in EF test) --
                 Felt::ONE,                         // call array length
-                *KAKAROT_ADDRESS.0.key(),          // contract address
-                selector!("eth_send_transaction"), // selector
+                (*RELAYER_ADDRESS.0.key()).into(), // relayer address --- CallArray
+                selector!("execute_from_outside"), // selector
                 Felt::ZERO,                        // data offset
-                calldata.len().into(),             // data length
+                calldata.len().into(),             // data length ---
                 calldata.len().into(),             // calldata length
             ]
         }
@@ -92,6 +99,7 @@ pub fn to_broadcasted_starknet_transaction(
     };
     execute_calldata.append(&mut calldata);
 
+    // Add signature and signature length at the end of the calldata
     let signature = transaction.signature();
     let [r_low, r_high] = split_u256(signature.r);
     let [s_low, s_high] = split_u256(signature.s);
@@ -99,7 +107,7 @@ pub fn to_broadcasted_starknet_transaction(
         TxType::Legacy => signature.v(transaction.chain_id()),
         _ => signature.odd_y_parity as u64,
     };
-    let signature = vec![
+    let mut signature: Vec<Felt> = vec![
         r_low.into(),
         r_high.into(),
         s_low.into(),
@@ -107,9 +115,31 @@ pub fn to_broadcasted_starknet_transaction(
         v.into(),
     ];
 
+    execute_calldata.push(signature.len().into());
+    execute_calldata.append(&mut signature);
+
+    let data_to_hash: Vec<Felt> = vec![
+        Felt::from_bytes_be_slice(b"invoke"), // invoke
+        Felt::ONE,                            // version
+        signer_starknet_address,
+        Felt::ZERO,
+        compute_hash_on_elements(&execute_calldata.clone()), // h(calldata)
+        Felt::ZERO,                                          // max fee
+        transaction.chain_id().unwrap().into(),              // chain id
+        nonce,
+    ];
+
+    // Compute the hash on elements and sign it
+    let transaction_hash = compute_hash_on_elements(&data_to_hash);
+    let signature_starknet = RELAYER_SIGNING_KEY
+        .sign(&transaction_hash)
+        .expect("Signature starknet failed");
+
+    let signature_starknet: Vec<Felt> = vec![signature_starknet.r, signature_starknet.s];
+
     let request = BroadcastedInvokeTransaction::V1(BroadcastedInvokeTransactionV1 {
         max_fee: Felt::ZERO,
-        signature,
+        signature: signature_starknet,
         nonce: transaction.nonce().into(),
         sender_address: signer_starknet_address,
         calldata: execute_calldata,
