@@ -117,7 +117,6 @@ pub mod storage_variables {
     pub const ACCOUNT_NONCE: &str = "Account_nonce";
     pub const ACCOUNT_KAKAROT_ADDRESS: &str = "Account_kakarot_address";
     pub const ACCOUNT_IMPLEMENTATION: &str = "Account_implementation";
-    pub const ACCOUNT_CAIRO1_HELPERS_CLASS: &str = "Account_cairo1_helpers_class_hash";
     pub const ACCOUNT_VALID_JUMPDESTS : &str = "Account_valid_jumpdests";
     pub const ACCOUNT_JUMPDESTS_INITIALIZED : &str = "Account_jumpdests_initialized";
     pub const ACCOUNT_PUBLIC_KEY: &str = "Account_public_key";
