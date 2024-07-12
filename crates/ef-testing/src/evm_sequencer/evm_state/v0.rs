@@ -250,7 +250,7 @@ impl Evm for KakarotSequencer {
 
         let starknet_transaction =
             BroadcastedTransactionWrapper::new(BroadcastedTransaction::Invoke(
-                to_broadcasted_starknet_transaction(&transaction, *starknet_address.0.key())
+                to_broadcasted_starknet_transaction(&transaction, (**starknet_address).into())
                     .map_err(|err| TransactionExecutionError::ValidateTransactionError {
                         error: EntryPointExecutionError::InvalidExecutionInput {
                             input_descriptor: String::from("Signed transaction"),
@@ -308,7 +308,7 @@ mod tests {
             coinbase_address,
             CHAIN_ID,
             0,
-            0,
+            1,
         );
 
         let mut transaction = TransactionSigned {
@@ -345,7 +345,6 @@ mod tests {
         sequencer.setup_account(contract).unwrap();
         sequencer.setup_account(eoa).unwrap();
         let execution_result = sequencer.execute_transaction(transaction);
-
         // Update the output with the execution result of the current transaction
         let tx_output = extract_output_and_log_execution_result(
             &execution_result,
