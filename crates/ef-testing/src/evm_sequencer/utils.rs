@@ -46,6 +46,7 @@ pub fn felt_to_bytes(felt: &Felt, start: usize) -> Bytes {
 pub fn to_broadcasted_starknet_transaction(
     transaction: &TransactionSigned,
     starknet_address: Felt,
+    relayer_nonce: Felt,
 ) -> Result<BroadcastedInvokeTransaction, eyre::Error> {
     let mut bytes = BytesMut::new();
     transaction.transaction.encode_without_signature(&mut bytes);
@@ -146,7 +147,7 @@ pub fn to_broadcasted_starknet_transaction(
         compute_hash_on_elements(&execute_calldata.clone()), // h(calldata)
         Felt::ZERO,                                          // max fee
         transaction.chain_id().unwrap().into(),              // chain id
-        nonce,
+        relayer_nonce,
     ];
 
     // Compute the hash on elements and sign it
@@ -160,7 +161,7 @@ pub fn to_broadcasted_starknet_transaction(
     let request = BroadcastedInvokeTransaction::V1(BroadcastedInvokeTransactionV1 {
         max_fee: Felt::ZERO,
         signature: signature_starknet,
-        nonce: transaction.nonce().into(),
+        nonce: relayer_nonce,
         sender_address: (*RELAYER_ADDRESS.0.key()).into(),
         calldata: execute_calldata,
         is_query: false,

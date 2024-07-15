@@ -17,7 +17,7 @@ use crate::evm_sequencer::constants::storage_variables::{
     KAKAROT_BLOCK_GAS_LIMIT, KAKAROT_COINBASE, KAKAROT_EVM_TO_STARKNET_ADDRESS,
     KAKAROT_PREV_RANDAO, OWNABLE_OWNER,
 };
-use crate::evm_sequencer::constants::ETH_FEE_TOKEN_ADDRESS;
+use crate::evm_sequencer::constants::{ETH_FEE_TOKEN_ADDRESS, RELAYER_ADDRESS};
 use crate::evm_sequencer::sequencer::KakarotSequencer;
 use crate::evm_sequencer::types::felt::FeltSequencer;
 use crate::evm_sequencer::utils::{felt_to_bytes, split_u256, to_broadcasted_starknet_transaction};
@@ -247,11 +247,17 @@ impl Evm for KakarotSequencer {
             }
         })?;
         let starknet_address = self.compute_starknet_address(&evm_address)?;
+        let relayer_nonce = self.state_mut().get_nonce_at(*RELAYER_ADDRESS).unwrap();
 
         let starknet_transaction =
             BroadcastedTransactionWrapper::new(BroadcastedTransaction::Invoke(
-                to_broadcasted_starknet_transaction(&transaction, (**starknet_address).into())
-                    .map_err(|err| TransactionExecutionError::ValidateTransactionError {
+                to_broadcasted_starknet_transaction(
+                    &transaction,
+                    (**starknet_address).into(),
+                    relayer_nonce.0.into(),
+                )
+                .map_err(|err| {
+                    TransactionExecutionError::ValidateTransactionError {
                         error: EntryPointExecutionError::InvalidExecutionInput {
                             input_descriptor: String::from("Signed transaction"),
                             info: err.to_string(),
@@ -259,7 +265,8 @@ impl Evm for KakarotSequencer {
                         class_hash: Default::default(),
                         storage_address: Default::default(),
                         selector: Default::default(),
-                    })?,
+                    }
+                })?,
             ));
 
         let chain_id = self.chain_id();
