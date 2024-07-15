@@ -1,6 +1,3 @@
-/* trunk-ignore(clippy/unused_imports) */
-use super::constants::KAKAROT_ADDRESS;
-
 use super::constants::{RELAYER_ADDRESS, RELAYER_SIGNING_KEY};
 use super::types::felt::FeltSequencer;
 use bytes::BytesMut;
@@ -43,10 +40,10 @@ pub fn felt_to_bytes(felt: &Felt, start: usize) -> Bytes {
     felt.to_bytes_be()[start..].to_vec().into()
 }
 
+#[allow(unused_variables)] // necessary for starknet_address which is behind a flag
 /// Converts an signed transaction and a signature to a Starknet-rs transaction.
 pub fn to_broadcasted_starknet_transaction(
     transaction: &TransactionSigned,
-    /* trunk-ignore(clippy/unused_variables) */
     starknet_address: Felt,
     relayer_nonce: Felt,
 ) -> Result<BroadcastedInvokeTransaction, eyre::Error> {
@@ -89,6 +86,7 @@ pub fn to_broadcasted_starknet_transaction(
     let mut execute_from_outside_calldata: Vec<Felt> = {
         #[cfg(feature = "v0")]
         {
+            use crate::evm_sequencer::constants::KAKAROT_ADDRESS;
             vec![
                 (*RELAYER_ADDRESS.0.key()).into(),  // caller -- OutsideExecution
                 Felt::ZERO,                         // nonce (not used)
