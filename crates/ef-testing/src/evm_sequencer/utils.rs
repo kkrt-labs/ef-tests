@@ -1,3 +1,4 @@
+/* trunk-ignore(clippy/unused_imports) */
 use super::constants::KAKAROT_ADDRESS;
 
 use super::constants::{RELAYER_ADDRESS, RELAYER_SIGNING_KEY};
@@ -45,6 +46,7 @@ pub fn felt_to_bytes(felt: &Felt, start: usize) -> Bytes {
 /// Converts an signed transaction and a signature to a Starknet-rs transaction.
 pub fn to_broadcasted_starknet_transaction(
     transaction: &TransactionSigned,
+    /* trunk-ignore(clippy/unused_variables) */
     starknet_address: Felt,
     relayer_nonce: Felt,
 ) -> Result<BroadcastedInvokeTransaction, eyre::Error> {
