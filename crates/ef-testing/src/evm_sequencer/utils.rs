@@ -155,7 +155,7 @@ pub fn to_broadcasted_starknet_transaction(
         .sign(&transaction_hash)
         .expect("Signature starknet failed");
 
-    let signature_starknet: Vec<Felt> = vec![signature_starknet.r, signature_starknet.s];
+    let signature_starknet = vec![signature_starknet.r, signature_starknet.s];
 
     let request = BroadcastedInvokeTransaction::V1(BroadcastedInvokeTransactionV1 {
         max_fee: Felt::ZERO,
