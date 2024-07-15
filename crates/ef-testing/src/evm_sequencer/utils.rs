@@ -90,11 +90,11 @@ pub fn to_broadcasted_starknet_transaction(
         #[cfg(feature = "v0")]
         {
             vec![
-                (*RELAYER_ADDRESS.0.key()).into(), // caller -- OutsideExecution
-                Felt::ZERO,                        // nonce (not used)
-                Felt::ZERO,                        // execute after (not used in EF test)
-                Felt::from(100_000_000u128),       // execute_before(not used in EF test) --
-                Felt::ONE,                         // call array length
+                (*RELAYER_ADDRESS.0.key()).into(),  // caller -- OutsideExecution
+                Felt::ZERO,                         // nonce (not used)
+                Felt::ZERO,                         // execute after (not used in EF test)
+                Felt::from(10_000_000_000_000u128), // execute_before(not used in EF test) --
+                Felt::ONE,                          // call array length
                 (*KAKAROT_ADDRESS.0.key()).into(), // evm contract address --- CallArray (not used in execute_from_outside)
                 selector!("eth_send_transaction"), // selector (not used in execute_from_outside)
                 Felt::ZERO,                        // data offset
