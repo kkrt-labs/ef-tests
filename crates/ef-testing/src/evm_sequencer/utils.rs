@@ -88,16 +88,16 @@ pub fn to_broadcasted_starknet_transaction(
         {
             use crate::evm_sequencer::constants::KAKAROT_ADDRESS;
             vec![
-                (*RELAYER_ADDRESS.0.key()).into(),  // caller -- OutsideExecution
+                *RELAYER_ADDRESS.0.key(),           // caller -- OutsideExecution
                 Felt::ZERO,                         // nonce (not used)
                 Felt::ZERO,                         // execute after (not used in EF test)
                 Felt::from(10_000_000_000_000u128), // execute_before(not used in EF test) --
                 Felt::ONE,                          // call array length
-                (*KAKAROT_ADDRESS.0.key()).into(), // evm contract address --- CallArray (not used in execute_from_outside)
+                *KAKAROT_ADDRESS.0.key(), // evm contract address --- CallArray (not used in execute_from_outside)
                 selector!("eth_send_transaction"), // selector (not used in execute_from_outside)
-                Felt::ZERO,                        // data offset
-                calldata.len().into(),             // data length ---
-                calldata.len().into(),             // calldata length
+                Felt::ZERO,               // data offset
+                calldata.len().into(),    // data length ---
+                calldata.len().into(),    // calldata length
             ]
         }
         #[cfg(not(feature = "v0"))]
@@ -139,10 +139,10 @@ pub fn to_broadcasted_starknet_transaction(
     };
     execute_calldata.append(&mut execute_from_outside_calldata);
 
-    let data_to_hash: Vec<Felt> = vec![
+    let data_to_hash = vec![
         Felt::from_bytes_be_slice(b"invoke"), // invoke
         Felt::ONE,                            // version
-        (*RELAYER_ADDRESS.0.key()).into(),
+        *RELAYER_ADDRESS.0.key(),
         Felt::ZERO,
         compute_hash_on_elements(&execute_calldata.clone()), // h(calldata)
         Felt::ZERO,                                          // max fee
@@ -162,7 +162,7 @@ pub fn to_broadcasted_starknet_transaction(
         max_fee: Felt::ZERO,
         signature: signature_relayer,
         nonce: relayer_nonce,
-        sender_address: (*RELAYER_ADDRESS.0.key()).into(),
+        sender_address: *RELAYER_ADDRESS.0.key(),
         calldata: execute_calldata,
         is_query: false,
     });

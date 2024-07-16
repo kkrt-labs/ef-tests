@@ -253,7 +253,7 @@ impl Evm for KakarotSequencer {
             BroadcastedTransactionWrapper::new(BroadcastedTransaction::Invoke(
                 to_broadcasted_starknet_transaction(
                     &transaction,
-                    (**starknet_address).into(),
+                    Felt::from(starknet_address),
                     relayer_nonce.0.into(),
                 )
                 .map_err(|err| {

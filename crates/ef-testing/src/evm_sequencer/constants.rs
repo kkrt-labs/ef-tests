@@ -76,10 +76,10 @@ lazy_static! {
     pub static ref OPENZEPPELIN_ACCOUNT_CLASS: LegacyContractClass = load_contract_class("../../build/v0/OpenzeppelinAccount.json").expect("Failed to load openzeppelin account contract class");
 
     // Main class hashes
-    pub static ref KAKAROT_CLASS_HASH: ClassHash = ClassHash(KAKAROT_CLASS.class_hash().unwrap().into());
-    pub static ref ACCOUNT_CONTRACT_CLASS_HASH: ClassHash = ClassHash(ACCOUNT_CONTRACT_CLASS.class_hash().unwrap().into());
-    pub static ref UNINITIALIZED_ACCOUNT_CLASS_HASH: ClassHash = ClassHash(UNINITIALIZED_ACCOUNT_CLASS.class_hash().unwrap().into());
-    pub static ref OPENZEPPELIN_ACCOUNT_CLASS_HASH: ClassHash = ClassHash(OPENZEPPELIN_ACCOUNT_CLASS.class_hash().unwrap().into());
+    pub static ref KAKAROT_CLASS_HASH: ClassHash = ClassHash(KAKAROT_CLASS.class_hash().unwrap());
+    pub static ref ACCOUNT_CONTRACT_CLASS_HASH: ClassHash = ClassHash(ACCOUNT_CONTRACT_CLASS.class_hash().unwrap());
+    pub static ref UNINITIALIZED_ACCOUNT_CLASS_HASH: ClassHash = ClassHash(UNINITIALIZED_ACCOUNT_CLASS.class_hash().unwrap());
+    pub static ref OPENZEPPELIN_ACCOUNT_CLASS_HASH: ClassHash = ClassHash(OPENZEPPELIN_ACCOUNT_CLASS.class_hash().unwrap());
 }
 
 #[cfg(feature = "v1")]
