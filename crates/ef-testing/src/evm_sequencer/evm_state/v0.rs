@@ -7,8 +7,7 @@ use blockifier::transaction::objects::{TransactionExecutionInfo, TransactionExec
 use reth_primitives::{Address, Bytes, TransactionSigned, U256};
 use sequencer::execution::Execution as _;
 use sequencer::transaction::BroadcastedTransactionWrapper;
-use starknet::core::types::{BroadcastedTransaction, FieldElement};
-use starknet_api::hash::StarkFelt;
+use starknet::core::types::{BroadcastedTransaction, Felt};
 use starknet_api::state::StorageKey;
 
 use super::Evm;
@@ -45,15 +44,12 @@ impl Evm for KakarotSequencer {
         // Set the base fee.
         let [low_fee, high_fee] = split_u256(base_fee);
         let basefee_address = get_storage_var_address(KAKAROT_BASE_FEE, &[]);
-        self.state_mut().set_storage_at(
-            kakarot_address,
-            basefee_address,
-            StarkFelt::from(low_fee),
-        )?;
+        self.state_mut()
+            .set_storage_at(kakarot_address, basefee_address, Felt::from(low_fee))?;
         self.state_mut().set_storage_at(
             kakarot_address,
             next_storage_key(&basefee_address)?,
-            StarkFelt::from(high_fee),
+            Felt::from(high_fee),
         )?;
 
         // Set the previous randao.
@@ -62,17 +58,17 @@ impl Evm for KakarotSequencer {
         self.state_mut().set_storage_at(
             kakarot_address,
             prev_randao_address,
-            StarkFelt::from(low_prev_randao),
+            Felt::from(low_prev_randao),
         )?;
         self.state_mut().set_storage_at(
             kakarot_address,
             next_storage_key(&prev_randao_address)?,
-            StarkFelt::from(high_prev_randao),
+            Felt::from(high_prev_randao),
         )?;
 
         // Set the block gas limit, considering it fits in a felt.
         let [block_gas_limit, _] = split_u256(block_gas_limit);
-        let block_gas_limit = StarkFelt::from(block_gas_limit);
+        let block_gas_limit = Felt::from(block_gas_limit);
         let block_gas_limit_address = get_storage_var_address(KAKAROT_BLOCK_GAS_LIMIT, &[]);
         self.state_mut().set_storage_at(
             kakarot_address,
@@ -86,7 +82,7 @@ impl Evm for KakarotSequencer {
     /// Sets up an EOA or contract account. Writes nonce, code and storage to the sequencer storage.
     /// Uses the KakarotSequencer environment to set the class hash, contract owner and Kakarot address.
     fn setup_account(&mut self, account: KakarotAccount) -> StateResult<()> {
-        let evm_address = &account.evm_address().bytes()[12..];
+        let evm_address = &account.evm_address().to_bytes_be()[12..];
         let evm_address = Address::from_slice(evm_address);
         let mut storage = account.storage;
         let starknet_address = self.compute_starknet_address(&evm_address)?;
@@ -135,8 +131,8 @@ impl Evm for KakarotSequencer {
         let balance_low_key = get_fee_token_var_address(starknet_address);
         let balance_high_key = next_storage_key(&balance_low_key)?;
         storage.append(&mut vec![
-            (balance_low_key, StarkFelt::from(balance_values[0])),
-            (balance_high_key, StarkFelt::from(balance_values[1])),
+            (balance_low_key, Felt::from(balance_values[0])),
+            (balance_high_key, Felt::from(balance_values[1])),
         ]);
 
         // Initialize the allowance storage var.
@@ -149,8 +145,8 @@ impl Evm for KakarotSequencer {
         );
         let allowance_key_high = next_storage_key(&allowance_key_low)?;
         storage.append(&mut vec![
-            (allowance_key_low, StarkFelt::from(u128::MAX)),
-            (allowance_key_high, StarkFelt::from(u128::MAX)),
+            (allowance_key_low, Felt::from(u128::MAX)),
+            (allowance_key_high, Felt::from(u128::MAX)),
         ]);
 
         // Write all the storage vars to the sequencer state.
@@ -174,8 +170,8 @@ impl Evm for KakarotSequencer {
             .state_mut()
             .get_storage_at(starknet_address, key_high)?;
 
-        let low = U256::from_be_bytes(Into::<FieldElement>::into(low).to_bytes_be());
-        let high = U256::from_be_bytes(Into::<FieldElement>::into(high).to_bytes_be());
+        let low = U256::from_be_bytes(Into::<Felt>::into(low).to_bytes_be());
+        let high = U256::from_be_bytes(Into::<Felt>::into(high).to_bytes_be());
 
         Ok(high << 128 | low)
     }
@@ -187,9 +183,7 @@ impl Evm for KakarotSequencer {
         let key = get_storage_var_address(ACCOUNT_NONCE, &[]);
         let nonce = self.state_mut().get_storage_at(starknet_address, key)?;
 
-        Ok(U256::from_be_bytes(
-            Into::<FieldElement>::into(nonce).to_bytes_be(),
-        ))
+        Ok(U256::from_be_bytes(Into::<Felt>::into(nonce).to_bytes_be()))
     }
 
     /// Returns the bytecode of the given address. For an EOA, the bytecode_len_ storage variable will return 0,
@@ -202,7 +196,9 @@ impl Evm for KakarotSequencer {
             starknet_address,
             get_storage_var_address(ACCOUNT_BYTECODE_LEN, &[]),
         )?;
-        let bytecode_len: u64 = bytecode_len.try_into()?;
+
+        let bytecode_len: u64 = bytecode_len.to_biguint().try_into()?;
+
         if bytecode_len == 0 {
             return Ok(Bytes::default());
         }
@@ -214,13 +210,13 @@ impl Evm for KakarotSequencer {
         for chunk_index in 0..num_chunks {
             let key = StorageKey::from(chunk_index);
             let code = self.state_mut().get_storage_at(starknet_address, key)?;
-            bytecode.append(&mut felt_to_bytes(&code.into(), 1).to_vec());
+            bytecode.append(&mut felt_to_bytes(&code, 1).to_vec());
         }
 
         let remainder = bytecode_len % 31;
         let key = StorageKey::from(num_chunks);
         let code = self.state_mut().get_storage_at(starknet_address, key)?;
-        bytecode.append(&mut felt_to_bytes(&code.into(), (32 - remainder) as usize).to_vec());
+        bytecode.append(&mut felt_to_bytes(&code, (32 - remainder) as usize).to_vec());
 
         Ok(Bytes::from(bytecode))
     }
@@ -233,8 +229,8 @@ impl Evm for KakarotSequencer {
             .state_mut()
             .get_fee_token_balance(starknet_address, *ETH_FEE_TOKEN_ADDRESS)?;
 
-        let low = U256::from_be_bytes(Into::<FieldElement>::into(low).to_bytes_be());
-        let high = U256::from_be_bytes(Into::<FieldElement>::into(high).to_bytes_be());
+        let low = U256::from_be_bytes(Into::<Felt>::into(low).to_bytes_be());
+        let high = U256::from_be_bytes(Into::<Felt>::into(high).to_bytes_be());
 
         Ok(high << 128 | low)
     }
@@ -259,12 +255,8 @@ impl Evm for KakarotSequencer {
 
         let starknet_transaction =
             BroadcastedTransactionWrapper::new(BroadcastedTransaction::Invoke(
-                to_broadcasted_starknet_transaction(
-                    &transaction,
-                    (*starknet_address.0.key()).into(),
-                )
-                .map_err(|err| {
-                    TransactionExecutionError::ValidateTransactionError {
+                to_broadcasted_starknet_transaction(&transaction, *starknet_address.0.key())
+                    .map_err(|err| TransactionExecutionError::ValidateTransactionError {
                         error: EntryPointExecutionError::InvalidExecutionInput {
                             input_descriptor: String::from("Signed transaction"),
                             info: err.to_string(),
@@ -272,14 +264,13 @@ impl Evm for KakarotSequencer {
                         class_hash: Default::default(),
                         storage_address: Default::default(),
                         selector: Default::default(),
-                    }
-                })?,
+                    })?,
             ));
 
         let chain_id = self.chain_id();
         self.execute(
             starknet_transaction
-                .try_into_execution_transaction(FieldElement::from(chain_id))
+                .try_into_execution_transaction(Felt::from(chain_id))
                 .unwrap(),
         )
     }
@@ -304,7 +295,7 @@ mod tests {
     use reth_primitives::{
         sign_message, AccessList, Signature, TransactionSigned, TxEip1559, B256,
     };
-    use starknet_api::hash::StarkFelt;
+    use starknet::core::types::Felt;
 
     #[test]
     fn test_execute_simple_contract() {
@@ -372,10 +363,10 @@ mod tests {
 
         // Then
         let evm_address: FeltSequencer = (*TEST_CONTRACT_ADDRESS).try_into().unwrap(); // infallible
-        let kakarot_address: FieldElement = (*KAKAROT_ADDRESS.0.key()).into();
+        let kakarot_address: Felt = *KAKAROT_ADDRESS.0.key();
         let contract_starknet_address = compute_starknet_address(
             &TEST_CONTRACT_ADDRESS,
-            UNINITIALIZED_ACCOUNT_CLASS_HASH.0.into(),
+            UNINITIALIZED_ACCOUNT_CLASS_HASH.0,
             &[kakarot_address, evm_address.into()],
         )
         .try_into()
@@ -385,12 +376,9 @@ mod tests {
             .state_mut()
             .get_storage_at(
                 contract_starknet_address,
-                get_storage_var_address(
-                    ACCOUNT_STORAGE,
-                    &[StarkFelt::from(0u8), StarkFelt::from(0u8)],
-                ),
+                get_storage_var_address(ACCOUNT_STORAGE, &[Felt::from(0u8), Felt::from(0u8)]),
             )
             .unwrap();
-        assert_eq!(storage, StarkFelt::from(1u8));
+        assert_eq!(storage, Felt::from(1u8));
     }
 }

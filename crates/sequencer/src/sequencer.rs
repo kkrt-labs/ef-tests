@@ -127,9 +127,9 @@ mod tests {
     use blockifier::transaction::account_transaction::AccountTransaction;
     use blockifier::transaction::transactions::InvokeTransaction as BlockifierInvokeTransaction;
     use blockifier::versioned_constants::VersionedConstants;
+    use starknet::core::types::Felt;
     use starknet::macros::selector;
     use starknet_api::core::{ChainId, ClassHash, ContractAddress, Nonce};
-    use starknet_api::hash::StarkFelt;
     use starknet_api::transaction::{
         Calldata, Fee, InvokeTransaction, InvokeTransactionV1, TransactionHash,
         TransactionSignature,
@@ -193,12 +193,12 @@ mod tests {
         state.set_class_hash_at(address, class_hash).unwrap();
     }
 
-    fn fund(address: StarkFelt, mut state: &mut State) {
+    fn fund(address: Felt, mut state: &mut State) {
         state
             .set_storage_at(
                 *ETH_FEE_TOKEN_ADDRESS,
                 get_storage_var_address("ERC20_balances", &[address]),
-                StarkFelt::from(u128::MAX),
+                Felt::from(u128::MAX),
             )
             .unwrap_or_else(|_| panic!("failed to fund account {}", address));
     }
@@ -241,7 +241,7 @@ mod tests {
                 sequencer.execute(transaction).unwrap();
 
                 // Then
-                let expected = StarkFelt::from(1u8);
+                let expected = Felt::from(1u8);
                 let actual = (&mut sequencer.state)
                     .get_storage_at(*TEST_CONTRACT, get_storage_var_address("counter", &[]))
                     .unwrap();
@@ -265,7 +265,7 @@ mod tests {
         };
 
         let chain_info = ChainInfo {
-            chain_id: ChainId("KKRT".into()),
+            chain_id: ChainId::Other("KKRT".into()),
             fee_token_addresses: FeeTokenAddresses {
                 strk_fee_token_address: *STRK_FEE_TOKEN_ADDRESS,
                 eth_fee_token_address: *ETH_FEE_TOKEN_ADDRESS,
@@ -278,15 +278,7 @@ mod tests {
 
         let bouncer_config = BouncerConfig::max();
 
-        let concurrency_mode = Default::default();
-
-        BlockContext::new(
-            block_info,
-            chain_info,
-            versioned_constants,
-            bouncer_config,
-            concurrency_mode,
-        )
+        BlockContext::new(block_info, chain_info, versioned_constants, bouncer_config)
     }
 
     fn test_transaction() -> Transaction {
@@ -296,7 +288,7 @@ mod tests {
                 calldata: Calldata(
                     vec![
                         *TEST_CONTRACT.0.key(), // destination
-                        selector!("inc").into(),
+                        selector!("inc"),
                         *ZERO_FELT, // no data
                     ]
                     .into(),

@@ -6,9 +6,9 @@ use blockifier::transaction::{
     transaction_execution::Transaction as ExecutionTransaction,
 };
 use starknet::core::crypto::compute_hash_on_elements;
-use starknet::core::types::{BroadcastedTransaction, FieldElement};
+use starknet::core::types::{BroadcastedInvokeTransaction, BroadcastedTransaction, Felt};
 use starknet_api::core::{ContractAddress, Nonce, PatriciaKey};
-use starknet_api::hash::{StarkFelt, StarkHash};
+use starknet_api::hash::StarkHash;
 use starknet_api::transaction::InvokeTransaction;
 use starknet_api::transaction::{
     Calldata, Fee, InvokeTransactionV1, TransactionHash, TransactionSignature,
@@ -30,46 +30,53 @@ impl BroadcastedTransactionWrapper {
     #[inline]
     pub fn try_into_execution_transaction(
         self,
-        chain_id: FieldElement,
+        chain_id: Felt,
     ) -> Result<ExecutionTransaction, eyre::Error> {
         match self.0 {
-            BroadcastedTransaction::Invoke(invoke) => Ok(ExecutionTransaction::AccountTransaction(
-                AccountTransaction::Invoke(BlockifierInvokeTransaction {
-                    tx: InvokeTransaction::V1(InvokeTransactionV1 {
-                        max_fee: Fee(invoke.max_fee.try_into()?),
-                        signature: TransactionSignature(
-                            invoke
-                                .signature
-                                .into_iter()
-                                .map(Into::<StarkFelt>::into)
-                                .collect(),
-                        ),
-                        nonce: Nonce(invoke.nonce.into()),
-                        sender_address: ContractAddress(TryInto::<PatriciaKey>::try_into(Into::<
-                            StarkHash,
-                        >::into(
-                            Into::<StarkFelt>::into(invoke.sender_address),
-                        ))?),
-                        calldata: Calldata(Arc::new(
-                            invoke
-                                .calldata
-                                .iter()
-                                .map(|x| Into::<StarkFelt>::into(*x))
-                                .collect(),
-                        )),
-                    }),
-                    only_query: false,
-                    tx_hash: TransactionHash(Into::<StarkHash>::into(Into::<StarkFelt>::into(
-                        compute_transaction_hash(
-                            invoke.sender_address,
-                            &invoke.calldata,
-                            invoke.max_fee,
-                            chain_id,
-                            invoke.nonce,
-                        ),
-                    ))),
-                }),
-            )),
+            BroadcastedTransaction::Invoke(invoke) => match invoke {
+                BroadcastedInvokeTransaction::V1(invoke_v1) => {
+                    Ok(ExecutionTransaction::AccountTransaction(
+                        AccountTransaction::Invoke(BlockifierInvokeTransaction {
+                            tx: InvokeTransaction::V1(InvokeTransactionV1 {
+                                max_fee: Fee(invoke_v1.max_fee.to_biguint().try_into()?),
+                                signature: TransactionSignature(
+                                    invoke_v1
+                                        .signature
+                                        .into_iter()
+                                        .map(Into::<Felt>::into)
+                                        .collect(),
+                                ),
+                                nonce: Nonce(invoke_v1.nonce),
+                                sender_address: ContractAddress(TryInto::<PatriciaKey>::try_into(
+                                    Into::<StarkHash>::into(Into::<Felt>::into(
+                                        invoke_v1.sender_address,
+                                    )),
+                                )?),
+                                calldata: Calldata(Arc::new(
+                                    invoke_v1
+                                        .calldata
+                                        .iter()
+                                        .map(|x| Into::<Felt>::into(*x))
+                                        .collect(),
+                                )),
+                            }),
+                            only_query: false,
+                            tx_hash: TransactionHash(Into::<StarkHash>::into(Into::<Felt>::into(
+                                compute_transaction_hash(
+                                    invoke_v1.sender_address,
+                                    &invoke_v1.calldata,
+                                    invoke_v1.max_fee,
+                                    chain_id,
+                                    invoke_v1.nonce,
+                                ),
+                            ))),
+                        }),
+                    ))
+                }
+                BroadcastedInvokeTransaction::V3(_) => {
+                    Err(eyre::eyre!("Unsupported InvokeTransaction version V3"))
+                }
+            },
             // TODO: Add support for other transaction types.
             _ => Err(eyre::eyre!("Unsupported transaction type")),
         }
@@ -77,17 +84,17 @@ impl BroadcastedTransactionWrapper {
 }
 
 fn compute_transaction_hash(
-    sender_address: FieldElement,
-    calldata: &[FieldElement],
-    max_fee: FieldElement,
-    chain_id: FieldElement,
-    nonce: FieldElement,
-) -> FieldElement {
+    sender_address: Felt,
+    calldata: &[Felt],
+    max_fee: Felt,
+    chain_id: Felt,
+    nonce: Felt,
+) -> Felt {
     compute_hash_on_elements(&[
-        FieldElement::from_byte_slice_be(b"invoke").unwrap(),
-        FieldElement::ONE,
+        Felt::from_bytes_be_slice(b"invoke"),
+        Felt::ONE,
         sender_address,
-        FieldElement::ZERO, // entry_point_selector
+        Felt::ZERO, // entry_point_selector
         compute_hash_on_elements(calldata),
         max_fee,
         chain_id,

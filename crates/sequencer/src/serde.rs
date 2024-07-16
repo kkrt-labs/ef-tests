@@ -3,10 +3,8 @@ use std::{fs, io, path::Path};
 use blockifier::execution::contract_class::ContractClass;
 use hashbrown::HashMap;
 use serde::{Deserialize, Serialize};
-use starknet_api::{
-    core::{ClassHash, CompiledClassHash, ContractAddress, Nonce},
-    hash::StarkFelt,
-};
+use starknet::core::types::Felt;
+use starknet_api::core::{ClassHash, CompiledClassHash, ContractAddress, Nonce};
 use thiserror::Error;
 
 use crate::state::{ContractStorageKey, State};
@@ -54,7 +52,7 @@ pub struct SerializableState {
     pub compiled_classes_hash: HashMap<ClassHash, CompiledClassHash>,
     pub contracts: HashMap<ContractAddress, ClassHash>,
     #[serde(with = "serialize_contract_storage")]
-    pub storage: HashMap<ContractStorageKey, StarkFelt>,
+    pub storage: HashMap<ContractStorageKey, Felt>,
     pub nonces: HashMap<ContractAddress, Nonce>,
 }
 
@@ -63,11 +61,11 @@ mod serialize_contract_storage {
     use hashbrown::HashMap;
     use serde::de::{Deserializer, MapAccess, Visitor};
     use serde::ser::{SerializeMap, Serializer};
-    use starknet_api::hash::StarkFelt;
+    use starknet::core::types::Felt;
     use std::fmt;
 
     pub fn serialize<S>(
-        map: &HashMap<ContractStorageKey, StarkFelt>,
+        map: &HashMap<ContractStorageKey, Felt>,
         serializer: S,
     ) -> Result<S::Ok, S::Error>
     where
@@ -89,7 +87,7 @@ mod serialize_contract_storage {
 
     pub fn deserialize<'de, D>(
         deserializer: D,
-    ) -> Result<HashMap<ContractStorageKey, StarkFelt>, D::Error>
+    ) -> Result<HashMap<ContractStorageKey, Felt>, D::Error>
     where
         D: Deserializer<'de>,
     {
@@ -100,7 +98,7 @@ mod serialize_contract_storage {
 
     impl<'de> Visitor<'de> for MapContractStorageKeyVisitor {
         // The type that our Visitor is going to produce.
-        type Value = HashMap<ContractStorageKey, StarkFelt>;
+        type Value = HashMap<ContractStorageKey, Felt>;
 
         // Format a message stating what data this Visitor expects to receive.
         fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
@@ -118,7 +116,7 @@ mod serialize_contract_storage {
 
             // While there are entries remaining in the input, add them
             // into our map.
-            while let Some((key, value)) = access.next_entry::<String, StarkFelt>()? {
+            while let Some((key, value)) = access.next_entry::<String, Felt>()? {
                 let key: ContractStorageKey = serde_json::from_str(&key).map_err(|error| {
                     serde::de::Error::custom(format!(
                         "failed to deserialize contract_storage_key {:?},\n error {}",

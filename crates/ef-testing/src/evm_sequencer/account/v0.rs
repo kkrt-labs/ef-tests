@@ -3,8 +3,8 @@ use reth_primitives::{Address, U256};
 use revm_interpreter::analysis::to_analysed;
 use revm_primitives::{Bytecode, Bytes};
 use starknet_api::core::PatriciaKey;
-use starknet_api::{core::Nonce, hash::StarkFelt, state::StorageKey, StarknetApiError};
-use starknet_crypto::FieldElement;
+use starknet_api::{core::Nonce, state::StorageKey, StarknetApiError};
+use starknet_crypto::Felt;
 
 use super::{pack_byte_array_to_starkfelt_array, KakarotAccount};
 use crate::evm_sequencer::constants::storage_variables::{
@@ -21,7 +21,7 @@ impl KakarotAccount {
         nonce: U256,
         evm_storage: &[(U256, U256)],
     ) -> Result<Self, StarknetApiError> {
-        let nonce = StarkFelt::from(TryInto::<u128>::try_into(nonce).map_err(|err| {
+        let nonce = Felt::from(TryInto::<u128>::try_into(nonce).map_err(|err| {
             StarknetApiError::OutOfRange {
                 string: err.to_string(),
             }
@@ -62,25 +62,22 @@ impl KakarotAccount {
         };
 
         let jumdpests_storage_address = get_storage_var_address(ACCOUNT_VALID_JUMPDESTS, &[]);
-        let jumdpests_storage_address = FieldElement::from(*jumdpests_storage_address.0.key());
+        let jumdpests_storage_address = *jumdpests_storage_address.0.key();
         valid_jumpdests.into_iter().for_each(|index| {
             storage.push((
                 StorageKey(
-                    PatriciaKey::try_from(StarkFelt::from(
-                        jumdpests_storage_address + index.into(),
-                    ))
-                    .unwrap(),
+                    PatriciaKey::try_from(jumdpests_storage_address + Felt::from(index)).unwrap(),
                 ),
-                StarkFelt::ONE,
+                Felt::ONE,
             ))
         });
 
         // Initialize the storage vars.
-        let mut evm_storage_storage: Vec<(StorageKey, StarkFelt)> = evm_storage
+        let mut evm_storage_storage: Vec<(StorageKey, Felt)> = evm_storage
             .iter()
             .flat_map(|(k, v)| {
                 let keys = split_u256(*k).map(Into::into);
-                let values = split_u256(*v).map(Into::<StarkFelt>::into);
+                let values = split_u256(*v).map(Into::<Felt>::into);
                 let low_key = get_storage_var_address(ACCOUNT_STORAGE, &keys);
                 let high_key = next_storage_key(&low_key).unwrap(); // can fail only if low is the max key
                 vec![(low_key, values[0]), (high_key, values[1])]

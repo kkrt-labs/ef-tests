@@ -4,15 +4,15 @@ pub mod v0;
 pub mod v1;
 
 use starknet::core::utils::cairo_short_string_to_felt;
-use starknet_api::{core::Nonce, hash::StarkFelt, state::StorageKey};
-use starknet_crypto::{poseidon_permute_comp, FieldElement};
+use starknet_api::{core::Nonce, state::StorageKey};
+use starknet_crypto::{poseidon_permute_comp, Felt};
 
 #[macro_export]
 macro_rules! starknet_storage {
     ($storage_var: expr, $felt: expr) => {
         (
             get_storage_var_address($storage_var, &[]),
-            StarkFelt::from($felt),
+            Felt::from($felt),
         )
     };
     ($storage_var: expr, [$($key: expr),*], $felt: expr) => {
@@ -20,7 +20,7 @@ macro_rules! starknet_storage {
             let args = vec![$($key),*];
             (
                 get_storage_var_address($storage_var, &args),
-                StarkFelt::from($felt),
+                Felt::from($felt),
             )
         }
     };
@@ -32,13 +32,13 @@ macro_rules! starknet_storage {
 #[allow(dead_code)]
 #[derive(Debug, Clone, Default)]
 pub struct KakarotAccount {
-    pub(crate) evm_address: StarkFelt,
+    pub(crate) evm_address: Felt,
     pub(crate) nonce: Nonce,
-    pub(crate) storage: Vec<(StorageKey, StarkFelt)>,
+    pub(crate) storage: Vec<(StorageKey, Felt)>,
 }
 
 impl KakarotAccount {
-    pub const fn evm_address(&self) -> &StarkFelt {
+    pub const fn evm_address(&self) -> &Felt {
         &self.evm_address
     }
 
@@ -46,7 +46,7 @@ impl KakarotAccount {
         &self.nonce
     }
 
-    pub fn storage(&self) -> &[(StorageKey, StarkFelt)] {
+    pub fn storage(&self) -> &[(StorageKey, Felt)] {
         self.storage.as_slice()
     }
 }
@@ -63,7 +63,8 @@ pub enum AccountType {
 pub mod kkrt_account {
     use super::KakarotAccount;
     use reth_primitives::{Address, Bytes, U256};
-    use starknet_api::{core::Nonce, hash::StarkFelt, StarknetApiError};
+    use starknet::core::types::Felt;
+    use starknet_api::{core::Nonce, StarknetApiError};
 
     impl KakarotAccount {
         pub fn new(
@@ -73,7 +74,7 @@ pub mod kkrt_account {
             _evm_storage: &[(U256, U256)],
         ) -> Result<Self, StarknetApiError> {
             Ok(Self {
-                evm_address: StarkFelt::default(),
+                evm_address: Felt::default(),
                 nonce: Nonce::default(),
                 storage: vec![],
             })
@@ -81,12 +82,9 @@ pub mod kkrt_account {
     }
 }
 
-/// Splits a byte array into 31-byte chunks and converts each chunk to a StarkFelt.
-pub fn pack_byte_array_to_starkfelt_array(bytes: &[u8]) -> impl Iterator<Item = StarkFelt> + '_ {
-    bytes.chunks(31).filter_map(|chunk_bytes| {
-        let f = FieldElement::from_byte_slice_be(chunk_bytes);
-        f.map(StarkFelt::from).ok()
-    })
+/// Splits a byte array into 31-byte chunks and converts each chunk to a Felt.
+pub fn pack_byte_array_to_starkfelt_array(bytes: &[u8]) -> impl Iterator<Item = Felt> + '_ {
+    bytes.chunks(31).map(Felt::from_bytes_be_slice)
 }
 
 /// Computes the inner pointer of a byte array in storage.
@@ -102,10 +100,7 @@ pub fn pack_byte_array_to_starkfelt_array(bytes: &[u8]) -> impl Iterator<Item = 
 ///
 /// # Returns
 /// The inner pointer of the byte array.
-pub fn inner_byte_array_pointer(
-    base_address: FieldElement,
-    storage_segment: FieldElement,
-) -> FieldElement {
+pub fn inner_byte_array_pointer(base_address: Felt, storage_segment: Felt) -> Felt {
     let suffix = cairo_short_string_to_felt("ByteArray").unwrap();
     let mut state = [base_address, storage_segment, suffix];
     poseidon_permute_comp(&mut state);
@@ -129,25 +124,23 @@ mod tests {
         let result: Vec<_> = pack_byte_array_to_starkfelt_array(&bytes).collect();
 
         // Then
-        assert_eq!(result, vec![StarkFelt::from(0x0102030405u64)]);
+        assert_eq!(result, vec![Felt::from(0x0102030405u64)]);
     }
 
     #[test]
     fn test_inner_byte_array_pointer() {
         // Given
-        let base_address: StarkFelt = get_storage_var_address(ACCOUNT_BYTECODE, &[]).into();
-        let chunk = FieldElement::ZERO;
+        let base_address: Felt = get_storage_var_address(ACCOUNT_BYTECODE, &[]).into();
+        let chunk = Felt::ZERO;
 
         // When
-        let result = inner_byte_array_pointer(base_address.into(), chunk);
+        let result = inner_byte_array_pointer(base_address, chunk);
 
         // Then
         assert_eq!(
             result,
-            FieldElement::from_hex_be(
-                "0x030dc4fd6786155d4743a0f56ea73bea9521eba2552a2ca5080b830ad047907a"
-            )
-            .unwrap()
+            Felt::from_hex("0x030dc4fd6786155d4743a0f56ea73bea9521eba2552a2ca5080b830ad047907a")
+                .unwrap()
         );
     }
 }

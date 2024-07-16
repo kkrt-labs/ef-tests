@@ -33,7 +33,7 @@ setup-kakarot-v0: clean-kakarot-v0
 	@curl -sL -o kakarot-build.zip "$(KKRT_V0_BUILD_ARTIFACT_URL)"
 	unzip -o kakarot-build.zip -d build/v0
 	mv build/v0/build/* build/v0
-	mv build/v0/fixtures/ERC20.json build/common/
+	mv build/v0/ERC20.json build/common/
 	rm -f kakarot-build.zip
 
 setup-kakarot-v1: clean-kakarot-v1

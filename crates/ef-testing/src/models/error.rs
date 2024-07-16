@@ -2,10 +2,7 @@ use std::fmt::{Debug, Display};
 
 use alloy_rlp::Error;
 use blockifier::{state::errors::StateError, transaction::errors::TransactionExecutionError};
-use starknet::{
-    core::{types::FromByteArrayError, utils::NonAsciiNameError},
-    providers::ProviderError,
-};
+use starknet::{core::utils::NonAsciiNameError, providers::ProviderError};
 use starknet_api::StarknetApiError;
 
 /// Error type based off <https://github.com/paradigmxyz/reth/blob/main/testing/ef-tests/src/result.rs>
@@ -53,20 +50,14 @@ impl From<eyre::Error> for RunnerError {
     }
 }
 
-impl<E: std::error::Error> From<ProviderError<E>> for RunnerError {
-    fn from(err: ProviderError<E>) -> Self {
+impl From<ProviderError> for RunnerError {
+    fn from(err: ProviderError) -> Self {
         Self::Other(vec![err.to_string()].into())
     }
 }
 
 impl From<regex::Error> for RunnerError {
     fn from(err: regex::Error) -> Self {
-        Self::Other(vec![err.to_string()].into())
-    }
-}
-
-impl From<FromByteArrayError> for RunnerError {
-    fn from(err: FromByteArrayError) -> Self {
         Self::Other(vec![err.to_string()].into())
     }
 }

@@ -32,6 +32,7 @@ impl TryFrom<&EventData> for EVMOutput {
             .0
             .first()
             .ok_or_else(|| eyre!("Missing return_data_len value in input"))?)
+        .to_biguint()
         .try_into()
         .map_err(|_| eyre!("Error converting return_data_len to usize"))?;
 
@@ -40,13 +41,14 @@ impl TryFrom<&EventData> for EVMOutput {
             .iter()
             .skip(1)
             .take(return_data_len)
-            .flat_map(|felt| felt.bytes().last().cloned())
+            .flat_map(|felt| felt.to_bytes_be().last().cloned())
             .collect::<Vec<_>>();
 
         let success: u64 = (*input
             .0
             .get(1 + return_data_len)
             .ok_or_else(|| eyre!("Error getting success value from input"))?)
+        .to_biguint()
         .try_into()
         .map_err(|_| eyre!("Error converting success value to u64"))?;
 
@@ -54,6 +56,7 @@ impl TryFrom<&EventData> for EVMOutput {
             .0
             .last()
             .ok_or_else(|| eyre!("Error getting gas_used value from input"))?)
+        .to_biguint()
         .try_into()
         .map_err(|_| eyre!("Error converting gas_used value to u64"))?;
 
@@ -82,7 +85,7 @@ pub(crate) fn extract_output_and_log_execution_result(
 
             info!("{} passed: {:?}", case, info.transaction_receipt.resources);
             if let Some(call) = info.execute_call_info.as_ref() {
-                use starknet_api::hash::StarkFelt;
+                use starknet::core::types::Felt;
                 let events = kakarot_execution_events(call);
                 // Check only one execution event.
                 if events.len() != 1 {
@@ -93,7 +96,7 @@ pub(crate) fn extract_output_and_log_execution_result(
                     return None;
                 }
                 let output = EVMOutput::try_from(&events[0].data).ok()?;
-                if events[0].data.0.last() == Some(&StarkFelt::ZERO) {
+                if events[0].data.0.last() == Some(&Felt::ZERO) {
                     warn!(
                         "{} returned: {}",
                         case,
@@ -120,7 +123,7 @@ fn kakarot_execution_events(call_info: &CallInfo) -> Vec<EventContent> {
             .events
             .iter()
             .filter(|e| {
-                e.event.keys.first().map(|e| e.0) == Some(selector!("transaction_executed").into())
+                e.event.keys.first().map(|e| e.0) == Some(selector!("transaction_executed"))
             })
             .map(|e| e.event.clone())
             .collect();
