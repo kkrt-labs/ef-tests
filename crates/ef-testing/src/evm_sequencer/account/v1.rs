@@ -1,11 +1,7 @@
 use blockifier::abi::abi_utils::get_storage_var_address;
 use reth_primitives::{Address, Bytes, U256};
 use starknet::core::types::Felt;
-use starknet_api::{
-    core::{Nonce, PatriciaKey},
-    state::StorageKey,
-    StarknetApiError,
-};
+use starknet_api::{core::Nonce, state::StorageKey, StarknetApiError};
 
 use super::KakarotAccount;
 use super::{inner_byte_array_pointer, pack_byte_array_to_starkfelt_array};
@@ -39,10 +35,7 @@ fn prepare_bytearray_storage(code: &Bytes) -> Vec<(StorageKey, Felt)> {
             let index = index / 256;
             let key = inner_byte_array_pointer(*bytecode_base_address.0.key(), index.into());
             (
-                offset_storage_key(
-                    StorageKey(PatriciaKey::try_from(key).unwrap()),
-                    offset as i64,
-                ),
+                offset_storage_key(key.try_into().unwrap(), offset as i64),
                 b,
             )
         })
@@ -123,13 +116,9 @@ mod tests {
             (bytecode_base_address, Felt::from(code.len() as u128)),
             (
                 offset_storage_key(
-                    StorageKey(
-                        PatriciaKey::try_from(inner_byte_array_pointer(
-                            *bytecode_base_address.0.key(),
-                            Felt::ZERO,
-                        ))
+                    inner_byte_array_pointer(*bytecode_base_address.0.key(), Felt::ZERO)
+                        .try_into()
                         .unwrap(),
-                    ),
                     0,
                 ),
                 Felt::from(0x0102030405u64),

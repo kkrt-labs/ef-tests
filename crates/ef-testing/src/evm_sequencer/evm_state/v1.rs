@@ -14,10 +14,7 @@ use num_integer::Integer;
 use reth_primitives::{Address, Bytes, TransactionSigned, U256};
 use sequencer::{execution::Execution as _, transaction::BroadcastedTransactionWrapper};
 use starknet::core::types::BroadcastedTransaction;
-use starknet_api::{
-    core::{PatriciaKey, L2_ADDRESS_UPPER_BOUND},
-    state::StorageKey,
-};
+use starknet_api::{core::L2_ADDRESS_UPPER_BOUND, state::StorageKey};
 use starknet_crypto::{poseidon_hash_many, Felt};
 
 use super::Evm;
@@ -229,10 +226,7 @@ impl Evm for KakarotSequencer {
             let offset = chunk_index % 256;
             let storage_pointer =
                 inner_byte_array_pointer(*bytecode_base_address.0.key(), Felt::from(index));
-            let key = offset_storage_key(
-                StorageKey(PatriciaKey::try_from(storage_pointer).unwrap()),
-                offset as i64,
-            );
+            let key = offset_storage_key(storage_pointer.try_into().unwrap(), offset as i64);
             let code = self.state_mut().get_storage_at(starknet_address, key)?;
             bytecode.append(&mut code.to_bytes_be()[1..].to_vec());
         }
@@ -244,10 +238,8 @@ impl Evm for KakarotSequencer {
                 *bytecode_base_address.0.key(),
                 storage_chunk_index.into(),
             );
-            let key = offset_storage_key(
-                StorageKey(PatriciaKey::try_from(storage_pointer).unwrap()),
-                offset_in_chunk as i64,
-            );
+            let key =
+                offset_storage_key(storage_pointer.try_into().unwrap(), offset_in_chunk as i64);
 
             let pending_word = self.state_mut().get_storage_at(starknet_address, key)?;
             bytecode
@@ -321,12 +313,12 @@ pub(crate) fn compute_storage_base_address(storage_var_name: &str, keys: &[Felt]
     let key: Felt = poseidon_hash_many(&data);
     let key_floored = key.mod_floor(&L2_ADDRESS_UPPER_BOUND);
 
-    StorageKey(PatriciaKey::try_from(key_floored).unwrap()) // infallible
+    key_floored.try_into().unwrap() // infallible
 }
 
 pub(crate) fn offset_storage_key(key: StorageKey, offset: i64) -> StorageKey {
     let base_address = *key.0.key() + Felt::from(offset);
-    StorageKey(PatriciaKey::try_from(base_address).unwrap()) // infallible
+    base_address.try_into().unwrap() // infallible
 }
 
 #[cfg(test)]
@@ -349,16 +341,14 @@ mod tests {
     #[test]
     fn test_offset_storage_base_address() {
         // Given
-        let base_address =
-            StorageKey(PatriciaKey::try_from(Felt::from(0x0102030405060708u64)).unwrap());
+        let base_address = StorageKey(Felt::from(0x0102030405060708u64).try_into().unwrap());
         let offset = -1;
 
         // When
         let result = offset_storage_key(base_address, offset);
 
         // Then
-        let expected =
-            StorageKey(PatriciaKey::try_from(Felt::from(0x0102030405060707u64)).unwrap());
+        let expected = StorageKey(Felt::from(0x0102030405060707u64).try_into().unwrap());
         assert!(result == expected);
     }
 
