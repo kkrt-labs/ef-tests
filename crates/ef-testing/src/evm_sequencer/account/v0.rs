@@ -2,7 +2,6 @@ use blockifier::abi::{abi_utils::get_storage_var_address, sierra_types::next_sto
 use reth_primitives::{Address, U256};
 use revm_interpreter::analysis::to_analysed;
 use revm_primitives::{Bytecode, Bytes};
-use starknet_api::core::PatriciaKey;
 use starknet_api::{core::Nonce, state::StorageKey, StarknetApiError};
 use starknet_crypto::Felt;
 
@@ -65,9 +64,9 @@ impl KakarotAccount {
         let jumdpests_storage_address = *jumdpests_storage_address.0.key();
         valid_jumpdests.into_iter().for_each(|index| {
             storage.push((
-                StorageKey(
-                    PatriciaKey::try_from(jumdpests_storage_address + Felt::from(index)).unwrap(),
-                ),
+                (jumdpests_storage_address + Felt::from(index))
+                    .try_into()
+                    .unwrap(),
                 Felt::ONE,
             ))
         });

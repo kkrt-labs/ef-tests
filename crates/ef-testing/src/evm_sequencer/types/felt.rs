@@ -2,10 +2,7 @@ use std::convert::Infallible;
 
 use reth_primitives::Address;
 use starknet::core::types::Felt;
-use starknet_api::{
-    core::{ContractAddress, PatriciaKey},
-    StarknetApiError,
-};
+use starknet_api::{core::ContractAddress, StarknetApiError};
 
 /// A wrapper around a Felt in order to facilitate conversion.
 #[derive(Debug, Clone, Copy)]
@@ -37,6 +34,6 @@ impl TryFrom<FeltSequencer> for ContractAddress {
 
     fn try_from(felt: FeltSequencer) -> Result<Self, Self::Error> {
         let felt: Felt = felt.into();
-        Ok(Self(TryInto::<PatriciaKey>::try_into(felt)?))
+        Ok(Self(felt.try_into()?))
     }
 }
