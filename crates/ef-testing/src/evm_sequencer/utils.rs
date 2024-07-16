@@ -152,15 +152,15 @@ pub fn to_broadcasted_starknet_transaction(
 
     // Compute the hash on elements and sign it
     let transaction_hash = compute_hash_on_elements(&data_to_hash);
-    let signature_starknet = RELAYER_SIGNING_KEY
+    let signature_relayer = RELAYER_SIGNING_KEY
         .sign(&transaction_hash)
         .expect("Signature starknet failed");
 
-    let signature_starknet = vec![signature_starknet.r, signature_starknet.s];
+    let signature_relayer = vec![signature_relayer.r, signature_relayer.s];
 
     let request = BroadcastedInvokeTransaction::V1(BroadcastedInvokeTransactionV1 {
         max_fee: Felt::ZERO,
-        signature: signature_starknet,
+        signature: signature_relayer,
         nonce: relayer_nonce,
         sender_address: (*RELAYER_ADDRESS.0.key()).into(),
         calldata: execute_calldata,
