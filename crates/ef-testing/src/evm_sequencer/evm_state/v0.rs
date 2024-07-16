@@ -197,7 +197,6 @@ impl Evm for KakarotSequencer {
             get_storage_var_address(ACCOUNT_BYTECODE_LEN, &[]),
         )?;
 
-        // let bytecode_len: u64 = bytecode_len.try_into()?;
         let bytecode_len: u64 = bytecode_len.to_biguint().try_into()?;
 
         if bytecode_len == 0 {
