@@ -1,20 +1,16 @@
+use crate::commit::Committer;
+use crate::serde::SerializableState;
 use blockifier::execution::contract_class::ContractClass;
 use blockifier::state::errors::StateError;
 use blockifier::state::state_api::{
     State as BlockifierState, StateReader as BlockifierStateReader, StateResult,
 };
 use hashbrown::HashMap;
-use starknet_api::core::CompiledClassHash;
-use starknet_api::state::StorageKey;
-use starknet_api::{
-    core::{ClassHash, ContractAddress, Nonce},
-    hash::StarkFelt,
-};
-
 use serde::{Deserialize, Serialize};
-
-use crate::commit::Committer;
-use crate::serde::SerializableState;
+use starknet::core::types::Felt;
+use starknet_api::core::CompiledClassHash;
+use starknet_api::core::{ClassHash, ContractAddress, Nonce};
+use starknet_api::state::StorageKey;
 
 pub type ContractStorageKey = (ContractAddress, StorageKey);
 
@@ -26,7 +22,7 @@ pub struct State {
     classes: HashMap<ClassHash, ContractClass>,
     compiled_class_hashes: HashMap<ClassHash, CompiledClassHash>,
     contracts: HashMap<ContractAddress, ClassHash>,
-    storage: HashMap<ContractStorageKey, StarkFelt>,
+    storage: HashMap<ContractStorageKey, Felt>,
     nonces: HashMap<ContractAddress, Nonce>,
 }
 
@@ -70,7 +66,7 @@ impl BlockifierState for &mut State {
         &mut self,
         contract_address: ContractAddress,
         key: StorageKey,
-        value: StarkFelt,
+        value: Felt,
     ) -> StateResult<()> {
         self.storage.insert((contract_address, key), value);
         Ok(())
@@ -80,20 +76,18 @@ impl BlockifierState for &mut State {
     ///
     /// If the nonce overflows.
     fn increment_nonce(&mut self, contract_address: ContractAddress) -> StateResult<()> {
-        let current_nonce = self
+        let mut current_nonce = self
             .nonces
             .get(&contract_address)
             .copied()
             .unwrap_or_default();
 
-        let mut current_nonce: u64 = current_nonce.0.try_into()?;
-        if current_nonce == u64::MAX {
+        if current_nonce == Nonce(Felt::from(u64::MAX)) {
             return Err(StateError::StateReadError("Nonce overflow".into()));
         }
-        current_nonce += 1;
+        current_nonce.0 += Felt::ONE;
 
-        self.nonces
-            .insert(contract_address, Nonce(StarkFelt::from(current_nonce)));
+        self.nonces.insert(contract_address, current_nonce);
 
         Ok(())
     }
@@ -143,7 +137,7 @@ impl BlockifierStateReader for &mut State {
         &self,
         contract_address: ContractAddress,
         key: StorageKey,
-    ) -> StateResult<StarkFelt> {
+    ) -> StateResult<Felt> {
         Ok(self
             .storage
             .get(&(contract_address, key))

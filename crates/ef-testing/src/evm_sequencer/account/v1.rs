@@ -1,8 +1,8 @@
 use blockifier::abi::abi_utils::get_storage_var_address;
 use reth_primitives::{Address, Bytes, U256};
+use starknet::core::types::Felt;
 use starknet_api::{
     core::{Nonce, PatriciaKey},
-    hash::StarkFelt,
     state::StorageKey,
     StarknetApiError,
 };
@@ -28,20 +28,19 @@ use crate::{
 ///   - The address storing the length of the array.
 ///   - The chunk index.
 ///   - The short string `ByteArray`.
-fn prepare_bytearray_storage(code: &Bytes) -> Vec<(StorageKey, StarkFelt)> {
+fn prepare_bytearray_storage(code: &Bytes) -> Vec<(StorageKey, Felt)> {
     let bytecode_base_address = get_storage_var_address(ACCOUNT_BYTECODE, &[]);
-    let mut bytearray = vec![(bytecode_base_address, StarkFelt::from(code.len() as u128))];
+    let mut bytearray = vec![(bytecode_base_address, Felt::from(code.len() as u128))];
 
     let bytecode_storage: Vec<_> = pack_byte_array_to_starkfelt_array(code)
         .enumerate()
         .map(|(index, b)| {
             let offset = index % 256;
             let index = index / 256;
-            let key =
-                inner_byte_array_pointer((*bytecode_base_address.0.key()).into(), index.into());
+            let key = inner_byte_array_pointer(*bytecode_base_address.0.key(), index.into());
             (
                 offset_storage_key(
-                    StorageKey(PatriciaKey::try_from(StarkFelt::from(key)).unwrap()),
+                    StorageKey(PatriciaKey::try_from(key).unwrap()),
                     offset as i64,
                 ),
                 b,
@@ -60,7 +59,7 @@ impl KakarotAccount {
         nonce: U256,
         evm_storage: &[(U256, U256)],
     ) -> Result<Self, StarknetApiError> {
-        let nonce = StarkFelt::from(TryInto::<u128>::try_into(nonce).map_err(|err| {
+        let nonce = Felt::from(TryInto::<u128>::try_into(nonce).map_err(|err| {
             StarknetApiError::OutOfRange {
                 string: err.to_string(),
             }
@@ -85,11 +84,11 @@ impl KakarotAccount {
         storage.append(&mut bytecode_storage);
 
         // Initialize the storage vars.
-        let mut evm_storage_storage: Vec<(StorageKey, StarkFelt)> = evm_storage
+        let mut evm_storage_storage: Vec<(StorageKey, Felt)> = evm_storage
             .iter()
             .flat_map(|(k, v)| {
                 let keys = split_u256(*k).map(Into::into);
-                let values = split_u256(*v).map(Into::<StarkFelt>::into);
+                let values = split_u256(*v).map(Into::<Felt>::into);
                 let low_key = compute_storage_base_address(ACCOUNT_STORAGE, &keys);
                 let high_key = offset_storage_key(low_key, 1);
                 vec![(low_key, values[0]), (high_key, values[1])]
@@ -108,7 +107,7 @@ impl KakarotAccount {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use starknet::core::types::FieldElement;
+    use starknet::core::types::Felt;
 
     #[test]
     fn test_prepare_bytearray_storage() {
@@ -121,19 +120,19 @@ mod tests {
 
         // Then
         let expected_result = vec![
-            (bytecode_base_address, StarkFelt::from(code.len() as u128)),
+            (bytecode_base_address, Felt::from(code.len() as u128)),
             (
                 offset_storage_key(
                     StorageKey(
-                        PatriciaKey::try_from(StarkFelt::from(inner_byte_array_pointer(
-                            (*bytecode_base_address.0.key()).into(),
-                            FieldElement::ZERO,
-                        )))
+                        PatriciaKey::try_from(inner_byte_array_pointer(
+                            *bytecode_base_address.0.key(),
+                            Felt::ZERO,
+                        ))
                         .unwrap(),
                     ),
                     0,
                 ),
-                StarkFelt::from(0x0102030405u64),
+                Felt::from(0x0102030405u64),
             ),
         ];
 

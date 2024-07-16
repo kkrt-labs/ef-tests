@@ -1,9 +1,3 @@
-use blockifier::{
-    abi::abi_utils::get_storage_var_address, state::state_api::State as BlockifierState,
-};
-use lazy_static::lazy_static;
-use starknet_api::hash::StarkFelt;
-
 use crate::evm_sequencer::{
     constants::{
         storage_variables::{
@@ -17,7 +11,12 @@ use crate::evm_sequencer::{
     },
     sequencer::{convert_contract_class_v0, convert_contract_class_v1},
 };
+use blockifier::{
+    abi::abi_utils::get_storage_var_address, state::state_api::State as BlockifierState,
+};
+use lazy_static::lazy_static;
 use sequencer::state::State as SequencerState;
+use starknet::core::types::Felt;
 
 lazy_static! {
     pub static ref INITIAL_SEQUENCER_STATE: SequencerState = {
@@ -27,7 +26,7 @@ lazy_static! {
             (OWNABLE_OWNER, *KAKAROT_OWNER_ADDRESS.0.key()),
             (KAKAROT_NATIVE_TOKEN_ADDRESS, *ETH_FEE_TOKEN_ADDRESS.0.key()),
             (KAKAROT_ACCOUNT_CONTRACT_CLASS_HASH, ACCOUNT_CONTRACT_CLASS_HASH.0),
-            (KAKAROT_BLOCK_GAS_LIMIT, StarkFelt::from(BLOCK_GAS_LIMIT)),
+            (KAKAROT_BLOCK_GAS_LIMIT, Felt::from(BLOCK_GAS_LIMIT)),
             (KAKAROT_UNINITIALIZED_ACCOUNT_CLASS_HASH, UNINITIALIZED_ACCOUNT_CLASS_HASH.0),
         ];
 

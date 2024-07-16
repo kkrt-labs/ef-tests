@@ -2,7 +2,7 @@ use super::types::felt::FeltSequencer;
 use bytes::BytesMut;
 use reth_primitives::{Address, Bytes, TransactionSigned, TxType, U256};
 use starknet::core::{
-    types::{BroadcastedInvokeTransaction, FieldElement},
+    types::{BroadcastedInvokeTransaction, BroadcastedInvokeTransactionV1, Felt},
     utils::get_contract_address,
 };
 #[cfg(any(feature = "v0", feature = "v1"))]
@@ -11,8 +11,8 @@ use starknet::macros::selector;
 /// Computes the Starknet address of a contract given its EVM address.
 pub fn compute_starknet_address(
     evm_address: &Address,
-    class_hash: FieldElement,
-    constructor_args: &[FieldElement],
+    class_hash: Felt,
+    constructor_args: &[Felt],
 ) -> FeltSequencer {
     let evm_address: FeltSequencer = (*evm_address).try_into().unwrap(); // infallible
     let starknet_address = get_contract_address(
@@ -32,22 +32,22 @@ pub fn split_u256(value: U256) -> [u128; 2] {
     ]
 }
 
-/// Converts a FieldElement to a byte array.
-pub fn felt_to_bytes(felt: &FieldElement, start: usize) -> Bytes {
+/// Converts a Felt to a byte array.
+pub fn felt_to_bytes(felt: &Felt, start: usize) -> Bytes {
     felt.to_bytes_be()[start..].to_vec().into()
 }
 
 /// Converts an signed transaction and a signature to a Starknet-rs transaction.
 pub fn to_broadcasted_starknet_transaction(
     transaction: &TransactionSigned,
-    signer_starknet_address: FieldElement,
+    signer_starknet_address: Felt,
 ) -> Result<BroadcastedInvokeTransaction, eyre::Error> {
-    let nonce = FieldElement::from(transaction.nonce());
+    let nonce = Felt::from(transaction.nonce());
 
     let mut bytes = BytesMut::new();
     transaction.transaction.encode_without_signature(&mut bytes);
 
-    let mut calldata: Vec<FieldElement> = {
+    let mut calldata: Vec<Felt> = {
         // Pack the calldata in 31-byte chunks.
         #[cfg(feature = "v0")]
         {
@@ -55,15 +55,15 @@ pub fn to_broadcasted_starknet_transaction(
             let bytes_u8: Vec<u8> = bytes.into_iter().collect();
             let bytes_len = bytes_u8.len();
             let packed_data: Vec<_> = pack_byte_array_to_starkfelt_array(bytes_u8.as_slice())
-                .map(FieldElement::from)
+                .map(Felt::from)
                 .collect();
-            std::iter::once(FieldElement::from(bytes_len))
+            std::iter::once(Felt::from(bytes_len))
                 .chain(packed_data)
                 .collect()
         }
         #[cfg(not(feature = "v0"))]
         {
-            bytes.into_iter().map(FieldElement::from).collect()
+            bytes.into_iter().map(Felt::from).collect()
         }
     };
 
@@ -72,10 +72,10 @@ pub fn to_broadcasted_starknet_transaction(
         {
             use crate::evm_sequencer::constants::KAKAROT_ADDRESS;
             vec![
-                FieldElement::ONE,                 // call array length
-                (*KAKAROT_ADDRESS.0.key()).into(), // contract address
+                Felt::ONE,                         // call array length
+                *KAKAROT_ADDRESS.0.key(),          // contract address
                 selector!("eth_send_transaction"), // selector
-                FieldElement::ZERO,                // data offset
+                Felt::ZERO,                        // data offset
                 calldata.len().into(),             // data length
                 calldata.len().into(),             // calldata length
             ]
@@ -84,8 +84,8 @@ pub fn to_broadcasted_starknet_transaction(
         {
             use crate::evm_sequencer::constants::KAKAROT_ADDRESS;
             vec![
-                FieldElement::ONE,                 // call array length
-                (*KAKAROT_ADDRESS.0.key()).into(), // contract address
+                Felt::ONE,                         // call array length
+                *KAKAROT_ADDRESS.0.key(),          // contract address
                 selector!("eth_send_transaction"), // selector
                 calldata.len().into(),             // calldata length
             ]
@@ -112,14 +112,14 @@ pub fn to_broadcasted_starknet_transaction(
         v.into(),
     ];
 
-    let request = BroadcastedInvokeTransaction {
-        max_fee: FieldElement::ZERO,
+    let request = BroadcastedInvokeTransaction::V1(BroadcastedInvokeTransactionV1 {
+        max_fee: Felt::ZERO,
         signature,
         nonce,
         sender_address: signer_starknet_address,
         calldata: execute_calldata,
         is_query: false,
-    };
+    });
 
     Ok(request)
 }
@@ -133,7 +133,7 @@ mod tests {
             #[test]
             fn $test_name() {
                 // Given
-                let felt = FieldElement::from_hex_be($input).unwrap();
+                let felt = Felt::from_hex($input).unwrap();
 
                 // When
                 let bytes = felt_to_bytes(&felt, $start);

@@ -89,7 +89,7 @@ impl KakarotSequencer {
         block_number: u64,
         block_timestamp: u64,
     ) -> Self {
-        let kakarot_address = (*environment.kakarot_address.0.key()).into();
+        let kakarot_address = *environment.kakarot_address.0.key();
         let coinbase_constructor_args = {
             use crate::evm_sequencer::types::felt::FeltSequencer;
             let evm_address: FeltSequencer = coinbase_address.try_into().unwrap(); // infallible
@@ -101,7 +101,7 @@ impl KakarotSequencer {
             block_timestamp: BlockTimestamp(block_timestamp),
             sequencer_address: compute_starknet_address(
                 &coinbase_address,
-                environment.base_account_class_hash.0.into(),
+                environment.base_account_class_hash.0,
                 &coinbase_constructor_args,
             )
             .try_into()
@@ -116,7 +116,7 @@ impl KakarotSequencer {
         };
 
         let chain_info = ChainInfo {
-            chain_id: ChainId(String::from_utf8(chain_id.to_be_bytes().to_vec()).unwrap()),
+            chain_id: ChainId::Other(String::from_utf8(chain_id.to_be_bytes().to_vec()).unwrap()),
             fee_token_addresses: FeeTokenAddresses {
                 eth_fee_token_address: *ETH_FEE_TOKEN_ADDRESS,
                 strk_fee_token_address: *STRK_FEE_TOKEN_ADDRESS,
@@ -129,15 +129,8 @@ impl KakarotSequencer {
 
         let bouncer_config = BouncerConfig::max();
 
-        let concurrency_mode = Default::default();
-
-        let block_context = BlockContext::new(
-            block_info,
-            chain_info,
-            versioned_constants,
-            bouncer_config,
-            concurrency_mode,
-        );
+        let block_context =
+            BlockContext::new(block_info, chain_info, versioned_constants, bouncer_config);
 
         let sequencer = Sequencer::new(block_context, initial_state, coinbase_address);
         Self {
@@ -156,13 +149,15 @@ impl KakarotSequencer {
 
     pub fn chain_id(&self) -> u64 {
         // Safety: chain_id is always 8 bytes.
-        let chain_id = &self.block_context().chain_info().chain_id.0.as_bytes()[..8];
+        // let chain_id = &self.block_context().chain_info().chain_id.0.as_bytes()[..8];
+        let chain_id = self.block_context().chain_info().chain_id.to_string();
+        let chain_id = &chain_id.as_bytes()[..8];
         u64::from_be_bytes(chain_id.try_into().unwrap())
     }
 
     pub fn compute_starknet_address(&self, evm_address: &Address) -> StateResult<ContractAddress> {
-        let kakarot_address = (*self.environment.kakarot_address.0.key()).into();
-        let base_class_hash = self.environment.base_account_class_hash.0.into();
+        let kakarot_address = *self.environment.kakarot_address.0.key();
+        let base_class_hash = self.environment.base_account_class_hash.0;
 
         let constructor_args = {
             use crate::evm_sequencer::types::felt::FeltSequencer;

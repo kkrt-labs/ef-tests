@@ -5,10 +5,10 @@ use reth_primitives::alloy_primitives::{address, Address};
 use serde::de::DeserializeOwned;
 use starknet::core::types::contract::legacy::LegacyContractClass;
 use starknet::core::types::contract::CompiledClass;
+use starknet_api::felt;
 use starknet_api::{
     contract_address,
     core::{ClassHash, ContractAddress, PatriciaKey},
-    hash::{StarkFelt, StarkHash},
     patricia_key,
 };
 
@@ -48,16 +48,14 @@ lazy_static! {
     // Main addresses
     pub static ref ETH_FEE_TOKEN_ADDRESS: ContractAddress = contract_address!("0x049D36570D4e46f48e99674bd3fcc84644DdD6b96F7C741B1562B82f9e004dC7");
     pub static ref STRK_FEE_TOKEN_ADDRESS: ContractAddress = contract_address!("0xCa14007Eff0dB1f8135f4C25B34De49AB0d42766");
-    pub static ref KAKAROT_ADDRESS: ContractAddress =
-        ContractAddress(TryInto::<PatriciaKey>::try_into(StarkFelt::from(1_u8)).unwrap());
-    pub static ref KAKAROT_OWNER_ADDRESS: ContractAddress =
-        ContractAddress(TryInto::<PatriciaKey>::try_into(StarkFelt::from(2_u8)).unwrap());
+    pub static ref KAKAROT_ADDRESS: ContractAddress = ContractAddress(1_u128.into());
+    pub static ref KAKAROT_OWNER_ADDRESS: ContractAddress = ContractAddress(2_u128.into());
 
     pub static ref FEE_TOKEN_CLASS: LegacyContractClass = load_contract_class("../../build/common/ERC20.json").expect("Failed to load FeeToken contract class");
-    pub static ref FEE_TOKEN_CLASS_HASH: ClassHash = ClassHash(FEE_TOKEN_CLASS.class_hash().unwrap().into());
+    pub static ref FEE_TOKEN_CLASS_HASH: ClassHash = ClassHash(FEE_TOKEN_CLASS.class_hash().unwrap());
 
     pub static ref CAIRO1_HELPERS_CLASS: CompiledClass = load_contract_class("../../build/common/cairo1_helpers.json").expect("Failed to load precompiles contract class");
-    pub static ref CAIRO1_HELPERS_CLASS_HASH: ClassHash = ClassHash(CAIRO1_HELPERS_CLASS.class_hash().unwrap().into());
+    pub static ref CAIRO1_HELPERS_CLASS_HASH: ClassHash = ClassHash(CAIRO1_HELPERS_CLASS.class_hash().unwrap());
 
 }
 
@@ -69,9 +67,9 @@ lazy_static! {
     pub static ref UNINITIALIZED_ACCOUNT_CLASS: LegacyContractClass = load_contract_class("../../build/v0/uninitialized_account.json").expect("Failed to load uninitialized account c contract class");
 
     // Main class hashes
-    pub static ref KAKAROT_CLASS_HASH: ClassHash = ClassHash(KAKAROT_CLASS.class_hash().unwrap().into());
-    pub static ref ACCOUNT_CONTRACT_CLASS_HASH: ClassHash = ClassHash(ACCOUNT_CONTRACT_CLASS.class_hash().unwrap().into());
-    pub static ref UNINITIALIZED_ACCOUNT_CLASS_HASH: ClassHash = ClassHash(UNINITIALIZED_ACCOUNT_CLASS.class_hash().unwrap().into());
+    pub static ref KAKAROT_CLASS_HASH: ClassHash = ClassHash(KAKAROT_CLASS.class_hash().unwrap());
+    pub static ref ACCOUNT_CONTRACT_CLASS_HASH: ClassHash = ClassHash(ACCOUNT_CONTRACT_CLASS.class_hash().unwrap());
+    pub static ref UNINITIALIZED_ACCOUNT_CLASS_HASH: ClassHash = ClassHash(UNINITIALIZED_ACCOUNT_CLASS.class_hash().unwrap());
 }
 
 #[cfg(feature = "v1")]
@@ -82,9 +80,9 @@ lazy_static! {
     pub static ref UNINITIALIZED_ACCOUNT_CLASS: CompiledClass = load_contract_class("../../build/v1/contracts_UninitializedAccount.compiled_contract_class.json").expect("Failed to load uninitialized account c contract class");
 
     // Main class hashes
-    pub static ref KAKAROT_CLASS_HASH: ClassHash = ClassHash(KAKAROT_CLASS.class_hash().unwrap().into());
-    pub static ref ACCOUNT_CONTRACT_CLASS_HASH: ClassHash = ClassHash(ACCOUNT_CONTRACT_CLASS.class_hash().unwrap().into());
-    pub static ref UNINITIALIZED_ACCOUNT_CLASS_HASH: ClassHash = ClassHash(UNINITIALIZED_ACCOUNT_CLASS.class_hash().unwrap().into());
+    pub static ref KAKAROT_CLASS_HASH: ClassHash = ClassHash(KAKAROT_CLASS.class_hash().unwrap());
+    pub static ref ACCOUNT_CONTRACT_CLASS_HASH: ClassHash = ClassHash(ACCOUNT_CONTRACT_CLASS.class_hash().unwrap());
+    pub static ref UNINITIALIZED_ACCOUNT_CLASS_HASH: ClassHash = ClassHash(UNINITIALIZED_ACCOUNT_CLASS.class_hash().unwrap());
     pub static ref PROXY_CLASS_HASH: ClassHash = *UNINITIALIZED_ACCOUNT_CLASS_HASH;
 }
 
@@ -110,8 +108,8 @@ pub mod storage_variables {
     pub const ACCOUNT_KAKAROT_ADDRESS: &str = "Account_kakarot_address";
     pub const ACCOUNT_IMPLEMENTATION: &str = "Account_implementation";
     pub const ACCOUNT_CAIRO1_HELPERS_CLASS: &str = "Account_cairo1_helpers_class_hash";
-    pub const ACCOUNT_VALID_JUMPDESTS : &str = "Account_valid_jumpdests";
-    pub const ACCOUNT_JUMPDESTS_INITIALIZED : &str = "Account_jumpdests_initialized";
+    pub const ACCOUNT_VALID_JUMPDESTS: &str = "Account_valid_jumpdests";
+    pub const ACCOUNT_JUMPDESTS_INITIALIZED: &str = "Account_jumpdests_initialized";
 
     pub const KAKAROT_COINBASE: &str = "Kakarot_coinbase";
     pub const KAKAROT_BASE_FEE: &str = "Kakarot_base_fee";
