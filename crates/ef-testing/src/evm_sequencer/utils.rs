@@ -43,7 +43,7 @@ pub fn felt_to_bytes(felt: &Felt, start: usize) -> Bytes {
 pub fn to_broadcasted_starknet_transaction(
     transaction: &TransactionSigned,
     starknet_address: Felt,
-    relayer_nonce: Felt,
+    relayer_nonce: Option<Felt>,
 ) -> Result<BroadcastedInvokeTransaction, eyre::Error> {
     let mut bytes = BytesMut::new();
     transaction.transaction.encode_without_signature(&mut bytes);
@@ -140,6 +140,7 @@ pub fn to_broadcasted_starknet_transaction(
             use starknet::core::crypto::compute_hash_on_elements;
 
             let relayer_address = *RELAYER_ADDRESS.0.key();
+            let relayer_nonce = relayer_nonce.expect("Relayer nonce not provided");
             let invoke_v1_tx = vec![
                 Felt::from_bytes_be_slice(b"invoke"),        // "invoke"
                 Felt::ONE,                                   // version
