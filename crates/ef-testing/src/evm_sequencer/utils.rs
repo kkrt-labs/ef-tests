@@ -5,7 +5,6 @@ use starknet::core::{
     types::{BroadcastedInvokeTransaction, BroadcastedInvokeTransactionV1, Felt},
     utils::get_contract_address,
 };
-
 #[cfg(any(feature = "v0", feature = "v1"))]
 use starknet::macros::selector;
 
