@@ -52,6 +52,7 @@ lazy_static! {
     pub static ref STRK_FEE_TOKEN_ADDRESS: ContractAddress = contract_address!("0xCa14007Eff0dB1f8135f4C25B34De49AB0d42766");
     pub static ref KAKAROT_ADDRESS: ContractAddress = ContractAddress(1_u128.into());
     pub static ref KAKAROT_OWNER_ADDRESS: ContractAddress = ContractAddress(2_u128.into());
+    pub static ref RELAYER_ADDRESS: ContractAddress = ContractAddress(3_u128.into());
 
     pub static ref FEE_TOKEN_CLASS: LegacyContractClass = load_contract_class("../../build/common/ERC20.json").expect("Failed to load FeeToken contract class");
     pub static ref FEE_TOKEN_CLASS_HASH: ClassHash = ClassHash(FEE_TOKEN_CLASS.class_hash().unwrap());
@@ -59,8 +60,6 @@ lazy_static! {
     pub static ref CAIRO1_HELPERS_CLASS: CompiledClass = load_contract_class("../../build/common/cairo1_helpers.json").expect("Failed to load precompiles contract class");
     pub static ref CAIRO1_HELPERS_CLASS_HASH: ClassHash = ClassHash(CAIRO1_HELPERS_CLASS.class_hash().unwrap());
 
-    // TODO make this a random address
-    pub static ref RELAYER_ADDRESS: ContractAddress = contract_address!("0x12345");
     pub static ref RELAYER_SIGNING_KEY: SigningKey = SigningKey::from_random();
     pub static ref RELAYER_VERIFYING_KEY: VerifyingKey = RELAYER_SIGNING_KEY.verifying_key();
     pub static ref RELAYER_BALANCE: Felt = Felt::from(1_000_000_000_000_000_000_000_000u128);
