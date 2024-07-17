@@ -66,7 +66,6 @@ pub fn to_broadcasted_starknet_transaction(
         }
     };
 
-    // Add signature and signature length at the end of the calldata
     let signature = transaction.signature();
     let [r_low, r_high] = split_u256(signature.r);
     let [s_low, s_high] = split_u256(signature.s);
