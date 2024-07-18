@@ -174,8 +174,8 @@ impl Evm for KakarotSequencer {
             .state_mut()
             .get_storage_at(starknet_address, key_high)?;
 
-        let low = U256::from_be_bytes(Into::<Felt>::into(low).to_bytes_be());
-        let high = U256::from_be_bytes(Into::<Felt>::into(high).to_bytes_be());
+        let low = U256::from_be_bytes(low.to_bytes_be());
+        let high = U256::from_be_bytes(high.to_bytes_be());
 
         Ok(high << 128 | low)
     }
@@ -193,7 +193,7 @@ impl Evm for KakarotSequencer {
             )
             .unwrap();
 
-        Ok(U256::from_be_bytes(Into::<Felt>::into(nonce).to_bytes_be()))
+        Ok(U256::from_be_bytes(nonce.to_bytes_be()))
     }
 
     /// Returns the bytecode of the given address. For an EOA, the bytecode_len_ storage variable will return 0,
@@ -256,8 +256,8 @@ impl Evm for KakarotSequencer {
             .state_mut()
             .get_fee_token_balance(starknet_address, *ETH_FEE_TOKEN_ADDRESS)?;
 
-        let low = U256::from_be_bytes(Into::<Felt>::into(low).to_bytes_be());
-        let high = U256::from_be_bytes(Into::<Felt>::into(high).to_bytes_be());
+        let low = U256::from_be_bytes(low.to_bytes_be());
+        let high = U256::from_be_bytes(high.to_bytes_be());
 
         Ok(high << 128 | low)
     }

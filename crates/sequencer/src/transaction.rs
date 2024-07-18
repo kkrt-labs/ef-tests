@@ -43,13 +43,7 @@ impl BroadcastedTransactionWrapper {
                                 ),
                                 nonce: Nonce(invoke_v1.nonce),
                                 sender_address: invoke_v1.sender_address.try_into()?,
-                                calldata: Calldata(Arc::new(
-                                    invoke_v1
-                                        .calldata
-                                        .iter()
-                                        .map(|x| Into::<Felt>::into(*x))
-                                        .collect(),
-                                )),
+                                calldata: Calldata(Arc::new(invoke_v1.calldata.to_vec())),
                             }),
                             only_query: false,
                             tx_hash: TransactionHash(compute_transaction_hash(
