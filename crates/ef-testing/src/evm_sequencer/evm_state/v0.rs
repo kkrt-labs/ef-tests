@@ -45,11 +45,11 @@ impl Evm for KakarotSequencer {
         let [low_fee, high_fee] = split_u256(base_fee);
         let basefee_address = get_storage_var_address(KAKAROT_BASE_FEE, &[]);
         self.state_mut()
-            .set_storage_at(kakarot_address, basefee_address, Felt::from(low_fee))?;
+            .set_storage_at(kakarot_address, basefee_address, low_fee.into())?;
         self.state_mut().set_storage_at(
             kakarot_address,
             next_storage_key(&basefee_address)?,
-            Felt::from(high_fee),
+            high_fee.into(),
         )?;
 
         // Set the previous randao.
@@ -58,22 +58,21 @@ impl Evm for KakarotSequencer {
         self.state_mut().set_storage_at(
             kakarot_address,
             prev_randao_address,
-            Felt::from(low_prev_randao),
+            low_prev_randao.into(),
         )?;
         self.state_mut().set_storage_at(
             kakarot_address,
             next_storage_key(&prev_randao_address)?,
-            Felt::from(high_prev_randao),
+            high_prev_randao.into(),
         )?;
 
         // Set the block gas limit, considering it fits in a felt.
         let [block_gas_limit, _] = split_u256(block_gas_limit);
-        let block_gas_limit = Felt::from(block_gas_limit);
         let block_gas_limit_address = get_storage_var_address(KAKAROT_BLOCK_GAS_LIMIT, &[]);
         self.state_mut().set_storage_at(
             kakarot_address,
             block_gas_limit_address,
-            block_gas_limit,
+            block_gas_limit.into(),
         )?;
 
         Ok(())
@@ -131,8 +130,8 @@ impl Evm for KakarotSequencer {
         let balance_low_key = get_fee_token_var_address(starknet_address);
         let balance_high_key = next_storage_key(&balance_low_key)?;
         storage.append(&mut vec![
-            (balance_low_key, Felt::from(balance_values[0])),
-            (balance_high_key, Felt::from(balance_values[1])),
+            (balance_low_key, balance_values[0].into()),
+            (balance_high_key, balance_values[1].into()),
         ]);
 
         // Initialize the allowance storage var.
@@ -145,8 +144,8 @@ impl Evm for KakarotSequencer {
         );
         let allowance_key_high = next_storage_key(&allowance_key_low)?;
         storage.append(&mut vec![
-            (allowance_key_low, Felt::from(u128::MAX)),
-            (allowance_key_high, Felt::from(u128::MAX)),
+            (allowance_key_low, u128::MAX.into()),
+            (allowance_key_high, u128::MAX.into()),
         ]);
 
         // Write all the storage vars to the sequencer state.
@@ -376,9 +375,9 @@ mod tests {
             .state_mut()
             .get_storage_at(
                 contract_starknet_address,
-                get_storage_var_address(ACCOUNT_STORAGE, &[Felt::from(0u8), Felt::from(0u8)]),
+                get_storage_var_address(ACCOUNT_STORAGE, &[Felt::ZERO, Felt::ZERO]),
             )
             .unwrap();
-        assert_eq!(storage, Felt::from(1u8));
+        assert_eq!(storage, Felt::ONE);
     }
 }

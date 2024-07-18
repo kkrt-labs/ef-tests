@@ -198,7 +198,7 @@ mod tests {
             .set_storage_at(
                 *ETH_FEE_TOKEN_ADDRESS,
                 get_storage_var_address("ERC20_balances", &[address]),
-                Felt::from(u128::MAX),
+                u128::MAX.into(),
             )
             .unwrap_or_else(|_| panic!("failed to fund account {}", address));
     }
@@ -241,7 +241,7 @@ mod tests {
                 sequencer.execute(transaction).unwrap();
 
                 // Then
-                let expected = Felt::from(1u8);
+                let expected = Felt::ONE;
                 let actual = (&mut sequencer.state)
                     .get_storage_at(*TEST_CONTRACT, get_storage_var_address("counter", &[]))
                     .unwrap();
