@@ -26,7 +26,7 @@ use crate::{
 ///   - The short string `ByteArray`.
 fn prepare_bytearray_storage(code: &Bytes) -> Vec<(StorageKey, Felt)> {
     let bytecode_base_address = get_storage_var_address(ACCOUNT_BYTECODE, &[]);
-    let mut bytearray = vec![(bytecode_base_address, Felt::from(code.len() as u128))];
+    let mut bytearray = vec![(bytecode_base_address, Felt::from(code.len()))];
 
     let bytecode_storage: Vec<_> = pack_byte_array_to_starkfelt_array(code)
         .enumerate()
@@ -113,7 +113,7 @@ mod tests {
 
         // Then
         let expected_result = vec![
-            (bytecode_base_address, Felt::from(code.len() as u128)),
+            (bytecode_base_address, Felt::from(code.len())),
             (
                 offset_storage_key(
                     inner_byte_array_pointer(*bytecode_base_address.0.key(), Felt::ZERO)

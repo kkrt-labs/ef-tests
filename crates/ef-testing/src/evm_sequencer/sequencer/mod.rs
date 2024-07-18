@@ -19,6 +19,7 @@ lazy_static! {
 
 use std::ops::{Deref, DerefMut};
 
+use crate::evm_sequencer::types::felt::FeltSequencer;
 use blockifier::blockifier::block::{BlockInfo, GasPrices};
 use blockifier::context::ChainInfo;
 use blockifier::context::{BlockContext, FeeTokenAddresses};
@@ -91,7 +92,6 @@ impl KakarotSequencer {
     ) -> Self {
         let kakarot_address = *environment.kakarot_address.0.key();
         let coinbase_constructor_args = {
-            use crate::evm_sequencer::types::felt::FeltSequencer;
             let evm_address: FeltSequencer = coinbase_address.try_into().unwrap(); // infallible
             vec![kakarot_address, evm_address.into()]
         };
@@ -149,7 +149,6 @@ impl KakarotSequencer {
 
     pub fn chain_id(&self) -> u64 {
         // Safety: chain_id is always 8 bytes.
-        // let chain_id = &self.block_context().chain_info().chain_id.0.as_bytes()[..8];
         let chain_id = self.block_context().chain_info().chain_id.to_string();
         let chain_id = &chain_id.as_bytes()[..8];
         u64::from_be_bytes(chain_id.try_into().unwrap())
@@ -160,7 +159,6 @@ impl KakarotSequencer {
         let base_class_hash = self.environment.base_account_class_hash.0;
 
         let constructor_args = {
-            use crate::evm_sequencer::types::felt::FeltSequencer;
             let evm_address: FeltSequencer = (*evm_address).try_into().unwrap(); // infallible
             vec![kakarot_address, evm_address.into()]
         };
