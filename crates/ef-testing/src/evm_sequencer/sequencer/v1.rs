@@ -16,7 +16,6 @@ use blockifier::{
 };
 use lazy_static::lazy_static;
 use sequencer::state::State as SequencerState;
-use starknet::core::types::Felt;
 
 lazy_static! {
     pub static ref INITIAL_SEQUENCER_STATE: SequencerState = {
@@ -26,7 +25,7 @@ lazy_static! {
             (OWNABLE_OWNER, *KAKAROT_OWNER_ADDRESS.0.key()),
             (KAKAROT_NATIVE_TOKEN_ADDRESS, *ETH_FEE_TOKEN_ADDRESS.0.key()),
             (KAKAROT_ACCOUNT_CONTRACT_CLASS_HASH, ACCOUNT_CONTRACT_CLASS_HASH.0),
-            (KAKAROT_BLOCK_GAS_LIMIT, Felt::from(BLOCK_GAS_LIMIT)),
+            (KAKAROT_BLOCK_GAS_LIMIT, BLOCK_GAS_LIMIT.into()),
             (KAKAROT_UNINITIALIZED_ACCOUNT_CLASS_HASH, UNINITIALIZED_ACCOUNT_CLASS_HASH.0),
         ];
 
