@@ -16,6 +16,7 @@ use blockifier::{
 };
 use lazy_static::lazy_static;
 use sequencer::state::State as SequencerState;
+use starknet::core::types::Felt;
 
 lazy_static! {
     pub static ref INITIAL_SEQUENCER_STATE: SequencerState = {
