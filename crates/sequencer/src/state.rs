@@ -82,7 +82,7 @@ impl BlockifierState for &mut State {
             .copied()
             .unwrap_or_default();
 
-        if current_nonce == Nonce(u64::MAX.into()) {
+        if current_nonce == Nonce(Felt::from(u64::MAX)) {
             return Err(StateError::StateReadError("Nonce overflow".into()));
         }
         current_nonce.0 += Felt::ONE;
