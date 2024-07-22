@@ -42,8 +42,6 @@ pub fn to_broadcasted_starknet_transaction(
     transaction: &TransactionSigned,
     signer_starknet_address: Felt,
 ) -> Result<BroadcastedInvokeTransaction, eyre::Error> {
-    let nonce = Felt::from(transaction.nonce());
-
     let mut bytes = BytesMut::new();
     transaction.transaction.encode_without_signature(&mut bytes);
 
@@ -52,13 +50,10 @@ pub fn to_broadcasted_starknet_transaction(
         #[cfg(feature = "v0")]
         {
             use crate::evm_sequencer::account::pack_byte_array_to_starkfelt_array;
-            let bytes_u8: Vec<u8> = bytes.into_iter().collect();
-            let bytes_len = bytes_u8.len();
-            let packed_data: Vec<_> = pack_byte_array_to_starkfelt_array(bytes_u8.as_slice())
-                .map(Felt::from)
-                .collect();
-            std::iter::once(Felt::from(bytes_len))
-                .chain(packed_data)
+            std::iter::once((bytes.len()).into())
+                .chain(pack_byte_array_to_starkfelt_array(
+                    &bytes.into_iter().collect::<Vec<u8>>(),
+                ))
                 .collect()
         }
         #[cfg(not(feature = "v0"))]
@@ -115,7 +110,7 @@ pub fn to_broadcasted_starknet_transaction(
     let request = BroadcastedInvokeTransaction::V1(BroadcastedInvokeTransactionV1 {
         max_fee: Felt::ZERO,
         signature,
-        nonce,
+        nonce: transaction.nonce().into(),
         sender_address: signer_starknet_address,
         calldata: execute_calldata,
         is_query: false,
