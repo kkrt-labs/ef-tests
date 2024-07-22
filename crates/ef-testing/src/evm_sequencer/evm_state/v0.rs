@@ -213,7 +213,7 @@ impl Evm for KakarotSequencer {
         }
 
         let remainder = bytecode_len % 31;
-        let key: StorageKey = StorageKey::from(num_chunks);
+        let key = StorageKey::from(num_chunks);
         let code = self.state_mut().get_storage_at(starknet_address, key)?;
         bytecode.append(&mut felt_to_bytes(&code, (32 - remainder) as usize).to_vec());
 
