@@ -58,7 +58,7 @@ pub fn to_broadcasted_starknet_transaction(
         }
         #[cfg(not(feature = "v0"))]
         {
-            bytes.into_iter().map(Into::into).collect()
+            bytes.into_iter().map(Felt::from).collect()
         }
     };
 
