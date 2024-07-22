@@ -224,7 +224,7 @@ impl Evm for KakarotSequencer {
             let index = chunk_index / 256;
             let offset = chunk_index % 256;
             let storage_pointer =
-                inner_byte_array_pointer(*bytecode_base_address.0.key(), index.into());
+                inner_byte_array_pointer(*bytecode_base_address.0.key(), Felt::from(index));
             let key = offset_storage_key(storage_pointer.try_into().unwrap(), offset as i64);
             let code = self.state_mut().get_storage_at(starknet_address, key)?;
             bytecode.append(&mut code.to_bytes_be()[1..].to_vec());
