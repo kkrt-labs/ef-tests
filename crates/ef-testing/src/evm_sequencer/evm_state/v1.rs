@@ -299,7 +299,7 @@ impl Evm for KakarotSequencer {
         let chain_id = self.chain_id();
         self.execute(
             starknet_transaction
-                .try_into_execution_transaction(chain_id.into())
+                .try_into_execution_transaction(Felt::from(chain_id))
                 .unwrap(),
         )
     }
