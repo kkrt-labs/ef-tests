@@ -259,12 +259,8 @@ impl Case for BlockchainTestCase {
         let prev_randao: U256 = sealed_header.mix_hash.into();
         let base_fee = U256::from(sealed_header.base_fee_per_gas.unwrap_or_default());
         let block_gas_limit = U256::from(sealed_header.gas_limit);
-
         let block_number = U256::from(sealed_header.number);
-        let block_number = TryInto::<u64>::try_into(block_number).unwrap_or_default();
-
         let block_timestamp = U256::from(sealed_block.timestamp);
-        let block_timestamp = TryInto::<u64>::try_into(block_timestamp).unwrap_or_default();
 
         let kakarot_environment = KakarotEnvironment::new(
             *KAKAROT_ADDRESS,
@@ -277,8 +273,8 @@ impl Case for BlockchainTestCase {
             kakarot_environment,
             coinbase_address,
             CHAIN_ID,
-            block_number,
-            block_timestamp,
+            block_number.try_into().unwrap_or_default(),
+            block_timestamp.try_into().unwrap_or_default(),
         );
 
         sequencer.setup_state(base_fee, prev_randao, block_gas_limit)?;
