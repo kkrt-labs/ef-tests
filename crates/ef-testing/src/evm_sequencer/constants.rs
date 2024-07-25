@@ -3,14 +3,16 @@ use std::collections::HashMap;
 use lazy_static::lazy_static;
 use reth_primitives::alloy_primitives::{address, Address};
 use serde::de::DeserializeOwned;
-use starknet::core::types::contract::legacy::LegacyContractClass;
 use starknet::core::types::contract::CompiledClass;
 use starknet_api::felt;
+use starknet::signers::VerifyingKey;
+use starknet::{core::types::contract::legacy::LegacyContractClass, signers::SigningKey};
 use starknet_api::{
     contract_address,
     core::{ClassHash, ContractAddress, PatriciaKey},
     patricia_key,
 };
+use starknet_crypto::Felt;
 
 fn load_contract_class<T>(path: &str) -> Result<T, eyre::Error>
 where
@@ -50,12 +52,17 @@ lazy_static! {
     pub static ref STRK_FEE_TOKEN_ADDRESS: ContractAddress = contract_address!("0xCa14007Eff0dB1f8135f4C25B34De49AB0d42766");
     pub static ref KAKAROT_ADDRESS: ContractAddress = ContractAddress(1_u128.into());
     pub static ref KAKAROT_OWNER_ADDRESS: ContractAddress = ContractAddress(2_u128.into());
+    pub static ref RELAYER_ADDRESS: ContractAddress = ContractAddress(3_u128.into());
 
     pub static ref FEE_TOKEN_CLASS: LegacyContractClass = load_contract_class("../../build/common/ERC20.json").expect("Failed to load FeeToken contract class");
     pub static ref FEE_TOKEN_CLASS_HASH: ClassHash = ClassHash(FEE_TOKEN_CLASS.class_hash().unwrap());
 
     pub static ref CAIRO1_HELPERS_CLASS: CompiledClass = load_contract_class("../../build/common/cairo1_helpers.json").expect("Failed to load precompiles contract class");
     pub static ref CAIRO1_HELPERS_CLASS_HASH: ClassHash = ClassHash(CAIRO1_HELPERS_CLASS.class_hash().unwrap());
+
+    pub static ref RELAYER_SIGNING_KEY: SigningKey = SigningKey::from_random();
+    pub static ref RELAYER_VERIFYING_KEY: VerifyingKey = RELAYER_SIGNING_KEY.verifying_key();
+    pub static ref RELAYER_BALANCE: Felt = Felt::from(1_000_000_000_000_000_000_000_000u128);
 
 }
 
@@ -65,11 +72,13 @@ lazy_static! {
     pub static ref KAKAROT_CLASS: LegacyContractClass = load_contract_class("../../build/v0/kakarot.json").expect("Failed to load Kakarot contract class");
     pub static ref ACCOUNT_CONTRACT_CLASS: LegacyContractClass = load_contract_class("../../build/v0/account_contract.json").expect("Failed to load ContractAccount contract class");
     pub static ref UNINITIALIZED_ACCOUNT_CLASS: LegacyContractClass = load_contract_class("../../build/v0/uninitialized_account.json").expect("Failed to load uninitialized account c contract class");
+    pub static ref OPENZEPPELIN_ACCOUNT_CLASS: LegacyContractClass = load_contract_class("../../build/v0/OpenzeppelinAccount.json").expect("Failed to load openzeppelin account contract class");
 
     // Main class hashes
     pub static ref KAKAROT_CLASS_HASH: ClassHash = ClassHash(KAKAROT_CLASS.class_hash().unwrap());
     pub static ref ACCOUNT_CONTRACT_CLASS_HASH: ClassHash = ClassHash(ACCOUNT_CONTRACT_CLASS.class_hash().unwrap());
     pub static ref UNINITIALIZED_ACCOUNT_CLASS_HASH: ClassHash = ClassHash(UNINITIALIZED_ACCOUNT_CLASS.class_hash().unwrap());
+    pub static ref OPENZEPPELIN_ACCOUNT_CLASS_HASH: ClassHash = ClassHash(OPENZEPPELIN_ACCOUNT_CLASS.class_hash().unwrap());
 }
 
 #[cfg(feature = "v1")]
@@ -107,9 +116,9 @@ pub mod storage_variables {
     pub const ACCOUNT_NONCE: &str = "Account_nonce";
     pub const ACCOUNT_KAKAROT_ADDRESS: &str = "Account_kakarot_address";
     pub const ACCOUNT_IMPLEMENTATION: &str = "Account_implementation";
-    pub const ACCOUNT_CAIRO1_HELPERS_CLASS: &str = "Account_cairo1_helpers_class_hash";
-    pub const ACCOUNT_VALID_JUMPDESTS: &str = "Account_valid_jumpdests";
-    pub const ACCOUNT_JUMPDESTS_INITIALIZED: &str = "Account_jumpdests_initialized";
+    pub const ACCOUNT_VALID_JUMPDESTS : &str = "Account_valid_jumpdests";
+    pub const ACCOUNT_JUMPDESTS_INITIALIZED : &str = "Account_jumpdests_initialized";
+    pub const ACCOUNT_PUBLIC_KEY: &str = "Account_public_key";
 
     pub const KAKAROT_COINBASE: &str = "Kakarot_coinbase";
     pub const KAKAROT_BASE_FEE: &str = "Kakarot_base_fee";
@@ -123,6 +132,8 @@ pub mod storage_variables {
     pub const KAKAROT_PREV_RANDAO: &str = "Kakarot_prev_randao";
 
     pub const OWNABLE_OWNER: &str = "Ownable_owner";
+
+    pub const ERC20_BALANCES: &str = "ERC20_balances";
 }
 
 #[cfg(test)]

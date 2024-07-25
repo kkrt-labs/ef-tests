@@ -13,11 +13,11 @@ use starknet_api::state::StorageKey;
 use super::Evm;
 use crate::evm_sequencer::account::KakarotAccount;
 use crate::evm_sequencer::constants::storage_variables::{
-    ACCOUNT_BYTECODE_LEN, ACCOUNT_CAIRO1_HELPERS_CLASS, ACCOUNT_IMPLEMENTATION, ACCOUNT_NONCE,
-    ACCOUNT_STORAGE, KAKAROT_BASE_FEE, KAKAROT_BLOCK_GAS_LIMIT, KAKAROT_COINBASE,
-    KAKAROT_EVM_TO_STARKNET_ADDRESS, KAKAROT_PREV_RANDAO, OWNABLE_OWNER,
+    ACCOUNT_BYTECODE_LEN, ACCOUNT_IMPLEMENTATION, ACCOUNT_NONCE, ACCOUNT_STORAGE, KAKAROT_BASE_FEE,
+    KAKAROT_BLOCK_GAS_LIMIT, KAKAROT_COINBASE, KAKAROT_EVM_TO_STARKNET_ADDRESS,
+    KAKAROT_PREV_RANDAO, OWNABLE_OWNER,
 };
-use crate::evm_sequencer::constants::ETH_FEE_TOKEN_ADDRESS;
+use crate::evm_sequencer::constants::{ETH_FEE_TOKEN_ADDRESS, RELAYER_ADDRESS};
 use crate::evm_sequencer::sequencer::KakarotSequencer;
 use crate::evm_sequencer::types::felt::FeltSequencer;
 use crate::evm_sequencer::utils::{felt_to_bytes, split_u256, to_broadcasted_starknet_transaction};
@@ -93,10 +93,6 @@ impl Evm for KakarotSequencer {
                 ACCOUNT_IMPLEMENTATION,
                 self.environment.account_contract_class_hash.0
             ),
-            starknet_storage!(
-                ACCOUNT_CAIRO1_HELPERS_CLASS,
-                self.environment.cairo1_helpers_class_hash.0
-            ), // both EOA and CA CH are the same (for now)
             starknet_storage!(OWNABLE_OWNER, *self.environment.kakarot_address.0.key()),
         ]);
 
@@ -251,11 +247,17 @@ impl Evm for KakarotSequencer {
             }
         })?;
         let starknet_address = self.compute_starknet_address(&evm_address)?;
+        let relayer_nonce = self.state_mut().get_nonce_at(*RELAYER_ADDRESS).unwrap();
 
         let starknet_transaction =
             BroadcastedTransactionWrapper::new(BroadcastedTransaction::Invoke(
-                to_broadcasted_starknet_transaction(&transaction, *starknet_address.0.key())
-                    .map_err(|err| TransactionExecutionError::ValidateTransactionError {
+                to_broadcasted_starknet_transaction(
+                    &transaction,
+                    Felt::from(starknet_address),
+                    relayer_nonce.0.into(),
+                )
+                .map_err(|err| {
+                    TransactionExecutionError::ValidateTransactionError {
                         error: EntryPointExecutionError::InvalidExecutionInput {
                             input_descriptor: String::from("Signed transaction"),
                             info: err.to_string(),
@@ -263,7 +265,8 @@ impl Evm for KakarotSequencer {
                         class_hash: Default::default(),
                         storage_address: Default::default(),
                         selector: Default::default(),
-                    })?,
+                    }
+                })?,
             ));
 
         let chain_id = self.chain_id();
@@ -312,7 +315,7 @@ mod tests {
             coinbase_address,
             CHAIN_ID,
             0,
-            0,
+            1,
         );
 
         let mut transaction = TransactionSigned {
@@ -349,7 +352,6 @@ mod tests {
         sequencer.setup_account(contract).unwrap();
         sequencer.setup_account(eoa).unwrap();
         let execution_result = sequencer.execute_transaction(transaction);
-
         // Update the output with the execution result of the current transaction
         let tx_output = extract_output_and_log_execution_result(
             &execution_result,

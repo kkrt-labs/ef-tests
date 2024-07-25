@@ -9,7 +9,7 @@ use tracing::{error, info, warn};
 
 use std::convert::TryFrom;
 
-#[derive(Default, Debug)]
+#[derive(Debug)]
 pub struct EVMOutput {
     pub return_data: Vec<u8>,
     pub gas_used: u64,
@@ -21,6 +21,16 @@ impl EVMOutput {
         self.return_data.extend_from_slice(&other.return_data);
         self.gas_used += other.gas_used;
         self.success &= other.success;
+    }
+}
+
+impl Default for EVMOutput {
+    fn default() -> Self {
+        Self {
+            return_data: vec![],
+            gas_used: 0,
+            success: true,
+        }
     }
 }
 

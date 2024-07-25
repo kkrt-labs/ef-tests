@@ -284,8 +284,13 @@ impl Evm for KakarotSequencer {
 
         let starknet_transaction =
             BroadcastedTransactionWrapper::new(BroadcastedTransaction::Invoke(
-                to_broadcasted_starknet_transaction(&transaction, *starknet_address.0.key())
-                    .map_err(|err| TransactionExecutionError::ValidateTransactionError {
+                to_broadcasted_starknet_transaction(
+                    &transaction,
+                    Felt::from(starknet_address),
+                    None,
+                )
+                .map_err(|err| {
+                    TransactionExecutionError::ValidateTransactionError {
                         error: EntryPointExecutionError::InvalidExecutionInput {
                             input_descriptor: String::from("Failed to convert transaction"),
                             info: err.to_string(),
@@ -293,7 +298,8 @@ impl Evm for KakarotSequencer {
                         class_hash: Default::default(),
                         storage_address: Default::default(),
                         selector: Default::default(),
-                    })?,
+                    }
+                })?,
             ));
 
         let chain_id = self.chain_id();

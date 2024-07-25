@@ -21,7 +21,6 @@ use ef_tests::models::Block;
 use ef_tests::models::State;
 use std::collections::BTreeMap;
 
-use ethers_signers::{LocalWallet, Signer};
 use reth_primitives::{sign_message, Address, SealedBlock, B256, U256};
 
 #[derive(Debug)]
@@ -113,14 +112,7 @@ impl BlockchainTestCase {
         sequencer: &mut KakarotSequencer,
         output: EVMOutput,
     ) -> Result<(), RunnerError> {
-        let wallet = LocalWallet::from_bytes(&self.secret_key.0)
-            .map_err(|err| RunnerError::Other(vec![err.to_string()].into()))?;
-        let sender_address = wallet.address().to_fixed_bytes();
-
         let maybe_revert_reason = String::from_utf8(output.return_data.as_slice().to_vec());
-        let eth_validation_failed = maybe_revert_reason.as_ref().map_or(false, |revert_reason| {
-            revert_reason == "Kakarot: eth validation failed"
-        });
 
         // Get gas_used and base_fee from RLP block - as in some cases, the block header is not present in the test data.
         let sealed_block = SealedBlock::decode(&mut self.block.rlp.as_ref())
@@ -189,13 +181,24 @@ impl BlockchainTestCase {
             }
 
             // Nonce
+            #[allow(unused_mut)]
             let mut actual = sequencer.nonce_at(address)?;
-            // If the transaction failed during ethereum validation, performed in __execute__, the nonce is incremented but should not.
-            // Substract 1 to the actual nonce.
-            if eth_validation_failed && address.0 == sender_address {
-                actual -= U256::from(1);
+            #[cfg(feature = "v1")]
+            {
+                use ethers_signers::{LocalWallet, Signer};
+                let wallet = LocalWallet::from_bytes(&self.secret_key.0)
+                    .map_err(|err| RunnerError::Other(vec![err.to_string()].into()))?;
+                let sender_address = wallet.address().to_fixed_bytes();
+                let eth_validation_failed =
+                    maybe_revert_reason.as_ref().map_or(false, |revert_reason| {
+                        revert_reason == "Kakarot: eth validation failed"
+                    });
+                // If the transaction failed during ethereum validation, performed in __execute__, the nonce is incremented but should not.
+                // Substract 1 to the actual nonce.
+                if eth_validation_failed && address.0 == sender_address {
+                    actual -= U256::from(1);
+                }
             }
-
             if actual != expected_state.nonce {
                 let nonce_diff = format!(
                     "nonce mismatch for {:#20x}: expected {:#32x}, got {:#32x}",
