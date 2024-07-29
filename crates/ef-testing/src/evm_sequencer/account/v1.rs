@@ -50,6 +50,7 @@ impl KakarotAccount {
         evm_address: &Address,
         code: &Bytes,
         nonce: U256,
+        _balance: U256,
         evm_storage: &[(U256, U256)],
     ) -> Result<Self, StarknetApiError> {
         let nonce = Felt::from(TryInto::<u128>::try_into(nonce).map_err(|err| {

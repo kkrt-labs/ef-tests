@@ -61,16 +61,11 @@ impl BlockchainTestCase {
                 address,
                 &account.code,
                 account.nonce,
+                account.balance,
                 &account.storage.clone().into_iter().collect::<Vec<_>>()[..],
             )?;
             sequencer.setup_account(kakarot_account)?;
             sequencer.fund(address, account.balance)?;
-            if account.balance != U256::from(0)
-                || account.nonce != U256::from(0)
-                || !account.code.is_empty()
-            {
-                sequencer.set_code_hash(address, &account.code)?;
-            }
         }
 
         Ok(())

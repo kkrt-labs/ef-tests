@@ -34,10 +34,6 @@ pub trait Evm {
         panic!("Not implemented, use features flag \"v0\" or \"v1\"")
     }
 
-    fn set_code_hash(&mut self, _evm_address: &Address, _code: &Bytes) -> StateResult<()> {
-        panic!("Not implemented, use features flag \"v0\" or \"v1\"")
-    }
-
     fn storage_at(&mut self, _evm_address: &Address, _key: U256) -> StateResult<U256> {
         panic!("Not implemented, use features flag \"v0\" or \"v1\"")
     }

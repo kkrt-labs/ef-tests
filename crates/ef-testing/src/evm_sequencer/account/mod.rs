@@ -71,6 +71,7 @@ pub mod kkrt_account {
             _evm_address: &Address,
             _code: &Bytes,
             _nonce: U256,
+            _balance: U256,
             _evm_storage: &[(U256, U256)],
         ) -> Result<Self, StarknetApiError> {
             Ok(Self {
