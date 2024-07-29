@@ -4,7 +4,8 @@ use blockifier::execution::errors::EntryPointExecutionError;
 use blockifier::state::state_api::{State, StateReader, StateResult};
 use blockifier::transaction::errors::TransactionExecutionError;
 use blockifier::transaction::objects::{TransactionExecutionInfo, TransactionExecutionResult};
-use reth_primitives::{Address, Bytes, TransactionSigned, U256};
+use reth_primitives::alloy_primitives::keccak256;
+use reth_primitives::{Address, Bytes, TransactionSigned, KECCAK_EMPTY, U256};
 use sequencer::execution::Execution as _;
 use sequencer::transaction::BroadcastedTransactionWrapper;
 use starknet::core::types::{BroadcastedTransaction, Felt};
@@ -13,9 +14,9 @@ use starknet_api::state::StorageKey;
 use super::Evm;
 use crate::evm_sequencer::account::KakarotAccount;
 use crate::evm_sequencer::constants::storage_variables::{
-    ACCOUNT_BYTECODE_LEN, ACCOUNT_IMPLEMENTATION, ACCOUNT_NONCE, ACCOUNT_STORAGE, KAKAROT_BASE_FEE,
-    KAKAROT_BLOCK_GAS_LIMIT, KAKAROT_COINBASE, KAKAROT_EVM_TO_STARKNET_ADDRESS,
-    KAKAROT_PREV_RANDAO, OWNABLE_OWNER,
+    ACCOUNT_BYTECODE_LEN, ACCOUNT_CODE_HASH, ACCOUNT_IMPLEMENTATION, ACCOUNT_NONCE,
+    ACCOUNT_STORAGE, KAKAROT_BASE_FEE, KAKAROT_BLOCK_GAS_LIMIT, KAKAROT_COINBASE,
+    KAKAROT_EVM_TO_STARKNET_ADDRESS, KAKAROT_PREV_RANDAO, OWNABLE_OWNER,
 };
 use crate::evm_sequencer::constants::{ETH_FEE_TOKEN_ADDRESS, RELAYER_ADDRESS};
 use crate::evm_sequencer::sequencer::KakarotSequencer;
@@ -148,6 +149,30 @@ impl Evm for KakarotSequencer {
         for (k, v) in storage {
             self.state_mut()
                 .set_storage_at(*ETH_FEE_TOKEN_ADDRESS, k, v)?;
+        }
+        Ok(())
+    }
+
+    fn set_code_hash(&mut self, evm_address: &Address, code: &Bytes) -> StateResult<()> {
+        let mut storage = vec![];
+        let starknet_address = self.compute_starknet_address(evm_address)?;
+
+        let code_hash = if code.is_empty() {
+            U256::from_be_slice(KECCAK_EMPTY.as_slice())
+        } else {
+            U256::from_be_slice(keccak256(code).as_slice())
+        };
+
+        let code_hash_values = split_u256(code_hash);
+        let code_hash_low_key = get_storage_var_address(ACCOUNT_CODE_HASH, &[]);
+        let code_hash_high_key = next_storage_key(&code_hash_low_key)?;
+        storage.append(&mut vec![
+            (code_hash_low_key, code_hash_values[0].into()),
+            (code_hash_high_key, code_hash_values[1].into()),
+        ]);
+
+        for (k, v) in storage {
+            self.state_mut().set_storage_at(starknet_address, k, v)?;
         }
         Ok(())
     }
