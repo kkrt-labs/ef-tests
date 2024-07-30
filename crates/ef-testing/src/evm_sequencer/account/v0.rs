@@ -65,7 +65,7 @@ impl KakarotAccount {
         let code_hash_values = split_u256(code_hash);
         let code_hash_low_key = get_storage_var_address(ACCOUNT_CODE_HASH, &[]);
         let code_hash_high_key = next_storage_key(&code_hash_low_key)?;
-        storage.append(&mut vec![
+        storage.extend([
             (code_hash_low_key, Felt::from(code_hash_values[0])),
             (code_hash_high_key, Felt::from(code_hash_values[1])),
         ]);
