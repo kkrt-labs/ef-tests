@@ -1,5 +1,8 @@
 use blockifier::abi::{abi_utils::get_storage_var_address, sierra_types::next_storage_key};
+use reth_primitives::alloy_primitives::keccak256;
+use reth_primitives::KECCAK_EMPTY;
 use reth_primitives::{Address, U256};
+
 use revm_interpreter::analysis::to_analysed;
 use revm_primitives::{Bytecode, Bytes};
 use starknet_api::{core::Nonce, state::StorageKey, StarknetApiError};
@@ -7,7 +10,7 @@ use starknet_crypto::Felt;
 
 use super::{pack_byte_array_to_starkfelt_array, KakarotAccount};
 use crate::evm_sequencer::constants::storage_variables::{
-    ACCOUNT_BYTECODE_LEN, ACCOUNT_EVM_ADDRESS, ACCOUNT_IS_INITIALIZED,
+    ACCOUNT_BYTECODE_LEN, ACCOUNT_CODE_HASH, ACCOUNT_EVM_ADDRESS, ACCOUNT_IS_INITIALIZED,
     ACCOUNT_JUMPDESTS_INITIALIZED, ACCOUNT_NONCE, ACCOUNT_STORAGE, ACCOUNT_VALID_JUMPDESTS,
 };
 use crate::evm_sequencer::{types::felt::FeltSequencer, utils::split_u256};
@@ -18,6 +21,7 @@ impl KakarotAccount {
         evm_address: &Address,
         code: &Bytes,
         nonce: U256,
+        balance: U256,
         evm_storage: &[(U256, U256)],
     ) -> Result<Self, StarknetApiError> {
         let nonce = Felt::from(TryInto::<u128>::try_into(nonce).map_err(|err| {
@@ -46,6 +50,25 @@ impl KakarotAccount {
             .map(|(i, bytes)| (StorageKey::from(i as u32), bytes))
             .collect();
         storage.append(&mut bytecode_storage);
+
+        // Initialize the code hash var
+        let account_is_empty =
+            code.is_empty() && nonce == Felt::from(0) && balance == U256::from(0);
+        let code_hash = if account_is_empty {
+            U256::from(0)
+        } else if code.is_empty() {
+            U256::from_be_slice(KECCAK_EMPTY.as_slice())
+        } else {
+            U256::from_be_slice(keccak256(code).as_slice())
+        };
+
+        let code_hash_values = split_u256(code_hash);
+        let code_hash_low_key = get_storage_var_address(ACCOUNT_CODE_HASH, &[]);
+        let code_hash_high_key = next_storage_key(&code_hash_low_key)?;
+        storage.extend([
+            (code_hash_low_key, Felt::from(code_hash_values[0])),
+            (code_hash_high_key, Felt::from(code_hash_values[1])),
+        ]);
 
         // Initialize the bytecode jumpdests.
         let bytecode = to_analysed(Bytecode::new_raw(code.clone()));

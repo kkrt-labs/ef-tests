@@ -345,10 +345,12 @@ mod tests {
             &TEST_CONTRACT_ADDRESS,
             &contract_bytecode,
             contract_nonce,
+            U256::ZERO,
             &[],
         )
         .unwrap();
-        let eoa = KakarotAccount::new(&PUBLIC_KEY, &Bytes::default(), eoa_nonce, &[]).unwrap();
+        let eoa = KakarotAccount::new(&PUBLIC_KEY, &Bytes::default(), eoa_nonce, U256::ZERO, &[])
+            .unwrap();
         sequencer.setup_account(contract).unwrap();
         sequencer.setup_account(eoa).unwrap();
         let execution_result = sequencer.execute_transaction(transaction);
