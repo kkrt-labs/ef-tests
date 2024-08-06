@@ -17,6 +17,7 @@ lazy_static! {
     pub static ref INITIAL_SEQUENCER_STATE: State = State::default();
 }
 
+use starknet::core::types::Felt;
 use std::ops::{Deref, DerefMut};
 
 use crate::evm_sequencer::types::felt::FeltSequencer;
@@ -90,10 +91,9 @@ impl KakarotSequencer {
         block_number: u64,
         block_timestamp: u64,
     ) -> Self {
-        let kakarot_address = *environment.kakarot_address.0.key();
         let coinbase_constructor_args = {
             let evm_address: FeltSequencer = coinbase_address.try_into().unwrap(); // infallible
-            vec![kakarot_address, evm_address.into()]
+            vec![Felt::ONE, evm_address.into()]
         };
 
         let block_info = BlockInfo {
@@ -155,12 +155,11 @@ impl KakarotSequencer {
     }
 
     pub fn compute_starknet_address(&self, evm_address: &Address) -> StateResult<ContractAddress> {
-        let kakarot_address = *self.environment.kakarot_address.0.key();
         let base_class_hash = self.environment.base_account_class_hash.0;
 
         let constructor_args = {
             let evm_address: FeltSequencer = (*evm_address).try_into().unwrap(); // infallible
-            vec![kakarot_address, evm_address.into()]
+            vec![Felt::ONE, evm_address.into()]
         };
 
         Ok(compute_starknet_address(evm_address, base_class_hash, &constructor_args).try_into()?)

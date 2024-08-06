@@ -289,15 +289,12 @@ mod tests {
                 UNINITIALIZED_ACCOUNT_CLASS_HASH,
             },
             sequencer::{v0::INITIAL_SEQUENCER_STATE, KakarotEnvironment},
-            utils::compute_starknet_address,
         },
         models::result::extract_output_and_log_execution_result,
     };
-    use blockifier::{abi::abi_utils::get_storage_var_address, state::state_api::StateReader};
     use reth_primitives::{
         sign_message, AccessList, Signature, TransactionSigned, TxEip1559, B256,
     };
-    use starknet::core::types::Felt;
 
     #[test]
     fn test_execute_simple_contract() {
@@ -354,6 +351,7 @@ mod tests {
         sequencer.setup_account(contract).unwrap();
         sequencer.setup_account(eoa).unwrap();
         let execution_result = sequencer.execute_transaction(transaction);
+
         // Update the output with the execution result of the current transaction
         let tx_output = extract_output_and_log_execution_result(
             &execution_result,
@@ -365,23 +363,10 @@ mod tests {
         assert!(tx_output.success);
 
         // Then
-        let evm_address: FeltSequencer = (*TEST_CONTRACT_ADDRESS).try_into().unwrap(); // infallible
-        let kakarot_address: Felt = *KAKAROT_ADDRESS.0.key();
-        let contract_starknet_address = compute_starknet_address(
-            &TEST_CONTRACT_ADDRESS,
-            UNINITIALIZED_ACCOUNT_CLASS_HASH.0,
-            &[kakarot_address, evm_address.into()],
-        )
-        .try_into()
-        .unwrap();
-
         let storage = sequencer
-            .state_mut()
-            .get_storage_at(
-                contract_starknet_address,
-                get_storage_var_address(ACCOUNT_STORAGE, &[Felt::ZERO, Felt::ZERO]),
-            )
+            .storage_at(&TEST_CONTRACT_ADDRESS, U256::ZERO)
             .unwrap();
-        assert_eq!(storage, Felt::ONE);
+
+        assert_eq!(storage, U256::from(1_u64));
     }
 }
