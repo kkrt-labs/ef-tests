@@ -1,4 +1,4 @@
-use super::types::felt::FeltSequencer;
+use super::{constants::KAKAROT_ADDRESS, types::felt::FeltSequencer};
 use bytes::BytesMut;
 use reth_primitives::{Address, Bytes, TransactionSigned, TxType, U256};
 use starknet::core::{
@@ -19,7 +19,7 @@ pub fn compute_starknet_address(
         evm_address.into(),
         class_hash,
         constructor_args,
-        0_u32.into(),
+        *KAKAROT_ADDRESS.0,
     );
     starknet_address.into()
 }
@@ -86,7 +86,6 @@ pub fn to_broadcasted_starknet_transaction(
         #[cfg(feature = "v0")]
         {
             use super::constants::RELAYER_ADDRESS;
-            use crate::evm_sequencer::constants::KAKAROT_ADDRESS;
 
             let mut execute_from_outside_calldata = vec![
                 *RELAYER_ADDRESS.0.key(),           // OutsideExecution caller
@@ -117,7 +116,6 @@ pub fn to_broadcasted_starknet_transaction(
         }
         #[cfg(feature = "v1")]
         {
-            use crate::evm_sequencer::constants::KAKAROT_ADDRESS;
             vec![
                 Felt::ONE,                         // call_array_len
                 *KAKAROT_ADDRESS.0.key(),          // CallArray to
