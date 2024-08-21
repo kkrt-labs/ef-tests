@@ -18,6 +18,8 @@ use starknet_api::{core::L2_ADDRESS_UPPER_BOUND, state::StorageKey};
 use starknet_crypto::{poseidon_hash_many, Felt};
 
 use super::Evm;
+use crate::evm_sequencer::constants::storage_variables::ACCOUNT_BYTECODE_LEN;
+use crate::evm_sequencer::utils::felt_to_bytes;
 use crate::{
     evm_sequencer::{
         account::{inner_byte_array_pointer, KakarotAccount},
@@ -185,13 +187,8 @@ impl Evm for KakarotSequencer {
     fn nonce_at(&mut self, evm_address: &Address) -> StateResult<U256> {
         let starknet_address = self.compute_starknet_address(evm_address)?;
 
-        let nonce = self
-            .state_mut()
-            .get_storage_at(
-                starknet_address,
-                get_storage_var_address(ACCOUNT_NONCE, &[]),
-            )
-            .unwrap();
+        let key = get_storage_var_address(ACCOUNT_NONCE, &[]);
+        let nonce = self.state_mut().get_storage_at(starknet_address, key)?;
 
         Ok(U256::from_be_bytes(nonce.to_bytes_be()))
     }
@@ -203,47 +200,31 @@ impl Evm for KakarotSequencer {
     fn code_at(&mut self, evm_address: &Address) -> StateResult<Bytes> {
         // Get all storage addresses.
         let starknet_address = self.compute_starknet_address(evm_address)?;
-        let bytecode_base_address = get_storage_var_address(ACCOUNT_BYTECODE, &[]);
 
-        // Handle early return.
-        let bytecode_len = self
-            .state_mut()
-            .get_storage_at(starknet_address, bytecode_base_address)?;
+        let bytecode_len = self.state_mut().get_storage_at(
+            starknet_address,
+            get_storage_var_address(ACCOUNT_BYTECODE_LEN, &[]),
+        )?;
         let bytecode_len: u64 = bytecode_len.to_biguint().try_into()?;
 
         if bytecode_len == 0 {
             return Ok(Bytes::default());
         }
 
-        // Bytecode is stored in chunks of 31 bytes. At bytecode_base_address,
-        // we store the number of chunks.
-        let (num_chunks, pending_word_len) = bytecode_len.div_rem(&31);
-        let mut bytecode: Vec<u8> = Vec::with_capacity(bytecode_len as usize * 31);
+        // Assumes that the bytecode is stored in 31 byte chunks.
+        let num_chunks = bytecode_len / 31;
+        let mut bytecode: Vec<u8> = Vec::with_capacity(bytecode_len as usize);
 
         for chunk_index in 0..num_chunks {
-            let index = chunk_index / 256;
-            let offset = chunk_index % 256;
-            let storage_pointer =
-                inner_byte_array_pointer(*bytecode_base_address.0.key(), Felt::from(index));
-            let key = offset_storage_key(storage_pointer.try_into().unwrap(), offset as i64);
+            let key = StorageKey::from(chunk_index);
             let code = self.state_mut().get_storage_at(starknet_address, key)?;
-            bytecode.append(&mut code.to_bytes_be()[1..].to_vec());
+            bytecode.append(&mut felt_to_bytes(&code, 1).to_vec());
         }
 
-        if pending_word_len != 0 {
-            let storage_chunk_index = num_chunks / 256;
-            let offset_in_chunk = num_chunks % 256;
-            let storage_pointer = inner_byte_array_pointer(
-                *bytecode_base_address.0.key(),
-                storage_chunk_index.into(),
-            );
-            let key =
-                offset_storage_key(storage_pointer.try_into().unwrap(), offset_in_chunk as i64);
-
-            let pending_word = self.state_mut().get_storage_at(starknet_address, key)?;
-            bytecode
-                .append(&mut pending_word.to_bytes_be()[32 - pending_word_len as usize..].to_vec());
-        }
+        let remainder = bytecode_len % 31;
+        let key = StorageKey::from(num_chunks);
+        let code = self.state_mut().get_storage_at(starknet_address, key)?;
+        bytecode.append(&mut felt_to_bytes(&code, (32 - remainder) as usize).to_vec());
 
         Ok(Bytes::from(bytecode))
     }
@@ -321,11 +302,6 @@ pub(crate) fn compute_storage_base_address(storage_var_name: &str, keys: &[Felt]
     key_floored.try_into().unwrap() // infallible
 }
 
-pub(crate) fn offset_storage_key(key: StorageKey, offset: i64) -> StorageKey {
-    let base_address = *key.0.key() + Felt::from(offset);
-    base_address.try_into().unwrap() // infallible
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -342,20 +318,6 @@ mod tests {
     };
     use reth_primitives::{sign_message, Signature, TransactionSigned, TxLegacy, B256};
     use starknet::core::types::Felt;
-
-    #[test]
-    fn test_offset_storage_base_address() {
-        // Given
-        let base_address = StorageKey(Felt::from(0x0102030405060708u64).try_into().unwrap());
-        let offset = -1;
-
-        // When
-        let result = offset_storage_key(base_address, offset);
-
-        // Then
-        let expected = StorageKey(Felt::from(0x0102030405060707u64).try_into().unwrap());
-        assert!(result == expected);
-    }
 
     #[test]
     fn test_store_bytecode() {

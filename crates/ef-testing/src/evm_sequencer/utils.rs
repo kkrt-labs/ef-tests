@@ -116,12 +116,14 @@ pub fn to_broadcasted_starknet_transaction(
         }
         #[cfg(feature = "v1")]
         {
-            vec![
+            let mut execute_calldata = vec![
                 Felt::ONE,                         // call_array_len
                 *KAKAROT_ADDRESS.0.key(),          // CallArray to
                 selector!("eth_send_transaction"), // CallArray selector
                 calldata.len().into(),             // CallArray data_len
-            ]
+            ];
+            execute_calldata.append(&mut calldata);
+            execute_calldata
         }
         #[cfg(not(any(feature = "v0", feature = "v1")))]
         {

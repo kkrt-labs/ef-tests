@@ -4,9 +4,9 @@ use lazy_static::lazy_static;
 use reth_primitives::alloy_primitives::{address, Address};
 use serde::de::DeserializeOwned;
 use starknet::core::types::contract::CompiledClass;
-use starknet_api::felt;
 use starknet::signers::VerifyingKey;
 use starknet::{core::types::contract::legacy::LegacyContractClass, signers::SigningKey};
+use starknet_api::felt;
 use starknet_api::{
     contract_address,
     core::{ClassHash, ContractAddress, PatriciaKey},
@@ -86,7 +86,7 @@ lazy_static! {
     // Main contract classes v1
     pub static ref KAKAROT_CLASS: CompiledClass = load_contract_class("../../build/v1/contracts_KakarotCore.compiled_contract_class.json").expect("Failed to load Kakarot contract class");
     pub static ref ACCOUNT_CONTRACT_CLASS: CompiledClass = load_contract_class("../../build/v1/contracts_AccountContract.compiled_contract_class.json").expect("Failed to load ContractAccount contract class");
-    pub static ref UNINITIALIZED_ACCOUNT_CLASS: CompiledClass = load_contract_class("../../build/v1/contracts_UninitializedAccount.compiled_contract_class.json").expect("Failed to load uninitialized account c contract class");
+    pub static ref UNINITIALIZED_ACCOUNT_CLASS: CompiledClass = load_contract_class("../../build/v1/contracts_UninitializedAccount.compiled_contract_class.json").expect("Failed to load uninitialized account contract class");
 
     // Main class hashes
     pub static ref KAKAROT_CLASS_HASH: ClassHash = ClassHash(KAKAROT_CLASS.class_hash().unwrap());
@@ -116,7 +116,7 @@ pub mod storage_variables {
     pub const ACCOUNT_NONCE: &str = "Account_nonce";
     pub const ACCOUNT_KAKAROT_ADDRESS: &str = "Account_kakarot_address";
     pub const ACCOUNT_IMPLEMENTATION: &str = "Account_implementation";
-    pub const ACCOUNT_VALID_JUMPDESTS : &str = "Account_valid_jumpdests";
+    pub const ACCOUNT_VALID_JUMPDESTS: &str = "Account_valid_jumpdests";
     pub const ACCOUNT_PUBLIC_KEY: &str = "Account_public_key";
     pub const ACCOUNT_CODE_HASH: &str = "Account_code_hash";
 
