@@ -66,7 +66,7 @@ lazy_static! {
             convert_contract_class_v0(&OPENZEPPELIN_ACCOUNT_CLASS).expect("failed to convert OPENZEPPELIN ACCOUNT CLASS to contract class")
         ).expect("failed to set openzeppelin account contract class");
         (&mut state).set_class_hash_at(*RELAYER_ADDRESS, *OPENZEPPELIN_ACCOUNT_CLASS_HASH).expect("failed to set relayer class hash");
-        (&mut state).set_storage_at(*RELAYER_ADDRESS, get_storage_var_address(ACCOUNT_PUBLIC_KEY, &[]), RELAYER_VERIFYING_KEY.scalar().into()).expect("failed to set relayer public key");
+        (&mut state).set_storage_at(*RELAYER_ADDRESS, get_storage_var_address(ACCOUNT_PUBLIC_KEY, &[]), RELAYER_VERIFYING_KEY.scalar()).expect("failed to set relayer public key");
         (&mut state).set_storage_at(*ETH_FEE_TOKEN_ADDRESS, get_storage_var_address(ERC20_BALANCES, &[*RELAYER_ADDRESS.0.key()]), *RELAYER_BALANCE).expect("failed to set relayer balance");
 
         state
