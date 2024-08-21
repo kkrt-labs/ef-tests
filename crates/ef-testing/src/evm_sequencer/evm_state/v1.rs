@@ -1,6 +1,6 @@
 use blockifier::{
     abi::{
-        abi_utils::{get_fee_token_var_address, get_storage_var_address, starknet_keccak},
+        abi_utils::{get_fee_token_var_address, get_storage_var_address},
         sierra_types::next_storage_key,
     },
     execution::errors::EntryPointExecutionError,
@@ -13,8 +13,8 @@ use blockifier::{
 use reth_primitives::{Address, Bytes, TransactionSigned, U256};
 use sequencer::{execution::Execution as _, transaction::BroadcastedTransactionWrapper};
 use starknet::core::types::BroadcastedTransaction;
-use starknet_api::{core::L2_ADDRESS_UPPER_BOUND, state::StorageKey};
-use starknet_crypto::{poseidon_hash_many, Felt};
+use starknet_api::{state::StorageKey};
+use starknet_crypto::{Felt};
 
 use super::Evm;
 use crate::evm_sequencer::constants::storage_variables::ACCOUNT_BYTECODE_LEN;
@@ -306,7 +306,7 @@ mod tests {
         models::result::extract_output_and_log_execution_result,
     };
     use reth_primitives::{sign_message, Signature, TransactionSigned, TxLegacy, B256};
-    
+
 
     #[test]
     fn test_store_bytecode() {
