@@ -37,14 +37,14 @@ setup-kakarot-v0: clean-kakarot-v0
 	rm -f kakarot-build.zip
 
 setup-kakarot-v1: clean-kakarot-v1
-	@curl -sL -o dev-artifacts.zip "$(KKRT_SSJ_BUILD_ARTIFACT_URL)"
-	unzip -o dev-artifacts.zip -d build/temp
+	@curl -sL -o kakarot-ssj-build.zip "$(KKRT_SSJ_BUILD_ARTIFACT_URL)"
+	unzip -o kakarot-ssj-build.zip -d build/temp
 	mv build/temp/contracts_AccountContract.compiled_contract_class.json build/v1
 	mv build/temp/contracts_KakarotCore.compiled_contract_class.json build/v1
 	mv build/temp/contracts_UninitializedAccount.compiled_contract_class.json build/v1
 	mv build/temp/contracts_Cairo1Helpers.compiled_contract_class.json build/common/cairo1_helpers.json
 	rm -fr build/temp
-	rm -f dev-artifacts.zip
+	rm -f kakarot-ssj-build.zip
 
 setup-kakarot: clean-common setup-kakarot-v0 setup-kakarot-v1
 
