@@ -84,7 +84,7 @@ impl KakarotAccount {
         };
 
         let jumdpests_storage_address = get_storage_var_address(ACCOUNT_VALID_JUMPDESTS, &[]);
-        let jumdpests_storage_address = *jumdpests_storage_address.0.key();
+        let jumdpests_storage_address = Felt::from(jumdpests_storage_address);
         valid_jumpdests.into_iter().for_each(|index| {
             storage.push((
                 (jumdpests_storage_address + Felt::from(index))
