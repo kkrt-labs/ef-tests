@@ -1,6 +1,6 @@
 use blockifier::{
     abi::{
-        abi_utils::{get_fee_token_var_address, get_storage_var_address, starknet_keccak},
+        abi_utils::{get_fee_token_var_address, get_storage_var_address},
         sierra_types::next_storage_key,
     },
     execution::errors::EntryPointExecutionError,
@@ -10,24 +10,23 @@ use blockifier::{
         objects::{TransactionExecutionInfo, TransactionExecutionResult},
     },
 };
-use num_integer::Integer;
 use reth_primitives::{Address, Bytes, TransactionSigned, U256};
 use sequencer::{execution::Execution as _, transaction::BroadcastedTransactionWrapper};
 use starknet::core::types::BroadcastedTransaction;
-use starknet_api::{core::L2_ADDRESS_UPPER_BOUND, state::StorageKey};
-use starknet_crypto::{poseidon_hash_many, Felt};
+use starknet_api::state::StorageKey;
+use starknet_crypto::Felt;
 
 use super::Evm;
 use crate::evm_sequencer::constants::storage_variables::ACCOUNT_BYTECODE_LEN;
 use crate::evm_sequencer::utils::felt_to_bytes;
 use crate::{
     evm_sequencer::{
-        account::{inner_byte_array_pointer, KakarotAccount},
+        account::KakarotAccount,
         constants::{
             storage_variables::{
-                ACCOUNT_BYTECODE, ACCOUNT_IMPLEMENTATION, ACCOUNT_NONCE, ACCOUNT_STORAGE,
-                KAKAROT_BASE_FEE, KAKAROT_BLOCK_GAS_LIMIT, KAKAROT_COINBASE,
-                KAKAROT_EVM_TO_STARKNET_ADDRESS, KAKAROT_PREV_RANDAO, OWNABLE_OWNER,
+                ACCOUNT_IMPLEMENTATION, ACCOUNT_NONCE, ACCOUNT_STORAGE, KAKAROT_BASE_FEE,
+                KAKAROT_BLOCK_GAS_LIMIT, KAKAROT_COINBASE, KAKAROT_EVM_TO_STARKNET_ADDRESS,
+                KAKAROT_PREV_RANDAO, OWNABLE_OWNER,
             },
             ETH_FEE_TOKEN_ADDRESS, KAKAROT_ADDRESS,
         },
@@ -292,16 +291,6 @@ impl Evm for KakarotSequencer {
     }
 }
 
-pub(crate) fn compute_storage_base_address(storage_var_name: &str, keys: &[Felt]) -> StorageKey {
-    let selector = starknet_keccak(storage_var_name.as_bytes());
-
-    let data = [&[selector], keys].concat();
-    let key: Felt = poseidon_hash_many(&data);
-    let key_floored = key.mod_floor(&L2_ADDRESS_UPPER_BOUND);
-
-    key_floored.try_into().unwrap() // infallible
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -317,7 +306,6 @@ mod tests {
         models::result::extract_output_and_log_execution_result,
     };
     use reth_primitives::{sign_message, Signature, TransactionSigned, TxLegacy, B256};
-    use starknet::core::types::Felt;
 
     #[test]
     fn test_store_bytecode() {
