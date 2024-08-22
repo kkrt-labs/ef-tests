@@ -13,20 +13,20 @@ use blockifier::{
 use reth_primitives::{Address, Bytes, TransactionSigned, U256};
 use sequencer::{execution::Execution as _, transaction::BroadcastedTransactionWrapper};
 use starknet::core::types::BroadcastedTransaction;
-use starknet_api::{state::StorageKey};
-use starknet_crypto::{Felt};
+use starknet_api::state::StorageKey;
+use starknet_crypto::Felt;
 
 use super::Evm;
 use crate::evm_sequencer::constants::storage_variables::ACCOUNT_BYTECODE_LEN;
 use crate::evm_sequencer::utils::felt_to_bytes;
 use crate::{
     evm_sequencer::{
-        account::{KakarotAccount},
+        account::KakarotAccount,
         constants::{
             storage_variables::{
-                ACCOUNT_IMPLEMENTATION, ACCOUNT_NONCE, ACCOUNT_STORAGE,
-                KAKAROT_BASE_FEE, KAKAROT_BLOCK_GAS_LIMIT, KAKAROT_COINBASE,
-                KAKAROT_EVM_TO_STARKNET_ADDRESS, KAKAROT_PREV_RANDAO, OWNABLE_OWNER,
+                ACCOUNT_IMPLEMENTATION, ACCOUNT_NONCE, ACCOUNT_STORAGE, KAKAROT_BASE_FEE,
+                KAKAROT_BLOCK_GAS_LIMIT, KAKAROT_COINBASE, KAKAROT_EVM_TO_STARKNET_ADDRESS,
+                KAKAROT_PREV_RANDAO, OWNABLE_OWNER,
             },
             ETH_FEE_TOKEN_ADDRESS, KAKAROT_ADDRESS,
         },
@@ -306,7 +306,6 @@ mod tests {
         models::result::extract_output_and_log_execution_result,
     };
     use reth_primitives::{sign_message, Signature, TransactionSigned, TxLegacy, B256};
-
 
     #[test]
     fn test_store_bytecode() {

@@ -6,15 +6,13 @@ use revm_primitives::Bytecode;
 use starknet::core::types::Felt;
 use starknet_api::{core::Nonce, state::StorageKey, StarknetApiError};
 
+use super::pack_byte_array_to_starkfelt_array;
 use super::KakarotAccount;
-use super::{pack_byte_array_to_starkfelt_array};
 use crate::evm_sequencer::constants::storage_variables::{
     ACCOUNT_BYTECODE_LEN, ACCOUNT_CODE_HASH, ACCOUNT_EVM_ADDRESS, ACCOUNT_IS_INITIALIZED,
     ACCOUNT_NONCE, ACCOUNT_STORAGE, ACCOUNT_VALID_JUMPDESTS,
 };
-use crate::evm_sequencer::{
-    types::felt::FeltSequencer, utils::split_u256,
-};
+use crate::evm_sequencer::{types::felt::FeltSequencer, utils::split_u256};
 use crate::starknet_storage;
 
 impl KakarotAccount {
