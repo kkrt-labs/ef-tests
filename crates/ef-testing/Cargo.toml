@@ -12,8 +12,8 @@ bytes = { workspace = true }
 
 # Eth deps
 alloy-rlp = { workspace = true }
+alloy-signer-local = { workspace = true }
 ef-tests = { workspace = true }
-ethers-signers = { workspace = true }
 reth-primitives = { workspace = true }
 revm-interpreter = { workspace = true }
 revm-primitives = { workspace = true }
