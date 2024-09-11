@@ -43,7 +43,6 @@ use crate::evm_sequencer::constants::{
     storage_variables::KAKAROT_CAIRO1_HELPERS_CLASS_HASH, CAIRO1_HELPERS_CLASS,
     CAIRO1_HELPERS_CLASS_HASH,
 };
-
 use blockifier::abi::abi_utils::get_storage_var_address;
 #[allow(unused_imports)]
 use blockifier::state::state_api::{

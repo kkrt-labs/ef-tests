@@ -393,7 +393,7 @@ mod tests {
         let signature =
             sign_message(*PRIVATE_KEY, transaction.transaction.signature_hash()).unwrap();
         transaction.signature = signature;
-        let eoa_nonce = U256::from(0);
+        let eoa_nonce = U256::ZERO;
         let contract_bytecode = Bytes::from(vec![96, 1, 96, 0, 85]); // PUSH 01 PUSH 00 SSTORE
         let contract_nonce = U256::from(1);
 

@@ -5,7 +5,6 @@ use reth_primitives::{Address, U256};
 use starknet::core::utils::cairo_short_string_to_felt;
 use starknet_api::{core::Nonce, state::StorageKey};
 use starknet_crypto::{poseidon_permute_comp, Felt};
-
 use crate::evm_sequencer::constants::storage_variables::{
     ACCOUNT_BYTECODE_LEN, ACCOUNT_CODE_HASH, ACCOUNT_EVM_ADDRESS, ACCOUNT_IS_INITIALIZED,
     ACCOUNT_NONCE, ACCOUNT_STORAGE, ACCOUNT_VALID_JUMPDESTS,
@@ -90,10 +89,8 @@ impl KakarotAccount {
             starknet_storage!(ACCOUNT_EVM_ADDRESS, evm_address),
             starknet_storage!(ACCOUNT_IS_INITIALIZED, 1u8),
             starknet_storage!(ACCOUNT_BYTECODE_LEN, code.len() as u32),
+            starknet_storage!(ACCOUNT_NONCE, nonce),
         ];
-
-        // Write the nonce of the account is written to storage after each tx.
-        storage.append(&mut vec![starknet_storage!(ACCOUNT_NONCE, nonce)]);
 
         // Initialize the bytecode storage var.
         let mut bytecode_storage = pack_byte_array_to_starkfelt_array(code)
@@ -104,9 +101,9 @@ impl KakarotAccount {
 
         // Initialize the code hash var
         let account_is_empty =
-            code.is_empty() && nonce == Felt::from(0) && balance == U256::from(0);
+            code.is_empty() && nonce == Felt::ZERO && balance == U256::ZERO;
         let code_hash = if account_is_empty {
-            U256::from(0)
+            U256::ZERO
         } else if code.is_empty() {
             U256::from_be_slice(KECCAK_EMPTY.as_slice())
         } else {
