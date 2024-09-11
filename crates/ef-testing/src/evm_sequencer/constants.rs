@@ -60,6 +60,9 @@ lazy_static! {
     pub static ref CAIRO1_HELPERS_CLASS: CompiledClass = load_contract_class("../../build/common/cairo1_helpers.json").expect("Failed to load precompiles contract class");
     pub static ref CAIRO1_HELPERS_CLASS_HASH: ClassHash = ClassHash(CAIRO1_HELPERS_CLASS.class_hash().unwrap());
 
+    pub static ref OPENZEPPELIN_ACCOUNT_CLASS_HASH: ClassHash = ClassHash(OPENZEPPELIN_ACCOUNT_CLASS.class_hash().unwrap());
+    pub static ref OPENZEPPELIN_ACCOUNT_CLASS: LegacyContractClass = load_contract_class("../../build/v0/OpenzeppelinAccount.json").expect("Failed to load openzeppelin account contract class");
+
     pub static ref RELAYER_SIGNING_KEY: SigningKey = SigningKey::from_random();
     pub static ref RELAYER_VERIFYING_KEY: VerifyingKey = RELAYER_SIGNING_KEY.verifying_key();
     pub static ref RELAYER_BALANCE: Felt = Felt::from(1_000_000_000_000_000_000_000_000u128);
@@ -72,13 +75,11 @@ lazy_static! {
     pub static ref KAKAROT_CLASS: LegacyContractClass = load_contract_class("../../build/v0/kakarot.json").expect("Failed to load Kakarot contract class");
     pub static ref ACCOUNT_CONTRACT_CLASS: LegacyContractClass = load_contract_class("../../build/v0/account_contract.json").expect("Failed to load ContractAccount contract class");
     pub static ref UNINITIALIZED_ACCOUNT_CLASS: LegacyContractClass = load_contract_class("../../build/v0/uninitialized_account.json").expect("Failed to load uninitialized account c contract class");
-    pub static ref OPENZEPPELIN_ACCOUNT_CLASS: LegacyContractClass = load_contract_class("../../build/v0/OpenzeppelinAccount.json").expect("Failed to load openzeppelin account contract class");
 
     // Main class hashes
     pub static ref KAKAROT_CLASS_HASH: ClassHash = ClassHash(KAKAROT_CLASS.class_hash().unwrap());
     pub static ref ACCOUNT_CONTRACT_CLASS_HASH: ClassHash = ClassHash(ACCOUNT_CONTRACT_CLASS.class_hash().unwrap());
     pub static ref UNINITIALIZED_ACCOUNT_CLASS_HASH: ClassHash = ClassHash(UNINITIALIZED_ACCOUNT_CLASS.class_hash().unwrap());
-    pub static ref OPENZEPPELIN_ACCOUNT_CLASS_HASH: ClassHash = ClassHash(OPENZEPPELIN_ACCOUNT_CLASS.class_hash().unwrap());
 }
 
 #[cfg(feature = "v1")]
