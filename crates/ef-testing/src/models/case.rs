@@ -184,22 +184,6 @@ impl BlockchainTestCase {
             // Nonce
             #[allow(unused_mut)]
             let mut actual = sequencer.nonce_at(address)?;
-            #[cfg(feature = "v1")]
-            {
-                use alloy_signer_local::PrivateKeySigner;
-                let wallet = PrivateKeySigner::from_bytes(&self.secret_key)
-                    .map_err(|err| RunnerError::Other(vec![err.to_string()].into()))?;
-                let sender_address = wallet.address();
-                let eth_validation_failed =
-                    maybe_revert_reason.as_ref().map_or(false, |revert_reason| {
-                        revert_reason == "Kakarot: eth validation failed"
-                    });
-                // If the transaction failed during ethereum validation, performed in __execute__, the nonce is incremented but should not.
-                // Substract 1 to the actual nonce.
-                if eth_validation_failed && *address == sender_address {
-                    actual -= U256::from(1);
-                }
-            }
             if actual != expected_state.nonce {
                 let nonce_diff = format!(
                     "nonce mismatch for {:#20x}: expected {:#32x}, got {:#32x}",

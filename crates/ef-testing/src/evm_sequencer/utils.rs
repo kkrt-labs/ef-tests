@@ -1,11 +1,11 @@
 use super::{constants::KAKAROT_ADDRESS, types::felt::FeltSequencer};
+use crate::evm_sequencer::constants::RELAYER_ADDRESS;
 use bytes::BytesMut;
 use reth_primitives::{Address, Bytes, TransactionSigned, TxType, U256};
 use starknet::core::{
     types::{BroadcastedInvokeTransaction, BroadcastedInvokeTransactionV1, Felt},
     utils::get_contract_address,
 };
-#[cfg(any(feature = "v0", feature = "v1"))]
 use starknet::macros::selector;
 
 /// Computes the Starknet address of a contract given its EVM address.
@@ -82,57 +82,49 @@ pub fn to_broadcasted_starknet_transaction(
         v.into(),
     ];
 
-    let execute_calldata = {
-        #[cfg(feature = "v0")]
-        {
-            use super::constants::RELAYER_ADDRESS;
-
-            let mut execute_from_outside_calldata = vec![
-                *RELAYER_ADDRESS.0.key(),           // OutsideExecution caller
-                Felt::ZERO,                         // OutsideExecution nonce
-                Felt::ZERO,                         // OutsideExecution execute_after
-                Felt::from(10_000_000_000_000u128), // OutsideExecution execute_before
-                Felt::ONE,                          // call_array_len
-                *KAKAROT_ADDRESS.0.key(),           // CallArray to
-                selector!("eth_send_transaction"),  // CallArray selector
-                Felt::ZERO,                         // CallArray data_offset
-                calldata.len().into(),              // CallArray data_len
-                calldata.len().into(),              // calldata_len
-            ];
-            execute_from_outside_calldata.append(&mut calldata);
-            execute_from_outside_calldata.push(signature.len().into());
-            execute_from_outside_calldata.append(&mut signature);
-
-            let mut execute_entrypoint_calldata = vec![
-                Felt::ONE,                                    // call_array_len
-                starknet_address,                             // CallArray to
-                selector!("execute_from_outside"),            // CallArray selector
-                Felt::ZERO,                                   // CallArray data_offset
-                (execute_from_outside_calldata.len()).into(), // CallArraydata data_len
-                (execute_from_outside_calldata.len()).into(), // calldata length
-            ];
-            execute_entrypoint_calldata.append(&mut execute_from_outside_calldata);
-            execute_entrypoint_calldata
-        }
-        #[cfg(feature = "v1")]
-        {
-            let mut execute_calldata = vec![
-                Felt::ONE,                         // call_array_len
-                *KAKAROT_ADDRESS.0.key(),          // CallArray to
-                selector!("eth_send_transaction"), // CallArray selector
-                calldata.len().into(),             // CallArray data_len
-            ];
-            execute_calldata.append(&mut calldata);
-            execute_calldata
-        }
-        #[cfg(not(any(feature = "v0", feature = "v1")))]
-        {
-            vec![]
-        }
+    let mut execute_from_outside_calldata = if cfg!(feature = "v0") {
+        vec![
+            *RELAYER_ADDRESS.0.key(),           // OutsideExecution caller
+            Felt::ZERO,                         // OutsideExecution nonce
+            Felt::ZERO,                         // OutsideExecution execute_after
+            Felt::from(10_000_000_000_000u128), // OutsideExecution execute_before
+            Felt::ONE,                          // call_array_len
+            *KAKAROT_ADDRESS.0.key(),           // CallArray to
+            selector!("eth_send_transaction"),  // CallArray selector
+            Felt::ZERO,                         // CallArray data_offset
+            calldata.len().into(),              // CallArray data_len
+            calldata.len().into(),              // calldata_len
+        ]
+    } else if cfg!(feature = "v1") {
+        vec![
+            *RELAYER_ADDRESS.0.key(),           // OutsideExecution caller
+            Felt::ZERO,                         // OutsideExecution nonce
+            Felt::ZERO,                         // OutsideExecution execute_after
+            Felt::from(10_000_000_000_000u128), // OutsideExecution execute_before
+            Felt::ONE,                          // call_array_len
+            *KAKAROT_ADDRESS.0.key(),           // CallArray to
+            selector!("eth_send_transaction"),  // CallArray selector
+            calldata.len().into(),              // CallArray data_len
+        ]
+    } else {
+        panic!("Either 'v0' or 'v1' feature must be enabled")
     };
 
+    execute_from_outside_calldata.append(&mut calldata);
+    execute_from_outside_calldata.push(signature.len().into());
+    execute_from_outside_calldata.append(&mut signature);
+
+    let mut execute_entrypoint_calldata = vec![
+        Felt::ONE,                                    // call_array_len
+        starknet_address,                             // CallArray to
+        selector!("execute_from_outside"),            // CallArray selector
+        Felt::ZERO,                                   // CallArray data_offset
+        (execute_from_outside_calldata.len()).into(), // CallArraydata data_len
+        (execute_from_outside_calldata.len()).into(), // calldata length
+    ];
+    execute_entrypoint_calldata.append(&mut execute_from_outside_calldata);
+
     let request = {
-        #[cfg(feature = "v0")]
         {
             use super::constants::{RELAYER_ADDRESS, RELAYER_SIGNING_KEY};
             use starknet::core::crypto::compute_hash_on_elements;
@@ -140,14 +132,14 @@ pub fn to_broadcasted_starknet_transaction(
             let relayer_address = *RELAYER_ADDRESS.0.key();
             let relayer_nonce = relayer_nonce.expect("Relayer nonce not provided");
             let invoke_v1_tx = vec![
-                Felt::from_bytes_be_slice(b"invoke"),        // "invoke"
-                Felt::ONE,                                   // version
-                relayer_address,                             // sender_address
-                Felt::ZERO,                                  // 0
-                compute_hash_on_elements(&execute_calldata), // h(calldata)
-                Felt::ZERO,                                  // max_fee
-                transaction.chain_id().unwrap().into(),      // chain_id
-                relayer_nonce,                               // nonce
+                Felt::from_bytes_be_slice(b"invoke"), // "invoke"
+                Felt::ONE,                            // version
+                relayer_address,                      // sender_address
+                Felt::ZERO,                           // 0
+                compute_hash_on_elements(&execute_entrypoint_calldata), // h(execute_entrypoint_calldata)
+                Felt::ZERO,                                             // max_fee
+                transaction.chain_id().unwrap().into(),                 // chain_id
+                relayer_nonce,                                          // nonce
             ];
             let transaction_hash = compute_hash_on_elements(&invoke_v1_tx);
             let signature_relayer = RELAYER_SIGNING_KEY
@@ -160,19 +152,7 @@ pub fn to_broadcasted_starknet_transaction(
                 signature: signature_relayer,
                 nonce: relayer_nonce,
                 sender_address: relayer_address,
-                calldata: execute_calldata,
-                is_query: false,
-            })
-        }
-        #[cfg(not(feature = "v0"))]
-        {
-            let nonce = Felt::from(transaction.nonce());
-            BroadcastedInvokeTransaction::V1(BroadcastedInvokeTransactionV1 {
-                max_fee: Felt::ZERO,
-                signature,
-                nonce,
-                sender_address: starknet_address,
-                calldata: execute_calldata,
+                calldata: execute_entrypoint_calldata,
                 is_query: false,
             })
         }
