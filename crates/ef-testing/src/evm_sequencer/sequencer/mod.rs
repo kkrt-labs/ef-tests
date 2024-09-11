@@ -208,25 +208,19 @@ lazy_static! {
     pub static ref INITIAL_SEQUENCER_STATE: SequencerState = {
         let mut state = SequencerState::default();
 
-        // On KakarotZero we rely on the Cairo1 helpers class for unavailable syscalls and precompiles.
-        #[cfg(feature = "v0")]
-        let storage = vec![
-            (OWNABLE_OWNER, *KAKAROT_OWNER_ADDRESS.0.key()),
-            (KAKAROT_NATIVE_TOKEN_ADDRESS, *ETH_FEE_TOKEN_ADDRESS.0.key()),
-            (KAKAROT_ACCOUNT_CONTRACT_CLASS_HASH, ACCOUNT_CONTRACT_CLASS_HASH.0),
-            (KAKAROT_CAIRO1_HELPERS_CLASS_HASH, CAIRO1_HELPERS_CLASS_HASH.0),
-            (KAKAROT_BLOCK_GAS_LIMIT, Felt::from(BLOCK_GAS_LIMIT)),
-            (KAKAROT_UNINITIALIZED_ACCOUNT_CLASS_HASH, UNINITIALIZED_ACCOUNT_CLASS_HASH.0),
+
+        #[allow(unused_mut)]
+        let mut storage = vec![
+                (OWNABLE_OWNER, *KAKAROT_OWNER_ADDRESS.0.key()),
+                (KAKAROT_NATIVE_TOKEN_ADDRESS, *ETH_FEE_TOKEN_ADDRESS.0.key()),
+                (KAKAROT_ACCOUNT_CONTRACT_CLASS_HASH, ACCOUNT_CONTRACT_CLASS_HASH.0),
+                (KAKAROT_BLOCK_GAS_LIMIT, Felt::from(BLOCK_GAS_LIMIT)),
+                (KAKAROT_UNINITIALIZED_ACCOUNT_CLASS_HASH, UNINITIALIZED_ACCOUNT_CLASS_HASH.0),
         ];
 
-        #[cfg(not(feature = "v0"))]
-        let storage = vec![
-            (OWNABLE_OWNER, *KAKAROT_OWNER_ADDRESS.0.key()),
-            (KAKAROT_NATIVE_TOKEN_ADDRESS, *ETH_FEE_TOKEN_ADDRESS.0.key()),
-            (KAKAROT_ACCOUNT_CONTRACT_CLASS_HASH, ACCOUNT_CONTRACT_CLASS_HASH.0),
-            (KAKAROT_BLOCK_GAS_LIMIT, Felt::from(BLOCK_GAS_LIMIT)),
-            (KAKAROT_UNINITIALIZED_ACCOUNT_CLASS_HASH, UNINITIALIZED_ACCOUNT_CLASS_HASH.0),
-        ];
+        // On KakarotZero we rely on the Cairo1 helpers class for unavailable syscalls and precompiles.
+        #[cfg(feature = "v0")]
+        storage.push((KAKAROT_CAIRO1_HELPERS_CLASS_HASH, CAIRO1_HELPERS_CLASS_HASH.0));
 
         // Write all the storage vars to the sequencer state.
         for (k, v) in storage {
