@@ -1,20 +1,20 @@
-use starknet::core::utils::cairo_short_string_to_felt;
-use starknet_api::{core::Nonce, state::StorageKey};
-use starknet_crypto::{poseidon_permute_comp, Felt};
 use blockifier::abi::{abi_utils::get_storage_var_address, sierra_types::next_storage_key};
 use reth_primitives::alloy_primitives::keccak256;
 use reth_primitives::KECCAK_EMPTY;
 use reth_primitives::{Address, U256};
+use starknet::core::utils::cairo_short_string_to_felt;
+use starknet_api::{core::Nonce, state::StorageKey};
+use starknet_crypto::{poseidon_permute_comp, Felt};
 
-use revm_interpreter::analysis::to_analysed;
-use revm_primitives::{Bytecode, Bytes};
-use starknet_api::{StarknetApiError};
 use crate::evm_sequencer::constants::storage_variables::{
     ACCOUNT_BYTECODE_LEN, ACCOUNT_CODE_HASH, ACCOUNT_EVM_ADDRESS, ACCOUNT_IS_INITIALIZED,
     ACCOUNT_NONCE, ACCOUNT_STORAGE, ACCOUNT_VALID_JUMPDESTS,
 };
 use crate::evm_sequencer::{types::felt::FeltSequencer, utils::split_u256};
 use crate::starknet_storage;
+use revm_interpreter::analysis::to_analysed;
+use revm_primitives::{Bytecode, Bytes};
+use starknet_api::StarknetApiError;
 
 #[macro_export]
 macro_rules! starknet_storage {
@@ -165,7 +165,6 @@ impl KakarotAccount {
         })
     }
 }
-
 
 /// Splits a byte array into 31-byte chunks and converts each chunk to a Felt.
 pub fn pack_byte_array_to_starkfelt_array(bytes: &[u8]) -> impl Iterator<Item = Felt> + '_ {

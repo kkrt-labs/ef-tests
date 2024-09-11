@@ -1,21 +1,5 @@
-use blockifier::{
-    abi::{
-        abi_utils::{get_fee_token_var_address, get_storage_var_address},
-        sierra_types::next_storage_key,
-    },
-    execution::errors::EntryPointExecutionError,
-    state::state_api::{State as _, StateReader as _, StateResult},
-    transaction::{
-        errors::TransactionExecutionError,
-        objects::{TransactionExecutionInfo, TransactionExecutionResult},
-    },
-};
-use reth_primitives::{Address, Bytes, TransactionSigned, U256};
-use sequencer::{execution::Execution as _, transaction::BroadcastedTransactionWrapper};
-use starknet::core::types::BroadcastedTransaction;
-use starknet_api::state::StorageKey;
-use starknet_crypto::Felt;
 use crate::evm_sequencer::constants::storage_variables::ACCOUNT_BYTECODE_LEN;
+use crate::evm_sequencer::constants::RELAYER_ADDRESS;
 use crate::evm_sequencer::utils::felt_to_bytes;
 use crate::{
     evm_sequencer::{
@@ -34,8 +18,23 @@ use crate::{
     },
     starknet_storage,
 };
-use crate::evm_sequencer::constants::RELAYER_ADDRESS;
-
+use blockifier::{
+    abi::{
+        abi_utils::{get_fee_token_var_address, get_storage_var_address},
+        sierra_types::next_storage_key,
+    },
+    execution::errors::EntryPointExecutionError,
+    state::state_api::{State as _, StateReader as _, StateResult},
+    transaction::{
+        errors::TransactionExecutionError,
+        objects::{TransactionExecutionInfo, TransactionExecutionResult},
+    },
+};
+use reth_primitives::{Address, Bytes, TransactionSigned, U256};
+use sequencer::{execution::Execution as _, transaction::BroadcastedTransactionWrapper};
+use starknet::core::types::BroadcastedTransaction;
+use starknet_api::state::StorageKey;
+use starknet_crypto::Felt;
 
 /// EVM state interface. Used to setup the evm state, EOA and contract accounts,
 /// fund them and get their state (balance, nonce, code, storage).
@@ -339,7 +338,6 @@ impl Evm for KakarotSequencer {
     }
 }
 
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -350,7 +348,7 @@ mod tests {
                 ACCOUNT_CONTRACT_CLASS_HASH, CAIRO1_HELPERS_CLASS_HASH, CHAIN_ID, KAKAROT_ADDRESS,
                 UNINITIALIZED_ACCOUNT_CLASS_HASH,
             },
-            sequencer::{INITIAL_SEQUENCER_STATE, KakarotEnvironment},
+            sequencer::{KakarotEnvironment, INITIAL_SEQUENCER_STATE},
         },
         models::result::extract_output_and_log_execution_result,
     };

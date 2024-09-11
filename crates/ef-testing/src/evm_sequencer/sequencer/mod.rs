@@ -3,6 +3,22 @@ use starknet::core::types::Felt;
 use std::ops::{Deref, DerefMut};
 
 use crate::evm_sequencer::types::felt::FeltSequencer;
+use crate::evm_sequencer::{
+    constants::{
+        storage_variables::{
+            ACCOUNT_PUBLIC_KEY, ERC20_BALANCES, KAKAROT_ACCOUNT_CONTRACT_CLASS_HASH,
+            KAKAROT_BLOCK_GAS_LIMIT, KAKAROT_NATIVE_TOKEN_ADDRESS,
+            KAKAROT_UNINITIALIZED_ACCOUNT_CLASS_HASH, OWNABLE_OWNER,
+        },
+        ACCOUNT_CONTRACT_CLASS, ACCOUNT_CONTRACT_CLASS_HASH, BLOCK_GAS_LIMIT,
+        ETH_FEE_TOKEN_ADDRESS, FEE_TOKEN_CLASS, FEE_TOKEN_CLASS_HASH, KAKAROT_ADDRESS,
+        KAKAROT_CLASS, KAKAROT_CLASS_HASH, KAKAROT_OWNER_ADDRESS, OPENZEPPELIN_ACCOUNT_CLASS,
+        OPENZEPPELIN_ACCOUNT_CLASS_HASH, RELAYER_ADDRESS, RELAYER_BALANCE, RELAYER_VERIFYING_KEY,
+        STRK_FEE_TOKEN_ADDRESS, UNINITIALIZED_ACCOUNT_CLASS, UNINITIALIZED_ACCOUNT_CLASS_HASH,
+    },
+    types::contract_class::CasmContractClassWrapper,
+    utils::compute_starknet_address,
+};
 use blockifier::blockifier::block::{BlockInfo, GasPrices};
 use blockifier::context::ChainInfo;
 use blockifier::context::{BlockContext, FeeTokenAddresses};
@@ -21,25 +37,12 @@ use starknet_api::{
     core::{ChainId, ClassHash, ContractAddress},
 };
 use std::num::NonZeroU128;
-use crate::evm_sequencer::{
-    constants::{
-        storage_variables::{
-            ACCOUNT_PUBLIC_KEY, ERC20_BALANCES, KAKAROT_ACCOUNT_CONTRACT_CLASS_HASH,
-            KAKAROT_BLOCK_GAS_LIMIT,
-            KAKAROT_NATIVE_TOKEN_ADDRESS, KAKAROT_UNINITIALIZED_ACCOUNT_CLASS_HASH, OWNABLE_OWNER,
-        },
-        ACCOUNT_CONTRACT_CLASS, ACCOUNT_CONTRACT_CLASS_HASH, BLOCK_GAS_LIMIT, ETH_FEE_TOKEN_ADDRESS, FEE_TOKEN_CLASS, FEE_TOKEN_CLASS_HASH,
-        KAKAROT_ADDRESS, KAKAROT_CLASS, KAKAROT_CLASS_HASH, KAKAROT_OWNER_ADDRESS,
-        OPENZEPPELIN_ACCOUNT_CLASS, OPENZEPPELIN_ACCOUNT_CLASS_HASH, RELAYER_ADDRESS,
-        RELAYER_BALANCE, RELAYER_VERIFYING_KEY, UNINITIALIZED_ACCOUNT_CLASS,
-        UNINITIALIZED_ACCOUNT_CLASS_HASH, STRK_FEE_TOKEN_ADDRESS,
-    },
-    types::contract_class::CasmContractClassWrapper,
-    utils::compute_starknet_address,
-};
 
 #[cfg(feature = "v0")]
-use crate::evm_sequencer::constants::{CAIRO1_HELPERS_CLASS, CAIRO1_HELPERS_CLASS_HASH, storage_variables::KAKAROT_CAIRO1_HELPERS_CLASS_HASH};
+use crate::evm_sequencer::constants::{
+    storage_variables::KAKAROT_CAIRO1_HELPERS_CLASS_HASH, CAIRO1_HELPERS_CLASS,
+    CAIRO1_HELPERS_CLASS_HASH,
+};
 
 use blockifier::abi::abi_utils::get_storage_var_address;
 #[allow(unused_imports)]

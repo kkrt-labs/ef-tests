@@ -106,6 +106,14 @@ lazy_static! {
         panic!("Proxy class hash not defined, use features flag \"v0\" or \"v1\"");
     pub static ref UNINITIALIZED_ACCOUNT_CLASS_HASH: ClassHash =
         panic!("Uninitialized account class hash not defined, use features flag \"v0\" or \"v1\"");
+    pub static ref ACCOUNT_CONTRACT_CLASS: LegacyContractClass =
+        panic!("Account contract class not defined, use features flag \"v0\" or \"v1\"");
+    pub static ref KAKAROT_CLASS: LegacyContractClass =
+        panic!("Kakarot contract class not defined, use features flag \"v0\" or \"v1\"");
+    pub static ref KAKAROT_CLASS_HASH: ClassHash =
+        panic!("Kakarot class hash not defined, use features flag \"v0\" or \"v1\"");
+    pub static ref UNINITIALIZED_ACCOUNT_CLASS: LegacyContractClass =
+        panic!("Uninitialized account class not defined, use features flag \"v0\" or \"v1\"");
 }
 
 pub mod storage_variables {
