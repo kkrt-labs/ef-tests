@@ -1,19 +1,19 @@
-use blockifier::abi::{abi_utils::get_storage_var_address, sierra_types::next_storage_key};
-use reth_primitives::alloy_primitives::keccak256;
-use reth_primitives::KECCAK_EMPTY;
-use reth_primitives::{Address, U256};
-use starknet::core::utils::cairo_short_string_to_felt;
-use starknet_api::{core::Nonce, state::StorageKey};
-use starknet_crypto::{poseidon_permute_comp, Felt};
 use crate::evm_sequencer::constants::storage_variables::{
     ACCOUNT_BYTECODE_LEN, ACCOUNT_CODE_HASH, ACCOUNT_EVM_ADDRESS, ACCOUNT_IS_INITIALIZED,
     ACCOUNT_NONCE, ACCOUNT_STORAGE, ACCOUNT_VALID_JUMPDESTS,
 };
 use crate::evm_sequencer::{types::felt::FeltSequencer, utils::split_u256};
 use crate::starknet_storage;
+use blockifier::abi::{abi_utils::get_storage_var_address, sierra_types::next_storage_key};
+use reth_primitives::alloy_primitives::keccak256;
+use reth_primitives::KECCAK_EMPTY;
+use reth_primitives::{Address, U256};
 use revm_interpreter::analysis::to_analysed;
 use revm_primitives::{Bytecode, Bytes};
+use starknet::core::utils::cairo_short_string_to_felt;
 use starknet_api::StarknetApiError;
+use starknet_api::{core::Nonce, state::StorageKey};
+use starknet_crypto::{poseidon_permute_comp, Felt};
 
 #[macro_export]
 macro_rules! starknet_storage {
@@ -100,8 +100,7 @@ impl KakarotAccount {
         storage.append(&mut bytecode_storage);
 
         // Initialize the code hash var
-        let account_is_empty =
-            code.is_empty() && nonce == Felt::ZERO && balance == U256::ZERO;
+        let account_is_empty = code.is_empty() && nonce == Felt::ZERO && balance == U256::ZERO;
         let code_hash = if account_is_empty {
             U256::ZERO
         } else if code.is_empty() {
