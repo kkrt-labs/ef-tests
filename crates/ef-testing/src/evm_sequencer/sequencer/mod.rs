@@ -95,7 +95,7 @@ impl KakarotSequencer {
         block_number: u64,
         block_timestamp: u64,
     ) -> Self {
-        let coinbase_constructor_args = vec![
+        let coinbase_constructor_args = [
             Felt::ONE,
             Felt::from_bytes_be_slice(&coinbase_address.0[..]),
         ];
@@ -152,10 +152,12 @@ impl KakarotSequencer {
     }
 
     pub fn compute_starknet_address(&self, evm_address: &Address) -> StateResult<ContractAddress> {
+        let constructor_args = [Felt::ONE, Felt::from_bytes_be_slice(&evm_address.0[..])];
+
         Ok(compute_starknet_address(
             evm_address,
             self.environment.base_account_class_hash.0,
-            &vec![Felt::ONE, Felt::from_bytes_be_slice(&evm_address.0[..])],
+            &constructor_args,
         )
         .try_into()?)
     }
