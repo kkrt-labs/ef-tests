@@ -47,7 +47,7 @@ impl TryFrom<&CompiledClass> for CasmContractClassWrapper {
             .bytecode
             .iter()
             .map(|b| BigUintAsHex {
-                value: BigUint::from_bytes_be(&b.to_bytes_be()),
+                value: b.to_biguint(),
             })
             .collect();
 
@@ -102,7 +102,7 @@ fn compiled_class_entrypoint_to_casm_entrypoint(
     ep: &CompiledClassEntrypoint,
 ) -> CasmContractEntryPoint {
     CasmContractEntryPoint {
-        selector: BigUint::from_bytes_be(&ep.selector.to_bytes_be()),
+        selector: ep.selector.to_biguint(),
         offset: ep.offset as usize,
         builtins: ep.builtins.clone(),
     }

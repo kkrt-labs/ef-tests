@@ -133,14 +133,15 @@ impl KakarotSequencer {
             serde_json::from_str(include_str!("./resources/versioned_constants.json"))
                 .expect("failed to parse versioned constants");
 
-        let bouncer_config = BouncerConfig::max();
+        let block_context = BlockContext::new(
+            block_info,
+            chain_info,
+            versioned_constants,
+            BouncerConfig::max(),
+        );
 
-        let block_context =
-            BlockContext::new(block_info, chain_info, versioned_constants, bouncer_config);
-
-        let sequencer = Sequencer::new(block_context, initial_state, coinbase_address);
         Self {
-            sequencer,
+            sequencer: Sequencer::new(block_context, initial_state, coinbase_address),
             environment,
         }
     }
