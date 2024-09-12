@@ -2,7 +2,7 @@ use crate::evm_sequencer::constants::storage_variables::{
     ACCOUNT_BYTECODE_LEN, ACCOUNT_CODE_HASH, ACCOUNT_EVM_ADDRESS, ACCOUNT_IS_INITIALIZED,
     ACCOUNT_NONCE, ACCOUNT_STORAGE, ACCOUNT_VALID_JUMPDESTS,
 };
-use crate::evm_sequencer::{types::felt::FeltSequencer, utils::split_u256};
+use crate::evm_sequencer::utils::split_u256;
 use crate::starknet_storage;
 use blockifier::abi::{abi_utils::get_storage_var_address, sierra_types::next_storage_key};
 use ef_tests::models::Account;
@@ -76,9 +76,7 @@ impl KakarotAccount {
             }
         })?);
 
-        let evm_address = TryInto::<FeltSequencer>::try_into(*evm_address)
-            .unwrap() // infallible
-            .into();
+        let evm_address = Felt::from_bytes_be_slice(&evm_address.0[..]);
 
         let mut storage = vec![
             starknet_storage!(ACCOUNT_EVM_ADDRESS, evm_address),
