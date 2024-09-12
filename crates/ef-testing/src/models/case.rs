@@ -70,9 +70,8 @@ impl BlockchainTestCase {
         sequencer: &mut KakarotSequencer,
     ) -> Result<EVMOutput, RunnerError> {
         // we extract the transactions from the block
-        let block = &self.block;
-        let block =
-            SealedBlock::decode(&mut block.rlp.as_ref()).map_err(RunnerError::RlpDecodeError)?;
+        let block = SealedBlock::decode(&mut self.block.rlp.as_ref())
+            .map_err(RunnerError::RlpDecodeError)?;
 
         let mut output = EVMOutput::default();
 
@@ -145,7 +144,7 @@ impl BlockchainTestCase {
         let post_state = self.post.clone().expect("Post state not found");
         let post_state = update_post_state(post_state, self.pre.clone());
 
-        let mut errors: Vec<String> = vec![];
+        let mut errors = Vec::new();
 
         let actual_gas_used = output.gas_used;
         let expected_gas_u64: u64 = expected_gas_used.try_into().unwrap();
@@ -176,8 +175,7 @@ impl BlockchainTestCase {
             }
 
             // Nonce
-            #[allow(unused_mut)]
-            let mut actual = sequencer.nonce_at(address)?;
+            let actual = sequencer.nonce_at(address)?;
             if actual != expected_state.nonce {
                 let nonce_diff = format!(
                     "nonce mismatch for {:#20x}: expected {:#32x}, got {:#32x}",
