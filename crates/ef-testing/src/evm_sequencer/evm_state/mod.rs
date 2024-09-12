@@ -13,7 +13,6 @@ use crate::{
             ETH_FEE_TOKEN_ADDRESS, KAKAROT_ADDRESS,
         },
         sequencer::KakarotSequencer,
-        types::felt::FeltSequencer,
         utils::{split_u256, to_broadcasted_starknet_transaction},
     },
     starknet_storage,
@@ -92,7 +91,7 @@ impl Evm for KakarotSequencer {
         block_gas_limit: U256,
     ) -> StateResult<()> {
         let kakarot_address = self.environment.kakarot_address;
-        let coinbase_address: FeltSequencer = (*self.address()).try_into().unwrap(); // infallible
+        let coinbase_address = Felt::from_bytes_be_slice(&self.address().0[..]);
 
         // Set the coinbase address.
         self.state_mut().set_storage_at(

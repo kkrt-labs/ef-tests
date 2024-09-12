@@ -1,4 +1,4 @@
-use super::{constants::KAKAROT_ADDRESS, types::felt::FeltSequencer};
+use super::constants::KAKAROT_ADDRESS;
 use crate::evm_sequencer::constants::RELAYER_ADDRESS;
 use bytes::BytesMut;
 use reth_primitives::{Address, Bytes, TransactionSigned, TxType, U256};
@@ -13,15 +13,13 @@ pub fn compute_starknet_address(
     evm_address: &Address,
     class_hash: Felt,
     constructor_args: &[Felt],
-) -> FeltSequencer {
-    let evm_address: FeltSequencer = (*evm_address).try_into().unwrap(); // infallible
-    let starknet_address = get_contract_address(
-        evm_address.into(),
+) -> Felt {
+    get_contract_address(
+        Felt::from_bytes_be_slice(&evm_address.0[..]),
         class_hash,
         constructor_args,
         *KAKAROT_ADDRESS.0,
-    );
-    starknet_address.into()
+    )
 }
 
 /// Split a U256 into low and high u128.

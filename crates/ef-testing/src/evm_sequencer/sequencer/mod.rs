@@ -2,7 +2,6 @@ use blockifier::bouncer::BouncerConfig;
 use starknet::core::types::Felt;
 use std::ops::{Deref, DerefMut};
 
-use crate::evm_sequencer::types::felt::FeltSequencer;
 use crate::evm_sequencer::{
     constants::{
         storage_variables::{
@@ -97,8 +96,10 @@ impl KakarotSequencer {
         block_timestamp: u64,
     ) -> Self {
         let coinbase_constructor_args = {
-            let evm_address: FeltSequencer = coinbase_address.try_into().unwrap(); // infallible
-            vec![Felt::ONE, evm_address.into()]
+            vec![
+                Felt::ONE,
+                Felt::from_bytes_be_slice(&coinbase_address.0[..]),
+            ]
         };
 
         let block_info = BlockInfo {
@@ -162,10 +163,7 @@ impl KakarotSequencer {
     pub fn compute_starknet_address(&self, evm_address: &Address) -> StateResult<ContractAddress> {
         let base_class_hash = self.environment.base_account_class_hash.0;
 
-        let constructor_args = {
-            let evm_address: FeltSequencer = (*evm_address).try_into().unwrap(); // infallible
-            vec![Felt::ONE, evm_address.into()]
-        };
+        let constructor_args = { vec![Felt::ONE, Felt::from_bytes_be_slice(&evm_address.0[..])] };
 
         Ok(compute_starknet_address(evm_address, base_class_hash, &constructor_args).try_into()?)
     }
