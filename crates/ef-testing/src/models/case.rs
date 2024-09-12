@@ -57,13 +57,7 @@ impl BlockchainTestCase {
 
     fn handle_pre_state(&self, sequencer: &mut KakarotSequencer) -> Result<(), RunnerError> {
         for (address, account) in self.pre.iter() {
-            let kakarot_account = KakarotAccount::new(
-                address,
-                &account.code,
-                account.nonce,
-                account.balance,
-                &account.storage.clone().into_iter().collect::<Vec<_>>()[..],
-            )?;
+            let kakarot_account = KakarotAccount::new(address, account.clone())?;
             sequencer.setup_account(kakarot_account)?;
             sequencer.fund(address, account.balance)?;
         }

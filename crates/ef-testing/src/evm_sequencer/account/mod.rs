@@ -5,11 +5,12 @@ use crate::evm_sequencer::constants::storage_variables::{
 use crate::evm_sequencer::{types::felt::FeltSequencer, utils::split_u256};
 use crate::starknet_storage;
 use blockifier::abi::{abi_utils::get_storage_var_address, sierra_types::next_storage_key};
+use ef_tests::models::Account;
 use reth_primitives::alloy_primitives::keccak256;
 use reth_primitives::KECCAK_EMPTY;
 use reth_primitives::{Address, U256};
 use revm_interpreter::analysis::to_analysed;
-use revm_primitives::{Bytecode, Bytes};
+use revm_primitives::Bytecode;
 use starknet::core::utils::cairo_short_string_to_felt;
 use starknet_api::StarknetApiError;
 use starknet_api::{core::Nonce, state::StorageKey};
@@ -68,14 +69,8 @@ pub enum AccountType {
 }
 
 impl KakarotAccount {
-    pub fn new(
-        evm_address: &Address,
-        code: &Bytes,
-        nonce: U256,
-        balance: U256,
-        evm_storage: &[(U256, U256)],
-    ) -> Result<Self, StarknetApiError> {
-        let nonce = Felt::from(TryInto::<u128>::try_into(nonce).map_err(|err| {
+    pub fn new(evm_address: &Address, account: Account) -> Result<Self, StarknetApiError> {
+        let nonce = Felt::from(TryInto::<u128>::try_into(account.nonce).map_err(|err| {
             StarknetApiError::OutOfRange {
                 string: err.to_string(),
             }
@@ -88,25 +83,26 @@ impl KakarotAccount {
         let mut storage = vec![
             starknet_storage!(ACCOUNT_EVM_ADDRESS, evm_address),
             starknet_storage!(ACCOUNT_IS_INITIALIZED, 1u8),
-            starknet_storage!(ACCOUNT_BYTECODE_LEN, code.len() as u32),
+            starknet_storage!(ACCOUNT_BYTECODE_LEN, account.code.len() as u32),
             starknet_storage!(ACCOUNT_NONCE, nonce),
         ];
 
         // Initialize the bytecode storage var.
-        let mut bytecode_storage = pack_byte_array_to_starkfelt_array(code)
+        let mut bytecode_storage = pack_byte_array_to_starkfelt_array(&account.code)
             .enumerate()
             .map(|(i, bytes)| (StorageKey::from(i as u32), bytes))
             .collect();
         storage.append(&mut bytecode_storage);
 
         // Initialize the code hash var
-        let account_is_empty = code.is_empty() && nonce == Felt::ZERO && balance == U256::ZERO;
+        let account_is_empty =
+            account.code.is_empty() && nonce == Felt::ZERO && account.balance == U256::ZERO;
         let code_hash = if account_is_empty {
             U256::ZERO
-        } else if code.is_empty() {
+        } else if account.code.is_empty() {
             U256::from_be_slice(KECCAK_EMPTY.as_slice())
         } else {
-            U256::from_be_slice(keccak256(code).as_slice())
+            U256::from_be_slice(keccak256(account.code.clone()).as_slice())
         };
 
         let code_hash_values = split_u256(code_hash);
@@ -118,7 +114,7 @@ impl KakarotAccount {
         ]);
 
         // Initialize the bytecode jumpdests.
-        let bytecode = to_analysed(Bytecode::new_raw(code.clone()));
+        let bytecode = to_analysed(Bytecode::new_raw(account.code));
         let valid_jumpdests: Vec<usize> = match bytecode {
             Bytecode::LegacyAnalyzed(legacy_analyzed_bytecode) => legacy_analyzed_bytecode
                 .jump_table()
@@ -142,7 +138,8 @@ impl KakarotAccount {
         });
 
         // Initialize the storage vars.
-        let mut evm_storage_storage: Vec<(StorageKey, Felt)> = evm_storage
+        let mut evm_storage_storage: Vec<(StorageKey, Felt)> = account
+            .storage
             .iter()
             .flat_map(|(k, v)| {
                 let keys = split_u256(*k).map(Into::into);

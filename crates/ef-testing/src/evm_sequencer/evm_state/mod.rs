@@ -352,6 +352,7 @@ mod tests {
         },
         models::result::extract_output_and_log_execution_result,
     };
+    use ef_tests::models::Account;
     use reth_primitives::{
         sign_message, AccessList, Signature, TransactionSigned, TxEip1559, B256,
     };
@@ -400,14 +401,21 @@ mod tests {
         // When
         let contract = KakarotAccount::new(
             &TEST_CONTRACT_ADDRESS,
-            &contract_bytecode,
-            contract_nonce,
-            U256::ZERO,
-            &[],
+            Account {
+                code: contract_bytecode,
+                nonce: contract_nonce,
+                ..Default::default()
+            },
         )
         .unwrap();
-        let eoa = KakarotAccount::new(&PUBLIC_KEY, &Bytes::default(), eoa_nonce, U256::ZERO, &[])
-            .unwrap();
+        let eoa = KakarotAccount::new(
+            &PUBLIC_KEY,
+            Account {
+                nonce: eoa_nonce,
+                ..Default::default()
+            },
+        )
+        .unwrap();
         sequencer.setup_account(contract).unwrap();
         sequencer.setup_account(eoa).unwrap();
         let execution_result = sequencer.execute_transaction(transaction);
