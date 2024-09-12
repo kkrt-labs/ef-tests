@@ -95,12 +95,10 @@ impl KakarotSequencer {
         block_number: u64,
         block_timestamp: u64,
     ) -> Self {
-        let coinbase_constructor_args = {
-            vec![
-                Felt::ONE,
-                Felt::from_bytes_be_slice(&coinbase_address.0[..]),
-            ]
-        };
+        let coinbase_constructor_args = vec![
+            Felt::ONE,
+            Felt::from_bytes_be_slice(&coinbase_address.0[..]),
+        ];
 
         let block_info = BlockInfo {
             block_number: BlockNumber(block_number),
@@ -146,14 +144,6 @@ impl KakarotSequencer {
         }
     }
 
-    pub const fn sequencer(&self) -> &Sequencer<State, Address> {
-        &self.sequencer
-    }
-
-    pub const fn environment(&self) -> &KakarotEnvironment {
-        &self.environment
-    }
-
     pub fn chain_id(&self) -> u64 {
         // Safety: chain_id is always 8 bytes.
         let chain_id = self.block_context().chain_info().chain_id.to_string();
@@ -162,11 +152,12 @@ impl KakarotSequencer {
     }
 
     pub fn compute_starknet_address(&self, evm_address: &Address) -> StateResult<ContractAddress> {
-        let base_class_hash = self.environment.base_account_class_hash.0;
-
-        let constructor_args = { vec![Felt::ONE, Felt::from_bytes_be_slice(&evm_address.0[..])] };
-
-        Ok(compute_starknet_address(evm_address, base_class_hash, &constructor_args).try_into()?)
+        Ok(compute_starknet_address(
+            evm_address,
+            self.environment.base_account_class_hash.0,
+            &vec![Felt::ONE, Felt::from_bytes_be_slice(&evm_address.0[..])],
+        )
+        .try_into()?)
     }
 }
 
