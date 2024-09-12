@@ -97,7 +97,7 @@ impl Evm for KakarotSequencer {
         self.state_mut().set_storage_at(
             kakarot_address,
             get_storage_var_address(KAKAROT_COINBASE, &[]),
-            coinbase_address.into(),
+            coinbase_address,
         )?;
 
         // Set the base fee.
