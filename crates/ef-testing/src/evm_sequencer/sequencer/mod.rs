@@ -110,12 +110,14 @@ impl KakarotSequencer {
             )
             .try_into()
             .expect("Failed to convert to ContractAddress"),
-            gas_prices: GasPrices {
-                eth_l1_gas_price: NonZeroU128::new(1).unwrap(),
-                strk_l1_gas_price: NonZeroU128::new(1).unwrap(),
-                eth_l1_data_gas_price: NonZeroU128::new(1).unwrap(),
-                strk_l1_data_gas_price: NonZeroU128::new(1).unwrap(),
-            },
+            gas_prices: GasPrices::new(
+                NonZeroU128::new(1).unwrap(),
+                NonZeroU128::new(1).unwrap(),
+                NonZeroU128::new(1).unwrap(),
+                NonZeroU128::new(1).unwrap(),
+                NonZeroU128::new(1).unwrap(),
+                NonZeroU128::new(1).unwrap(),
+            ),
             use_kzg_da: false,
         };
 

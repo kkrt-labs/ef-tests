@@ -93,7 +93,7 @@ pub(crate) fn extract_output_and_log_execution_result(
                 return None;
             }
 
-            info!("{} passed: {:?}", case, info.transaction_receipt.resources);
+            info!("{} passed: {:?}", case, info.receipt.resources);
             if let Some(call) = info.execute_call_info.as_ref() {
                 use starknet::core::types::Felt;
                 let events = kakarot_execution_events(call);

@@ -37,17 +37,17 @@ revm-interpreter = { version = "10.0.0", default-features = false }
 revm-primitives = { version = "9.0.0", default-features = false }
 
 # Starknet deps
-cairo-lang-casm = "2.7.0-rc.3"
-cairo-lang-starknet = "2.7.0-rc.3"
-cairo-lang-utils = "2.7.0-rc.3"
-cairo-lang-starknet-classes = "2.7.0-rc.3"
-cairo-vm = "1.0.0-rc5"
-blockifier = { package = "blockifier", git = "https://github.com/kkrt-labs/blockifier.git", rev = "57377d6", default-features = false, features = [
+cairo-lang-casm = "2.8.0"
+cairo-lang-starknet = "2.8.0"
+cairo-lang-utils = "2.8.0"
+cairo-lang-starknet-classes = "2.8.0"
+cairo-vm = "1.0.1"
+blockifier = { package = "blockifier", git = "https://github.com/kkrt-labs/sequencer.git", rev = "d1f32e2", default-features = false, features = [
   "testing",
 ] }
 starknet = "0.11.0"
 starknet-crypto = "0.7.1"
-starknet_api = "0.13.0-rc.0"
+starknet_api = { package = "starknet_api", git = "https://github.com/kkrt-labs/sequencer.git", rev = "d1f32e2" }
 
 # Other
 async-trait = "0.1"
