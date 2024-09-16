@@ -81,7 +81,7 @@ where
                 }
                 blockifier::transaction::account_transaction::AccountTransaction::DeployAccount(
                     tx,
-                ) => tx.contract_address,
+                ) => tx.contract_address(),
             },
             Transaction::L1HandlerTransaction(_) => ContractAddress::from(0u8),
         };
