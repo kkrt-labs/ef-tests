@@ -130,9 +130,9 @@ mod tests {
     use starknet::core::types::Felt;
     use starknet::macros::selector;
     use starknet_api::core::{ChainId, ClassHash, ContractAddress, Nonce};
+    use starknet_api::executable_transaction::InvokeTransaction;
     use starknet_api::transaction::{
-        Calldata, Fee, InvokeTransaction, InvokeTransactionV1, TransactionHash,
-        TransactionSignature,
+        Calldata, Fee, InvokeTransactionV1, TransactionHash, TransactionSignature,
     };
 
     use crate::constants::test_constants::{
@@ -255,12 +255,14 @@ mod tests {
             block_number: *ONE_BLOCK_NUMBER,
             block_timestamp: *ONE_BLOCK_TIMESTAMP,
             sequencer_address: *SEQUENCER_ADDRESS,
-            gas_prices: GasPrices {
-                eth_l1_gas_price: NonZeroU128::new(1).unwrap(),
-                strk_l1_gas_price: NonZeroU128::new(1).unwrap(),
-                eth_l1_data_gas_price: NonZeroU128::new(1).unwrap(),
-                strk_l1_data_gas_price: NonZeroU128::new(1).unwrap(),
-            },
+            gas_prices: GasPrices::new(
+                NonZeroU128::new(1).unwrap(),
+                NonZeroU128::new(1).unwrap(),
+                NonZeroU128::new(1).unwrap(),
+                NonZeroU128::new(1).unwrap(),
+                NonZeroU128::new(1).unwrap(),
+                NonZeroU128::new(1).unwrap(),
+            ),
             use_kzg_da: false,
         };
 
@@ -283,22 +285,24 @@ mod tests {
 
     fn test_transaction() -> Transaction {
         Transaction::AccountTransaction(AccountTransaction::Invoke(BlockifierInvokeTransaction {
-            tx: InvokeTransaction::V1(InvokeTransactionV1 {
-                sender_address: *TEST_ACCOUNT,
-                calldata: Calldata(
-                    vec![
-                        *TEST_CONTRACT.0.key(), // destination
-                        selector!("inc"),
-                        *ZERO_FELT, // no data
-                    ]
-                    .into(),
-                ),
-                max_fee: Fee(1_000_000),
-                signature: TransactionSignature(vec![]),
-                nonce: Nonce(*ZERO_FELT),
-            }),
+            tx: InvokeTransaction {
+                tx: starknet_api::transaction::InvokeTransaction::V1(InvokeTransactionV1 {
+                    sender_address: *TEST_ACCOUNT,
+                    calldata: Calldata(
+                        vec![
+                            *TEST_CONTRACT.0.key(), // destination
+                            selector!("inc"),
+                            *ZERO_FELT, // no data
+                        ]
+                        .into(),
+                    ),
+                    max_fee: Fee(1_000_000),
+                    signature: TransactionSignature(vec![]),
+                    nonce: Nonce(*ZERO_FELT),
+                }),
+                tx_hash: TransactionHash(*ZERO_FELT),
+            },
             only_query: false,
-            tx_hash: TransactionHash(*ZERO_FELT),
         }))
     }
 
