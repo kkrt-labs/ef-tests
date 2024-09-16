@@ -47,7 +47,7 @@ blockifier = { package = "blockifier", git = "https://github.com/kkrt-labs/seque
 ] }
 starknet = "0.11.0"
 starknet-crypto = "0.7.1"
-starknet_api = { package = "starknet_api", git = "https://github.com/kkrt-labs/sequencer.git", rev = "d1f32e2"}
+starknet_api = { package = "starknet_api", git = "https://github.com/kkrt-labs/sequencer.git", rev = "d1f32e2" }
 
 # Other
 async-trait = "0.1"
