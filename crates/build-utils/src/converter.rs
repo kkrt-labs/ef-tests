@@ -222,6 +222,8 @@ impl<'a> EfTests<'a> {
                 .replace('[', "__")
                 .replace(']', "")
                 .replace('-', "_minus_")
+                .replace(" ", "_")
+                .replace(".", "_")
                 .split(',')
                 .map(|part| part.trim())
                 .collect::<Vec<_>>()

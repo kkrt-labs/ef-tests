@@ -7,7 +7,7 @@ endif
 
 # The release tag of https://github.com/kkrt-labs/tests to use for EF tests. Usually an
 # ethereum/tests release tag followed by `-kkrt`.
-EF_TESTS_TAG := v13.3-kkrt-1
+EF_TESTS_TAG := v14.1-kkrt
 EF_TESTS_URL := https://github.com/kkrt-labs/tests/archive/refs/tags/$(EF_TESTS_TAG).tar.gz
 EF_TESTS_DIR := ./crates/ef-testing/ethereum-tests
 
