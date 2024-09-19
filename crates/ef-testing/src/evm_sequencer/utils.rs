@@ -67,7 +67,7 @@ pub fn to_broadcasted_starknet_transaction(
     let [r_low, r_high] = split_u256(signature.r);
     let [s_low, s_high] = split_u256(signature.s);
     let v = match transaction.transaction.tx_type() {
-        TxType::Legacy => signature.v(transaction.chain_id()),
+        TxType::Legacy => signature.legacy_parity(transaction.chain_id()).to_u64(),
         _ => signature.odd_y_parity as u64,
     };
 
