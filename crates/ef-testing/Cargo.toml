@@ -62,6 +62,7 @@ zip = { workspace = true, optional = true }
 [features]
 v0 = []
 v1 = []
+native = []
 ci = []
 
 [build-dependencies]

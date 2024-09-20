@@ -1,4 +1,4 @@
-use blockifier::bouncer::BouncerConfig;
+use blockifier::{bouncer::BouncerConfig, execution::contract_class::NativeContractClassV1};
 use starknet::core::types::Felt;
 use std::ops::{Deref, DerefMut};
 
@@ -13,7 +13,7 @@ use crate::evm_sequencer::{
         ETH_FEE_TOKEN_ADDRESS, FEE_TOKEN_CLASS, FEE_TOKEN_CLASS_HASH, KAKAROT_ADDRESS,
         KAKAROT_CLASS, KAKAROT_CLASS_HASH, KAKAROT_OWNER_ADDRESS, OPENZEPPELIN_ACCOUNT_CLASS,
         OPENZEPPELIN_ACCOUNT_CLASS_HASH, RELAYER_ADDRESS, RELAYER_BALANCE, RELAYER_VERIFYING_KEY,
-        STRK_FEE_TOKEN_ADDRESS, UNINITIALIZED_ACCOUNT_CLASS, UNINITIALIZED_ACCOUNT_CLASS_HASH,
+        STRK_FEE_TOKEN_ADDRESS, UNINITIALIZED_ACCOUNT_CLASS, UNINITIALIZED_ACCOUNT_CLASS_HASH, CLASS_HASH_TO_JSON_CLASS
     },
     types::contract_class::CasmContractClassWrapper,
     utils::compute_starknet_address,
@@ -29,7 +29,8 @@ use blockifier::{
 };
 use cairo_lang_starknet_classes::casm_contract_class::CasmContractClass;
 use cairo_vm::types::errors::program_errors::ProgramError;
-use sequencer::{sequencer::Sequencer, state::State};
+use reth_primitives::Address;
+use sequencer::{native::class_from_json_str, sequencer::Sequencer, state::State};
 use starknet::core::types::contract::{legacy::LegacyContractClass, CompiledClass};
 use starknet_api::{
     block::{BlockNumber, BlockTimestamp},
@@ -232,13 +233,31 @@ lazy_static! {
                     convert_contract_class_v0(&UNINITIALIZED_ACCOUNT_CLASS).expect("failed to convert uninitialized class")
                 )
             }
+
             #[cfg(feature = "v1")]
             {
+                #[cfg(feature = "native")]
+                {
+                    let account_json = CLASS_HASH_TO_JSON_CLASS.get(&ACCOUNT_CONTRACT_CLASS_HASH).unwrap();
+                    let kakarot_json = CLASS_HASH_TO_JSON_CLASS.get(&KAKAROT_CLASS_HASH).unwrap();
+                    let uninitialized_json = CLASS_HASH_TO_JSON_CLASS.get(&UNINITIALIZED_ACCOUNT_CLASS_HASH).unwrap();
+                    println!("Got account's json of length {}", account_json.len());
+                    println!("Got kakarot's json of length {}", kakarot_json.len());
+                    println!("Got uninitialized's json of length {}", uninitialized_json.len());
+                    let account_class= class_from_json_str(account_json, *ACCOUNT_CONTRACT_CLASS_HASH).unwrap();
+                    let kakarot_class= class_from_json_str(kakarot_json, *KAKAROT_CLASS_HASH).unwrap();
+                    let uninitialized_class= class_from_json_str(uninitialized_json, *UNINITIALIZED_ACCOUNT_CLASS_HASH).unwrap();
+                    println!("Got class");
+                    (account_class, kakarot_class, uninitialized_class)
+                }
+                #[cfg(not(feature = "native"))]
+                {
                 (
                     convert_contract_class_v1(&KAKAROT_CLASS).expect("failed to convert kakarot class"),
                     convert_contract_class_v1(&ACCOUNT_CONTRACT_CLASS).expect("failed to convert account class"),
                     convert_contract_class_v1(&UNINITIALIZED_ACCOUNT_CLASS).expect("failed to convert uninitialized class")
                 )
+                }
             }
         };
 
@@ -250,8 +269,7 @@ lazy_static! {
         // Write contract account, uninitialized_account and erc20 classes and class hashes.
         (&mut state).set_contract_class(
             *ACCOUNT_CONTRACT_CLASS_HASH,
-            converted_account_class,
-        ).expect("failed to set contract account class");
+            converted_account_class).expect("failed to set contract account class");
         (&mut state)
             .set_contract_class(*UNINITIALIZED_ACCOUNT_CLASS_HASH, converted_uninitialized_class).expect("failed to set eoa contract class");
 
