@@ -1,6 +1,6 @@
 use crate::commit::Committer;
 use crate::serde::SerializableState;
-use blockifier::execution::contract_class::ContractClass;
+use blockifier::execution::contract_class::{ContractClass, NativeContractClassV1};
 use blockifier::state::errors::StateError;
 use blockifier::state::state_api::{
     State as BlockifierState, StateReader as BlockifierStateReader, StateResult,
@@ -113,6 +113,11 @@ impl BlockifierState for &mut State {
         class_hash: ClassHash,
         contract_class: ContractClass,
     ) -> StateResult<()> {
+        match &contract_class {
+            &ContractClass::V0(_) => println!("Setting V0 contract class"),
+            &ContractClass::V1(_) => println!("Setting V1 contract class"),
+            &ContractClass::V1Native(_) => println!("Setting V1Native contract class"),
+        };
         self.classes.insert(class_hash, contract_class);
         Ok(())
     }
@@ -165,10 +170,11 @@ impl BlockifierStateReader for &mut State {
     ///
     /// If the compiled class is not declared.
     fn get_compiled_contract_class(&self, class_hash: ClassHash) -> StateResult<ContractClass> {
-        self.classes
+        let res = self.classes
             .get(&class_hash)
             .cloned()
-            .ok_or_else(|| StateError::UndeclaredClassHash(class_hash))
+            .ok_or_else(|| StateError::UndeclaredClassHash(class_hash))?;
+        Ok(res)
     }
 
     /// # Errors
@@ -181,6 +187,8 @@ impl BlockifierStateReader for &mut State {
             .ok_or_else(|| StateError::UndeclaredClassHash(class_hash))
     }
 }
+
+
 
 #[cfg(test)]
 mod tests {
