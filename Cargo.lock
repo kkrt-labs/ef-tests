@@ -1060,7 +1060,7 @@ dependencies = [
  "cairo-lang-sierra",
  "cairo-lang-starknet-classes",
  "cairo-lang-utils",
- "cairo-native 0.2.0 (git+https://github.com/enitrat/cairo_native.git?branch=feat/ef-test-compat)",
+ "cairo-native",
  "cairo-vm",
  "derive_more 0.99.18",
 <<<<<<< HEAD
@@ -1797,57 +1797,6 @@ dependencies = [
 [[package]]
 name = "cairo-native"
 version = "0.2.0"
-dependencies = [
- "anyhow",
- "aquamarine",
- "bumpalo",
- "cairo-lang-compiler",
- "cairo-lang-defs",
- "cairo-lang-diagnostics",
- "cairo-lang-filesystem",
- "cairo-lang-runner",
- "cairo-lang-semantic",
- "cairo-lang-sierra",
- "cairo-lang-sierra-ap-change",
- "cairo-lang-sierra-gas",
- "cairo-lang-sierra-generator",
- "cairo-lang-starknet",
- "cairo-lang-starknet-classes",
- "cairo-lang-test-plugin",
- "cairo-lang-utils",
- "cairo-native-runtime 0.2.0",
- "cc",
- "clap",
- "colored",
- "educe",
- "itertools 0.13.0",
- "k256",
- "keccak",
- "lazy_static",
- "libc",
- "libloading",
- "llvm-sys",
- "melior",
- "mlir-sys",
- "num-bigint",
- "num-traits 0.2.19",
- "p256",
- "sec1",
- "serde",
- "serde_json",
- "sha2 0.10.8",
- "starknet-types-core",
- "stats_alloc",
- "tempfile",
- "thiserror",
- "tracing",
- "tracing-subscriber",
- "utf8_iter",
-]
-
-[[package]]
-name = "cairo-native"
-version = "0.2.0"
 source = "git+https://github.com/enitrat/cairo_native.git?branch=feat/ef-test-compat#8727999cbf275cc2edb4aa696065e33f82a7f76f"
 dependencies = [
  "anyhow",
@@ -1867,7 +1816,7 @@ dependencies = [
  "cairo-lang-starknet-classes",
  "cairo-lang-test-plugin",
  "cairo-lang-utils",
- "cairo-native-runtime 0.2.0 (git+https://github.com/enitrat/cairo_native.git?branch=feat/ef-test-compat)",
+ "cairo-native-runtime",
  "cc",
  "clap",
  "colored",
@@ -1895,18 +1844,6 @@ dependencies = [
  "tracing",
  "tracing-subscriber",
  "utf8_iter",
-]
-
-[[package]]
-name = "cairo-native-runtime"
-version = "0.2.0"
-dependencies = [
- "cairo-lang-sierra-gas",
- "lazy_static",
- "libc",
- "rand",
- "starknet-curve 0.5.1",
- "starknet-types-core",
 ]
 
 [[package]]
@@ -8037,7 +7974,7 @@ dependencies = [
  "cached 0.53.1",
  "cairo-lang-sierra",
  "cairo-lang-starknet-classes",
- "cairo-native 0.2.0",
+ "cairo-native",
  "eyre",
  "hashbrown 0.14.5",
  "lazy_static",

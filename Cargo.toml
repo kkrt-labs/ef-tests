@@ -45,7 +45,7 @@ cairo-lang-starknet = "2.8.0"
 cairo-lang-utils = "2.8.0"
 cairo-lang-starknet-classes = "2.8.0"
 cairo-lang-sierra = "2.8.0"
-cairo-native = {path = "/Users/msaug/deps/cairo_native"}
+cairo-native = { git = "https://github.com/enitrat/cairo_native.git", branch = "feat/ef-test-compat" } # This is a temporary dependency, will be removed once the new version of cairo-native is released to main.
 cairo-vm = "1.0.1"
 blockifier = { package = "blockifier", git = "https://github.com/kkrt-labs/sequencer.git", branch = "kkrt-native-2.8", default-features = false, features = [
   "testing",
