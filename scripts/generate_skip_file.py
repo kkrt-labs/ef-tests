@@ -3,16 +3,18 @@ import re
 from collections import defaultdict
 
 
-def format_into_identifier(s: str) -> str:
-    if "Pyspec" in s:
+def format_into_identifier(s: str, is_pyspec: bool = False) -> str:
+    if is_pyspec:
+        test_name = s.split("/")[-1].split("::")[-1]
         test_name = (
-            s.split("::")[-1]
-            .replace("test_", "")
+            test_name.replace("test_", "")
             .replace("(", "_lpar_")
-            .replace(")", "_rpar")
+            .replace(")", "_rpar_")
             .replace("[", "__")
             .replace("]", "")
             .replace("-", "_minus_")
+            .replace(" ", "_")
+            .replace(".", "_")
             .split(",")
         )
         test_name = "_".join(part.strip() for part in test_name)
@@ -29,8 +31,11 @@ def extract_runresource_failures(input_file):
         for line in file:
             if "reverted:" in line:
                 test_name_line = line
-                test_name = test_name_line.split("reverted:")[0].split("::")[-1].strip()
-                test_name = format_into_identifier(test_name)
+                is_pyspec = ".py" in test_name_line
+                test_name_raw = (
+                    test_name_line.split("reverted:")[0].split("::")[-1].strip()
+                )
+                test_name = format_into_identifier(test_name_raw, is_pyspec)
                 last_reverted = test_name
             # If we find a line that says "RunResources has no remaining steps." after the last reverted test,
             # we know that the test failed due to a RunResources error
