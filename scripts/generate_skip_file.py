@@ -20,11 +20,7 @@ def format_into_identifier(s: str, is_pyspec: bool = False) -> str:
         test_name = "_".join(part.strip() for part in test_name)
         return test_name
     else:
-        return (
-            s.replace("-", "_minus_")
-            .replace("+", "_plus_")
-            .replace("^", "_xor_")
-        )
+        return s.replace("-", "_minus_").replace("+", "_plus_").replace("^", "_xor_")
 
 
 def extract_runresource_failures(input_file):
@@ -36,7 +32,9 @@ def extract_runresource_failures(input_file):
             if "reverted:" in line:
                 test_name_line = line
                 is_pyspec = ".py" in test_name_line
-                test_name_raw = test_name_line.split("reverted:")[0].split("::")[-1].strip()
+                test_name_raw = (
+                    test_name_line.split("reverted:")[0].split("::")[-1].strip()
+                )
                 test_name = format_into_identifier(test_name_raw, is_pyspec)
                 last_reverted = test_name
             # If we find a line that says "RunResources has no remaining steps." after the last reverted test,
