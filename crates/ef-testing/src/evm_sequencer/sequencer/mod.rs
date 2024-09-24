@@ -238,17 +238,17 @@ lazy_static! {
             {
                 #[cfg(feature = "native")]
                 {
-                    let account_json = CLASS_HASH_TO_JSON_CLASS.get(&ACCOUNT_CONTRACT_CLASS_HASH).unwrap();
                     let kakarot_json = CLASS_HASH_TO_JSON_CLASS.get(&KAKAROT_CLASS_HASH).unwrap();
+                    let account_json = CLASS_HASH_TO_JSON_CLASS.get(&ACCOUNT_CONTRACT_CLASS_HASH).unwrap();
                     let uninitialized_json = CLASS_HASH_TO_JSON_CLASS.get(&UNINITIALIZED_ACCOUNT_CLASS_HASH).unwrap();
-                    println!("Got account's json of length {}", account_json.len());
                     println!("Got kakarot's json of length {}", kakarot_json.len());
+                    println!("Got account's json of length {}", account_json.len());
                     println!("Got uninitialized's json of length {}", uninitialized_json.len());
-                    let account_class= class_from_json_str(account_json, *ACCOUNT_CONTRACT_CLASS_HASH).unwrap();
                     let kakarot_class= class_from_json_str(kakarot_json, *KAKAROT_CLASS_HASH).unwrap();
+                    let account_class= class_from_json_str(account_json, *ACCOUNT_CONTRACT_CLASS_HASH).unwrap();
                     let uninitialized_class= class_from_json_str(uninitialized_json, *UNINITIALIZED_ACCOUNT_CLASS_HASH).unwrap();
                     println!("Got class");
-                    (account_class, kakarot_class, uninitialized_class)
+                    (kakarot_class, account_class, uninitialized_class)
                 }
                 #[cfg(not(feature = "native"))]
                 {

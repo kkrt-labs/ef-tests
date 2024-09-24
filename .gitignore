@@ -30,6 +30,8 @@ tmp*
 # Ignore the generated tests
 /crates/ef-testing/tests/*
 
+/crates/ef-testing/native_cache/*
+
 # Ignore the launch file
 launch.json
 

@@ -1047,6 +1047,7 @@ dependencies = [
 [[package]]
 name = "blockifier"
 version = "0.0.0"
+source = "git+https://github.com/kkrt-labs/sequencer.git?branch=kkrt-native-2.8#575a104968f14d83341c0e4f82a6d945e043d6ae"
 dependencies = [
  "anyhow",
  "ark-ec",
@@ -1059,7 +1060,7 @@ dependencies = [
  "cairo-lang-sierra",
  "cairo-lang-starknet-classes",
  "cairo-lang-utils",
- "cairo-native",
+ "cairo-native 0.2.0 (git+https://github.com/enitrat/cairo_native.git?branch=feat/ef-test-compat)",
  "cairo-vm",
  "derive_more 0.99.18",
 <<<<<<< HEAD
@@ -1814,7 +1815,59 @@ dependencies = [
  "cairo-lang-starknet-classes",
  "cairo-lang-test-plugin",
  "cairo-lang-utils",
- "cairo-native-runtime",
+ "cairo-native-runtime 0.2.0",
+ "cc",
+ "clap",
+ "colored",
+ "educe",
+ "itertools 0.13.0",
+ "k256",
+ "keccak",
+ "lazy_static",
+ "libc",
+ "libloading",
+ "llvm-sys",
+ "melior",
+ "mlir-sys",
+ "num-bigint",
+ "num-traits 0.2.19",
+ "p256",
+ "sec1",
+ "serde",
+ "serde_json",
+ "sha2 0.10.8",
+ "starknet-types-core",
+ "stats_alloc",
+ "tempfile",
+ "thiserror",
+ "tracing",
+ "tracing-subscriber",
+ "utf8_iter",
+]
+
+[[package]]
+name = "cairo-native"
+version = "0.2.0"
+source = "git+https://github.com/enitrat/cairo_native.git?branch=feat/ef-test-compat#8727999cbf275cc2edb4aa696065e33f82a7f76f"
+dependencies = [
+ "anyhow",
+ "aquamarine",
+ "bumpalo",
+ "cairo-lang-compiler",
+ "cairo-lang-defs",
+ "cairo-lang-diagnostics",
+ "cairo-lang-filesystem",
+ "cairo-lang-runner",
+ "cairo-lang-semantic",
+ "cairo-lang-sierra",
+ "cairo-lang-sierra-ap-change",
+ "cairo-lang-sierra-gas",
+ "cairo-lang-sierra-generator",
+ "cairo-lang-starknet",
+ "cairo-lang-starknet-classes",
+ "cairo-lang-test-plugin",
+ "cairo-lang-utils",
+ "cairo-native-runtime 0.2.0 (git+https://github.com/enitrat/cairo_native.git?branch=feat/ef-test-compat)",
  "cc",
  "clap",
  "colored",
@@ -1847,6 +1900,19 @@ dependencies = [
 [[package]]
 name = "cairo-native-runtime"
 version = "0.2.0"
+dependencies = [
+ "cairo-lang-sierra-gas",
+ "lazy_static",
+ "libc",
+ "rand",
+ "starknet-curve 0.5.1",
+ "starknet-types-core",
+]
+
+[[package]]
+name = "cairo-native-runtime"
+version = "0.2.0"
+source = "git+https://github.com/enitrat/cairo_native.git?branch=feat/ef-test-compat#8727999cbf275cc2edb4aa696065e33f82a7f76f"
 dependencies = [
  "cairo-lang-sierra-gas",
  "lazy_static",
@@ -4291,7 +4357,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4979f22fdb869068da03c9f7528f8297c6fd2606bc3a4affe42e6a823fdb8da4"
 dependencies = [
  "cfg-if",
- "windows-targets 0.52.6",
+ "windows-targets 0.48.5",
 ]
 
 [[package]]
@@ -5162,6 +5228,7 @@ dependencies = [
 [[package]]
 name = "papyrus_config"
 version = "0.0.0"
+source = "git+https://github.com/kkrt-labs/sequencer.git?branch=kkrt-native-2.8#575a104968f14d83341c0e4f82a6d945e043d6ae"
 dependencies = [
  "clap",
  "itertools 0.10.5",
@@ -7970,7 +8037,7 @@ dependencies = [
  "cached 0.53.1",
  "cairo-lang-sierra",
  "cairo-lang-starknet-classes",
- "cairo-native",
+ "cairo-native 0.2.0",
  "eyre",
  "hashbrown 0.14.5",
  "lazy_static",
@@ -8537,6 +8604,7 @@ dependencies = [
 [[package]]
 name = "starknet_api"
 version = "0.0.0"
+source = "git+https://github.com/kkrt-labs/sequencer.git?branch=kkrt-native-2.8#575a104968f14d83341c0e4f82a6d945e043d6ae"
 dependencies = [
  "bitvec",
  "cairo-lang-starknet-classes",
@@ -9668,7 +9736,7 @@ version = "0.1.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "cf221c93e13a30d793f7645a0e7762c55d169dbb0a49671918a2319d289b10bb"
 dependencies = [
- "windows-sys 0.59.0",
+ "windows-sys 0.48.0",
 ]
 
 [[package]]
