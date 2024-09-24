@@ -22,7 +22,7 @@ where
 }
 
 // Chain params
-pub const CHAIN_ID: u64 = 0x4b4b5254;
+pub const CHAIN_ID: u64 = 0x1;
 
 // Block params
 pub const BLOCK_GAS_LIMIT: u64 = 20_000_000;
