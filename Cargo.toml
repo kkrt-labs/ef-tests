@@ -37,12 +37,12 @@ revm-interpreter = { version = "10.0", default-features = false }
 revm-primitives = { version = "9.0", default-features = false }
 
 # Starknet deps
-cairo-lang-casm = "2.8.0"
-cairo-lang-starknet = "2.8.0"
-cairo-lang-utils = "2.8.0"
-cairo-lang-starknet-classes = "2.8.0"
-cairo-lang-sierra = "2.8.0"
-cairo-native = { git = "https://github.com/enitrat/cairo_native.git", branch = "feat/ef-test-compat" } # This is a temporary dependency, will be removed once the new version of cairo-native is released to main.
+cairo-lang-casm = "2.8.2"
+cairo-lang-starknet = "2.8.2"
+cairo-lang-utils = "2.8.2"
+cairo-lang-starknet-classes = "2.8.2"
+cairo-lang-sierra = "2.8.2"
+cairo-native = { git = "https://github.com/lambdaclass/cairo_native", branch = "update-llvm19" }
 cairo-vm = "1.0.1"
 blockifier = { package = "blockifier", git = "https://github.com/kkrt-labs/sequencer.git", branch = "kkrt-native-2.8", default-features = false, features = [
   "testing",

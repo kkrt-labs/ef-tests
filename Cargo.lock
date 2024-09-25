@@ -1025,6 +1025,26 @@ dependencies = [
 ]
 
 [[package]]
+name = "bindgen"
+version = "0.70.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f49d8fed880d473ea71efb9bf597651e77201bdd4893efe54c9e5d65ae04ce6f"
+dependencies = [
+ "bitflags 2.6.0",
+ "cexpr",
+ "clang-sys",
+ "itertools 0.13.0",
+ "log",
+ "prettyplease",
+ "proc-macro2",
+ "quote",
+ "regex",
+ "rustc-hash 1.1.0",
+ "shlex",
+ "syn 2.0.77",
+]
+
+[[package]]
 name = "bit-set"
 version = "0.5.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1098,7 +1118,7 @@ dependencies = [
 [[package]]
 name = "blockifier"
 version = "0.0.0"
-source = "git+https://github.com/kkrt-labs/sequencer.git?branch=kkrt-native-2.8#575a104968f14d83341c0e4f82a6d945e043d6ae"
+source = "git+https://github.com/kkrt-labs/sequencer.git?branch=kkrt-native-2.8#5e610d860b5da0cf5609ac7009e486ee5a4a5deb"
 dependencies = [
  "anyhow",
  "ark-ec",
@@ -1842,7 +1862,7 @@ dependencies = [
 [[package]]
 name = "cairo-native"
 version = "0.2.0"
-source = "git+https://github.com/enitrat/cairo_native.git?branch=feat/ef-test-compat#8727999cbf275cc2edb4aa696065e33f82a7f76f"
+source = "git+https://github.com/lambdaclass/cairo_native?branch=update-llvm19#5967b2d959660650d38dd6299a5030a4277b582b"
 dependencies = [
  "anyhow",
  "aquamarine",
@@ -1894,7 +1914,7 @@ dependencies = [
 [[package]]
 name = "cairo-native-runtime"
 version = "0.2.0"
-source = "git+https://github.com/enitrat/cairo_native.git?branch=feat/ef-test-compat#8727999cbf275cc2edb4aa696065e33f82a7f76f"
+source = "git+https://github.com/lambdaclass/cairo_native?branch=update-llvm19#5967b2d959660650d38dd6299a5030a4277b582b"
 dependencies = [
  "cairo-lang-sierra-gas",
  "lazy_static",
@@ -2119,9 +2139,9 @@ dependencies = [
 
 [[package]]
 name = "comrak"
-version = "0.27.0"
+version = "0.28.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2d061c6d53fe98c25efda0d91b7f6b4b4020a51dad78a3eac5028710aa26f8e7"
+checksum = "c93ab3577cca16b4a1d80a88c2e0cd8b6e969e51696f0bbb0d1dcb0157109832"
 dependencies = [
  "caseless",
  "derive_builder",
@@ -4492,7 +4512,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4979f22fdb869068da03c9f7528f8297c6fd2606bc3a4affe42e6a823fdb8da4"
 dependencies = [
  "cfg-if",
- "windows-targets 0.48.5",
+ "windows-targets 0.52.6",
 ]
 
 [[package]]
@@ -4602,9 +4622,9 @@ checksum = "78b3ae25bc7c8c38cec158d1f2757ee79e9b3740fbc7ccf0e59e4b08d793fa89"
 
 [[package]]
 name = "llvm-sys"
-version = "181.2.0"
+version = "191.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d320f9d2723c97d4b78f9190a61ed25cc7cfbe456668c08e6e7dd8e50ceb8500"
+checksum = "893cddf1adf0354b93411e413553dd4daf5c43195d73f1acfa1e394bdd371456"
 dependencies = [
  "anyhow",
  "cc",
@@ -4702,9 +4722,9 @@ dependencies = [
 
 [[package]]
 name = "melior"
-version = "0.18.6"
+version = "0.19.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9c3085c0169aa3b735d8e7df582baee23c2aeb280ea62cc7f71effda28d8e281"
+checksum = "c5d97014786c173a839839e2a068e82516ad1eb94fca1d40013d3c5e224e7c1e"
 dependencies = [
  "dashmap",
  "melior-macro",
@@ -4714,9 +4734,9 @@ dependencies = [
 
 [[package]]
 name = "melior-macro"
-version = "0.11.6"
+version = "0.12.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "13d58c356ebaa7855da67aad1306a0d032b68919d3c65b0b5dcecf10d9bdf6a9"
+checksum = "ef7ae0ba2f96784ec407d58374c8477f5b04ec8c57a114cafef0c8f165c4b288"
 dependencies = [
  "comrak",
  "convert_case 0.6.0",
@@ -4811,11 +4831,11 @@ dependencies = [
 
 [[package]]
 name = "mlir-sys"
-version = "0.2.2"
+version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1b1b5806a63bc959cd5c4e5db8cadd20e40045d41969d325132748db8af11b7f"
+checksum = "fae0a14b0940736a243fef4a4d96d8cdf8a253272031b63c5e4b1bea207c82b0"
 dependencies = [
- "bindgen",
+ "bindgen 0.70.1",
 ]
 
 [[package]]
@@ -5340,7 +5360,7 @@ dependencies = [
 [[package]]
 name = "papyrus_config"
 version = "0.0.0"
-source = "git+https://github.com/kkrt-labs/sequencer.git?branch=kkrt-native-2.8#575a104968f14d83341c0e4f82a6d945e043d6ae"
+source = "git+https://github.com/kkrt-labs/sequencer.git?branch=kkrt-native-2.8#5e610d860b5da0cf5609ac7009e486ee5a4a5deb"
 dependencies = [
  "clap",
  "itertools 0.10.5",
@@ -6688,7 +6708,7 @@ name = "reth-mdbx-sys"
 version = "1.0.7"
 source = "git+https://github.com/paradigmxyz/reth.git?tag=v1.0.7#75b7172cf77eb4fd65fe1a6924f75066fb09fcd1"
 dependencies = [
- "bindgen",
+ "bindgen 0.69.4",
  "cc",
 ]
 
@@ -8802,7 +8822,7 @@ dependencies = [
 [[package]]
 name = "starknet_api"
 version = "0.0.0"
-source = "git+https://github.com/kkrt-labs/sequencer.git?branch=kkrt-native-2.8#575a104968f14d83341c0e4f82a6d945e043d6ae"
+source = "git+https://github.com/kkrt-labs/sequencer.git?branch=kkrt-native-2.8#5e610d860b5da0cf5609ac7009e486ee5a4a5deb"
 dependencies = [
  "bitvec",
  "cairo-lang-starknet-classes",
@@ -9031,11 +9051,11 @@ checksum = "55937e1799185b12863d447f42597ed69d9928686b8d88a1df17376a097d8369"
 
 [[package]]
 name = "tblgen-alt"
-version = "0.3.6"
+version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7ae726d43658a13a9cd479de814be1311fea69236cd821e931a4fb9ca4d70e50"
+checksum = "0ecbc9175dd38627cd01d546e7b41c9a115e5773f4c98f64e2185c81ec5f45ab"
 dependencies = [
- "bindgen",
+ "bindgen 0.69.4",
  "cc",
  "paste",
  "thiserror",
@@ -9067,18 +9087,18 @@ dependencies = [
 
 [[package]]
 name = "thiserror"
-version = "1.0.63"
+version = "1.0.64"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c0342370b38b6a11b6cc11d6a805569958d54cfa061a29969c3b5ce2ea405724"
+checksum = "d50af8abc119fb8bb6dbabcfa89656f46f84aa0ac7688088608076ad2b459a84"
 dependencies = [
  "thiserror-impl",
 ]
 
 [[package]]
 name = "thiserror-impl"
-version = "1.0.63"
+version = "1.0.64"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a4558b58466b9ad7ca0f102865eccc95938dca1a74a856f2b57b6629050da261"
+checksum = "08904e7672f5eb876eaaf87e0ce17857500934f4981c4a0ab2b4aa98baac7fc3"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -9920,7 +9940,7 @@ version = "0.1.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "cf221c93e13a30d793f7645a0e7762c55d169dbb0a49671918a2319d289b10bb"
 dependencies = [
- "windows-sys 0.48.0",
+ "windows-sys 0.59.0",
 ]
 
 [[package]]
