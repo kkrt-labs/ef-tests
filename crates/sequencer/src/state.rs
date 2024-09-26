@@ -1,6 +1,6 @@
 use crate::commit::Committer;
 use crate::serde::SerializableState;
-use blockifier::execution::contract_class::{ContractClass, NativeContractClassV1};
+use blockifier::execution::contract_class::ContractClass;
 use blockifier::state::errors::StateError;
 use blockifier::state::state_api::{
     State as BlockifierState, StateReader as BlockifierStateReader, StateResult,

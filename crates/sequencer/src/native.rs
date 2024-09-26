@@ -1,37 +1,16 @@
 use blockifier::execution::contract_class::NativeContractClassV1;
-use blockifier::{
-    execution::contract_class::{ContractClass, ContractClassV0, ContractClassV1},
-    state::state_api::StateResult,
-};
-use blockifier::{
-    execution::contract_class::{
-        ClassInfo as BlockifierClassInfo},
-};
-use cairo_lang_starknet_classes::abi::Contract;
+use blockifier::execution::contract_class::{ContractClass, ContractClassV0, ContractClassV1};
 use cairo_native::OptLevel;
-use cairo_native::{
-    context::NativeContext, error::Error as NativeError, executor::AotContractExecutor,
-    metadata::gas::GasMetadata, module::NativeModule,
-};
-use cairo_lang_starknet_classes::contract_class::ContractClass as SierraContractClass;
-use libloading::Library;
+use cairo_native::executor::AotContractExecutor;
 use starknet_api::core::ClassHash;
-use serde::{Deserialize, Serialize};
 
 use std::sync::Arc;
 use std::{
-    ffi::{c_char, c_uchar, c_void, CStr},
     fs,
     path::PathBuf,
-    slice,
-    sync::Mutex,
 };
-use cached::{Cached, SizedCache};
-use once_cell::sync::Lazy;
 use lazy_static::lazy_static;
 
-use cairo_lang_sierra::{program::Program, program_registry::ProgramRegistry};
-use hashbrown::HashMap;
 
 lazy_static! {
     static ref NATIVE_CACHE_DIR: PathBuf = setup_native_cache_dir();
@@ -44,7 +23,7 @@ fn generate_library_path(class_hash: ClassHash) -> PathBuf {
 }
 
 fn setup_native_cache_dir() -> PathBuf {
-    let mut path: PathBuf = match std::env::var("NATIVE_CACHE_DIR") {
+    let path: PathBuf = match std::env::var("NATIVE_CACHE_DIR") {
         Ok(path) => path.into(),
         Err(_err) => {
             let mut path = std::env::current_dir().unwrap();

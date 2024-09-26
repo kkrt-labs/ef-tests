@@ -42,7 +42,7 @@ cairo-lang-starknet = "2.8.2"
 cairo-lang-utils = "2.8.2"
 cairo-lang-starknet-classes = "2.8.2"
 cairo-lang-sierra = "2.8.2"
-cairo-native = { git = "https://github.com/lambdaclass/cairo_native", branch = "update-llvm19" }
+cairo-native = { git = "https://github.com/lambdaclass/cairo_native", branch = "fix-snapshot-clones" }
 cairo-vm = "1.0.1"
 blockifier = { package = "blockifier", git = "https://github.com/kkrt-labs/sequencer.git", branch = "kkrt-native-2.8", default-features = false, features = [
   "testing",
