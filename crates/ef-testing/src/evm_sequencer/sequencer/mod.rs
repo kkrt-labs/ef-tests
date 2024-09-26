@@ -1,4 +1,4 @@
-use blockifier::{bouncer::BouncerConfig, execution::contract_class::NativeContractClassV1};
+use blockifier::bouncer::BouncerConfig;
 use starknet::core::types::Felt;
 use std::ops::{Deref, DerefMut};
 
@@ -13,7 +13,7 @@ use crate::evm_sequencer::{
         ETH_FEE_TOKEN_ADDRESS, FEE_TOKEN_CLASS, FEE_TOKEN_CLASS_HASH, KAKAROT_ADDRESS,
         KAKAROT_CLASS, KAKAROT_CLASS_HASH, KAKAROT_OWNER_ADDRESS, OPENZEPPELIN_ACCOUNT_CLASS,
         OPENZEPPELIN_ACCOUNT_CLASS_HASH, RELAYER_ADDRESS, RELAYER_BALANCE, RELAYER_VERIFYING_KEY,
-        STRK_FEE_TOKEN_ADDRESS, UNINITIALIZED_ACCOUNT_CLASS, UNINITIALIZED_ACCOUNT_CLASS_HASH, CLASS_HASH_TO_JSON_CLASS
+        STRK_FEE_TOKEN_ADDRESS, UNINITIALIZED_ACCOUNT_CLASS, UNINITIALIZED_ACCOUNT_CLASS_HASH
     },
     types::contract_class::CasmContractClassWrapper,
     utils::compute_starknet_address,
@@ -238,16 +238,17 @@ lazy_static! {
             {
                 #[cfg(feature = "native")]
                 {
+                    use sequencer::native::class_from_json_str;
+                    use crate::evm_sequencer::constants::CLASS_HASH_TO_JSON_CLASS;
                     let kakarot_json = CLASS_HASH_TO_JSON_CLASS.get(&KAKAROT_CLASS_HASH).unwrap();
                     let account_json = CLASS_HASH_TO_JSON_CLASS.get(&ACCOUNT_CONTRACT_CLASS_HASH).unwrap();
                     let uninitialized_json = CLASS_HASH_TO_JSON_CLASS.get(&UNINITIALIZED_ACCOUNT_CLASS_HASH).unwrap();
-                    println!("Got kakarot's json of length {}", kakarot_json.len());
+                    println!("Got uninitialized account's json of length {}", uninitialized_json.len());
                     println!("Got account's json of length {}", account_json.len());
-                    println!("Got uninitialized's json of length {}", uninitialized_json.len());
-                    let kakarot_class= class_from_json_str(kakarot_json, *KAKAROT_CLASS_HASH).unwrap();
-                    let account_class= class_from_json_str(account_json, *ACCOUNT_CONTRACT_CLASS_HASH).unwrap();
+                    println!("Got kakarot's json of length {}", kakarot_json.len());
                     let uninitialized_class= class_from_json_str(uninitialized_json, *UNINITIALIZED_ACCOUNT_CLASS_HASH).unwrap();
-                    println!("Got class");
+                    let account_class= class_from_json_str(account_json, *ACCOUNT_CONTRACT_CLASS_HASH).unwrap();
+                    let kakarot_class= class_from_json_str(kakarot_json, *KAKAROT_CLASS_HASH).unwrap();
                     (kakarot_class, account_class, uninitialized_class)
                 }
                 #[cfg(not(feature = "native"))]
