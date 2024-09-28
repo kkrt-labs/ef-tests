@@ -82,6 +82,10 @@ ef-test-v0: build
 ef-test-v1: build
 	cargo test --test tests --no-fail-fast --quiet --features "v1,ci"
 
+# Runs ef-tests with cairo-native mode
+ef-test-v1-native: build
+	cargo test --test tests --no-fail-fast --quiet --features "v1,native,ci"
+
 # Build the rust crates
 build:
 	cargo build --release
