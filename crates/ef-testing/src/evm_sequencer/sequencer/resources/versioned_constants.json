@@ -8,7 +8,7 @@
     "max_calldata_length": 5000,
     "max_contract_bytecode_size": 81920
   },
-  "invoke_tx_max_n_steps": 100000000,
+  "invoke_tx_max_n_steps": 50000000,
   "l2_resource_gas_costs": {
     "gas_per_data_felt": [128, 1000],
     "event_key_factor": [2, 1],
@@ -63,7 +63,7 @@
       "syscall_base_gas_cost": 1
     },
     "initial_gas_cost": {
-      "step_gas_cost": 800000000
+      "step_gas_cost": 500000000
     },
     "keccak_gas_cost": {
       "syscall_base_gas_cost": 1
