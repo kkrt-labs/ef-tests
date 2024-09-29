@@ -1067,7 +1067,7 @@ dependencies = [
 [[package]]
 name = "blockifier"
 version = "0.0.0"
-source = "git+https://github.com/kkrt-labs/sequencer.git?branch=kkrt-native-2.8#313ea8659a0266687d862ecc0c276aef56f519e5"
+source = "git+https://github.com/kkrt-labs/sequencer.git?rev=7c8bd351ecf0c0375d7030466500523a9a924273#7c8bd351ecf0c0375d7030466500523a9a924273"
 dependencies = [
  "anyhow",
  "ark-ec",
@@ -5189,7 +5189,7 @@ dependencies = [
 [[package]]
 name = "papyrus_config"
 version = "0.0.0"
-source = "git+https://github.com/kkrt-labs/sequencer.git?branch=kkrt-native-2.8#313ea8659a0266687d862ecc0c276aef56f519e5"
+source = "git+https://github.com/kkrt-labs/sequencer.git?rev=7c8bd351ecf0c0375d7030466500523a9a924273#7c8bd351ecf0c0375d7030466500523a9a924273"
 dependencies = [
  "clap",
  "itertools 0.10.5",
@@ -8565,7 +8565,7 @@ dependencies = [
 [[package]]
 name = "starknet_api"
 version = "0.0.0"
-source = "git+https://github.com/kkrt-labs/sequencer.git?branch=kkrt-native-2.8#313ea8659a0266687d862ecc0c276aef56f519e5"
+source = "git+https://github.com/kkrt-labs/sequencer.git?rev=7c8bd351ecf0c0375d7030466500523a9a924273#7c8bd351ecf0c0375d7030466500523a9a924273"
 dependencies = [
  "bitvec",
  "cairo-lang-starknet-classes",
