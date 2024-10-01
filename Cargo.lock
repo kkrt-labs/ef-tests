@@ -1118,7 +1118,7 @@ dependencies = [
 [[package]]
 name = "blockifier"
 version = "0.0.0"
-source = "git+https://github.com/kkrt-labs/sequencer.git?rev=7c8bd351ecf0c0375d7030466500523a9a924273#7c8bd351ecf0c0375d7030466500523a9a924273"
+source = "git+https://github.com/kkrt-labs/sequencer.git?rev=50267f96092793dd389ae88f740b077a7703b3ed#50267f96092793dd389ae88f740b077a7703b3ed"
 dependencies = [
  "anyhow",
  "ark-ec",
@@ -1861,8 +1861,8 @@ dependencies = [
 
 [[package]]
 name = "cairo-native"
-version = "0.2.0"
-source = "git+https://github.com/lambdaclass/cairo_native?branch=fix-snapshot-clones#f3f6ba23a9a6d8fb480d6250a5b382f68d957ed9"
+version = "0.2.0-alpha.1"
+source = "git+https://github.com/lambdaclass/cairo_native?branch=fix-clone-drop-for-enum-structs#8c8a40f750633c99f4db8f971dd6748f6d831802"
 dependencies = [
  "anyhow",
  "aquamarine",
@@ -1913,12 +1913,14 @@ dependencies = [
 
 [[package]]
 name = "cairo-native-runtime"
-version = "0.2.0"
-source = "git+https://github.com/lambdaclass/cairo_native?branch=fix-snapshot-clones#f3f6ba23a9a6d8fb480d6250a5b382f68d957ed9"
+version = "0.2.0-alpha.1"
+source = "git+https://github.com/lambdaclass/cairo_native?branch=fix-clone-drop-for-enum-structs#8c8a40f750633c99f4db8f971dd6748f6d831802"
 dependencies = [
  "cairo-lang-sierra-gas",
+ "itertools 0.13.0",
  "lazy_static",
  "libc",
+ "num-traits 0.2.19",
  "rand",
  "starknet-curve 0.5.1",
  "starknet-types-core",
@@ -5360,7 +5362,7 @@ dependencies = [
 [[package]]
 name = "papyrus_config"
 version = "0.0.0"
-source = "git+https://github.com/kkrt-labs/sequencer.git?rev=7c8bd351ecf0c0375d7030466500523a9a924273#7c8bd351ecf0c0375d7030466500523a9a924273"
+source = "git+https://github.com/kkrt-labs/sequencer.git?rev=50267f96092793dd389ae88f740b077a7703b3ed#50267f96092793dd389ae88f740b077a7703b3ed"
 dependencies = [
  "clap",
  "itertools 0.10.5",
@@ -8822,7 +8824,7 @@ dependencies = [
 [[package]]
 name = "starknet_api"
 version = "0.0.0"
-source = "git+https://github.com/kkrt-labs/sequencer.git?rev=7c8bd351ecf0c0375d7030466500523a9a924273#7c8bd351ecf0c0375d7030466500523a9a924273"
+source = "git+https://github.com/kkrt-labs/sequencer.git?rev=50267f96092793dd389ae88f740b077a7703b3ed#50267f96092793dd389ae88f740b077a7703b3ed"
 dependencies = [
  "bitvec",
  "cairo-lang-starknet-classes",
