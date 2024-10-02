@@ -1067,7 +1067,7 @@ dependencies = [
 [[package]]
 name = "blockifier"
 version = "0.0.0"
-source = "git+https://github.com/kkrt-labs/sequencer.git?rev=50267f96092793dd389ae88f740b077a7703b3ed#50267f96092793dd389ae88f740b077a7703b3ed"
+source = "git+https://github.com/kkrt-labs/sequencer.git?rev=fa48e27af95960854773139c7eedc79154265d30#fa48e27af95960854773139c7eedc79154265d30"
 dependencies = [
  "anyhow",
  "ark-ec",
@@ -1817,7 +1817,7 @@ dependencies = [
 [[package]]
 name = "cairo-native"
 version = "0.2.0-alpha.1"
-source = "git+https://github.com/lambdaclass/cairo_native?branch=fix-clone-drop-for-enum-structs#8c8a40f750633c99f4db8f971dd6748f6d831802"
+source = "git+https://github.com/lambdaclass/cairo_native#c866fbf8417cfcf522fd809348a483c5daef2e45"
 dependencies = [
  "anyhow",
  "aquamarine",
@@ -1869,7 +1869,7 @@ dependencies = [
 [[package]]
 name = "cairo-native-runtime"
 version = "0.2.0-alpha.1"
-source = "git+https://github.com/lambdaclass/cairo_native?branch=fix-clone-drop-for-enum-structs#8c8a40f750633c99f4db8f971dd6748f6d831802"
+source = "git+https://github.com/lambdaclass/cairo_native#c866fbf8417cfcf522fd809348a483c5daef2e45"
 dependencies = [
  "cairo-lang-sierra-gas",
  "itertools 0.13.0",
@@ -5191,7 +5191,7 @@ dependencies = [
 [[package]]
 name = "papyrus_config"
 version = "0.0.0"
-source = "git+https://github.com/kkrt-labs/sequencer.git?rev=50267f96092793dd389ae88f740b077a7703b3ed#50267f96092793dd389ae88f740b077a7703b3ed"
+source = "git+https://github.com/kkrt-labs/sequencer.git?rev=fa48e27af95960854773139c7eedc79154265d30#fa48e27af95960854773139c7eedc79154265d30"
 dependencies = [
  "clap",
  "itertools 0.10.5",
@@ -8567,7 +8567,7 @@ dependencies = [
 [[package]]
 name = "starknet_api"
 version = "0.0.0"
-source = "git+https://github.com/kkrt-labs/sequencer.git?rev=50267f96092793dd389ae88f740b077a7703b3ed#50267f96092793dd389ae88f740b077a7703b3ed"
+source = "git+https://github.com/kkrt-labs/sequencer.git?rev=fa48e27af95960854773139c7eedc79154265d30#fa48e27af95960854773139c7eedc79154265d30"
 dependencies = [
  "bitvec",
  "cairo-lang-starknet-classes",
