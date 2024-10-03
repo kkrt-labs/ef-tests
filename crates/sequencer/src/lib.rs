@@ -5,3 +5,4 @@ pub mod sequencer;
 pub mod serde;
 pub mod state;
 pub mod transaction;
+pub mod native;
