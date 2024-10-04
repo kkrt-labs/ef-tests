@@ -1,5 +1,5 @@
-use lazy_static::lazy_static;
 use alloy_primitives::{address, Address};
+use lazy_static::lazy_static;
 use std::collections::HashMap;
 
 pub const ROOT: &str = "GeneralStateTests";
