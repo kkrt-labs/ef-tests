@@ -124,7 +124,7 @@ impl<'a> EfTests<'a> {
         use ef_testing::test_utils::setup;
         use ef_testing::traits::Case;
         use ef_tests::models::{Block, Account, State};
-        use reth_primitives::{Address, B256};
+        use alloy_primitives::{Address, B256};
         use std::collections::BTreeMap;
         "
         .to_string()
