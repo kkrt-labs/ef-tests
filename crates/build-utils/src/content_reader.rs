@@ -2,9 +2,10 @@ use crate::{
     constants::ADDRESSES_KEYS, path::PathWrapper,
     utils::blockchain_tests_to_general_state_tests_path,
 };
+use alloy_primitives::{address, hex, Address};
 use alloy_rlp::Decodable;
 use eyre::eyre;
-use reth_primitives::{address, hex, Address, Block};
+use reth_primitives::Block;
 use serde_json::Value;
 use std::collections::BTreeMap;
 

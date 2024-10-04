@@ -12,6 +12,7 @@ license.workspace = true
 [dependencies]
 # Others
 alloy-rlp = { workspace = true }
+alloy-primitives = { workspace = true }
 eyre = { workspace = true }
 lazy_static = { workspace = true }
 rayon = { workspace = true }

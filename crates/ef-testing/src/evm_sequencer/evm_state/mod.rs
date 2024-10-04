@@ -17,6 +17,9 @@ use crate::{
     },
     starknet_storage,
 };
+use alloy_primitives::Address;
+use alloy_primitives::Bytes;
+use alloy_primitives::U256;
 use blockifier::{
     abi::{
         abi_utils::{get_fee_token_var_address, get_storage_var_address},
@@ -29,7 +32,7 @@ use blockifier::{
         objects::{TransactionExecutionInfo, TransactionExecutionResult},
     },
 };
-use reth_primitives::{Address, Bytes, TransactionSigned, U256};
+use reth_primitives::TransactionSigned;
 use sequencer::{execution::Execution as _, transaction::BroadcastedTransactionWrapper};
 use starknet::core::types::BroadcastedTransaction;
 use starknet_api::state::StorageKey;
@@ -351,10 +354,11 @@ mod tests {
         },
         models::result::extract_output_and_log_execution_result,
     };
+    use alloy_consensus::TxEip1559;
+    use alloy_eips::eip2930::AccessList;
+    use alloy_primitives::B256;
     use ef_tests::models::Account;
-    use reth_primitives::{
-        sign_message, AccessList, Signature, TransactionSigned, TxEip1559, B256,
-    };
+    use reth_primitives::{sign_message, Signature, TransactionSigned};
 
     #[test]
     fn test_execute_simple_contract() {
@@ -377,14 +381,14 @@ mod tests {
 
         let mut transaction = TransactionSigned {
             hash: B256::default(),
-            signature: Signature::default(),
+            signature: Signature::from_rs_and_parity(U256::ZERO, U256::ZERO, false).unwrap(),
             transaction: reth_primitives::Transaction::Eip1559(TxEip1559 {
                 chain_id: CHAIN_ID,
                 nonce: 0,
                 gas_limit: 1_000_000,
                 max_fee_per_gas: 0,
                 max_priority_fee_per_gas: 0,
-                to: reth_primitives::TxKind::Call(*TEST_CONTRACT_ADDRESS),
+                to: alloy_primitives::TxKind::Call(*TEST_CONTRACT_ADDRESS),
                 value: U256::ZERO,
                 access_list: AccessList::default(),
                 input: Bytes::default(),

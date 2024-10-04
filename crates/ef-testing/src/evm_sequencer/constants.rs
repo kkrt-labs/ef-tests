@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
+use alloy_primitives::{address, Address};
 use lazy_static::lazy_static;
-use reth_primitives::alloy_primitives::{address, Address};
 use serde::de::DeserializeOwned;
 use starknet::core::types::contract::CompiledClass;
 use starknet::signers::VerifyingKey;
@@ -149,8 +149,8 @@ pub mod storage_variables {
 pub mod tests {
     use std::str::FromStr;
 
+    use alloy_primitives::{Address, B256};
     use lazy_static::lazy_static;
-    use reth_primitives::{Address, B256};
 
     lazy_static! {
         pub static ref PRIVATE_KEY: B256 =

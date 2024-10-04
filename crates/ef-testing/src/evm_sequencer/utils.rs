@@ -1,7 +1,8 @@
 use super::constants::KAKAROT_ADDRESS;
 use crate::evm_sequencer::constants::RELAYER_ADDRESS;
+use alloy_primitives::{Address, Bytes, U256};
 use bytes::BytesMut;
-use reth_primitives::{Address, Bytes, TransactionSigned, TxType, U256};
+use reth_primitives::{TransactionSigned, TxType};
 use starknet::core::{
     types::{BroadcastedInvokeTransaction, BroadcastedInvokeTransactionV1, Felt},
     utils::get_contract_address,
@@ -64,12 +65,14 @@ pub fn to_broadcasted_starknet_transaction(
     };
 
     let signature = transaction.signature();
-    let [r_low, r_high] = split_u256(signature.r);
-    let [s_low, s_high] = split_u256(signature.s);
+    let [r_low, r_high] = split_u256(signature.r());
+    let [s_low, s_high] = split_u256(signature.s());
     let v = match transaction.transaction.tx_type() {
-        TxType::Legacy => signature.legacy_parity(transaction.chain_id()).to_u64(),
-        _ => signature.odd_y_parity as u64,
-    };
+        TxType::Legacy => signature.with_chain_id(transaction.chain_id().unwrap_or_default()),
+        _ => *signature,
+    }
+    .v()
+    .to_u64();
 
     #[allow(unused_mut)]
     let mut signature: Vec<Felt> = vec![

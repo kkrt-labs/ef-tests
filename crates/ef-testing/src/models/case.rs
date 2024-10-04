@@ -21,7 +21,8 @@ use ef_tests::models::Block;
 use ef_tests::models::State;
 use std::collections::BTreeMap;
 
-use reth_primitives::{sign_message, Address, SealedBlock, B256, U256};
+use alloy_primitives::{Address, B256, U256};
+use reth_primitives::{sign_message, SealedBlock};
 
 #[derive(Debug)]
 pub struct BlockchainTestCase {
@@ -76,7 +77,7 @@ impl BlockchainTestCase {
         let mut output = EVMOutput::default();
 
         // Iterate over all transactions in the block
-        for tx in block.body.iter() {
+        for tx in block.body.transactions.iter() {
             // Encode body as transaction
             let mut tx_signed = tx.clone();
             tx_signed.transaction.set_chain_id(CHAIN_ID);

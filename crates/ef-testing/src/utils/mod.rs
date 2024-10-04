@@ -1,7 +1,7 @@
 use std::collections::BTreeMap;
 
+use alloy_primitives::{Address, Bytes, U256};
 use ef_tests::models::{Account, State};
-use reth_primitives::{Address, Bytes, U256};
 
 pub(crate) fn update_post_state(
     mut post_state: BTreeMap<Address, Account>,

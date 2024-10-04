@@ -18,6 +18,7 @@ use crate::evm_sequencer::{
     types::contract_class::CasmContractClassWrapper,
     utils::compute_starknet_address,
 };
+use alloy_primitives::Address;
 use blockifier::blockifier::block::{BlockInfo, GasPrices};
 use blockifier::context::ChainInfo;
 use blockifier::context::{BlockContext, FeeTokenAddresses};
@@ -28,7 +29,6 @@ use blockifier::{
 };
 use cairo_lang_starknet_classes::casm_contract_class::CasmContractClass;
 use cairo_vm::types::errors::program_errors::ProgramError;
-use reth_primitives::Address;
 use sequencer::{sequencer::Sequencer, state::State};
 use starknet::core::types::contract::{legacy::LegacyContractClass, CompiledClass};
 use starknet_api::{
