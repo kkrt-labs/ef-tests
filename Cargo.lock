@@ -1088,7 +1088,7 @@ dependencies = [
  "cairo-lang-sierra",
  "cairo-lang-starknet-classes",
  "cairo-lang-utils",
- "cairo-native",
+ "cairo-native 0.2.0-alpha.2 (git+https://github.com/lambdaclass/cairo_native?branch=fix-array-get-drop)",
  "cairo-vm",
  "derive_more 0.99.18",
 <<<<<<< HEAD
@@ -1825,7 +1825,7 @@ dependencies = [
 [[package]]
 name = "cairo-native"
 version = "0.2.0-alpha.2"
-source = "git+https://github.com/lambdaclass/cairo_native?branch=fix-array-get-drop#c6c4fcdd89521c0e2540592cbc3f0f0c413df20f"
+source = "git+https://github.com/lambdaclass/cairo_native?branch=add-malloc-tracing#b73e3fa8927eb284d362594aeaff900e28636a8d"
 dependencies = [
  "anyhow",
  "aquamarine",
@@ -1844,7 +1844,7 @@ dependencies = [
  "cairo-lang-starknet-classes",
  "cairo-lang-test-plugin",
  "cairo-lang-utils",
- "cairo-native-runtime",
+ "cairo-native-runtime 0.2.0-alpha.2 (git+https://github.com/lambdaclass/cairo_native?branch=add-malloc-tracing)",
  "cc",
  "clap",
  "colored",
@@ -1872,6 +1872,73 @@ dependencies = [
  "tracing",
  "tracing-subscriber",
  "utf8_iter",
+]
+
+[[package]]
+name = "cairo-native"
+version = "0.2.0-alpha.2"
+source = "git+https://github.com/lambdaclass/cairo_native?branch=fix-array-get-drop#c6c4fcdd89521c0e2540592cbc3f0f0c413df20f"
+dependencies = [
+ "anyhow",
+ "aquamarine",
+ "bumpalo",
+ "cairo-lang-compiler",
+ "cairo-lang-defs",
+ "cairo-lang-diagnostics",
+ "cairo-lang-filesystem",
+ "cairo-lang-runner",
+ "cairo-lang-semantic",
+ "cairo-lang-sierra",
+ "cairo-lang-sierra-ap-change",
+ "cairo-lang-sierra-gas",
+ "cairo-lang-sierra-generator",
+ "cairo-lang-starknet",
+ "cairo-lang-starknet-classes",
+ "cairo-lang-test-plugin",
+ "cairo-lang-utils",
+ "cairo-native-runtime 0.2.0-alpha.2 (git+https://github.com/lambdaclass/cairo_native?branch=fix-array-get-drop)",
+ "cc",
+ "clap",
+ "colored",
+ "educe",
+ "itertools 0.13.0",
+ "k256",
+ "keccak",
+ "lazy_static",
+ "libc",
+ "libloading",
+ "llvm-sys",
+ "melior",
+ "mlir-sys",
+ "num-bigint",
+ "num-traits 0.2.19",
+ "p256",
+ "sec1",
+ "serde",
+ "serde_json",
+ "sha2 0.10.8",
+ "starknet-types-core",
+ "stats_alloc",
+ "tempfile",
+ "thiserror",
+ "tracing",
+ "tracing-subscriber",
+ "utf8_iter",
+]
+
+[[package]]
+name = "cairo-native-runtime"
+version = "0.2.0-alpha.2"
+source = "git+https://github.com/lambdaclass/cairo_native?branch=add-malloc-tracing#b73e3fa8927eb284d362594aeaff900e28636a8d"
+dependencies = [
+ "cairo-lang-sierra-gas",
+ "itertools 0.13.0",
+ "lazy_static",
+ "libc",
+ "num-traits 0.2.19",
+ "rand",
+ "starknet-curve 0.5.1",
+ "starknet-types-core",
 ]
 
 [[package]]
@@ -8013,7 +8080,7 @@ dependencies = [
  "cached 0.53.1",
  "cairo-lang-sierra",
  "cairo-lang-starknet-classes",
- "cairo-native",
+ "cairo-native 0.2.0-alpha.2 (git+https://github.com/lambdaclass/cairo_native?branch=add-malloc-tracing)",
  "eyre",
  "hashbrown 0.14.5",
  "lazy_static",
