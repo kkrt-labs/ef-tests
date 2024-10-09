@@ -49,9 +49,6 @@ lazy_static! {
         .into_iter()
         .collect();
 
-    // // EVM Addresses
-    // pub static ref BEACON_ROOT_ADDRESS: Address = address!("000f3df6d732807ef1319fb7b8bb8522d0beac02");
-
     // Main addresses
     pub static ref ETH_FEE_TOKEN_ADDRESS: ContractAddress = contract_address!("0x049D36570D4e46f48e99674bd3fcc84644DdD6b96F7C741B1562B82f9e004dC7");
     pub static ref STRK_FEE_TOKEN_ADDRESS: ContractAddress = contract_address!("0xCa14007Eff0dB1f8135f4C25B34De49AB0d42766");
@@ -70,8 +67,6 @@ lazy_static! {
 
     pub static ref RELAYER_SIGNING_KEY: SigningKey = SigningKey::from_random();
     pub static ref RELAYER_VERIFYING_KEY: VerifyingKey = RELAYER_SIGNING_KEY.verifying_key();
-    // pub static ref RELAYER_BALANCE: Felt = Felt::from(1_000_000_000_000_000_000_000_000u128);
-
 }
 
 #[cfg(feature = "v0")]
