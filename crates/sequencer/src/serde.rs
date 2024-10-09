@@ -140,10 +140,7 @@ mod tests {
     };
 
     use crate::{
-        constants::test_constants::{
-            ONE_CLASS_HASH, ONE_COMPILED_CLASS_HASH, ONE_FELT, TEST_CONTRACT, TEST_NONCE,
-            TEST_STORAGE_KEY,
-        },
+        constants::test_constants::{TEST_CONTRACT, TEST_STORAGE_KEY},
         state::State,
     };
 
@@ -152,15 +149,15 @@ mod tests {
         let mut state = State::default();
 
         // setting up entry for state.classes
-        let class_hash = *ONE_CLASS_HASH;
+        let class_hash = ClassHash(Felt::ONE);
         let contract_class = include_str!("./test_data/cairo_0/compiled_classes/counter.json");
         let contract_class: ContractClassV0 =  serde_json::from_str(contract_class).expect("failed to deserialize ContractClass from ./crates/sequencer/test_data/cairo_1/compiled_classes/account.json");
         let contract_class = ContractClass::V0(contract_class);
 
-        let compiled_class_hash = *ONE_COMPILED_CLASS_HASH;
+        let compiled_class_hash = CompiledClassHash(Felt::ONE);
         let contract_address = *TEST_CONTRACT;
-        let storage_value = *ONE_FELT;
-        let nonce = *TEST_NONCE;
+        let storage_value = Felt::ONE;
+        let nonce = Nonce(Felt::ONE);
 
         (&mut state)
             .set_contract_class(class_hash, contract_class)
