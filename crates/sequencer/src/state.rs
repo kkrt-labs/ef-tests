@@ -186,9 +186,7 @@ impl BlockifierStateReader for &mut State {
 mod tests {
     use blockifier::execution::contract_class::ContractClassV0;
 
-    use crate::constants::test_constants::{
-        ONE_CLASS_HASH, ONE_COMPILED_CLASS_HASH, ONE_FELT, ONE_PATRICIA, TEST_CONTRACT,
-    };
+    use crate::constants::test_constants::{ONE_PATRICIA, TEST_CONTRACT};
 
     use super::*;
 
@@ -199,11 +197,11 @@ mod tests {
 
         // When
         state
-            .set_storage_at(*TEST_CONTRACT, StorageKey(*ONE_PATRICIA), *ONE_FELT)
+            .set_storage_at(*TEST_CONTRACT, StorageKey(*ONE_PATRICIA), Felt::ONE)
             .expect("failed to set storage");
 
         // Then
-        let expected = *ONE_FELT;
+        let expected = Felt::ONE;
         let actual = state
             .get_storage_at(*TEST_CONTRACT, StorageKey(*ONE_PATRICIA))
             .unwrap();
@@ -219,7 +217,7 @@ mod tests {
         state.increment_nonce(*TEST_CONTRACT).unwrap();
 
         // Then
-        let expected = Nonce(*ONE_FELT);
+        let expected = Nonce(Felt::ONE);
         let actual = state.get_nonce_at(*TEST_CONTRACT).unwrap();
         assert_eq!(expected, actual);
     }
@@ -231,12 +229,12 @@ mod tests {
 
         // When
         state
-            .set_class_hash_at(*TEST_CONTRACT, *ONE_CLASS_HASH)
+            .set_class_hash_at(*TEST_CONTRACT, ClassHash(Felt::ONE))
             .unwrap();
 
         // Then
-        let expected = *ONE_CLASS_HASH;
-        let actual = state.get_class_hash_at(*TEST_CONTRACT).unwrap();
+        let expected = ClassHash(Felt::ONE);
+        let actual: ClassHash = state.get_class_hash_at(*TEST_CONTRACT).unwrap();
         assert_eq!(expected, actual);
     }
 
@@ -248,14 +246,16 @@ mod tests {
         // When
         state
             .set_contract_class(
-                *ONE_CLASS_HASH,
+                ClassHash(Felt::ONE),
                 ContractClass::V0(ContractClassV0::default()),
             )
             .unwrap();
 
         // Then
         let expected = ContractClass::V0(ContractClassV0::default());
-        let actual = state.get_compiled_contract_class(*ONE_CLASS_HASH).unwrap();
+        let actual = state
+            .get_compiled_contract_class(ClassHash(Felt::ONE))
+            .unwrap();
         assert_eq!(expected, actual);
     }
 
@@ -266,7 +266,9 @@ mod tests {
         let state = &mut State::default();
 
         // When
-        state.get_compiled_contract_class(*ONE_CLASS_HASH).unwrap();
+        state
+            .get_compiled_contract_class(ClassHash(Felt::ONE))
+            .unwrap();
     }
 
     #[test]
@@ -276,12 +278,12 @@ mod tests {
 
         // When
         state
-            .set_compiled_class_hash(*ONE_CLASS_HASH, *ONE_COMPILED_CLASS_HASH)
+            .set_compiled_class_hash(ClassHash(Felt::ONE), CompiledClassHash(Felt::ONE))
             .unwrap();
 
         // Then
-        let expected = *ONE_COMPILED_CLASS_HASH;
-        let actual = state.get_compiled_class_hash(*ONE_CLASS_HASH).unwrap();
+        let expected = CompiledClassHash(Felt::ONE);
+        let actual = state.get_compiled_class_hash(ClassHash(Felt::ONE)).unwrap();
         assert_eq!(expected, actual);
     }
 
@@ -292,6 +294,6 @@ mod tests {
         let state = &mut State::default();
 
         // When
-        state.get_compiled_class_hash(*ONE_CLASS_HASH).unwrap();
+        state.get_compiled_class_hash(ClassHash(Felt::ONE)).unwrap();
     }
 }

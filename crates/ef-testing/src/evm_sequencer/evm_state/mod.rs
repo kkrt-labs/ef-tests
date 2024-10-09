@@ -388,14 +388,14 @@ mod tests {
                 gas_limit: 1_000_000,
                 max_fee_per_gas: 0,
                 max_priority_fee_per_gas: 0,
-                to: alloy_primitives::TxKind::Call(*TEST_CONTRACT_ADDRESS),
+                to: alloy_primitives::TxKind::Call(TEST_CONTRACT_ADDRESS),
                 value: U256::ZERO,
                 access_list: AccessList::default(),
                 input: Bytes::default(),
             }),
         };
         let signature =
-            sign_message(*PRIVATE_KEY, transaction.transaction.signature_hash()).unwrap();
+            sign_message(PRIVATE_KEY, transaction.transaction.signature_hash()).unwrap();
         transaction.signature = signature;
         let eoa_nonce = U256::ZERO;
         let contract_bytecode = Bytes::from(vec![96, 1, 96, 0, 85]); // PUSH 01 PUSH 00 SSTORE

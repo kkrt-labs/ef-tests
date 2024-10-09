@@ -159,7 +159,7 @@ impl BlockchainTestCase {
             //TODO: this should not be a part of the post-state of EF-Tests and can
             // be removed once we base ourself on the next EF-Tests release, which fixes this issue
             // Beacon-related features are not supported in Kakarot
-            if *address == *BEACON_ROOT_ADDRESS {
+            if *address == BEACON_ROOT_ADDRESS {
                 continue;
             }
 
