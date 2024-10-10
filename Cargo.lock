@@ -1075,7 +1075,7 @@ dependencies = [
 [[package]]
 name = "blockifier"
 version = "0.0.0"
-source = "git+https://github.com/kkrt-labs/sequencer.git?rev=a62fc3320cd598b94093d4abcb97cea7409c543a#a62fc3320cd598b94093d4abcb97cea7409c543a"
+source = "git+https://github.com/kkrt-labs/sequencer.git?rev=eee6d1981531c5a4466f83ecf8c851feaa91a1c6#eee6d1981531c5a4466f83ecf8c851feaa91a1c6"
 dependencies = [
  "anyhow",
  "ark-ec",
@@ -1768,9 +1768,9 @@ dependencies = [
 
 [[package]]
 name = "cairo-lang-test-plugin"
-version = "2.8.2"
+version = "2.8.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "74f1597b8229a3649183ff33b19f0aeca5d86505253ebbbce377b271d1732835"
+checksum = "4d5f036132e07b7829cb1d61b1ecc02789a70c7d16b2733722a2aca992492bc3"
 dependencies = [
  "anyhow",
  "cairo-lang-compiler",
@@ -1824,11 +1824,15 @@ dependencies = [
 
 [[package]]
 name = "cairo-native"
-version = "0.2.0-alpha.2"
-source = "git+https://github.com/lambdaclass/cairo_native?branch=add-malloc-tracing#b73e3fa8927eb284d362594aeaff900e28636a8d"
+version = "0.2.0-alpha.3"
+source = "git+https://github.com/lambdaclass/cairo_native?rev=82c25b377f50904e1253b614c8719388277530e6#82c25b377f50904e1253b614c8719388277530e6"
 dependencies = [
  "anyhow",
  "aquamarine",
+ "ark-ec",
+ "ark-ff 0.4.2",
+ "ark-secp256k1",
+ "ark-secp256r1",
  "bumpalo",
  "cairo-lang-compiler",
  "cairo-lang-defs",
@@ -1850,7 +1854,6 @@ dependencies = [
  "colored",
  "educe",
  "itertools 0.13.0",
- "k256",
  "keccak",
  "lazy_static",
  "libc",
@@ -1859,9 +1862,8 @@ dependencies = [
  "melior",
  "mlir-sys",
  "num-bigint",
+ "num-integer",
  "num-traits 0.2.19",
- "p256",
- "sec1",
  "serde",
  "serde_json",
  "sha2 0.10.8",
@@ -1876,8 +1878,8 @@ dependencies = [
 
 [[package]]
 name = "cairo-native-runtime"
-version = "0.2.0-alpha.2"
-source = "git+https://github.com/lambdaclass/cairo_native?branch=add-malloc-tracing#b73e3fa8927eb284d362594aeaff900e28636a8d"
+version = "0.2.0-alpha.3"
+source = "git+https://github.com/lambdaclass/cairo_native?rev=82c25b377f50904e1253b614c8719388277530e6#82c25b377f50904e1253b614c8719388277530e6"
 dependencies = [
  "cairo-lang-sierra-gas",
  "itertools 0.13.0",
@@ -2516,7 +2518,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f55bf8e7b65898637379c1b74eb1551107c8294ed26d855ceb9fd1a09cfc9bc0"
 dependencies = [
  "const-oid",
- "pem-rfc7468",
  "zeroize",
 ]
 
@@ -2840,7 +2841,6 @@ dependencies = [
  "ef-tests",
  "eyre",
  "lazy_static",
- "libc",
  "log",
  "num-bigint",
  "num-integer",
@@ -2906,7 +2906,6 @@ dependencies = [
  "ff",
  "generic-array",
  "group",
- "pem-rfc7468",
  "pkcs8",
  "rand_core",
  "sec1",
@@ -5180,18 +5179,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b15813163c1d831bf4a13c3610c05c0d03b39feb07f7e09fa234dac9b15aaf39"
 
 [[package]]
-name = "p256"
-version = "0.13.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c9863ad85fa8f4460f9c48cb909d38a0d689dba1f6f6988a5e3e0d31071bcd4b"
-dependencies = [
- "ecdsa",
- "elliptic-curve",
- "primeorder",
- "sha2 0.10.8",
-]
-
-[[package]]
 name = "page_size"
 version = "0.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -5204,7 +5191,7 @@ dependencies = [
 [[package]]
 name = "papyrus_config"
 version = "0.0.0"
-source = "git+https://github.com/kkrt-labs/sequencer.git?rev=a62fc3320cd598b94093d4abcb97cea7409c543a#a62fc3320cd598b94093d4abcb97cea7409c543a"
+source = "git+https://github.com/kkrt-labs/sequencer.git?rev=eee6d1981531c5a4466f83ecf8c851feaa91a1c6#eee6d1981531c5a4466f83ecf8c851feaa91a1c6"
 dependencies = [
  "clap",
  "itertools 0.10.5",
@@ -5319,15 +5306,6 @@ checksum = "8e459365e590736a54c3fa561947c84837534b8e9af6fc5bf781307e82658fae"
 dependencies = [
  "base64 0.22.1",
  "serde",
-]
-
-[[package]]
-name = "pem-rfc7468"
-version = "0.7.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "88b39c9bfcfc231068454382784bb460aae594343fb030d46e9f50a645418412"
-dependencies = [
- "base64ct",
 ]
 
 [[package]]
@@ -5528,15 +5506,6 @@ checksum = "479cf940fbbb3426c32c5d5176f62ad57549a0bb84773423ba8be9d089f5faba"
 dependencies = [
  "proc-macro2",
  "syn 2.0.77",
-]
-
-[[package]]
-name = "primeorder"
-version = "0.13.6"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "353e1ca18966c16d9deb1c69278edbc5f194139612772bd9537af60ac231e1e6"
-dependencies = [
- "elliptic-curve",
 ]
 
 [[package]]
@@ -8580,7 +8549,7 @@ dependencies = [
 [[package]]
 name = "starknet_api"
 version = "0.0.0"
-source = "git+https://github.com/kkrt-labs/sequencer.git?rev=a62fc3320cd598b94093d4abcb97cea7409c543a#a62fc3320cd598b94093d4abcb97cea7409c543a"
+source = "git+https://github.com/kkrt-labs/sequencer.git?rev=eee6d1981531c5a4466f83ecf8c851feaa91a1c6#eee6d1981531c5a4466f83ecf8c851feaa91a1c6"
 dependencies = [
  "bitvec",
  "cairo-lang-starknet-classes",
