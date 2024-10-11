@@ -129,6 +129,7 @@ mod tests {
     use blockifier::versioned_constants::VersionedConstants;
     use starknet::core::types::Felt;
     use starknet::macros::selector;
+    use starknet_api::block::{BlockNumber, BlockTimestamp};
     use starknet_api::core::{ChainId, ClassHash, ContractAddress, Nonce};
     use starknet_api::executable_transaction::InvokeTransaction;
     use starknet_api::transaction::{
@@ -138,10 +139,7 @@ mod tests {
     use crate::constants::test_constants::{
         ETH_FEE_TOKEN_ADDRESS, SEQUENCER_ADDRESS, STRK_FEE_TOKEN_ADDRESS,
     };
-    use crate::constants::test_constants::{
-        ONE_BLOCK_NUMBER, ONE_BLOCK_TIMESTAMP, ONE_CLASS_HASH, TEST_ACCOUNT, TEST_CONTRACT,
-        TWO_CLASS_HASH, ZERO_FELT,
-    };
+    use crate::constants::test_constants::{TEST_ACCOUNT, TEST_CONTRACT};
     use crate::state::State;
 
     use super::*;
@@ -217,7 +215,7 @@ mod tests {
                         $cairo_version
                     ),
                     *TEST_CONTRACT,
-                    *ONE_CLASS_HASH,
+                    ClassHash(Felt::ONE),
                     mutable,
                     $cairo_version,
                 );
@@ -227,7 +225,7 @@ mod tests {
                         $cairo_version
                     ),
                     *TEST_ACCOUNT,
-                    *TWO_CLASS_HASH,
+                    ClassHash(Felt::TWO),
                     mutable,
                     $cairo_version,
                 );
@@ -252,8 +250,8 @@ mod tests {
 
     fn block_context() -> BlockContext {
         let block_info = BlockInfo {
-            block_number: *ONE_BLOCK_NUMBER,
-            block_timestamp: *ONE_BLOCK_TIMESTAMP,
+            block_number: BlockNumber(1),
+            block_timestamp: BlockTimestamp(1),
             sequencer_address: *SEQUENCER_ADDRESS,
             gas_prices: GasPrices::new(
                 NonZeroU128::new(1).unwrap(),
@@ -292,15 +290,15 @@ mod tests {
                         vec![
                             *TEST_CONTRACT.0.key(), // destination
                             selector!("inc"),
-                            *ZERO_FELT, // no data
+                            Felt::ZERO, // no data
                         ]
                         .into(),
                     ),
                     max_fee: Fee(1_000_000),
                     signature: TransactionSignature(vec![]),
-                    nonce: Nonce(*ZERO_FELT),
+                    nonce: Nonce(Felt::ZERO),
                 }),
-                tx_hash: TransactionHash(*ZERO_FELT),
+                tx_hash: TransactionHash(Felt::ZERO),
             },
             only_query: false,
         }))

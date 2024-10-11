@@ -27,6 +27,11 @@ pub const CHAIN_ID: u64 = 0x1;
 // Block params
 pub const BLOCK_GAS_LIMIT: u64 = 20_000_000;
 
+pub const RELAYER_BALANCE: Felt = Felt::from_hex_unchecked("0xd3c21bcecceda1000000");
+
+// EVM Addresses
+pub const BEACON_ROOT_ADDRESS: Address = address!("000f3df6d732807ef1319fb7b8bb8522d0beac02");
+
 lazy_static! {
     // Vm resources: maps resource name to fee cost.
     pub static ref VM_RESOURCES: HashMap<String, f64> = [
@@ -43,9 +48,6 @@ lazy_static! {
         ]
         .into_iter()
         .collect();
-
-    // EVM Addresses
-    pub static ref BEACON_ROOT_ADDRESS: Address = address!("000f3df6d732807ef1319fb7b8bb8522d0beac02");
 
     // Main addresses
     pub static ref ETH_FEE_TOKEN_ADDRESS: ContractAddress = contract_address!("0x049D36570D4e46f48e99674bd3fcc84644DdD6b96F7C741B1562B82f9e004dC7");
@@ -65,8 +67,6 @@ lazy_static! {
 
     pub static ref RELAYER_SIGNING_KEY: SigningKey = SigningKey::from_random();
     pub static ref RELAYER_VERIFYING_KEY: VerifyingKey = RELAYER_SIGNING_KEY.verifying_key();
-    pub static ref RELAYER_BALANCE: Felt = Felt::from(1_000_000_000_000_000_000_000_000u128);
-
 }
 
 #[cfg(feature = "v0")]
@@ -147,18 +147,12 @@ pub mod storage_variables {
 
 #[cfg(test)]
 pub mod tests {
-    use std::str::FromStr;
+    use alloy_primitives::{address, b256, Address, B256};
 
-    use alloy_primitives::{Address, B256};
-    use lazy_static::lazy_static;
+    pub const PUBLIC_KEY: Address = address!("7513A12F74fFF533ee12F20EE524e4883CBd1945");
 
-    lazy_static! {
-        pub static ref PRIVATE_KEY: B256 =
-            B256::from_str("0x6ae82d865482a203603ecbf25c865e082396d7705a6bbce92c1ff1d6ab9b503c")
-                .unwrap();
-        pub static ref PUBLIC_KEY: Address =
-            Address::from_str("0x7513A12F74fFF533ee12F20EE524e4883CBd1945").unwrap();
-        pub static ref TEST_CONTRACT_ADDRESS: Address =
-            Address::left_padding_from(&0xdeadbeefu64.to_be_bytes());
-    }
+    pub const PRIVATE_KEY: B256 =
+        b256!("6ae82d865482a203603ecbf25c865e082396d7705a6bbce92c1ff1d6ab9b503c");
+
+    pub const TEST_CONTRACT_ADDRESS: Address = address!("00000000000000000000000000000000deadbeef");
 }
