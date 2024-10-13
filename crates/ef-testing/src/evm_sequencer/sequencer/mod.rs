@@ -13,7 +13,7 @@ use crate::evm_sequencer::{
         ETH_FEE_TOKEN_ADDRESS, FEE_TOKEN_CLASS, FEE_TOKEN_CLASS_HASH, KAKAROT_ADDRESS,
         KAKAROT_CLASS, KAKAROT_CLASS_HASH, KAKAROT_OWNER_ADDRESS, OPENZEPPELIN_ACCOUNT_CLASS,
         OPENZEPPELIN_ACCOUNT_CLASS_HASH, RELAYER_ADDRESS, RELAYER_BALANCE, RELAYER_VERIFYING_KEY,
-        STRK_FEE_TOKEN_ADDRESS, UNINITIALIZED_ACCOUNT_CLASS, UNINITIALIZED_ACCOUNT_CLASS_HASH
+        STRK_FEE_TOKEN_ADDRESS, UNINITIALIZED_ACCOUNT_CLASS, UNINITIALIZED_ACCOUNT_CLASS_HASH,
     },
     types::contract_class::CasmContractClassWrapper,
     utils::compute_starknet_address,
@@ -246,9 +246,9 @@ lazy_static! {
                     println!("Got uninitialized account's json of length {}", uninitialized_json.len());
                     println!("Got account's json of length {}", account_json.len());
                     println!("Got kakarot's json of length {}", kakarot_json.len());
-                    let uninitialized_class= class_from_json_str(uninitialized_json, *UNINITIALIZED_ACCOUNT_CLASS_HASH).unwrap();
-                    let account_class= class_from_json_str(account_json, *ACCOUNT_CONTRACT_CLASS_HASH).unwrap();
-                    let kakarot_class= class_from_json_str(kakarot_json, *KAKAROT_CLASS_HASH).unwrap();
+                    let account_class = class_from_json_str(account_json, *ACCOUNT_CONTRACT_CLASS_HASH).unwrap_or_else(|err| panic!("{}", err));
+                    let uninitialized_class = class_from_json_str(uninitialized_json, *UNINITIALIZED_ACCOUNT_CLASS_HASH).unwrap_or_else(|err| panic!("{}", err));
+                    let kakarot_class = class_from_json_str(kakarot_json, *KAKAROT_CLASS_HASH).unwrap_or_else(|err| panic!("{}", err));
                     (kakarot_class, account_class, uninitialized_class)
                 }
                 #[cfg(not(feature = "native"))]

@@ -170,7 +170,8 @@ impl BlockifierStateReader for &mut State {
     ///
     /// If the compiled class is not declared.
     fn get_compiled_contract_class(&self, class_hash: ClassHash) -> StateResult<ContractClass> {
-        let res = self.classes
+        let res = self
+            .classes
             .get(&class_hash)
             .cloned()
             .ok_or_else(|| StateError::UndeclaredClassHash(class_hash))?;
@@ -187,8 +188,6 @@ impl BlockifierStateReader for &mut State {
             .ok_or_else(|| StateError::UndeclaredClassHash(class_hash))
     }
 }
-
-
 
 #[cfg(test)]
 mod tests {

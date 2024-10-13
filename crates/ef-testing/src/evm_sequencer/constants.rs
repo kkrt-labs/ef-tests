@@ -22,12 +22,10 @@ where
     serde_json::from_str::<T>(&std::fs::read_to_string(path)?).map_err(eyre::Error::from)
 }
 
-
 pub fn get_raw_contract_class(contract_path: &str) -> String {
     println!("path: {:?}", contract_path);
     fs::read_to_string(contract_path).unwrap()
 }
-
 
 // Chain params
 pub const CHAIN_ID: u64 = 0x1;
@@ -134,11 +132,12 @@ lazy_static! {
         panic!("Kakarot class hash not defined, use features flag \"v0\" or \"v1\"");
     pub static ref UNINITIALIZED_ACCOUNT_CLASS: LegacyContractClass =
         panic!("Uninitialized account class not defined, use features flag \"v0\" or \"v1\"");
-
-    pub static ref KAKAROT_JSON_CLASS: String = panic!("Kakarot json class not defined, use features flag \"v0\" or \"v1\"");
-    pub static ref ACCOUNT_CONTRACT_JSON_CLASS: String = panic!("Account contract json class not defined, use features flag \"v0\" or \"v1\"");
-    pub static ref UNINITIALIZED_ACCOUNT_JSON_CLASS: String = panic!("Uninitialized account json class not defined, use features flag \"v0\" or \"v1\"");
-
+    pub static ref KAKAROT_JSON_CLASS: String =
+        panic!("Kakarot json class not defined, use features flag \"v0\" or \"v1\"");
+    pub static ref ACCOUNT_CONTRACT_JSON_CLASS: String =
+        panic!("Account contract json class not defined, use features flag \"v0\" or \"v1\"");
+    pub static ref UNINITIALIZED_ACCOUNT_JSON_CLASS: String =
+        panic!("Uninitialized account json class not defined, use features flag \"v0\" or \"v1\"");
     pub static ref CLASS_HASH_TO_JSON_CLASS: HashMap<ClassHash, String> = HashMap::new();
 }
 

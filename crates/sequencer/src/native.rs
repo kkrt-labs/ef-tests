@@ -1,16 +1,12 @@
 use blockifier::execution::contract_class::NativeContractClassV1;
 use blockifier::execution::contract_class::{ContractClass, ContractClassV0, ContractClassV1};
-use cairo_native::OptLevel;
 use cairo_native::executor::AotContractExecutor;
+use cairo_native::OptLevel;
 use starknet_api::core::ClassHash;
 
-use std::sync::Arc;
-use std::{
-    fs,
-    path::PathBuf,
-};
 use lazy_static::lazy_static;
-
+use std::sync::Arc;
+use std::{fs, path::PathBuf};
 
 lazy_static! {
     static ref NATIVE_CACHE_DIR: PathBuf = setup_native_cache_dir();
@@ -45,7 +41,7 @@ fn native_try_from_json_string(
     library_output_path: &PathBuf,
 ) -> Result<NativeContractClassV1, Box<dyn std::error::Error>> {
     let sierra_contract_class: cairo_lang_starknet_classes::contract_class::ContractClass =
-    serde_json::from_str(raw_contract_class)?;
+        serde_json::from_str(raw_contract_class)?;
 
     let sierra_program = sierra_contract_class.extract_sierra_program()?;
 
@@ -65,16 +61,12 @@ fn native_try_from_json_string(
     Ok(native_class)
 }
 
-
-pub fn class_from_json_str(
-    raw_json: &str,
-    class_hash: ClassHash,
-) -> Result<ContractClass, String> {
+pub fn class_from_json_str(raw_json: &str, class_hash: ClassHash) -> Result<ContractClass, String> {
     println!("raw json length {}", raw_json.len());
     let class_def = raw_json.to_string();
     println!("class def parsed");
-
-        let class: ContractClass =if let Ok(class) = ContractClassV0::try_from_json_string(class_def.as_str()) {
+    let class: ContractClass =
+        if let Ok(class) = ContractClassV0::try_from_json_string(class_def.as_str()) {
             class.into()
         } else if let Ok(class) = ContractClassV1::try_from_json_string(class_def.as_str()) {
             println!("v1 contract");
@@ -82,13 +74,21 @@ pub fn class_from_json_str(
         } else if let Ok(class) = {
             println!("native contract");
             let library_output_path = generate_library_path(class_hash);
-            native_try_from_json_string(class_def.as_str(), &library_output_path)
+            let maybe_class = native_try_from_json_string(class_def.as_str(), &library_output_path);
+            if let Ok(class) = maybe_class {
+                Ok(class)
+            } else {
+                println!(
+                    "Native contract failed with error {:?}",
+                    maybe_class.err().unwrap()
+                );
+                Err(())
+            }
         } {
             class.into()
         } else {
             return Err("not a valid contract class".to_string());
         };
 
-        Ok(class)
-
-    }
+    Ok(class)
+}
