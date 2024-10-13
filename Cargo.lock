@@ -1075,7 +1075,7 @@ dependencies = [
 [[package]]
 name = "blockifier"
 version = "0.0.0"
-source = "git+https://github.com/kkrt-labs/sequencer.git?rev=eee6d1981531c5a4466f83ecf8c851feaa91a1c6#eee6d1981531c5a4466f83ecf8c851feaa91a1c6"
+source = "git+https://github.com/kkrt-labs/sequencer.git?rev=8f827b37ca8f830b8ff469869a2c0a55bdc01825#8f827b37ca8f830b8ff469869a2c0a55bdc01825"
 dependencies = [
  "anyhow",
  "ark-ec",
@@ -1825,7 +1825,7 @@ dependencies = [
 [[package]]
 name = "cairo-native"
 version = "0.2.0-alpha.3"
-source = "git+https://github.com/lambdaclass/cairo_native?rev=82c25b377f50904e1253b614c8719388277530e6#82c25b377f50904e1253b614c8719388277530e6"
+source = "git+https://github.com/lambdaclass/cairo_native?rev=f862ec3533a7af79909f4c3e19598da2e537cd91#f862ec3533a7af79909f4c3e19598da2e537cd91"
 dependencies = [
  "anyhow",
  "aquamarine",
@@ -1879,7 +1879,7 @@ dependencies = [
 [[package]]
 name = "cairo-native-runtime"
 version = "0.2.0-alpha.3"
-source = "git+https://github.com/lambdaclass/cairo_native?rev=82c25b377f50904e1253b614c8719388277530e6#82c25b377f50904e1253b614c8719388277530e6"
+source = "git+https://github.com/lambdaclass/cairo_native?rev=f862ec3533a7af79909f4c3e19598da2e537cd91#f862ec3533a7af79909f4c3e19598da2e537cd91"
 dependencies = [
  "cairo-lang-sierra-gas",
  "itertools 0.13.0",
@@ -2841,6 +2841,7 @@ dependencies = [
  "ef-tests",
  "eyre",
  "lazy_static",
+ "libc",
  "log",
  "num-bigint",
  "num-integer",
@@ -5191,7 +5192,7 @@ dependencies = [
 [[package]]
 name = "papyrus_config"
 version = "0.0.0"
-source = "git+https://github.com/kkrt-labs/sequencer.git?rev=eee6d1981531c5a4466f83ecf8c851feaa91a1c6#eee6d1981531c5a4466f83ecf8c851feaa91a1c6"
+source = "git+https://github.com/kkrt-labs/sequencer.git?rev=8f827b37ca8f830b8ff469869a2c0a55bdc01825#8f827b37ca8f830b8ff469869a2c0a55bdc01825"
 dependencies = [
  "clap",
  "itertools 0.10.5",
@@ -8549,7 +8550,7 @@ dependencies = [
 [[package]]
 name = "starknet_api"
 version = "0.0.0"
-source = "git+https://github.com/kkrt-labs/sequencer.git?rev=eee6d1981531c5a4466f83ecf8c851feaa91a1c6#eee6d1981531c5a4466f83ecf8c851feaa91a1c6"
+source = "git+https://github.com/kkrt-labs/sequencer.git?rev=8f827b37ca8f830b8ff469869a2c0a55bdc01825#8f827b37ca8f830b8ff469869a2c0a55bdc01825"
 dependencies = [
  "bitvec",
  "cairo-lang-starknet-classes",
