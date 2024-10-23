@@ -6,8 +6,6 @@ on:
   schedule:
     # Run weekly
     - cron: 0 0 * * MON
-  workflow_dispatch:
-    # Needed so we can run it manually
 
 env:
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
