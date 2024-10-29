@@ -45,14 +45,14 @@ cairo-lang-starknet = "2.8.4"
 cairo-lang-utils = "2.8.4"
 cairo-lang-starknet-classes = "2.8.4"
 cairo-lang-sierra = "2.8.4"
-cairo-native = { git = "https://github.com/lambdaclass/cairo_native", rev="b5769e4f6ba914b36eef68e0b1f71c791d7d075c"}
+cairo-native = { git = "https://github.com/lambdaclass/cairo_native", rev="ab478323d6aee5e0424712bbde98de443b8cc72f"}
 cairo-vm = "1.0.1"
-blockifier = { package = "blockifier", git = "https://github.com/kkrt-labs/sequencer.git", rev="df1bf66c6b7b9f9b39ff4bfa20fd47aec3f10c30", default-features = false, features = [
+blockifier = { package = "blockifier", git = "https://github.com/kkrt-labs/sequencer.git", rev="f3c44f158581bc7875142b1fdda8f3444206c0af", default-features = false, features = [
   "testing",
 ] }
 starknet = "0.12"
 starknet-crypto = "0.7"
-starknet_api = { package = "starknet_api", git = "https://github.com/kkrt-labs/sequencer.git", rev="df1bf66c6b7b9f9b39ff4bfa20fd47aec3f10c30" }
+starknet_api = { package = "starknet_api", git = "https://github.com/kkrt-labs/sequencer.git", rev="f3c44f158581bc7875142b1fdda8f3444206c0af" }
 
 # Other
 async-trait = "0.1"
