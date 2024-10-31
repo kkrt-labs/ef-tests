@@ -78,6 +78,8 @@ impl TryFrom<&EventData> for EVMOutput {
     }
 }
 
+#[cfg(target_os = "macos")]
+mod debug_ram {
 use std::mem;
 use std::ptr;
 
@@ -105,7 +107,7 @@ struct MachTaskBasicInfo {
     suspend_count: i32,
 }
 
-fn foo() -> Result<usize, String> {
+pub fn debug_ram() -> Result<usize, String> {
     unsafe {
         let mut info = MachTaskBasicInfo {
             virtual_size: 0,
@@ -129,6 +131,7 @@ fn foo() -> Result<usize, String> {
         } else {
             Err(format!("Failed to get task info. Error code: {}", kr))
         }
+        }
     }
 }
 
@@ -148,7 +151,9 @@ pub(crate) fn extract_output_and_log_execution_result(
             }
 
             info!("{} passed: {:?}", case, info.receipt.resources);
-            println!("Current memory usage: {:?} bytes", foo());
+            #[cfg(target_os = "macos")]{
+                println!("Current memory usage: {:?} bytes", debug_ram::debug_ram());
+            }
             if let Some(call) = info.execute_call_info.as_ref() {
                 use starknet::core::types::Felt;
                 let events = kakarot_execution_events(call);
