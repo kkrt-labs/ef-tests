@@ -4,11 +4,11 @@ use crate::evm_sequencer::constants::storage_variables::{
 };
 use crate::evm_sequencer::utils::split_u256;
 use crate::starknet_storage;
+use alloy_consensus::constants::KECCAK_EMPTY;
 use alloy_primitives::keccak256;
 use alloy_primitives::{Address, U256};
 use blockifier::abi::{abi_utils::get_storage_var_address, sierra_types::next_storage_key};
 use ef_tests::models::Account;
-use reth_primitives::KECCAK_EMPTY;
 use revm_interpreter::analysis::to_analysed;
 use revm_primitives::Bytecode;
 use starknet::core::utils::cairo_short_string_to_felt;

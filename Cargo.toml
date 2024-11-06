@@ -6,13 +6,13 @@ resolver = "2"
 version = "0.1.0"
 edition = "2021"
 authors = [
-  "Elias Tazartes <@eikix>",
-  "Clement Walter <@clementwalter>",
-  "Gregory Edison <@greged93>",
-  "Johann Bestowrous <@jobez>",
-  "Harsh Bajpai <@bajpai244>",
-  "Danilo Kim <@danilowhk>",
-  "Fred Tupas <@ftupas>",
+    "Elias Tazartes <@eikix>",
+    "Clement Walter <@clementwalter>",
+    "Gregory Edison <@greged93>",
+    "Johann Bestowrous <@jobez>",
+    "Harsh Bajpai <@bajpai244>",
+    "Danilo Kim <@danilowhk>",
+    "Fred Tupas <@ftupas>",
 ]
 description = "EF standard testing for Kakarot"
 homepage = "https://github.com/kkrt-labs"
@@ -26,18 +26,18 @@ incremental = true
 [workspace.dependencies]
 # Eth deps
 alloy-rlp = { version = "0.3.8", default-features = false }
-ef-tests = { git = "https://github.com/paradigmxyz/reth.git", tag = "v1.1.0", default-features = false, features = [
-  "ef-tests",
+ef-tests = { git = "https://github.com/paradigmxyz/reth.git", tag = "v1.1.1", default-features = false, features = [
+    "ef-tests",
 ] }
-alloy-signer-local = { version = "0.4.2", default-features = false }
-alloy-primitives = { version = "0.8.4", default-features = false }
-alloy-eips = { version = "0.4.2", default-features = false }
-alloy-consensus = { version = "0.4.2", default-features = false }
-reth-primitives = { git = "https://github.com/paradigmxyz/reth.git", tag = "v1.1.0", default-features = true, features = [
-  "std",
+alloy-signer-local = { version = "0.5.4", default-features = false }
+alloy-primitives = { version = "0.8.9", default-features = false }
+alloy-eips = { version = "0.5.4", default-features = false }
+alloy-consensus = { version = "0.5.4", default-features = false }
+reth-primitives = { git = "https://github.com/paradigmxyz/reth.git", tag = "v1.1.1", default-features = true, features = [
+    "std",
 ] }
-revm-interpreter = { version = "10.0", default-features = false }
-revm-primitives = { version = "10.0", default-features = false }
+revm-interpreter = { version = "13.0", default-features = false }
+revm-primitives = { version = "13.0", default-features = false }
 
 # Starknet deps
 cairo-lang-casm = "2.8.0"
@@ -46,7 +46,7 @@ cairo-lang-utils = "2.8.0"
 cairo-lang-starknet-classes = "2.8.0"
 cairo-vm = "1.0.1"
 blockifier = { package = "blockifier", git = "https://github.com/kkrt-labs/sequencer.git", rev = "d1f32e2", default-features = false, features = [
-  "testing",
+    "testing",
 ] }
 starknet = "0.12"
 starknet-crypto = "0.7"
