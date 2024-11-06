@@ -356,9 +356,10 @@ mod tests {
     };
     use alloy_consensus::TxEip1559;
     use alloy_eips::eip2930::AccessList;
+    use alloy_primitives::Signature;
     use alloy_primitives::B256;
     use ef_tests::models::Account;
-    use reth_primitives::{sign_message, Signature, TransactionSigned};
+    use reth_primitives::{sign_message, TransactionSigned};
 
     #[test]
     fn test_execute_simple_contract() {
