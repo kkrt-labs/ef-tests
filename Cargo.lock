@@ -1075,7 +1075,7 @@ dependencies = [
 [[package]]
 name = "blockifier"
 version = "0.0.0"
-source = "git+https://github.com/kkrt-labs/sequencer.git?rev=1a3531db1390afee8e831e1866b1383987176379#1a3531db1390afee8e831e1866b1383987176379"
+source = "git+https://github.com/kkrt-labs/sequencer.git?rev=353e69afe874458b05b498abe32e72d0be07fffe#353e69afe874458b05b498abe32e72d0be07fffe"
 dependencies = [
  "anyhow",
  "ark-ec",
@@ -1825,7 +1825,7 @@ dependencies = [
 [[package]]
 name = "cairo-native"
 version = "0.2.0-alpha.4"
-source = "git+https://github.com/lambdaclass/cairo_native?rev=8effa9882a35bf6c4c86a480f9efd83d3bb5560a#8effa9882a35bf6c4c86a480f9efd83d3bb5560a"
+source = "git+https://github.com/lambdaclass/cairo_native?rev=9791075918f17b1787084d85063180f6aa67a6ec#9791075918f17b1787084d85063180f6aa67a6ec"
 dependencies = [
  "anyhow",
  "aquamarine",
@@ -1878,7 +1878,7 @@ dependencies = [
 [[package]]
 name = "cairo-native-runtime"
 version = "0.2.0-alpha.4"
-source = "git+https://github.com/lambdaclass/cairo_native?rev=8effa9882a35bf6c4c86a480f9efd83d3bb5560a#8effa9882a35bf6c4c86a480f9efd83d3bb5560a"
+source = "git+https://github.com/lambdaclass/cairo_native?rev=9791075918f17b1787084d85063180f6aa67a6ec#9791075918f17b1787084d85063180f6aa67a6ec"
 dependencies = [
  "cairo-lang-sierra-gas",
  "itertools 0.13.0",
@@ -5190,7 +5190,7 @@ dependencies = [
 [[package]]
 name = "papyrus_config"
 version = "0.0.0"
-source = "git+https://github.com/kkrt-labs/sequencer.git?rev=1a3531db1390afee8e831e1866b1383987176379#1a3531db1390afee8e831e1866b1383987176379"
+source = "git+https://github.com/kkrt-labs/sequencer.git?rev=353e69afe874458b05b498abe32e72d0be07fffe#353e69afe874458b05b498abe32e72d0be07fffe"
 dependencies = [
  "clap",
  "itertools 0.10.5",
@@ -8548,7 +8548,7 @@ dependencies = [
 [[package]]
 name = "starknet_api"
 version = "0.0.0"
-source = "git+https://github.com/kkrt-labs/sequencer.git?rev=1a3531db1390afee8e831e1866b1383987176379#1a3531db1390afee8e831e1866b1383987176379"
+source = "git+https://github.com/kkrt-labs/sequencer.git?rev=353e69afe874458b05b498abe32e72d0be07fffe#353e69afe874458b05b498abe32e72d0be07fffe"
 dependencies = [
  "bitvec",
  "cairo-lang-starknet-classes",
