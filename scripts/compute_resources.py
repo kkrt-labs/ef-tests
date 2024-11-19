@@ -22,7 +22,7 @@ def get_resource_usage(path: str = "./test.out"):
     # Remove ANSI escape sequences
     cleaned_output = re.sub(r"\x1b\[[0-9;]*[a-zA-Z]", "", result)
     matches = re.findall(
-        r"ef_testing::models::result: (.*) passed: .?ResourcesMapping\((.*)\)",
+        r"ef_testing::models::result: (.*) passed: ResourcesMapping\((.*)\)",
         cleaned_output,
     )
     tests_resources = [
