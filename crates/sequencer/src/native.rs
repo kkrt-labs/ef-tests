@@ -53,7 +53,7 @@ fn native_try_from_json_string(
     }
 
     println!("Creating new executor");
-    let mut executor = AotContractExecutor::new(&sierra_program, OptLevel::Default)?;
+    let mut executor = AotContractExecutor::new(&sierra_program, &sierra_contract_class.entry_points_by_type, OptLevel::Default)?;
     executor.save(library_output_path)?;
     println!("Saved executor to {:?}", library_output_path);
 
