@@ -1,5 +1,6 @@
 use super::constants::KAKAROT_ADDRESS;
 use crate::evm_sequencer::constants::RELAYER_ADDRESS;
+use alloy_consensus::transaction::Transaction;
 use alloy_primitives::{Address, Bytes, U256};
 use bytes::BytesMut;
 use reth_primitives::{TransactionSigned, TxType};
