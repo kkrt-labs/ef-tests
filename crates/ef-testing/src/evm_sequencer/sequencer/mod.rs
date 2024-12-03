@@ -19,7 +19,8 @@ use crate::evm_sequencer::{
     utils::compute_starknet_address,
 };
 use alloy_primitives::Address;
-use blockifier::blockifier::block::{BlockInfo, GasPrices};
+use blockifier::blockifier::block::BlockInfo;
+use starknet_api::block::{GasPrices, GasPriceVector};
 use blockifier::context::ChainInfo;
 use blockifier::context::{BlockContext, FeeTokenAddresses};
 use blockifier::versioned_constants::VersionedConstants;
@@ -43,7 +44,7 @@ use crate::evm_sequencer::constants::{
     storage_variables::KAKAROT_CAIRO1_HELPERS_CLASS_HASH, CAIRO1_HELPERS_CLASS,
     CAIRO1_HELPERS_CLASS_HASH,
 };
-use blockifier::abi::abi_utils::get_storage_var_address;
+use starknet_api::abi::abi_utils::get_storage_var_address;
 #[allow(unused_imports)]
 use blockifier::state::state_api::{
     State as BlockifierState, StateReader as BlockifierStateReader,
@@ -111,14 +112,18 @@ impl KakarotSequencer {
             )
             .try_into()
             .expect("Failed to convert to ContractAddress"),
-            gas_prices: GasPrices::new(
-                NonZeroU128::new(1).unwrap(),
-                NonZeroU128::new(1).unwrap(),
-                NonZeroU128::new(1).unwrap(),
-                NonZeroU128::new(1).unwrap(),
-                NonZeroU128::new(1).unwrap(),
-                NonZeroU128::new(1).unwrap(),
-            ),
+            gas_prices: GasPrices {
+                eth_gas_prices: GasPriceVector{
+                    l1_gas_price: Default::default(),
+                    l1_data_gas_price: Default::default(),
+                    l2_gas_price: Default::default()
+                },
+                strk_gas_prices: GasPriceVector{
+                    l1_gas_price: Default::default(),
+                    l1_data_gas_price: Default::default(),
+                    l2_gas_price: Default::default()
+                },
+            },
             use_kzg_da: false,
         };
 

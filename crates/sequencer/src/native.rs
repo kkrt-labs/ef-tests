@@ -1,11 +1,13 @@
-use blockifier::execution::contract_class::NativeContractClassV1;
-use blockifier::execution::contract_class::{ContractClass, ContractClassV0, ContractClassV1};
+use blockifier::execution::contract_class::{
+    CompiledClassV0, CompiledClassV1, RunnableCompiledClass,
+};
+use blockifier::execution::native::contract_class::NativeCompiledClassV1;
+use cairo_lang_starknet_classes::contract_class::ContractClass;
 use cairo_native::executor::AotContractExecutor;
 use cairo_native::OptLevel;
 use starknet_api::core::ClassHash;
 
 use lazy_static::lazy_static;
-use std::sync::Arc;
 use std::{fs, path::PathBuf};
 
 lazy_static! {
@@ -39,36 +41,44 @@ fn setup_native_cache_dir() -> PathBuf {
 fn native_try_from_json_string(
     raw_contract_class: &str,
     library_output_path: &PathBuf,
-) -> Result<NativeContractClassV1, Box<dyn std::error::Error>> {
-    let sierra_contract_class: cairo_lang_starknet_classes::contract_class::ContractClass =
-        serde_json::from_str(raw_contract_class)?;
+) -> Result<NativeCompiledClassV1, Box<dyn std::error::Error>> {
+    let sierra_contract_class: ContractClass = serde_json::from_str(raw_contract_class)?;
+
+    let compiled_class = serde_json::from_str(raw_contract_class)?;
 
     let sierra_program = sierra_contract_class.extract_sierra_program()?;
 
     let maybe_cached_executor = AotContractExecutor::load(library_output_path);
     if let Ok(executor) = maybe_cached_executor {
         println!("Loaded cached executor");
-        let native_class = NativeContractClassV1::new(Arc::new(executor), sierra_contract_class)?;
+        let native_class = NativeCompiledClassV1::new(executor, compiled_class);
         return Ok(native_class);
     }
 
     println!("Creating new executor");
-    let mut executor = AotContractExecutor::new(&sierra_program, &sierra_contract_class.entry_points_by_type, OptLevel::Default)?;
+    let mut executor = AotContractExecutor::new(
+        &sierra_program,
+        &sierra_contract_class.entry_points_by_type,
+        OptLevel::Default,
+    )?;
     executor.save(library_output_path)?;
     println!("Saved executor to {:?}", library_output_path);
 
-    let native_class = NativeContractClassV1::new(Arc::new(executor), sierra_contract_class)?;
+    let native_class = NativeCompiledClassV1::new(executor, compiled_class);
     Ok(native_class)
 }
 
-pub fn class_from_json_str(raw_json: &str, class_hash: ClassHash) -> Result<ContractClass, String> {
+pub fn class_from_json_str(
+    raw_json: &str,
+    class_hash: ClassHash,
+) -> Result<RunnableCompiledClass, String> {
     println!("raw json length {}", raw_json.len());
     let class_def = raw_json.to_string();
     println!("class def parsed");
-    let class: ContractClass =
-        if let Ok(class) = ContractClassV0::try_from_json_string(class_def.as_str()) {
+    let class: RunnableCompiledClass =
+        if let Ok(class) = CompiledClassV0::try_from_json_string(class_def.as_str()) {
             class.into()
-        } else if let Ok(class) = ContractClassV1::try_from_json_string(class_def.as_str()) {
+        } else if let Ok(class) = CompiledClassV1::try_from_json_string(class_def.as_str()) {
             println!("v1 contract");
             class.into()
         } else if let Ok(class) = {

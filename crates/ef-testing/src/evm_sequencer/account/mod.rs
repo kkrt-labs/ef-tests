@@ -187,8 +187,8 @@ mod tests {
     use crate::evm_sequencer::constants::storage_variables::ACCOUNT_BYTECODE;
 
     use super::*;
+    use starknet_api::abi::abi_utils::get_storage_var_address;
     use alloy_primitives::Bytes;
-    use blockifier::abi::abi_utils::get_storage_var_address;
 
     #[test]
     fn test_pack_byte_array_to_starkfelt_array() {

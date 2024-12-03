@@ -1,6 +1,6 @@
 use std::{fs, io, path::Path};
 
-use blockifier::execution::contract_class::ContractClass;
+use blockifier::execution::contract_class::RunnableCompiledClass;
 use hashbrown::HashMap;
 use serde::{Deserialize, Serialize};
 use starknet::core::types::Felt;
@@ -48,7 +48,7 @@ pub enum SerializationError {
 
 #[derive(Clone, Debug, Serialize, Deserialize, Default)]
 pub struct SerializableState {
-    pub classes: HashMap<ClassHash, ContractClass>,
+    pub classes: HashMap<ClassHash, RunnableCompiledClass>,
     pub compiled_classes_hash: HashMap<ClassHash, CompiledClassHash>,
     pub contracts: HashMap<ContractAddress, ClassHash>,
     #[serde(with = "serialize_contract_storage")]
@@ -135,7 +135,7 @@ mod serialize_contract_storage {
 mod tests {
     use super::*;
     use blockifier::{
-        execution::contract_class::{ContractClass, ContractClassV0},
+        execution::contract_class::{CompiledClassV0, RunnableCompiledClass},
         state::state_api::State as _,
     };
 
@@ -151,8 +151,8 @@ mod tests {
         // setting up entry for state.classes
         let class_hash = ClassHash(Felt::ONE);
         let contract_class = include_str!("./test_data/cairo_0/compiled_classes/counter.json");
-        let contract_class: ContractClassV0 =  serde_json::from_str(contract_class).expect("failed to deserialize ContractClass from ./crates/sequencer/test_data/cairo_1/compiled_classes/account.json");
-        let contract_class = ContractClass::V0(contract_class);
+        let contract_class: CompiledClassV0 =  serde_json::from_str(contract_class).expect("failed to deserialize RunnableCompiledClass from ./crates/sequencer/test_data/cairo_1/compiled_classes/account.json");
+        let contract_class = RunnableCompiledClass::V0(contract_class);
 
         let compiled_class_hash = CompiledClassHash(Felt::ONE);
         let contract_address = *TEST_CONTRACT;
