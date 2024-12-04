@@ -293,13 +293,13 @@ mod tests {
                 vec![
                     *TEST_CONTRACT.0.key(), // destination
                     selector!("inc"),
-                    *ZERO_FELT, // no data
+                    Felt::ZERO, // no data
                 ]
                 .into(),
             ),
             max_fee: Fee(1_000_000),
             signature: TransactionSignature(vec![]),
-            nonce: Nonce(*ZERO_FELT),
+            nonce: Nonce(Felt::ZERO),
         });
         let transaction =
             InvokeTransaction::create(invoke_tx, &ChainId::Other("KKRT".into())).unwrap();

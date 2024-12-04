@@ -40,11 +40,11 @@ revm-interpreter = { version = "13.0", default-features = false }
 revm-primitives = { version = "13.0", default-features = false }
 
 # Starknet deps
-cairo-lang-casm = "2.9.0-dev.0"
-cairo-lang-starknet = "2.9.0-dev.0"
-cairo-lang-utils = "2.9.0-dev.0"
-cairo-lang-starknet-classes = "2.9.0-dev.0"
-cairo-lang-sierra = "2.9.0-dev.0"
+cairo-lang-casm = "=2.9.0-dev.0"
+cairo-lang-starknet = "=2.9.0-dev.0"
+cairo-lang-utils = "=2.9.0-dev.0"
+cairo-lang-starknet-classes = "=2.9.0-dev.0"
+cairo-lang-sierra = "=2.9.0-dev.0"
 cairo-native = "0.2.4"
 cairo-vm = "1.0.1"
 blockifier = { package = "blockifier", git = "https://github.com/kkrt-labs/sequencer.git", rev="e5ed51d697f678ddf27f3b0a5752065a71474022", default-features = false, features = [
@@ -52,7 +52,7 @@ blockifier = { package = "blockifier", git = "https://github.com/kkrt-labs/seque
 ] }
 starknet = "0.12"
 starknet-crypto = "0.7"
-starknet_api = { package = "starknet_api", git = "https://github.com/starkware-libs/sequencer.git", rev="e5ed51d697f678ddf27f3b0a5752065a71474022" }
+starknet_api = { package = "starknet_api", git = "https://github.com/kkrt-labs/sequencer.git", rev="e5ed51d697f678ddf27f3b0a5752065a71474022" }
 
 # Other
 async-trait = "0.1"

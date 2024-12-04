@@ -64,7 +64,7 @@ testname:
     - twoOps_d0g0v0_Cancun
 
 
-regex:	regex:
+regex:
   stArgsZeroOneBalance:
     - .*
   stAttackTest:
