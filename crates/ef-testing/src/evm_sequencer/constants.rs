@@ -21,7 +21,6 @@ where
 }
 
 pub fn get_raw_contract_class(contract_path: &str) -> String {
-    println!("path: {:?}", contract_path);
     fs::read_to_string(contract_path).unwrap()
 }
 

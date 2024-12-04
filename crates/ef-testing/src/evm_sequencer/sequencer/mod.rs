@@ -243,9 +243,6 @@ lazy_static! {
                     let kakarot_json = CLASS_HASH_TO_JSON_CLASS.get(&KAKAROT_CLASS_HASH).unwrap();
                     let account_json = CLASS_HASH_TO_JSON_CLASS.get(&ACCOUNT_CONTRACT_CLASS_HASH).unwrap();
                     let uninitialized_json = CLASS_HASH_TO_JSON_CLASS.get(&UNINITIALIZED_ACCOUNT_CLASS_HASH).unwrap();
-                    println!("Got uninitialized account's json of length {}", uninitialized_json.len());
-                    println!("Got account's json of length {}", account_json.len());
-                    println!("Got kakarot's json of length {}", kakarot_json.len());
                     let account_class = class_from_json_str(account_json, *ACCOUNT_CONTRACT_CLASS_HASH).unwrap_or_else(|err| panic!("{}", err));
                     let uninitialized_class = class_from_json_str(uninitialized_json, *UNINITIALIZED_ACCOUNT_CLASS_HASH).unwrap_or_else(|err| panic!("{}", err));
                     let kakarot_class = class_from_json_str(kakarot_json, *KAKAROT_CLASS_HASH).unwrap_or_else(|err| panic!("{}", err));

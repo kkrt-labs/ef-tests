@@ -119,23 +119,25 @@ mod tests {
     use std::fmt::Display;
     use std::fs::File;
 
-    use starknet_api::abi::abi_utils::get_storage_var_address;
     use blockifier::bouncer::BouncerConfig;
     use blockifier::context::ChainInfo;
     use blockifier::context::{BlockContext, FeeTokenAddresses};
-    use blockifier::execution::contract_class::{RunnableCompiledClass, CompiledClassV0, CompiledClassV1};
+    use blockifier::execution::contract_class::{
+        CompiledClassV0, CompiledClassV1, RunnableCompiledClass,
+    };
     use blockifier::state::state_api::State as BlockifierState;
     use blockifier::versioned_constants::VersionedConstants;
     use starknet::core::types::Felt;
     use starknet::macros::selector;
+    use starknet_api::abi::abi_utils::get_storage_var_address;
+    use starknet_api::block::{BlockInfo, GasPriceVector, GasPrices};
     use starknet_api::block::{BlockNumber, BlockTimestamp};
     use starknet_api::core::{ChainId, ClassHash, ContractAddress, Nonce};
     use starknet_api::executable_transaction::InvokeTransaction;
-    use starknet_api::transaction::{InvokeTransaction as InvokeTransactionTypes, InvokeTransactionV1};
-    use starknet_api::transaction::fields::{
-        Calldata, Fee, TransactionSignature,
+    use starknet_api::transaction::fields::{Calldata, Fee, TransactionSignature};
+    use starknet_api::transaction::{
+        InvokeTransaction as InvokeTransactionTypes, InvokeTransactionV1,
     };
-    use starknet_api::block::{BlockInfo, GasPrices, GasPriceVector};
 
     use crate::constants::test_constants::{
         ETH_FEE_TOKEN_ADDRESS, SEQUENCER_ADDRESS, STRK_FEE_TOKEN_ADDRESS,
@@ -255,15 +257,15 @@ mod tests {
             block_timestamp: BlockTimestamp(1),
             sequencer_address: *SEQUENCER_ADDRESS,
             gas_prices: GasPrices {
-                eth_gas_prices: GasPriceVector{
+                eth_gas_prices: GasPriceVector {
                     l1_gas_price: Default::default(),
                     l1_data_gas_price: Default::default(),
-                    l2_gas_price: Default::default()
+                    l2_gas_price: Default::default(),
                 },
-                strk_gas_prices: GasPriceVector{
+                strk_gas_prices: GasPriceVector {
                     l1_gas_price: Default::default(),
                     l1_data_gas_price: Default::default(),
-                    l2_gas_price: Default::default()
+                    l2_gas_price: Default::default(),
                 },
             },
             use_kzg_da: false,

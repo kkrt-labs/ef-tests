@@ -260,9 +260,7 @@ mod tests {
 
         // Then
         let expected = RunnableCompiledClass::V0(CompiledClassV0::default());
-        let actual = state
-            .get_compiled_class(ClassHash(Felt::ONE))
-            .unwrap();
+        let actual = state.get_compiled_class(ClassHash(Felt::ONE)).unwrap();
         assert_eq!(expected, actual);
     }
 

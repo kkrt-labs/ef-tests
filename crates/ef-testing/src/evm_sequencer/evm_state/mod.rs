@@ -103,7 +103,6 @@ impl Evm for KakarotSequencer {
         // Set the base fee at index 'current_block'
         let [low_fee, high_fee] = split_u256(base_fee);
         let key = Felt::from_bytes_be_slice(b"current_block");
-        println!("key: {:?}", key);
         let basefee_address = get_storage_var_address(KAKAROT_BASE_FEE, &[key]);
         self.state_mut()
             .set_storage_at(kakarot_address, basefee_address, low_fee.into())?;
