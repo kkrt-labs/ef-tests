@@ -20,7 +20,6 @@ use crate::{
 use alloy_primitives::Address;
 use alloy_primitives::Bytes;
 use alloy_primitives::U256;
-use starknet_api::abi::abi_utils::{get_fee_token_var_address, get_storage_var_address};
 use blockifier::{
     execution::errors::EntryPointExecutionError,
     state::state_api::{State as _, StateReader as _, StateResult},
@@ -32,6 +31,7 @@ use blockifier::{
 use reth_primitives::TransactionSigned;
 use sequencer::{execution::Execution as _, transaction::BroadcastedTransactionWrapper};
 use starknet::core::types::BroadcastedTransaction;
+use starknet_api::abi::abi_utils::{get_fee_token_var_address, get_storage_var_address};
 use starknet_api::state::StorageKey;
 use starknet_crypto::Felt;
 

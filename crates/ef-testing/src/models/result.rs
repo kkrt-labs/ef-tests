@@ -81,7 +81,6 @@ impl TryFrom<&EventData> for EVMOutput {
 #[cfg(target_os = "macos")]
 mod debug_ram {
     use std::mem;
-    
 
     #[link(name = "c")]
     extern "C" {

@@ -7,11 +7,11 @@ use crate::starknet_storage;
 use alloy_consensus::constants::KECCAK_EMPTY;
 use alloy_primitives::keccak256;
 use alloy_primitives::{Address, U256};
-use starknet_api::abi::abi_utils::get_storage_var_address;
 use ef_tests::models::Account;
 use revm_interpreter::analysis::to_analysed;
 use revm_primitives::Bytecode;
 use starknet::core::utils::cairo_short_string_to_felt;
+use starknet_api::abi::abi_utils::get_storage_var_address;
 use starknet_api::StarknetApiError;
 use starknet_api::{core::Nonce, state::StorageKey};
 use starknet_crypto::{poseidon_permute_comp, Felt};
@@ -187,8 +187,8 @@ mod tests {
     use crate::evm_sequencer::constants::storage_variables::ACCOUNT_BYTECODE;
 
     use super::*;
-    use starknet_api::abi::abi_utils::get_storage_var_address;
     use alloy_primitives::Bytes;
+    use starknet_api::abi::abi_utils::get_storage_var_address;
 
     #[test]
     fn test_pack_byte_array_to_starkfelt_array() {

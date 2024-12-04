@@ -7,7 +7,9 @@ use blockifier::transaction::{
 use starknet::core::crypto::compute_hash_on_elements;
 use starknet::core::types::{BroadcastedInvokeTransaction, BroadcastedTransaction, Felt};
 use starknet_api::core::Nonce;
-use starknet_api::executable_transaction::InvokeTransaction;
+use starknet_api::executable_transaction::{
+    AccountTransaction as AccountTransactionEnum, InvokeTransaction,
+};
 use starknet_api::transaction::fields::{Calldata, Fee, TransactionSignature};
 use starknet_api::transaction::{InvokeTransactionV1, TransactionHash};
 
@@ -31,26 +33,31 @@ impl BroadcastedTransactionWrapper {
     ) -> Result<ExecutionTransaction, eyre::Error> {
         match self.0 {
             BroadcastedTransaction::Invoke(invoke) => match invoke {
-                BroadcastedInvokeTransaction::V1(invoke_v1) => Ok(ExecutionTransaction::Account(
-                    AccountTransaction::from(InvokeTransaction {
-                        tx: starknet_api::transaction::InvokeTransaction::V1(InvokeTransactionV1 {
-                            max_fee: Fee(invoke_v1.max_fee.to_biguint().try_into()?),
-                            signature: TransactionSignature(
-                                invoke_v1.signature.into_iter().map(Into::into).collect(),
+                BroadcastedInvokeTransaction::V1(invoke_v1) => {
+                    Ok(ExecutionTransaction::Account(AccountTransaction {
+                        tx: AccountTransactionEnum::Invoke(InvokeTransaction {
+                            tx: starknet_api::transaction::InvokeTransaction::V1(
+                                InvokeTransactionV1 {
+                                    max_fee: Fee(invoke_v1.max_fee.to_biguint().try_into()?),
+                                    signature: TransactionSignature(
+                                        invoke_v1.signature.into_iter().map(Into::into).collect(),
+                                    ),
+                                    nonce: Nonce(invoke_v1.nonce),
+                                    sender_address: invoke_v1.sender_address.try_into()?,
+                                    calldata: Calldata(Arc::new(invoke_v1.calldata.to_vec())),
+                                },
                             ),
-                            nonce: Nonce(invoke_v1.nonce),
-                            sender_address: invoke_v1.sender_address.try_into()?,
-                            calldata: Calldata(Arc::new(invoke_v1.calldata.to_vec())),
+                            tx_hash: TransactionHash(compute_transaction_hash(
+                                invoke_v1.sender_address,
+                                &invoke_v1.calldata,
+                                invoke_v1.max_fee,
+                                chain_id,
+                                invoke_v1.nonce,
+                            )),
                         }),
-                        tx_hash: TransactionHash(compute_transaction_hash(
-                            invoke_v1.sender_address,
-                            &invoke_v1.calldata,
-                            invoke_v1.max_fee,
-                            chain_id,
-                            invoke_v1.nonce,
-                        )),
-                    }),
-                )),
+                        only_query: false,
+                    }))
+                }
                 BroadcastedInvokeTransaction::V3(_) => {
                     Err(eyre::eyre!("Unsupported InvokeTransaction version V3"))
                 }

@@ -60,6 +60,7 @@ fn native_try_from_json_string(
         .expect("Cannot get CompiledClassV1 from CasmContractClass");
 
     if let Ok(executor) = maybe_cached_executor {
+        println!("Loading cached executor");
         let native_class = NativeCompiledClassV1::new(executor, casm);
         return Ok(native_class);
     }
@@ -85,30 +86,28 @@ pub fn class_from_json_str(
     class_hash: ClassHash,
 ) -> Result<RunnableCompiledClass, String> {
     let class_def = raw_sierra.to_string();
-    let class: RunnableCompiledClass = if let Ok(class) =
-        CompiledClassV0::try_from_json_string(class_def.as_str())
-    {
-        class.into()
-    } else if let Ok(class) = CompiledClassV1::try_from_json_string(class_def.as_str()) {
-        class.into()
-    } else if let Ok(class) = {
-        let library_output_path = generate_library_path(class_hash);
-        let maybe_class =
-            native_try_from_json_string(class_def.as_str(), &library_output_path);
-        if let Ok(class) = maybe_class {
-            Ok(class)
+    let class: RunnableCompiledClass =
+        if let Ok(class) = CompiledClassV0::try_from_json_string(class_def.as_str()) {
+            class.into()
+        } else if let Ok(class) = CompiledClassV1::try_from_json_string(class_def.as_str()) {
+            class.into()
+        } else if let Ok(class) = {
+            let library_output_path = generate_library_path(class_hash);
+            let maybe_class = native_try_from_json_string(class_def.as_str(), &library_output_path);
+            if let Ok(class) = maybe_class {
+                Ok(class)
+            } else {
+                println!(
+                    "Native contract failed with error {:?}",
+                    maybe_class.err().unwrap()
+                );
+                Err(())
+            }
+        } {
+            class.into()
         } else {
-            println!(
-                "Native contract failed with error {:?}",
-                maybe_class.err().unwrap()
-            );
-            Err(())
-        }
-    } {
-        class.into()
-    } else {
-        return Err("not a valid contract class".to_string());
-    };
+            return Err("not a valid contract class".to_string());
+        };
 
     Ok(class)
 }

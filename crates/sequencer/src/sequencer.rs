@@ -126,6 +126,8 @@ mod tests {
         CompiledClassV0, CompiledClassV1, RunnableCompiledClass,
     };
     use blockifier::state::state_api::State as BlockifierState;
+    use blockifier::transaction::account_transaction::AccountTransaction;
+    use blockifier::transaction::transaction_execution::Transaction as ExecutionTransaction;
     use blockifier::versioned_constants::VersionedConstants;
     use starknet::core::types::Felt;
     use starknet::macros::selector;
@@ -133,7 +135,9 @@ mod tests {
     use starknet_api::block::{BlockInfo, GasPriceVector, GasPrices};
     use starknet_api::block::{BlockNumber, BlockTimestamp};
     use starknet_api::core::{ChainId, ClassHash, ContractAddress, Nonce};
-    use starknet_api::executable_transaction::InvokeTransaction;
+    use starknet_api::executable_transaction::{
+        AccountTransaction as AccountTransactionEnum, InvokeTransaction,
+    };
     use starknet_api::transaction::fields::{Calldata, Fee, TransactionSignature};
     use starknet_api::transaction::{
         InvokeTransaction as InvokeTransactionTypes, InvokeTransactionV1,
@@ -288,8 +292,8 @@ mod tests {
         BlockContext::new(block_info, chain_info, versioned_constants, bouncer_config)
     }
 
-    fn test_transaction() -> Transaction {
-        let invoke_tx = InvokeTransactionTypes::V1(InvokeTransactionV1 {
+    fn test_transaction() -> ExecutionTransaction {
+        let invoke_tx = InvokeTransactionV1 {
             sender_address: *TEST_ACCOUNT,
             calldata: Calldata(
                 vec![
@@ -302,10 +306,17 @@ mod tests {
             max_fee: Fee(1_000_000),
             signature: TransactionSignature(vec![]),
             nonce: Nonce(Felt::ZERO),
-        });
-        let transaction =
-            InvokeTransaction::create(invoke_tx, &ChainId::Other("KKRT".into())).unwrap();
-        Transaction::Account(transaction.into())
+        };
+        let transaction = InvokeTransaction::create(
+            InvokeTransactionTypes::V1(invoke_tx),
+            &ChainId::Other("KKRT".into()),
+        )
+        .unwrap();
+
+        ExecutionTransaction::Account(AccountTransaction {
+            tx: AccountTransactionEnum::Invoke(transaction),
+            only_query: false,
+        })
     }
 
     sequencer_test!(CairoVersion::V0, test_sequencer_cairo_0);

@@ -8,27 +8,29 @@ use crate::evm_sequencer::{
             ACCOUNT_PUBLIC_KEY, ERC20_BALANCES, KAKAROT_ACCOUNT_CONTRACT_CLASS_HASH,
             KAKAROT_BLOCK_GAS_LIMIT, KAKAROT_CHAIN_ID, KAKAROT_NATIVE_TOKEN_ADDRESS,
             KAKAROT_UNINITIALIZED_ACCOUNT_CLASS_HASH, OWNABLE_OWNER,
-        }, ACCOUNT_CONTRACT_CLASS_HASH, BLOCK_GAS_LIMIT, CHAIN_ID,
-        ETH_FEE_TOKEN_ADDRESS, FEE_TOKEN_CLASS, FEE_TOKEN_CLASS_HASH, KAKAROT_ADDRESS, KAKAROT_CLASS_HASH, KAKAROT_OWNER_ADDRESS, OPENZEPPELIN_ACCOUNT_CLASS,
-        OPENZEPPELIN_ACCOUNT_CLASS_HASH, RELAYER_ADDRESS, RELAYER_BALANCE, RELAYER_VERIFYING_KEY,
-        STRK_FEE_TOKEN_ADDRESS, UNINITIALIZED_ACCOUNT_CLASS_HASH,
+        },
+        ACCOUNT_CONTRACT_CLASS_HASH, BLOCK_GAS_LIMIT, CHAIN_ID, ETH_FEE_TOKEN_ADDRESS,
+        FEE_TOKEN_CLASS, FEE_TOKEN_CLASS_HASH, KAKAROT_ADDRESS, KAKAROT_CLASS_HASH,
+        KAKAROT_OWNER_ADDRESS, OPENZEPPELIN_ACCOUNT_CLASS, OPENZEPPELIN_ACCOUNT_CLASS_HASH,
+        RELAYER_ADDRESS, RELAYER_BALANCE, RELAYER_VERIFYING_KEY, STRK_FEE_TOKEN_ADDRESS,
+        UNINITIALIZED_ACCOUNT_CLASS_HASH,
     },
     types::contract_class::CasmContractClassWrapper,
     utils::compute_starknet_address,
 };
-use starknet_api::block::{BlockInfo, GasPrices, GasPriceVector};
+use alloy_primitives::Address;
 use blockifier::context::ChainInfo;
 use blockifier::context::{BlockContext, FeeTokenAddresses};
 use blockifier::versioned_constants::VersionedConstants;
 use blockifier::{
-    execution::contract_class::{RunnableCompiledClass, CompiledClassV0, CompiledClassV1},
+    execution::contract_class::{CompiledClassV0, CompiledClassV1, RunnableCompiledClass},
     state::state_api::StateResult,
 };
 use cairo_lang_starknet_classes::casm_contract_class::CasmContractClass;
 use cairo_vm::types::errors::program_errors::ProgramError;
-use alloy_primitives::Address;
 use sequencer::{sequencer::Sequencer, state::State};
 use starknet::core::types::contract::{legacy::LegacyContractClass, CompiledClass};
+use starknet_api::block::{BlockInfo, GasPriceVector, GasPrices};
 use starknet_api::{
     block::{BlockNumber, BlockTimestamp},
     core::{ChainId, ClassHash, ContractAddress},
@@ -39,13 +41,13 @@ use crate::evm_sequencer::constants::{
     storage_variables::KAKAROT_CAIRO1_HELPERS_CLASS_HASH, CAIRO1_HELPERS_CLASS,
     CAIRO1_HELPERS_CLASS_HASH,
 };
-use starknet_api::abi::abi_utils::get_storage_var_address;
 #[allow(unused_imports)]
 use blockifier::state::state_api::{
     State as BlockifierState, StateReader as BlockifierStateReader,
 };
 use lazy_static::lazy_static;
 use sequencer::state::State as SequencerState;
+use starknet_api::abi::abi_utils::get_storage_var_address;
 
 /// Kakarot wrapper around a sequencer.
 #[derive(Clone)]
@@ -108,15 +110,15 @@ impl KakarotSequencer {
             .try_into()
             .expect("Failed to convert to ContractAddress"),
             gas_prices: GasPrices {
-                eth_gas_prices: GasPriceVector{
+                eth_gas_prices: GasPriceVector {
                     l1_gas_price: Default::default(),
                     l1_data_gas_price: Default::default(),
-                    l2_gas_price: Default::default()
+                    l2_gas_price: Default::default(),
                 },
-                strk_gas_prices: GasPriceVector{
+                strk_gas_prices: GasPriceVector {
                     l1_gas_price: Default::default(),
                     l1_data_gas_price: Default::default(),
-                    l2_gas_price: Default::default()
+                    l2_gas_price: Default::default(),
                 },
             },
             use_kzg_da: false,
@@ -190,7 +192,9 @@ pub fn convert_contract_class_v0(
     ))
 }
 
-pub fn convert_contract_class_v1(class: &CompiledClass) -> Result<RunnableCompiledClass, eyre::Error> {
+pub fn convert_contract_class_v1(
+    class: &CompiledClass,
+) -> Result<RunnableCompiledClass, eyre::Error> {
     let casm_contract_class = CasmContractClassWrapper::try_from(class)?;
     let casm_contract_class: CasmContractClass = casm_contract_class.into();
     Ok(RunnableCompiledClass::V1(CompiledClassV1::try_from(

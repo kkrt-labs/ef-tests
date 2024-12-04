@@ -113,11 +113,6 @@ impl BlockifierState for &mut State {
         class_hash: ClassHash,
         contract_class: RunnableCompiledClass,
     ) -> StateResult<()> {
-        match contract_class {
-            RunnableCompiledClass::V0(_) => println!("Setting V0 contract class"),
-            RunnableCompiledClass::V1(_) => println!("Setting V1 contract class"),
-            RunnableCompiledClass::V1Native(_) => println!("Setting V1Native contract class"),
-        };
         self.classes.insert(class_hash, contract_class);
         Ok(())
     }
