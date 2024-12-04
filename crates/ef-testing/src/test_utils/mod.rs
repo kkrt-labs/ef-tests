@@ -23,14 +23,12 @@ pub fn setup() {
 
 pub struct TestMonitor {
     thresholds: Vec<u64>, // thresholds in seconds
-    last_threshold: u64,  // last reported threshold
 }
 
 impl TestMonitor {
     pub fn new(thresholds: Vec<u64>) -> Self {
         TestMonitor {
-            thresholds: thresholds,
-            last_threshold: 0,
+            thresholds,
         }
     }
 

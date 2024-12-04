@@ -7,11 +7,9 @@ use serde::de::DeserializeOwned;
 use starknet::core::types::contract::CompiledClass;
 use starknet::signers::VerifyingKey;
 use starknet::{core::types::contract::legacy::LegacyContractClass, signers::SigningKey};
-use starknet_api::felt;
 use starknet_api::{
     contract_address,
-    core::{ClassHash, ContractAddress, PatriciaKey},
-    patricia_key,
+    core::{ClassHash, ContractAddress},
 };
 use starknet_crypto::Felt;
 

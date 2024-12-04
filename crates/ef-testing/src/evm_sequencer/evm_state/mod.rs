@@ -20,11 +20,8 @@ use crate::{
 use alloy_primitives::Address;
 use alloy_primitives::Bytes;
 use alloy_primitives::U256;
+use starknet_api::abi::abi_utils::{get_fee_token_var_address, get_storage_var_address};
 use blockifier::{
-    abi::{
-        abi_utils::{get_fee_token_var_address, get_storage_var_address},
-        sierra_types::next_storage_key,
-    },
     execution::errors::EntryPointExecutionError,
     state::state_api::{State as _, StateReader as _, StateResult},
     transaction::{
@@ -112,7 +109,7 @@ impl Evm for KakarotSequencer {
             .set_storage_at(kakarot_address, basefee_address, low_fee.into())?;
         self.state_mut().set_storage_at(
             kakarot_address,
-            next_storage_key(&basefee_address)?,
+            basefee_address.next_storage_key()?,
             high_fee.into(),
         )?;
 
@@ -126,7 +123,7 @@ impl Evm for KakarotSequencer {
         )?;
         self.state_mut().set_storage_at(
             kakarot_address,
-            next_storage_key(&prev_randao_address)?,
+            prev_randao_address.next_storage_key()?,
             high_prev_randao.into(),
         )?;
 
@@ -187,7 +184,7 @@ impl Evm for KakarotSequencer {
 
         // Initialize the balance storage var.
         let balance_key_low = get_fee_token_var_address(starknet_address);
-        let balance_key_high = next_storage_key(&balance_key_low)?;
+        let balance_key_high = balance_key_low.next_storage_key()?;
         storage.append(&mut vec![
             (balance_key_low, balance_values[0].into()),
             (balance_key_high, balance_values[1].into()),
@@ -198,7 +195,7 @@ impl Evm for KakarotSequencer {
             "ERC20_allowances",
             &[*starknet_address.0.key(), *KAKAROT_ADDRESS.0.key()],
         );
-        let allowance_key_high = next_storage_key(&allowance_key_low)?;
+        let allowance_key_high = allowance_key_low.next_storage_key()?;
         storage.append(&mut vec![
             (allowance_key_low, u128::MAX.into()),
             (allowance_key_high, u128::MAX.into()),
@@ -216,7 +213,7 @@ impl Evm for KakarotSequencer {
     fn storage_at(&mut self, evm_address: &Address, key: U256) -> StateResult<U256> {
         let keys = split_u256(key).map(Into::into);
         let key_low = get_storage_var_address(ACCOUNT_STORAGE, &keys);
-        let key_high = next_storage_key(&key_low)?;
+        let key_high = key_low.next_storage_key()?;
 
         let starknet_address = self.compute_starknet_address(evm_address)?;
 

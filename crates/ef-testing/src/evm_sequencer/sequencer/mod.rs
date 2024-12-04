@@ -8,36 +8,31 @@ use crate::evm_sequencer::{
             ACCOUNT_PUBLIC_KEY, ERC20_BALANCES, KAKAROT_ACCOUNT_CONTRACT_CLASS_HASH,
             KAKAROT_BLOCK_GAS_LIMIT, KAKAROT_CHAIN_ID, KAKAROT_NATIVE_TOKEN_ADDRESS,
             KAKAROT_UNINITIALIZED_ACCOUNT_CLASS_HASH, OWNABLE_OWNER,
-        },
-        ACCOUNT_CONTRACT_CLASS, ACCOUNT_CONTRACT_CLASS_HASH, BLOCK_GAS_LIMIT, CHAIN_ID,
-        ETH_FEE_TOKEN_ADDRESS, FEE_TOKEN_CLASS, FEE_TOKEN_CLASS_HASH, KAKAROT_ADDRESS,
-        KAKAROT_CLASS, KAKAROT_CLASS_HASH, KAKAROT_OWNER_ADDRESS, OPENZEPPELIN_ACCOUNT_CLASS,
+        }, ACCOUNT_CONTRACT_CLASS_HASH, BLOCK_GAS_LIMIT, CHAIN_ID,
+        ETH_FEE_TOKEN_ADDRESS, FEE_TOKEN_CLASS, FEE_TOKEN_CLASS_HASH, KAKAROT_ADDRESS, KAKAROT_CLASS_HASH, KAKAROT_OWNER_ADDRESS, OPENZEPPELIN_ACCOUNT_CLASS,
         OPENZEPPELIN_ACCOUNT_CLASS_HASH, RELAYER_ADDRESS, RELAYER_BALANCE, RELAYER_VERIFYING_KEY,
-        STRK_FEE_TOKEN_ADDRESS, UNINITIALIZED_ACCOUNT_CLASS, UNINITIALIZED_ACCOUNT_CLASS_HASH,
+        STRK_FEE_TOKEN_ADDRESS, UNINITIALIZED_ACCOUNT_CLASS_HASH,
     },
     types::contract_class::CasmContractClassWrapper,
     utils::compute_starknet_address,
 };
-use alloy_primitives::Address;
-use blockifier::blockifier::block::BlockInfo;
-use starknet_api::block::{GasPrices, GasPriceVector};
+use starknet_api::block::{BlockInfo, GasPrices, GasPriceVector};
 use blockifier::context::ChainInfo;
 use blockifier::context::{BlockContext, FeeTokenAddresses};
 use blockifier::versioned_constants::VersionedConstants;
 use blockifier::{
-    execution::contract_class::{ContractClass, ContractClassV0, ContractClassV1},
+    execution::contract_class::{RunnableCompiledClass, CompiledClassV0, CompiledClassV1},
     state::state_api::StateResult,
 };
 use cairo_lang_starknet_classes::casm_contract_class::CasmContractClass;
 use cairo_vm::types::errors::program_errors::ProgramError;
-use reth_primitives::Address;
-use sequencer::{native::class_from_json_str, sequencer::Sequencer, state::State};
+use alloy_primitives::Address;
+use sequencer::{sequencer::Sequencer, state::State};
 use starknet::core::types::contract::{legacy::LegacyContractClass, CompiledClass};
 use starknet_api::{
     block::{BlockNumber, BlockTimestamp},
     core::{ChainId, ClassHash, ContractAddress},
 };
-use std::num::NonZeroU128;
 
 #[cfg(feature = "v0")]
 use crate::evm_sequencer::constants::{
@@ -187,18 +182,18 @@ impl DerefMut for KakarotSequencer {
 
 pub fn convert_contract_class_v0(
     class: &LegacyContractClass,
-) -> Result<ContractClass, eyre::Error> {
-    Result::<ContractClass, eyre::Error>::Ok(ContractClass::V0(
-        ContractClassV0::try_from_json_string(
+) -> Result<RunnableCompiledClass, eyre::Error> {
+    Result::<RunnableCompiledClass, eyre::Error>::Ok(RunnableCompiledClass::V0(
+        CompiledClassV0::try_from_json_string(
             &serde_json::to_string(class).map_err(ProgramError::Parse)?,
         )?,
     ))
 }
 
-pub fn convert_contract_class_v1(class: &CompiledClass) -> Result<ContractClass, eyre::Error> {
+pub fn convert_contract_class_v1(class: &CompiledClass) -> Result<RunnableCompiledClass, eyre::Error> {
     let casm_contract_class = CasmContractClassWrapper::try_from(class)?;
     let casm_contract_class: CasmContractClass = casm_contract_class.into();
-    Ok(ContractClass::V1(ContractClassV1::try_from(
+    Ok(RunnableCompiledClass::V1(CompiledClassV1::try_from(
         casm_contract_class,
     )?))
 }

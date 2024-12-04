@@ -81,7 +81,7 @@ impl TryFrom<&EventData> for EVMOutput {
 #[cfg(target_os = "macos")]
 mod debug_ram {
     use std::mem;
-    use std::ptr;
+    
 
     #[link(name = "c")]
     extern "C" {
@@ -146,7 +146,7 @@ pub(crate) fn extract_output_and_log_execution_result(
         TransactionExecutionResult::Ok(info) => {
             /* trunk-ignore(clippy/option_if_let_else) */
             if let Some(err) = info.revert_error.as_ref() {
-                warn!("{} reverted:\n{}", case, err.replace("\\n", "\n"));
+                warn!("{} reverted:\n{}", case, err.to_string());
                 return None;
             }
 
