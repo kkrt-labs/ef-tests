@@ -1,7 +1,7 @@
 ---
 name: Workflow - CI
 
-# trunk-ignore(checkov/CKV2_GHA_1)
+# trunk-ignore-all(checkov/CKV2_GHA_1)
 
 on:
   push:
@@ -30,7 +30,10 @@ jobs:
           repo-name: llvm-repo
           keys-asc: https://apt.llvm.org/llvm-snapshot.gpg.key
       - name: Install LLVM
-        run: sudo apt-get install llvm-19 llvm-19-dev llvm-19-runtime clang-19 clang-tools-19 lld-19 libpolly-19-dev libmlir-19-dev mlir-19-tools libgmp3-dev libzstd-dev lld libssl-dev zstd
+        run:
+          sudo apt-get install llvm-19 llvm-19-dev llvm-19-runtime clang-19
+          clang-tools-19 lld-19 libpolly-19-dev libmlir-19-dev mlir-19-tools
+          libgmp3-dev libzstd-dev lld libssl-dev zstd
       - name: Trunk Check
         uses: trunk-io/trunk-action@v1.1.19
 
@@ -53,7 +56,10 @@ jobs:
           repo-name: llvm-repo
           keys-asc: https://apt.llvm.org/llvm-snapshot.gpg.key
       - name: Install LLVM
-        run: sudo apt-get install llvm-19 llvm-19-dev llvm-19-runtime clang-19 clang-tools-19 lld-19 libpolly-19-dev libmlir-19-dev mlir-19-tools libgmp3-dev libzstd-dev lld libssl-dev zstd
+        run:
+          sudo apt-get install llvm-19 llvm-19-dev llvm-19-runtime clang-19
+          clang-tools-19 lld-19 libpolly-19-dev libmlir-19-dev mlir-19-tools
+          libgmp3-dev libzstd-dev lld libssl-dev zstd
       - name: Set up Python
         uses: actions/setup-python@v4
         with:

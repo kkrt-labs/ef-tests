@@ -63,7 +63,6 @@ testname:
     - mulmod_d15g0v0_Cancun
     - twoOps_d0g0v0_Cancun
 
-
 regex:
   stArgsZeroOneBalance:
     - .*
