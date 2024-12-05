@@ -26,4 +26,4 @@ runs:
       id: set-runtime-deps
       shell: bash
       run: |
-        sudo ./scripts/dependencies.sh
+        bash ./scripts/dependencies.sh
