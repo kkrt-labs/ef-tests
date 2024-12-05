@@ -17,14 +17,8 @@ jobs:
       MLIR_SYS_190_PREFIX: /usr/lib/llvm-19/
       LLVM_SYS_191_PREFIX: /usr/lib/llvm-19/
       TABLEGEN_190_PREFIX: /usr/lib/llvm-19/
+      LLVM_CONFIG: /usr/lib/llvm-19/bin/llvm-config
     steps:
-      - name: Remove old llvm versions
-        shell: bash
-        run: |
-          sudo apt-get update
-          sudo apt-get remove -y '^llvm-.*'
-          sudo apt-get autoremove -y
-          sudo apt-get clean
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@1.82.0
         with:
@@ -36,6 +30,9 @@ jobs:
           repo: deb http://apt.llvm.org/jammy/ llvm-toolchain-jammy-19 main
           repo-name: llvm-repo
           keys-asc: https://apt.llvm.org/llvm-snapshot.gpg.key
+      - name: Update and upgrade APT
+        shell: bash
+        run: sudo apt-get update && sudo apt-get upgrade -y
       - name: Install LLVM
         run:
           sudo apt-get install llvm-19 llvm-19-dev llvm-19-runtime clang-19
