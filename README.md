@@ -4,8 +4,8 @@ This repository contains the execution of the EF standard execution layer tests.
 
 The Ethereum Foundation provides a suite of
 [official tests](https://github.com/ethereum/tests) to verify the compliance of
-EVM clients. Passing all these tests qualifies allows a client to gain
-confidence on his execution layer. For further information, please refer to the
+EVM clients. Passing all these tests allows a client to gain
+confidence on their execution layer. For further information, please refer to the
 [official documentation](https://ethereum-tests.readthedocs.io/en/latest/).
 
 Kakarot is an EVM running within CairoVM, coupled with a
@@ -36,7 +36,7 @@ instructions:
 
 ## Test execution
 
-To run the whole test suite, execute `make ef-test` To run a specific test or
+To run the whole test suite, execute `make ef-test` to run a specific test or
 list of tests, execute `cargo test regular_expression` where regular_expression
 allows you to filter on the specific tests you want to run.
 
