@@ -13,11 +13,7 @@ permissions: read-all
 jobs:
   trunk:
     name: Trunk
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: ./.github/actions/bootstrap
-      - uses: ./.github/workflows/trunk-check.yml
+    uses: ./.github/workflows/trunk-check.yml
 
   tests:
     name: Rust tests
