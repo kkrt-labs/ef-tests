@@ -40,6 +40,11 @@ function setup_llvm_deps() {
             libzstd-dev \
             mlir-19-tools
         '
+        # Add LLVM to PATH by creating a file in profile.d
+        echo 'export PATH=/usr/lib/llvm-19/bin:$PATH' | $SUDO tee /etc/profile.d/llvm19.sh
+        $SUDO chmod +x /etc/profile.d/llvm19.sh
+        # Source the file immediately
+        source /etc/profile.d/llvm19.sh
         ;;
     *)
         echo "Error: Unsupported operating system"

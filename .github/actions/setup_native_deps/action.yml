@@ -18,6 +18,7 @@ runs:
           /usr/include/llvm-19
           /var/cache/apt
           /var/lib/apt/lists
+          /etc/profile.d/llvm19.sh
         key:
           ${{ runner.os }}-llvm-19-${{ hashFiles('scripts/dependencies.sh') }}
 
