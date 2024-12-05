@@ -13,10 +13,10 @@ permissions: read-all
 jobs:
   trunk:
     name: Trunk
-    uses: ./.github/workflows/trunk-check.yml
-    permissions:
-      checks: write
-      contents: read
+    runs-on: ubuntu-latest
+    steps:
+      - uses: ./.github/actions/bootstrap
+      - uses: ./.github/workflows/trunk-check.yml
 
   tests:
     name: Rust tests

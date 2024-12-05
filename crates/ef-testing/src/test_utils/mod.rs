@@ -26,8 +26,8 @@ pub struct TestMonitor {
 }
 
 impl TestMonitor {
-    pub fn new(thresholds: Vec<u64>) -> Self {
-        TestMonitor { thresholds }
+    pub const fn new(thresholds: Vec<u64>) -> Self {
+        Self { thresholds }
     }
 
     pub fn run<F, T>(&mut self, test_name: &str, test_fn: F) -> T

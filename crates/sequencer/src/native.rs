@@ -94,15 +94,14 @@ pub fn class_from_json_str(
         } else if let Ok(class) = {
             let library_output_path = generate_library_path(class_hash);
             let maybe_class = native_try_from_json_string(class_def.as_str(), &library_output_path);
-            if let Ok(class) = maybe_class {
-                Ok(class)
-            } else {
-                println!(
-                    "Native contract failed with error {:?}",
-                    maybe_class.err().unwrap()
-                );
-                Err(())
-            }
+
+            maybe_class.map_or_else(
+                |err| {
+                    println!("Native contract failed with error {:?}", err);
+                    Err(())
+                },
+                Ok,
+            )
         } {
             class.into()
         } else {

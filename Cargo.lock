@@ -1073,7 +1073,7 @@ dependencies = [
 [[package]]
 name = "blockifier"
 version = "0.0.0"
-source = "git+https://github.com/kkrt-labs/sequencer.git?rev=af682306b6f91998e83011e9e2c132e07189c51e#af682306b6f91998e83011e9e2c132e07189c51e"
+source = "git+https://github.com/kkrt-labs/sequencer.git?rev=9278a6ad5e3403d58deed2dd0a51e4568519e868#9278a6ad5e3403d58deed2dd0a51e4568519e868"
 dependencies = [
  "anyhow",
  "ark-ec",
@@ -3995,7 +3995,7 @@ checksum = "b248f5224d1d606005e02c97f5aa4e88eeb230488bcc03bc9ca4d7991399f2b5"
 [[package]]
 name = "infra_utils"
 version = "0.0.0"
-source = "git+https://github.com/kkrt-labs/sequencer.git?rev=af682306b6f91998e83011e9e2c132e07189c51e#af682306b6f91998e83011e9e2c132e07189c51e"
+source = "git+https://github.com/kkrt-labs/sequencer.git?rev=9278a6ad5e3403d58deed2dd0a51e4568519e868#9278a6ad5e3403d58deed2dd0a51e4568519e868"
 dependencies = [
  "tokio",
  "tracing",
@@ -5170,7 +5170,7 @@ dependencies = [
 [[package]]
 name = "papyrus_config"
 version = "0.0.0"
-source = "git+https://github.com/kkrt-labs/sequencer.git?rev=af682306b6f91998e83011e9e2c132e07189c51e#af682306b6f91998e83011e9e2c132e07189c51e"
+source = "git+https://github.com/kkrt-labs/sequencer.git?rev=9278a6ad5e3403d58deed2dd0a51e4568519e868#9278a6ad5e3403d58deed2dd0a51e4568519e868"
 dependencies = [
  "clap",
  "infra_utils",
@@ -5185,7 +5185,7 @@ dependencies = [
 [[package]]
 name = "papyrus_proc_macros"
 version = "0.0.0"
-source = "git+https://github.com/kkrt-labs/sequencer.git?rev=af682306b6f91998e83011e9e2c132e07189c51e#af682306b6f91998e83011e9e2c132e07189c51e"
+source = "git+https://github.com/kkrt-labs/sequencer.git?rev=9278a6ad5e3403d58deed2dd0a51e4568519e868#9278a6ad5e3403d58deed2dd0a51e4568519e868"
 dependencies = [
  "quote",
  "syn 2.0.90",
@@ -8540,7 +8540,7 @@ dependencies = [
 [[package]]
 name = "starknet_api"
 version = "0.0.0"
-source = "git+https://github.com/kkrt-labs/sequencer.git?rev=af682306b6f91998e83011e9e2c132e07189c51e#af682306b6f91998e83011e9e2c132e07189c51e"
+source = "git+https://github.com/kkrt-labs/sequencer.git?rev=9278a6ad5e3403d58deed2dd0a51e4568519e868#9278a6ad5e3403d58deed2dd0a51e4568519e868"
 dependencies = [
  "bitvec",
  "cairo-lang-runner",
@@ -8566,7 +8566,7 @@ dependencies = [
 [[package]]
 name = "starknet_sierra_compile"
 version = "0.0.0"
-source = "git+https://github.com/kkrt-labs/sequencer.git?rev=af682306b6f91998e83011e9e2c132e07189c51e#af682306b6f91998e83011e9e2c132e07189c51e"
+source = "git+https://github.com/kkrt-labs/sequencer.git?rev=9278a6ad5e3403d58deed2dd0a51e4568519e868#9278a6ad5e3403d58deed2dd0a51e4568519e868"
 dependencies = [
  "cairo-lang-sierra",
  "cairo-lang-starknet-classes",

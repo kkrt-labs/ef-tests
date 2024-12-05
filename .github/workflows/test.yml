@@ -20,15 +20,8 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: 3.x
-      - name: Setup rust env
-        uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
-          components: llvm-tools-preview
-          override: true
-          toolchain: 1.82.0
-      - name: Retrieve cached dependencies
-        uses: Swatinem/rust-cache@v2
+      - name: Setup rust and cairo native env
+        uses: ./.github/actions/bootstrap
       - name: fetch ef tests
         run: make setup
       - name: fetch Kakarot
