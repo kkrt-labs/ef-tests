@@ -30,11 +30,9 @@ function setup_llvm_deps() {
         brew install llvm@19
         ;;
     Linux)
-        $SUDO bash -c 'curl https://apt.llvm.org/llvm.sh -Lo llvm.sh
-        bash ./llvm.sh 19 all
-        rm -f ./llvm.sh
-        apt update && apt install -y \
+        $SUDO bash -c 'apt update && apt-get install -y \
             libgmp3-dev \
+            llvm-19 \
             libmlir-19-dev \
             libpolly-19-dev \
             libzstd-dev \
