@@ -78,6 +78,62 @@ impl TryFrom<&EventData> for EVMOutput {
     }
 }
 
+#[cfg(target_os = "macos")]
+mod debug_ram {
+    use std::mem;
+
+    #[link(name = "c")]
+    extern "C" {
+        fn mach_task_self() -> libc::c_uint;
+        fn task_info(
+            task: libc::c_uint,
+            flavor: libc::c_uint,
+            task_info: *mut libc::c_void,
+            inout_count: *mut libc::c_uint,
+        ) -> libc::c_int;
+    }
+
+    const MACH_TASK_BASIC_INFO: libc::c_uint = 20;
+
+    #[repr(C)]
+    struct MachTaskBasicInfo {
+        virtual_size: u64,
+        resident_size: u64,
+        resident_size_max: u64,
+        user_time: u64,
+        system_time: u64,
+        policy: i32,
+        suspend_count: i32,
+    }
+
+    pub fn debug_ram() -> Result<usize, String> {
+        unsafe {
+            let mut info = MachTaskBasicInfo {
+                virtual_size: 0,
+                resident_size: 0,
+                resident_size_max: 0,
+                user_time: 0,
+                system_time: 0,
+                policy: 0,
+                suspend_count: 0,
+            };
+            let mut count = mem::size_of::<MachTaskBasicInfo>() as libc::c_uint
+                / mem::size_of::<libc::integer_t>() as libc::c_uint;
+            let kr = task_info(
+                mach_task_self(),
+                MACH_TASK_BASIC_INFO,
+                &mut info as *mut _ as *mut libc::c_void,
+                &mut count,
+            );
+            if kr == 0 {
+                Ok(info.resident_size as usize)
+            } else {
+                Err(format!("Failed to get task info. Error code: {}", kr))
+            }
+        }
+    }
+}
+
 #[allow(clippy::cognitive_complexity)]
 pub(crate) fn extract_output_and_log_execution_result(
     result: &TransactionExecutionResult<TransactionExecutionInfo>,
@@ -87,13 +143,16 @@ pub(crate) fn extract_output_and_log_execution_result(
     let case = format!("{}::{}", case_category, case_name);
     match result {
         TransactionExecutionResult::Ok(info) => {
-            /* trunk-ignore(clippy/option_if_let_else) */
             if let Some(err) = info.revert_error.as_ref() {
-                warn!("{} reverted:\n{}", case, err.replace("\\n", "\n"));
+                warn!("{} reverted:\n{}", case, err.to_string());
                 return None;
             }
 
             info!("{} passed: {:?}", case, info.receipt.resources);
+            #[cfg(target_os = "macos")]
+            {
+                println!("Current memory usage: {:?} bytes", debug_ram::debug_ram());
+            }
             if let Some(call) = info.execute_call_info.as_ref() {
                 use starknet::core::types::Felt;
                 let events = kakarot_execution_events(call);

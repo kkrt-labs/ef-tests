@@ -7,11 +7,11 @@ use crate::starknet_storage;
 use alloy_consensus::constants::KECCAK_EMPTY;
 use alloy_primitives::keccak256;
 use alloy_primitives::{Address, U256};
-use blockifier::abi::{abi_utils::get_storage_var_address, sierra_types::next_storage_key};
 use ef_tests::models::Account;
 use revm_interpreter::analysis::to_analysed;
 use revm_primitives::Bytecode;
 use starknet::core::utils::cairo_short_string_to_felt;
+use starknet_api::abi::abi_utils::get_storage_var_address;
 use starknet_api::StarknetApiError;
 use starknet_api::{core::Nonce, state::StorageKey};
 use starknet_crypto::{poseidon_permute_comp, Felt};
@@ -105,7 +105,7 @@ impl KakarotAccount {
 
         let code_hash_values = split_u256(code_hash);
         let code_hash_low_key = get_storage_var_address(ACCOUNT_CODE_HASH, &[]);
-        let code_hash_high_key = next_storage_key(&code_hash_low_key)?;
+        let code_hash_high_key = code_hash_low_key.next_storage_key()?;
         storage.extend([
             (code_hash_low_key, Felt::from(code_hash_values[0])),
             (code_hash_high_key, Felt::from(code_hash_values[1])),
@@ -143,7 +143,7 @@ impl KakarotAccount {
                 let keys = split_u256(*k).map(Into::into);
                 let values = split_u256(*v).map(Into::<Felt>::into);
                 let low_key = get_storage_var_address(ACCOUNT_STORAGE, &keys);
-                let high_key = next_storage_key(&low_key).unwrap(); // can fail only if low is the max key
+                let high_key = low_key.next_storage_key().unwrap(); // can fail only if low is the max key
                 vec![(low_key, values[0]), (high_key, values[1])]
             })
             .collect();
@@ -188,7 +188,7 @@ mod tests {
 
     use super::*;
     use alloy_primitives::Bytes;
-    use blockifier::abi::abi_utils::get_storage_var_address;
+    use starknet_api::abi::abi_utils::get_storage_var_address;
 
     #[test]
     fn test_pack_byte_array_to_starkfelt_array() {

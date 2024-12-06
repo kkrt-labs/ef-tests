@@ -1,6 +1,8 @@
 ---
 name: Workflow - CI
 
+# trunk-ignore-all(checkov/CKV2_GHA_1)
+
 on:
   push:
     branches: [main]
@@ -8,16 +10,86 @@ on:
     branches:
       - main
 
-permissions: read-all
-
 jobs:
   trunk:
-    name: Trunk
-    uses: ./.github/workflows/trunk-check.yml
-    permissions:
-      checks: write
-      contents: read
+    runs-on: ubuntu-24.04
+    env:
+      MLIR_SYS_190_PREFIX: /usr/lib/llvm-19/
+      LLVM_SYS_191_PREFIX: /usr/lib/llvm-19/
+      TABLEGEN_190_PREFIX: /usr/lib/llvm-19/
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@1.82.0
+        with:
+          components: clippy, rustfmt
+      - uses: Swatinem/rust-cache@v2
+      - name: add llvm deb repository
+        uses: myci-actions/add-deb-repo@11
+        with:
+          repo: deb http://apt.llvm.org/jammy/ llvm-toolchain-jammy-19 main
+          repo-name: llvm-repo
+          keys-asc: https://apt.llvm.org/llvm-snapshot.gpg.key
+      - name: Update and upgrade APT
+        shell: bash
+        run: sudo apt-get update && sudo apt-get upgrade -y
+      - name: Install LLVM
+        run:
+          sudo apt-get install llvm-19 llvm-19-dev llvm-19-runtime clang-19
+          clang-tools-19 lld-19 libpolly-19-dev libmlir-19-dev mlir-19-tools
+          libgmp3-dev libzstd-dev lld libssl-dev zstd
+      - name: Add llvm bin to PATH
+        run: echo "/usr/lib/llvm-19/bin" >> $GITHUB_PATH
+      - name: Trunk Check
+        uses: trunk-io/trunk-action@v1.1.19
 
   tests:
     name: Rust tests
-    uses: ./.github/workflows/test.yml
+    runs-on: ubuntu-latest-16-cores
+    env:
+      MLIR_SYS_190_PREFIX: /usr/lib/llvm-19/
+      LLVM_SYS_191_PREFIX: /usr/lib/llvm-19/
+      TABLEGEN_190_PREFIX: /usr/lib/llvm-19/
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@1.82.0
+      - uses: Swatinem/rust-cache@v2
+      - name: add llvm deb repository
+        uses: myci-actions/add-deb-repo@11
+        with:
+          repo: deb http://apt.llvm.org/jammy/ llvm-toolchain-jammy-19 main
+          repo-name: llvm-repo
+          keys-asc: https://apt.llvm.org/llvm-snapshot.gpg.key
+      - name: Install LLVM
+        run:
+          sudo apt-get install llvm-19 llvm-19-dev llvm-19-runtime clang-19
+          clang-tools-19 lld-19 libpolly-19-dev libmlir-19-dev mlir-19-tools
+          libgmp3-dev libzstd-dev lld libssl-dev zstd
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.x
+      - name: fetch ef tests
+        run: make setup
+      - name: fetch Kakarot
+        run: make setup-kakarot
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+      - name: run tests v0
+        run: |
+          set -o pipefail
+          make vm-tests-v0-ci | tee test_v0.out
+      - name: run tests v1
+        run: |
+          make vm-tests-v1-ci | tee test_v1.out
+          set +o pipefail
+      - name: Retrieve ef-tests execution resources
+        run: python scripts/compute_resources.py
+        env:
+          KAKAROT_VERSION: v0,v1
+      # upload artifacts
+      - name: upload resources
+        uses: actions/upload-artifact@v3
+        with:
+          path: ./resources/
+          name: resources-usage

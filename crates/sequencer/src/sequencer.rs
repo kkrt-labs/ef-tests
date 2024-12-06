@@ -12,6 +12,7 @@ use blockifier::{
     },
 };
 use starknet_api::core::ContractAddress;
+use starknet_api::executable_transaction::AccountTransaction;
 
 /// Sequencer is the main struct of the sequencer crate.
 #[derive(Clone)]
@@ -72,18 +73,15 @@ where
         transaction: Transaction,
     ) -> TransactionExecutionResult<TransactionExecutionInfo> {
         let sender_address = match &transaction {
-            Transaction::AccountTransaction(tx) => match tx {
-                blockifier::transaction::account_transaction::AccountTransaction::Invoke(tx) => {
-                    tx.tx.sender_address()
+            Transaction::Account(account_tx) => {
+                let tx = &account_tx.tx;
+                match tx {
+                    AccountTransaction::Invoke(tx) => tx.sender_address(),
+                    AccountTransaction::Declare(tx) => tx.sender_address(),
+                    AccountTransaction::DeployAccount(tx) => tx.contract_address(),
                 }
-                blockifier::transaction::account_transaction::AccountTransaction::Declare(tx) => {
-                    tx.tx().sender_address()
-                }
-                blockifier::transaction::account_transaction::AccountTransaction::DeployAccount(
-                    tx,
-                ) => tx.contract_address(),
-            },
-            Transaction::L1HandlerTransaction(_) => ContractAddress::from(0u8),
+            }
+            Transaction::L1Handler(_) => ContractAddress::from(0u8),
         };
 
         let mut cached_state = CachedState::new(&mut self.state);
@@ -115,25 +113,29 @@ where
 mod tests {
     use std::fmt::Display;
     use std::fs::File;
-    use std::num::NonZeroU128;
 
-    use blockifier::abi::abi_utils::get_storage_var_address;
-    use blockifier::blockifier::block::{BlockInfo, GasPrices};
     use blockifier::bouncer::BouncerConfig;
     use blockifier::context::ChainInfo;
     use blockifier::context::{BlockContext, FeeTokenAddresses};
-    use blockifier::execution::contract_class::{ContractClass, ContractClassV0, ContractClassV1};
+    use blockifier::execution::contract_class::{
+        CompiledClassV0, CompiledClassV1, RunnableCompiledClass,
+    };
     use blockifier::state::state_api::State as BlockifierState;
     use blockifier::transaction::account_transaction::AccountTransaction;
-    use blockifier::transaction::transactions::InvokeTransaction as BlockifierInvokeTransaction;
+    use blockifier::transaction::transaction_execution::Transaction as ExecutionTransaction;
     use blockifier::versioned_constants::VersionedConstants;
     use starknet::core::types::Felt;
     use starknet::macros::selector;
+    use starknet_api::abi::abi_utils::get_storage_var_address;
+    use starknet_api::block::BlockInfo;
     use starknet_api::block::{BlockNumber, BlockTimestamp};
-    use starknet_api::core::{ChainId, ClassHash, ContractAddress, Nonce};
-    use starknet_api::executable_transaction::InvokeTransaction;
+    use starknet_api::core::{ChainId, ClassHash, ContractAddress};
+    use starknet_api::executable_transaction::{
+        AccountTransaction as AccountTransactionEnum, InvokeTransaction,
+    };
+    use starknet_api::transaction::fields::{Calldata, Fee};
     use starknet_api::transaction::{
-        Calldata, Fee, InvokeTransactionV1, TransactionHash, TransactionSignature,
+        InvokeTransaction as InvokeTransactionTypes, InvokeTransactionV1,
     };
 
     use crate::constants::test_constants::{
@@ -158,19 +160,19 @@ mod tests {
         }
     }
 
-    fn read_contract_class_v0(path: &str) -> ContractClass {
+    fn read_contract_class_v0(path: &str) -> RunnableCompiledClass {
         let reader = File::open(path).unwrap();
-        let contract_class: ContractClassV0 = serde_json::from_reader(reader).unwrap();
+        let contract_class: CompiledClassV0 = serde_json::from_reader(reader).unwrap();
 
-        ContractClass::V0(contract_class)
+        RunnableCompiledClass::V0(contract_class)
     }
 
-    fn read_contract_class_v1(path: &str) -> ContractClass {
+    fn read_contract_class_v1(path: &str) -> RunnableCompiledClass {
         let raw_contract_class = std::fs::read_to_string(path).unwrap();
-        let contract_class: ContractClassV1 =
-            ContractClassV1::try_from_json_string(&raw_contract_class).unwrap();
+        let contract_class: CompiledClassV1 =
+            CompiledClassV1::try_from_json_string(&raw_contract_class).unwrap();
 
-        ContractClass::V1(contract_class)
+        RunnableCompiledClass::V1(contract_class)
     }
 
     fn declare_and_deploy_contract(
@@ -253,14 +255,7 @@ mod tests {
             block_number: BlockNumber(1),
             block_timestamp: BlockTimestamp(1),
             sequencer_address: *SEQUENCER_ADDRESS,
-            gas_prices: GasPrices::new(
-                NonZeroU128::new(1).unwrap(),
-                NonZeroU128::new(1).unwrap(),
-                NonZeroU128::new(1).unwrap(),
-                NonZeroU128::new(1).unwrap(),
-                NonZeroU128::new(1).unwrap(),
-                NonZeroU128::new(1).unwrap(),
-            ),
+            gas_prices: Default::default(),
             use_kzg_da: false,
         };
 
@@ -281,27 +276,30 @@ mod tests {
         BlockContext::new(block_info, chain_info, versioned_constants, bouncer_config)
     }
 
-    fn test_transaction() -> Transaction {
-        Transaction::AccountTransaction(AccountTransaction::Invoke(BlockifierInvokeTransaction {
-            tx: InvokeTransaction {
-                tx: starknet_api::transaction::InvokeTransaction::V1(InvokeTransactionV1 {
-                    sender_address: *TEST_ACCOUNT,
-                    calldata: Calldata(
-                        vec![
-                            *TEST_CONTRACT.0.key(), // destination
-                            selector!("inc"),
-                            Felt::ZERO, // no data
-                        ]
-                        .into(),
-                    ),
-                    max_fee: Fee(1_000_000),
-                    signature: TransactionSignature(vec![]),
-                    nonce: Nonce(Felt::ZERO),
-                }),
-                tx_hash: TransactionHash(Felt::ZERO),
-            },
+    fn test_transaction() -> ExecutionTransaction {
+        let invoke_tx = InvokeTransactionV1 {
+            sender_address: *TEST_ACCOUNT,
+            calldata: Calldata(
+                vec![
+                    *TEST_CONTRACT.0.key(), // destination
+                    selector!("inc"),
+                    Felt::ZERO, // no data
+                ]
+                .into(),
+            ),
+            max_fee: Fee(1_000_000),
+            ..Default::default()
+        };
+        let transaction = InvokeTransaction::create(
+            InvokeTransactionTypes::V1(invoke_tx),
+            &ChainId::Other("KKRT".into()),
+        )
+        .unwrap();
+
+        ExecutionTransaction::Account(AccountTransaction {
+            tx: AccountTransactionEnum::Invoke(transaction),
             only_query: false,
-        }))
+        })
     }
 
     sequencer_test!(CairoVersion::V0, test_sequencer_cairo_0);

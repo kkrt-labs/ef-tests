@@ -1,6 +1,6 @@
 use crate::commit::Committer;
 use crate::serde::SerializableState;
-use blockifier::execution::contract_class::ContractClass;
+use blockifier::execution::contract_class::RunnableCompiledClass;
 use blockifier::state::errors::StateError;
 use blockifier::state::state_api::{
     State as BlockifierState, StateReader as BlockifierStateReader, StateResult,
@@ -19,7 +19,7 @@ pub type ContractStorageKey = (ContractAddress, StorageKey);
 /// See [Performance](https://github.com/rust-lang/hashbrown?tab=readme-ov-file#performance)
 #[derive(Clone, Default, Debug, Serialize, Deserialize, PartialEq, Eq)]
 pub struct State {
-    classes: HashMap<ClassHash, ContractClass>,
+    classes: HashMap<ClassHash, RunnableCompiledClass>,
     compiled_class_hashes: HashMap<ClassHash, CompiledClassHash>,
     contracts: HashMap<ContractAddress, ClassHash>,
     storage: HashMap<ContractStorageKey, Felt>,
@@ -111,7 +111,7 @@ impl BlockifierState for &mut State {
     fn set_contract_class(
         &mut self,
         class_hash: ClassHash,
-        contract_class: ContractClass,
+        contract_class: RunnableCompiledClass,
     ) -> StateResult<()> {
         self.classes.insert(class_hash, contract_class);
         Ok(())
@@ -164,11 +164,13 @@ impl BlockifierStateReader for &mut State {
     /// # Errors
     ///
     /// If the compiled class is not declared.
-    fn get_compiled_contract_class(&self, class_hash: ClassHash) -> StateResult<ContractClass> {
-        self.classes
+    fn get_compiled_class(&self, class_hash: ClassHash) -> StateResult<RunnableCompiledClass> {
+        let res = self
+            .classes
             .get(&class_hash)
             .cloned()
-            .ok_or_else(|| StateError::UndeclaredClassHash(class_hash))
+            .ok_or(StateError::UndeclaredClassHash(class_hash))?;
+        Ok(res)
     }
 
     /// # Errors
@@ -178,13 +180,13 @@ impl BlockifierStateReader for &mut State {
         self.compiled_class_hashes
             .get(&class_hash)
             .copied()
-            .ok_or_else(|| StateError::UndeclaredClassHash(class_hash))
+            .ok_or(StateError::UndeclaredClassHash(class_hash))
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use blockifier::execution::contract_class::ContractClassV0;
+    use blockifier::execution::contract_class::CompiledClassV0;
 
     use crate::constants::test_constants::{ONE_PATRICIA, TEST_CONTRACT};
 
@@ -245,17 +247,12 @@ mod tests {
 
         // When
         state
-            .set_contract_class(
-                ClassHash(Felt::ONE),
-                ContractClass::V0(ContractClassV0::default()),
-            )
+            .set_contract_class(ClassHash(Felt::ONE), CompiledClassV0::default().into())
             .unwrap();
 
         // Then
-        let expected = ContractClass::V0(ContractClassV0::default());
-        let actual = state
-            .get_compiled_contract_class(ClassHash(Felt::ONE))
-            .unwrap();
+        let expected = RunnableCompiledClass::V0(CompiledClassV0::default());
+        let actual = state.get_compiled_class(ClassHash(Felt::ONE)).unwrap();
         assert_eq!(expected, actual);
     }
 
@@ -266,9 +263,7 @@ mod tests {
         let state = &mut State::default();
 
         // When
-        state
-            .get_compiled_contract_class(ClassHash(Felt::ONE))
-            .unwrap();
+        state.get_compiled_class(ClassHash(Felt::ONE)).unwrap();
     }
 
     #[test]

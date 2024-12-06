@@ -121,7 +121,8 @@ impl<'a> EfTests<'a> {
         use std::{str::FromStr};
 
         use ef_testing::models::case::BlockchainTestCase;
-        use ef_testing::test_utils::setup;
+        use ef_testing::test_utils::{setup, TestMonitor};
+        use ef_testing::monitor_test;
         use ef_testing::traits::Case;
         use ef_tests::models::{Block, Account, State};
         use alloy_primitives::{Address, B256};
@@ -161,7 +162,9 @@ impl<'a> EfTests<'a> {
             #[test]
             {test_header}
             fn test_{test_name}() {{
+                monitor_test!("{test_name}", &[120, 300, 600, 900, 1200, 2000, 3000, 4000, 5000], || {{
                 {test_content}
+                }});
             }}"#,
         ))
     }

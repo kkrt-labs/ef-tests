@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use std::fs;
 
 use alloy_primitives::{address, Address};
 use lazy_static::lazy_static;
@@ -6,11 +7,9 @@ use serde::de::DeserializeOwned;
 use starknet::core::types::contract::CompiledClass;
 use starknet::signers::VerifyingKey;
 use starknet::{core::types::contract::legacy::LegacyContractClass, signers::SigningKey};
-use starknet_api::felt;
 use starknet_api::{
     contract_address,
-    core::{ClassHash, ContractAddress, PatriciaKey},
-    patricia_key,
+    core::{ClassHash, ContractAddress},
 };
 use starknet_crypto::Felt;
 
@@ -19,6 +18,10 @@ where
     T: DeserializeOwned,
 {
     serde_json::from_str::<T>(&std::fs::read_to_string(path)?).map_err(eyre::Error::from)
+}
+
+pub fn get_raw_contract_class(contract_path: &str) -> String {
+    fs::read_to_string(contract_path).unwrap()
 }
 
 // Chain params
@@ -89,11 +92,23 @@ lazy_static! {
     pub static ref ACCOUNT_CONTRACT_CLASS: CompiledClass = load_contract_class("../../build/v1/contracts_AccountContract.compiled_contract_class.json").expect("Failed to load ContractAccount contract class");
     pub static ref UNINITIALIZED_ACCOUNT_CLASS: CompiledClass = load_contract_class("../../build/v1/contracts_UninitializedAccount.compiled_contract_class.json").expect("Failed to load uninitialized account contract class");
 
+    pub static ref KAKAROT_JSON_CLASS: String = get_raw_contract_class("../../build/v1/contracts_KakarotCore.contract_class.json");
+    pub static ref ACCOUNT_CONTRACT_JSON_CLASS: String  = get_raw_contract_class("../../build/v1/contracts_AccountContract.contract_class.json");
+    pub static ref UNINITIALIZED_ACCOUNT_JSON_CLASS: String = get_raw_contract_class("../../build/v1/contracts_UninitializedAccount.contract_class.json");
+
     // Main class hashes
     pub static ref KAKAROT_CLASS_HASH: ClassHash = ClassHash(KAKAROT_CLASS.class_hash().unwrap());
     pub static ref ACCOUNT_CONTRACT_CLASS_HASH: ClassHash = ClassHash(ACCOUNT_CONTRACT_CLASS.class_hash().unwrap());
     pub static ref UNINITIALIZED_ACCOUNT_CLASS_HASH: ClassHash = ClassHash(UNINITIALIZED_ACCOUNT_CLASS.class_hash().unwrap());
     pub static ref PROXY_CLASS_HASH: ClassHash = *UNINITIALIZED_ACCOUNT_CLASS_HASH;
+
+    pub static ref CLASS_HASH_TO_JSON_CLASS: HashMap<ClassHash, String> = {
+        let mut map = HashMap::new();
+        map.insert(*KAKAROT_CLASS_HASH, KAKAROT_JSON_CLASS.clone());
+        map.insert(*ACCOUNT_CONTRACT_CLASS_HASH, ACCOUNT_CONTRACT_JSON_CLASS.clone());
+        map.insert(*UNINITIALIZED_ACCOUNT_CLASS_HASH, UNINITIALIZED_ACCOUNT_JSON_CLASS.clone());
+        map
+    };
 }
 
 #[cfg(not(any(feature = "v0", feature = "v1")))]
@@ -114,6 +129,13 @@ lazy_static! {
         panic!("Kakarot class hash not defined, use features flag \"v0\" or \"v1\"");
     pub static ref UNINITIALIZED_ACCOUNT_CLASS: LegacyContractClass =
         panic!("Uninitialized account class not defined, use features flag \"v0\" or \"v1\"");
+    pub static ref KAKAROT_JSON_CLASS: String =
+        panic!("Kakarot json class not defined, use features flag \"v0\" or \"v1\"");
+    pub static ref ACCOUNT_CONTRACT_JSON_CLASS: String =
+        panic!("Account contract json class not defined, use features flag \"v0\" or \"v1\"");
+    pub static ref UNINITIALIZED_ACCOUNT_JSON_CLASS: String =
+        panic!("Uninitialized account json class not defined, use features flag \"v0\" or \"v1\"");
+    pub static ref CLASS_HASH_TO_JSON_CLASS: HashMap<ClassHash, String> = HashMap::new();
 }
 
 pub mod storage_variables {

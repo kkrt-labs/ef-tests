@@ -19,36 +19,35 @@ use crate::evm_sequencer::{
     utils::compute_starknet_address,
 };
 use alloy_primitives::Address;
-use blockifier::blockifier::block::{BlockInfo, GasPrices};
 use blockifier::context::ChainInfo;
 use blockifier::context::{BlockContext, FeeTokenAddresses};
 use blockifier::versioned_constants::VersionedConstants;
 use blockifier::{
-    execution::contract_class::{ContractClass, ContractClassV0, ContractClassV1},
+    execution::contract_class::{CompiledClassV0, CompiledClassV1, RunnableCompiledClass},
     state::state_api::StateResult,
 };
 use cairo_lang_starknet_classes::casm_contract_class::CasmContractClass;
 use cairo_vm::types::errors::program_errors::ProgramError;
 use sequencer::{sequencer::Sequencer, state::State};
 use starknet::core::types::contract::{legacy::LegacyContractClass, CompiledClass};
+use starknet_api::block::BlockInfo;
 use starknet_api::{
     block::{BlockNumber, BlockTimestamp},
     core::{ChainId, ClassHash, ContractAddress},
 };
-use std::num::NonZeroU128;
 
 #[cfg(feature = "v0")]
 use crate::evm_sequencer::constants::{
     storage_variables::KAKAROT_CAIRO1_HELPERS_CLASS_HASH, CAIRO1_HELPERS_CLASS,
     CAIRO1_HELPERS_CLASS_HASH,
 };
-use blockifier::abi::abi_utils::get_storage_var_address;
 #[allow(unused_imports)]
 use blockifier::state::state_api::{
     State as BlockifierState, StateReader as BlockifierStateReader,
 };
 use lazy_static::lazy_static;
 use sequencer::state::State as SequencerState;
+use starknet_api::abi::abi_utils::get_storage_var_address;
 
 /// Kakarot wrapper around a sequencer.
 #[derive(Clone)]
@@ -110,14 +109,7 @@ impl KakarotSequencer {
             )
             .try_into()
             .expect("Failed to convert to ContractAddress"),
-            gas_prices: GasPrices::new(
-                NonZeroU128::new(1).unwrap(),
-                NonZeroU128::new(1).unwrap(),
-                NonZeroU128::new(1).unwrap(),
-                NonZeroU128::new(1).unwrap(),
-                NonZeroU128::new(1).unwrap(),
-                NonZeroU128::new(1).unwrap(),
-            ),
+            gas_prices: Default::default(),
             use_kzg_da: false,
         };
 
@@ -181,20 +173,19 @@ impl DerefMut for KakarotSequencer {
 
 pub fn convert_contract_class_v0(
     class: &LegacyContractClass,
-) -> Result<ContractClass, eyre::Error> {
-    Result::<ContractClass, eyre::Error>::Ok(ContractClass::V0(
-        ContractClassV0::try_from_json_string(
-            &serde_json::to_string(class).map_err(ProgramError::Parse)?,
-        )?,
-    ))
+) -> Result<RunnableCompiledClass, eyre::Error> {
+    Ok(CompiledClassV0::try_from_json_string(
+        &serde_json::to_string(class).map_err(ProgramError::Parse)?,
+    )?
+    .into())
 }
 
-pub fn convert_contract_class_v1(class: &CompiledClass) -> Result<ContractClass, eyre::Error> {
+pub fn convert_contract_class_v1(
+    class: &CompiledClass,
+) -> Result<RunnableCompiledClass, eyre::Error> {
     let casm_contract_class = CasmContractClassWrapper::try_from(class)?;
     let casm_contract_class: CasmContractClass = casm_contract_class.into();
-    Ok(ContractClass::V1(ContractClassV1::try_from(
-        casm_contract_class,
-    )?))
+    Ok(CompiledClassV1::try_from(casm_contract_class)?.into())
 }
 
 lazy_static! {
@@ -232,13 +223,29 @@ lazy_static! {
                     convert_contract_class_v0(&UNINITIALIZED_ACCOUNT_CLASS).expect("failed to convert uninitialized class")
                 )
             }
+
             #[cfg(feature = "v1")]
             {
+                #[cfg(feature = "native")]
+                {
+                    use sequencer::native::class_from_json_str;
+                    use crate::evm_sequencer::constants::CLASS_HASH_TO_JSON_CLASS;
+                    let kakarot_json = CLASS_HASH_TO_JSON_CLASS.get(&KAKAROT_CLASS_HASH).unwrap();
+                    let account_json = CLASS_HASH_TO_JSON_CLASS.get(&ACCOUNT_CONTRACT_CLASS_HASH).unwrap();
+                    let uninitialized_json = CLASS_HASH_TO_JSON_CLASS.get(&UNINITIALIZED_ACCOUNT_CLASS_HASH).unwrap();
+                    let account_class = class_from_json_str(account_json, *ACCOUNT_CONTRACT_CLASS_HASH).unwrap_or_else(|err| panic!("{}", err));
+                    let uninitialized_class = class_from_json_str(uninitialized_json, *UNINITIALIZED_ACCOUNT_CLASS_HASH).unwrap_or_else(|err| panic!("{}", err));
+                    let kakarot_class = class_from_json_str(kakarot_json, *KAKAROT_CLASS_HASH).unwrap_or_else(|err| panic!("{}", err));
+                    (kakarot_class, account_class, uninitialized_class)
+                }
+                #[cfg(not(feature = "native"))]
+                {
                 (
                     convert_contract_class_v1(&KAKAROT_CLASS).expect("failed to convert kakarot class"),
                     convert_contract_class_v1(&ACCOUNT_CONTRACT_CLASS).expect("failed to convert account class"),
                     convert_contract_class_v1(&UNINITIALIZED_ACCOUNT_CLASS).expect("failed to convert uninitialized class")
                 )
+                }
             }
         };
 
@@ -250,8 +257,7 @@ lazy_static! {
         // Write contract account, uninitialized_account and erc20 classes and class hashes.
         (&mut state).set_contract_class(
             *ACCOUNT_CONTRACT_CLASS_HASH,
-            converted_account_class,
-        ).expect("failed to set contract account class");
+            converted_account_class).expect("failed to set contract account class");
         (&mut state)
             .set_contract_class(*UNINITIALIZED_ACCOUNT_CLASS_HASH, converted_uninitialized_class).expect("failed to set eoa contract class");
 

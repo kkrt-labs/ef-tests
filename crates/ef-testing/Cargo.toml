@@ -9,6 +9,7 @@ build = "build.rs"
 
 [dependencies]
 bytes = { workspace = true }
+libc = "0.2.159"
 
 # Eth deps
 alloy-rlp = { workspace = true }
@@ -62,6 +63,7 @@ zip = { workspace = true, optional = true }
 [features]
 v0 = []
 v1 = []
+native = []
 ci = []
 
 [build-dependencies]
