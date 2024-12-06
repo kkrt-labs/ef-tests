@@ -1073,7 +1073,7 @@ dependencies = [
 [[package]]
 name = "blockifier"
 version = "0.0.0"
-source = "git+https://github.com/kkrt-labs/sequencer.git?rev=a0177488b87c28427b223598b3e04cbe9f5a8e6c#a0177488b87c28427b223598b3e04cbe9f5a8e6c"
+source = "git+https://github.com/kkrt-labs/sequencer.git?rev=322cab1215ce16d90b54fc86d3bcbf6dfdf53f0e#322cab1215ce16d90b54fc86d3bcbf6dfdf53f0e"
 dependencies = [
  "anyhow",
  "ark-ec",
@@ -1085,7 +1085,7 @@ dependencies = [
  "cairo-lang-runner",
  "cairo-lang-starknet-classes",
  "cairo-lang-utils",
- "cairo-native",
+ "cairo-native 0.2.4 (git+https://github.com/enitrat/cairo_native?rev=c95ce6b2b0448961de4a080c1bab0f7e733bbbc9)",
  "cairo-vm",
  "derive_more 0.99.18",
  "indexmap 2.6.0",
@@ -1842,8 +1842,7 @@ dependencies = [
 [[package]]
 name = "cairo-native"
 version = "0.2.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9bdebc70c3d563bc30078985ae3e975aa7dc4fa233631b5e0462a924c26c0dd9"
+source = "git+https://github.com/enitrat/cairo_native?rev=544bc2ed4354acb47de91a842bd7602b6096239e#544bc2ed4354acb47de91a842bd7602b6096239e"
 dependencies = [
  "anyhow",
  "aquamarine 0.5.0",
@@ -1865,7 +1864,60 @@ dependencies = [
  "cairo-lang-starknet-classes",
  "cairo-lang-test-plugin",
  "cairo-lang-utils",
- "cairo-native-runtime",
+ "cairo-native-runtime 0.2.4 (git+https://github.com/enitrat/cairo_native?rev=544bc2ed4354acb47de91a842bd7602b6096239e)",
+ "cc",
+ "clap",
+ "colored",
+ "educe",
+ "itertools 0.13.0",
+ "keccak",
+ "lazy_static",
+ "libc",
+ "libloading",
+ "llvm-sys",
+ "melior",
+ "mlir-sys",
+ "num-bigint",
+ "num-integer",
+ "num-traits 0.2.19",
+ "serde",
+ "serde_json",
+ "sha2 0.10.8",
+ "starknet-types-core",
+ "stats_alloc",
+ "tempfile",
+ "thiserror",
+ "tracing",
+ "tracing-subscriber",
+ "utf8_iter",
+]
+
+[[package]]
+name = "cairo-native"
+version = "0.2.4"
+source = "git+https://github.com/enitrat/cairo_native?rev=c95ce6b2b0448961de4a080c1bab0f7e733bbbc9#c95ce6b2b0448961de4a080c1bab0f7e733bbbc9"
+dependencies = [
+ "anyhow",
+ "aquamarine 0.5.0",
+ "ark-ec",
+ "ark-ff 0.4.2",
+ "ark-secp256k1",
+ "ark-secp256r1",
+ "bumpalo",
+ "cairo-lang-compiler",
+ "cairo-lang-defs",
+ "cairo-lang-filesystem",
+ "cairo-lang-runner",
+ "cairo-lang-semantic",
+ "cairo-lang-sierra",
+ "cairo-lang-sierra-ap-change",
+ "cairo-lang-sierra-gas",
+ "cairo-lang-sierra-generator",
+ "cairo-lang-starknet",
+ "cairo-lang-starknet-classes",
+ "cairo-lang-test-plugin",
+ "cairo-lang-utils",
+ "cairo-native-runtime 0.2.4 (git+https://github.com/enitrat/cairo_native?rev=c95ce6b2b0448961de4a080c1bab0f7e733bbbc9)",
  "cc",
  "clap",
  "colored",
@@ -1896,8 +1948,21 @@ dependencies = [
 [[package]]
 name = "cairo-native-runtime"
 version = "0.2.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5bf997252c402d6844f41357660cde3c11825ac5b3feafd0fb99b9dcdfb58aa3"
+source = "git+https://github.com/enitrat/cairo_native?rev=544bc2ed4354acb47de91a842bd7602b6096239e#544bc2ed4354acb47de91a842bd7602b6096239e"
+dependencies = [
+ "cairo-lang-sierra-gas",
+ "itertools 0.13.0",
+ "lazy_static",
+ "num-traits 0.2.19",
+ "rand",
+ "starknet-curve 0.5.1",
+ "starknet-types-core",
+]
+
+[[package]]
+name = "cairo-native-runtime"
+version = "0.2.4"
+source = "git+https://github.com/enitrat/cairo_native?rev=c95ce6b2b0448961de4a080c1bab0f7e733bbbc9#c95ce6b2b0448961de4a080c1bab0f7e733bbbc9"
 dependencies = [
  "cairo-lang-sierra-gas",
  "itertools 0.13.0",
@@ -3995,7 +4060,7 @@ checksum = "b248f5224d1d606005e02c97f5aa4e88eeb230488bcc03bc9ca4d7991399f2b5"
 [[package]]
 name = "infra_utils"
 version = "0.0.0"
-source = "git+https://github.com/kkrt-labs/sequencer.git?rev=a0177488b87c28427b223598b3e04cbe9f5a8e6c#a0177488b87c28427b223598b3e04cbe9f5a8e6c"
+source = "git+https://github.com/kkrt-labs/sequencer.git?rev=322cab1215ce16d90b54fc86d3bcbf6dfdf53f0e#322cab1215ce16d90b54fc86d3bcbf6dfdf53f0e"
 dependencies = [
  "tokio",
  "tracing",
@@ -5170,7 +5235,7 @@ dependencies = [
 [[package]]
 name = "papyrus_config"
 version = "0.0.0"
-source = "git+https://github.com/kkrt-labs/sequencer.git?rev=a0177488b87c28427b223598b3e04cbe9f5a8e6c#a0177488b87c28427b223598b3e04cbe9f5a8e6c"
+source = "git+https://github.com/kkrt-labs/sequencer.git?rev=322cab1215ce16d90b54fc86d3bcbf6dfdf53f0e#322cab1215ce16d90b54fc86d3bcbf6dfdf53f0e"
 dependencies = [
  "clap",
  "infra_utils",
@@ -5185,7 +5250,7 @@ dependencies = [
 [[package]]
 name = "papyrus_proc_macros"
 version = "0.0.0"
-source = "git+https://github.com/kkrt-labs/sequencer.git?rev=a0177488b87c28427b223598b3e04cbe9f5a8e6c#a0177488b87c28427b223598b3e04cbe9f5a8e6c"
+source = "git+https://github.com/kkrt-labs/sequencer.git?rev=322cab1215ce16d90b54fc86d3bcbf6dfdf53f0e#322cab1215ce16d90b54fc86d3bcbf6dfdf53f0e"
 dependencies = [
  "quote",
  "syn 2.0.90",
@@ -7972,7 +8037,7 @@ dependencies = [
  "cached 0.53.1",
  "cairo-lang-sierra",
  "cairo-lang-starknet-classes",
- "cairo-native",
+ "cairo-native 0.2.4 (git+https://github.com/enitrat/cairo_native?rev=544bc2ed4354acb47de91a842bd7602b6096239e)",
  "eyre",
  "hashbrown 0.14.5",
  "lazy_static",
@@ -8540,7 +8605,7 @@ dependencies = [
 [[package]]
 name = "starknet_api"
 version = "0.0.0"
-source = "git+https://github.com/kkrt-labs/sequencer.git?rev=a0177488b87c28427b223598b3e04cbe9f5a8e6c#a0177488b87c28427b223598b3e04cbe9f5a8e6c"
+source = "git+https://github.com/kkrt-labs/sequencer.git?rev=322cab1215ce16d90b54fc86d3bcbf6dfdf53f0e#322cab1215ce16d90b54fc86d3bcbf6dfdf53f0e"
 dependencies = [
  "bitvec",
  "cairo-lang-runner",
@@ -8566,12 +8631,12 @@ dependencies = [
 [[package]]
 name = "starknet_sierra_compile"
 version = "0.0.0"
-source = "git+https://github.com/kkrt-labs/sequencer.git?rev=a0177488b87c28427b223598b3e04cbe9f5a8e6c#a0177488b87c28427b223598b3e04cbe9f5a8e6c"
+source = "git+https://github.com/kkrt-labs/sequencer.git?rev=322cab1215ce16d90b54fc86d3bcbf6dfdf53f0e#322cab1215ce16d90b54fc86d3bcbf6dfdf53f0e"
 dependencies = [
  "cairo-lang-sierra",
  "cairo-lang-starknet-classes",
  "cairo-lang-utils",
- "cairo-native",
+ "cairo-native 0.2.4 (git+https://github.com/enitrat/cairo_native?rev=c95ce6b2b0448961de4a080c1bab0f7e733bbbc9)",
  "papyrus_config",
  "serde",
  "serde_json",
