@@ -247,10 +247,7 @@ mod tests {
 
         // When
         state
-            .set_contract_class(
-                ClassHash(Felt::ONE),
-                RunnableCompiledClass::V0(CompiledClassV0::default()),
-            )
+            .set_contract_class(ClassHash(Felt::ONE), CompiledClassV0::default().into())
             .unwrap();
 
         // Then

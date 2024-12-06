@@ -22,7 +22,8 @@ pub fn setup() {
 }
 
 pub struct TestMonitor {
-    thresholds: Vec<u64>, // thresholds in seconds
+    /// thresholds in seconds
+    thresholds: Vec<u64>,
 }
 
 impl TestMonitor {

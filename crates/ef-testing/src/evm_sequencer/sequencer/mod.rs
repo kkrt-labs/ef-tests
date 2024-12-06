@@ -30,7 +30,7 @@ use cairo_lang_starknet_classes::casm_contract_class::CasmContractClass;
 use cairo_vm::types::errors::program_errors::ProgramError;
 use sequencer::{sequencer::Sequencer, state::State};
 use starknet::core::types::contract::{legacy::LegacyContractClass, CompiledClass};
-use starknet_api::block::{BlockInfo, GasPriceVector, GasPrices};
+use starknet_api::block::BlockInfo;
 use starknet_api::{
     block::{BlockNumber, BlockTimestamp},
     core::{ChainId, ClassHash, ContractAddress},
@@ -109,18 +109,7 @@ impl KakarotSequencer {
             )
             .try_into()
             .expect("Failed to convert to ContractAddress"),
-            gas_prices: GasPrices {
-                eth_gas_prices: GasPriceVector {
-                    l1_gas_price: Default::default(),
-                    l1_data_gas_price: Default::default(),
-                    l2_gas_price: Default::default(),
-                },
-                strk_gas_prices: GasPriceVector {
-                    l1_gas_price: Default::default(),
-                    l1_data_gas_price: Default::default(),
-                    l2_gas_price: Default::default(),
-                },
-            },
+            gas_prices: Default::default(),
             use_kzg_da: false,
         };
 
@@ -185,11 +174,10 @@ impl DerefMut for KakarotSequencer {
 pub fn convert_contract_class_v0(
     class: &LegacyContractClass,
 ) -> Result<RunnableCompiledClass, eyre::Error> {
-    Result::<RunnableCompiledClass, eyre::Error>::Ok(RunnableCompiledClass::V0(
-        CompiledClassV0::try_from_json_string(
-            &serde_json::to_string(class).map_err(ProgramError::Parse)?,
-        )?,
-    ))
+    Ok(CompiledClassV0::try_from_json_string(
+        &serde_json::to_string(class).map_err(ProgramError::Parse)?,
+    )?
+    .into())
 }
 
 pub fn convert_contract_class_v1(
@@ -197,9 +185,7 @@ pub fn convert_contract_class_v1(
 ) -> Result<RunnableCompiledClass, eyre::Error> {
     let casm_contract_class = CasmContractClassWrapper::try_from(class)?;
     let casm_contract_class: CasmContractClass = casm_contract_class.into();
-    Ok(RunnableCompiledClass::V1(CompiledClassV1::try_from(
-        casm_contract_class,
-    )?))
+    Ok(CompiledClassV1::try_from(casm_contract_class)?.into())
 }
 
 lazy_static! {

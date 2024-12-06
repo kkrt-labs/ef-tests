@@ -15,21 +15,14 @@ lazy_static! {
 }
 
 fn generate_library_path(class_hash: ClassHash) -> PathBuf {
-    let mut path = NATIVE_CACHE_DIR.clone();
-    path.push(class_hash.to_string().trim_start_matches("0x"));
-    path
+    NATIVE_CACHE_DIR.join(class_hash.to_string().trim_start_matches("0x"))
 }
 
 fn setup_native_cache_dir() -> PathBuf {
-    let path: PathBuf = match std::env::var("NATIVE_CACHE_DIR") {
-        Ok(path) => path.into(),
-        Err(_err) => {
-            let mut path = std::env::current_dir().unwrap();
-            path.push("native_cache");
-            path
-        }
-    };
-    let _ = fs::create_dir_all(&path);
+    let path = std::env::var("NATIVE_CACHE_DIR")
+        .map(PathBuf::from)
+        .unwrap_or_else(|_| std::env::current_dir().unwrap().join("native_cache"));
+    fs::create_dir_all(&path).ok();
     path
 }
 

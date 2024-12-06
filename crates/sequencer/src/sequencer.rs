@@ -12,6 +12,7 @@ use blockifier::{
     },
 };
 use starknet_api::core::ContractAddress;
+use starknet_api::executable_transaction::AccountTransaction;
 
 /// Sequencer is the main struct of the sequencer crate.
 #[derive(Clone)]
@@ -75,15 +76,9 @@ where
             Transaction::Account(account_tx) => {
                 let tx = &account_tx.tx;
                 match tx {
-                    starknet_api::executable_transaction::AccountTransaction::Invoke(tx) => {
-                        tx.sender_address()
-                    }
-                    starknet_api::executable_transaction::AccountTransaction::Declare(tx) => {
-                        tx.sender_address()
-                    }
-                    starknet_api::executable_transaction::AccountTransaction::DeployAccount(tx) => {
-                        tx.contract_address()
-                    }
+                    AccountTransaction::Invoke(tx) => tx.sender_address(),
+                    AccountTransaction::Declare(tx) => tx.sender_address(),
+                    AccountTransaction::DeployAccount(tx) => tx.contract_address(),
                 }
             }
             Transaction::L1Handler(_) => ContractAddress::from(0u8),
@@ -132,13 +127,13 @@ mod tests {
     use starknet::core::types::Felt;
     use starknet::macros::selector;
     use starknet_api::abi::abi_utils::get_storage_var_address;
-    use starknet_api::block::{BlockInfo, GasPriceVector, GasPrices};
+    use starknet_api::block::BlockInfo;
     use starknet_api::block::{BlockNumber, BlockTimestamp};
-    use starknet_api::core::{ChainId, ClassHash, ContractAddress, Nonce};
+    use starknet_api::core::{ChainId, ClassHash, ContractAddress};
     use starknet_api::executable_transaction::{
         AccountTransaction as AccountTransactionEnum, InvokeTransaction,
     };
-    use starknet_api::transaction::fields::{Calldata, Fee, TransactionSignature};
+    use starknet_api::transaction::fields::{Calldata, Fee};
     use starknet_api::transaction::{
         InvokeTransaction as InvokeTransactionTypes, InvokeTransactionV1,
     };
@@ -260,18 +255,7 @@ mod tests {
             block_number: BlockNumber(1),
             block_timestamp: BlockTimestamp(1),
             sequencer_address: *SEQUENCER_ADDRESS,
-            gas_prices: GasPrices {
-                eth_gas_prices: GasPriceVector {
-                    l1_gas_price: Default::default(),
-                    l1_data_gas_price: Default::default(),
-                    l2_gas_price: Default::default(),
-                },
-                strk_gas_prices: GasPriceVector {
-                    l1_gas_price: Default::default(),
-                    l1_data_gas_price: Default::default(),
-                    l2_gas_price: Default::default(),
-                },
-            },
+            gas_prices: Default::default(),
             use_kzg_da: false,
         };
 
@@ -304,8 +288,7 @@ mod tests {
                 .into(),
             ),
             max_fee: Fee(1_000_000),
-            signature: TransactionSignature(vec![]),
-            nonce: Nonce(Felt::ZERO),
+            ..Default::default()
         };
         let transaction = InvokeTransaction::create(
             InvokeTransactionTypes::V1(invoke_tx),
