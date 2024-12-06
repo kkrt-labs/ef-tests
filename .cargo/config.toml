@@ -1,8 +1,13 @@
 # Required to have the proper environment variables set to
 # build the starkware-libs/sequencer dependencies with Native mode.
 
-[env]
-CAIRO_NATIVE_RUNTIME_LIBRARY = "./libcairo_native_runtime.a"
+# The `CAIRO_NATIVE_RUNTIME_LIBRARY` env variable must point to an _ABSOLUTE_ path where
+# the `libcairo_native_runtime.a` file will be stored and found.
+#
+# Since the runtime is built by the blockifier crate's build script, it will be stored
+# in blockifier's build directory, unless an absolute path is provided through this env variable.
+# This variable must be set before running `cargo build` or `cargo test`,
+# to overwrite what might be defined in a `config.toml` file.
 
 # Use `lld` for linking instead of `ld`, since we run out of memory while linking with `ld` on
 # 16-cores linux machines, see:
