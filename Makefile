@@ -17,6 +17,11 @@ KKRT_V0_BUILD_ARTIFACT_URL = $(shell curl -L https://api.github.com/repos/kkrt-l
 # Kakarot SSJ artifacts for precompiles
 KKRT_SSJ_BUILD_ARTIFACT_URL = $(shell curl -L https://api.github.com/repos/kkrt-labs/kakarot-ssj/releases/latest | jq -r '.assets[0].browser_download_url')
 
+# Note: the `CAIRO_NATIVE_RUNTIME_LIBRARY` env variable must be set to the absolute path to the
+# `libcairo_native_runtime.a` file.  This is because we use the `native` feature of the `blockifier`
+# crate, which requires the runtime to be available.
+export CAIRO_NATIVE_RUNTIME_LIBRARY=$(HOME)/.cargo/libcairo_native_runtime.a
+
 # Downloads and unpacks Ethereum Foundation tests in the `$(EF_TESTS_DIR)` directory.
 # Requires `wget` and `tar`
 $(EF_TESTS_DIR):
@@ -27,6 +32,7 @@ $(EF_TESTS_DIR):
 
 # Ensures the commands for $(EF_TESTS_DIR) always run on `make setup`, regardless if the directory exists
 .PHONY: $(EF_TESTS_DIR) build
+
 setup: $(EF_TESTS_DIR)
 
 setup-kakarot-v0: clean-kakarot-v0
@@ -74,6 +80,7 @@ tests-v0-ci: build
 tests-v1-ci: build
 	cargo test --test tests --lib --no-fail-fast --quiet --features "v1,ci"
 
+
 # Runs ef tests only with the `v0` feature
 ef-test-v0: build
 	cargo test --test tests --no-fail-fast --quiet --features "v0,ci"
@@ -84,11 +91,11 @@ ef-test-v1: build
 
 # Runs ef-tests with cairo-native mode
 ef-test-v1-native: build
-	CAIRO_NATIVE_RUNTIME_LIBRARY=~/.cargo/libcairo_native_runtime.a cargo test --test tests --no-fail-fast --features "v1,native,ci" -- --nocapture
+	cargo test --test tests --no-fail-fast --features "v1,native,ci" -- --nocapture
 
 # Build the rust crates
 build:
-	CAIRO_NATIVE_RUNTIME_LIBRARY=~/.cargo/libcairo_native_runtime.a cargo build --release
+	cargo build --release
 
 # Generates a `blockchain-tests-skip.yml` at the project root, by consuming a `data.txt` file containing logs of the ran tests
 generate-skip-file:
