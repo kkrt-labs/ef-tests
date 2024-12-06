@@ -84,11 +84,11 @@ ef-test-v1: build
 
 # Runs ef-tests with cairo-native mode
 ef-test-v1-native: build
-	cargo test --test tests --no-fail-fast --features "v1,native,ci" -- --nocapture
+	CAIRO_NATIVE_RUNTIME_LIBRARY=~/.cargo/libcairo_native_runtime.a cargo test --test tests --no-fail-fast --features "v1,native,ci" -- --nocapture
 
 # Build the rust crates
 build:
-	cargo build --release
+	CAIRO_NATIVE_RUNTIME_LIBRARY=~/.cargo/libcairo_native_runtime.a cargo build --release
 
 # Generates a `blockchain-tests-skip.yml` at the project root, by consuming a `data.txt` file containing logs of the ran tests
 generate-skip-file:
